@@ -2,8 +2,10 @@ package ecologylab.serialization.library.yahoo;
 
 import ecologylab.net.ParsedURL;
 import ecologylab.serialization.ElementState;
-import ecologylab.serialization.ElementState.xml_tag;
-import ecologylab.serialization.Hint;
+import ecologylab.serialization.annotations.Hint;
+import ecologylab.serialization.annotations.simpl_hints;
+import ecologylab.serialization.annotations.simpl_scalar;
+import ecologylab.serialization.annotations.simpl_tag;
 
 /**
  * Yahoo image search Thumbnail image XML description.
@@ -11,13 +13,13 @@ import ecologylab.serialization.Hint;
  * @author andruid
  */
 public 
-@xml_tag("Thumbnail")
+@simpl_tag("Thumbnail")
 class ThumbnailState extends ElementState
 {
-	@simpl_scalar @simpl_hints(Hint.XML_LEAF)	@xml_tag("Url")		ParsedURL		url;
+	@simpl_scalar @simpl_hints(Hint.XML_LEAF)	@simpl_tag("Url")		ParsedURL		url;
 	
-	@simpl_scalar @simpl_hints(Hint.XML_LEAF)	@xml_tag("Width")	int				width;
-	@simpl_scalar @simpl_hints(Hint.XML_LEAF)	@xml_tag("Height")	int				height;
+	@simpl_scalar @simpl_hints(Hint.XML_LEAF)	@simpl_tag("Width")	int				width;
+	@simpl_scalar @simpl_hints(Hint.XML_LEAF)	@simpl_tag("Height")	int				height;
 
 	public ParsedURL getUrl()
 	{

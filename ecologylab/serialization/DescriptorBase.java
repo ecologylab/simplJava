@@ -5,9 +5,9 @@ package ecologylab.serialization;
 
 import java.util.ArrayList;
 
-import ecologylab.serialization.ElementState.simpl_collection;
-import ecologylab.serialization.ElementState.simpl_nowrap;
-import ecologylab.serialization.ElementState.simpl_scalar;
+import ecologylab.serialization.annotations.simpl_collection;
+import ecologylab.serialization.annotations.simpl_nowrap;
+import ecologylab.serialization.annotations.simpl_scalar;
 import ecologylab.serialization.types.SimplBaseType;
 
 /**

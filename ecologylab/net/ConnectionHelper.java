@@ -1,7 +1,6 @@
 package ecologylab.net;
 
 import java.io.File;
-import java.net.URL;
 
 /**
  * Provides callbacks during {@link ecologylab.net.ParsedURL#connect(ConnectionHelper) ParsedURL.connect},

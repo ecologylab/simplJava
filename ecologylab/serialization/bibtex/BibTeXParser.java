@@ -6,10 +6,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 import ecologylab.serialization.ElementState;
-import ecologylab.serialization.ElementState.FORMAT;
 import ecologylab.serialization.ElementStateBibTeXHandler;
 import ecologylab.serialization.FieldTypes;
 import ecologylab.serialization.SIMPLTranslationException;
+import ecologylab.serialization.ElementState.FORMAT;
 import ecologylab.serialization.bibtex.entrytypes.AbstractBibTeXEntry;
 import ecologylab.serialization.bibtex.entrytypes.BibTeXInProceedings;
 

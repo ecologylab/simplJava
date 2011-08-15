@@ -12,6 +12,7 @@ import ecologylab.oodss.messages.ResponseMessage;
 import ecologylab.serialization.SIMPLTranslationException;
 import ecologylab.serialization.XMLTools;
 import ecologylab.serialization.simpl_inherit;
+import ecologylab.serialization.annotations.simpl_scalar;
 
 /**
  * Allows the application to send application-specific content to the log, at the beginning of a

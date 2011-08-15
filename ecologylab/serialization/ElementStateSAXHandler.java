@@ -30,7 +30,7 @@ import ecologylab.generic.StringInputStream;
 import ecologylab.net.ConnectionAdapter;
 import ecologylab.net.PURLConnection;
 import ecologylab.net.ParsedURL;
-import ecologylab.serialization.ElementState.simpl_map_key_field;
+import ecologylab.serialization.annotations.simpl_map_key_field;
 import ecologylab.serialization.types.element.Mappable;
 
 /**

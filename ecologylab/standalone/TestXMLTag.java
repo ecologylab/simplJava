@@ -6,17 +6,19 @@ package ecologylab.standalone;
 import java.util.ArrayList;
 
 import ecologylab.serialization.ElementState;
-import ecologylab.serialization.ElementState.xml_tag;
 import ecologylab.serialization.SIMPLTranslationException;
 import ecologylab.serialization.TranslationScope;
+import ecologylab.serialization.annotations.simpl_collection;
+import ecologylab.serialization.annotations.simpl_scalar;
+import ecologylab.serialization.annotations.simpl_tag;
 import ecologylab.serialization.library.jnlp.information.AssociationElement;
 /**
  * @author Zachary O. Toups (toupsz@cs.tamu.edu)
  * 
  */
-public @xml_tag("doobie-doobie-dah_dooooooo") class TestXMLTag extends ElementState
+public @simpl_tag("doobie-doobie-dah_dooooooo") class TestXMLTag extends ElementState
 {
-    @simpl_scalar @xml_tag("as-df") String asdf;
+    @simpl_scalar @simpl_tag("as-df") String asdf;
     @simpl_collection("nested-tag") ArrayList<AssociationElement> list = new ArrayList<AssociationElement>();
 
     public TestXMLTag()

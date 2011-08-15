@@ -2,8 +2,11 @@ package ecologylab.serialization.library.dc;
 
 import ecologylab.net.ParsedURL;
 import ecologylab.serialization.ElementState;
-import ecologylab.serialization.Hint;
 import ecologylab.serialization.TranslationScope;
+import ecologylab.serialization.annotations.Hint;
+import ecologylab.serialization.annotations.simpl_hints;
+import ecologylab.serialization.annotations.simpl_scalar;
+import ecologylab.serialization.annotations.simpl_tag;
 
 /**
  * Dublin Core Metadata Element Set, as defined at
@@ -16,25 +19,25 @@ import ecologylab.serialization.TranslationScope;
  */
 public class DcTag extends ElementState
 {
-	@simpl_scalar @simpl_hints(Hint.XML_LEAF) @xml_tag("dc:title") 		String				title;
-	@simpl_scalar @simpl_hints(Hint.XML_LEAF) @xml_tag("dc:creator") 	String				creator;
-	@simpl_scalar @simpl_hints(Hint.XML_LEAF) @xml_tag("dc:subject")	String				subject;
-	@simpl_scalar @simpl_hints(Hint.XML_LEAF) @xml_tag("dc:description")String				description;
-	@simpl_scalar @simpl_hints(Hint.XML_LEAF) @xml_tag("dc:publisher")	String				publisher;
+	@simpl_scalar @simpl_hints(Hint.XML_LEAF) @simpl_tag("dc:title") 		String				title;
+	@simpl_scalar @simpl_hints(Hint.XML_LEAF) @simpl_tag("dc:creator") 	String				creator;
+	@simpl_scalar @simpl_hints(Hint.XML_LEAF) @simpl_tag("dc:subject")	String				subject;
+	@simpl_scalar @simpl_hints(Hint.XML_LEAF) @simpl_tag("dc:description")String				description;
+	@simpl_scalar @simpl_hints(Hint.XML_LEAF) @simpl_tag("dc:publisher")	String				publisher;
 	// Contributor
 	// public Date 			date; // we need to implement a better Date type!
 	// values for type: Collection, Dataset, Event, Image, MovingImage, 
 	// InteractiveResource, PhysicalObject, Service, Software, Sound,
 	// StillImage, Text
-	@simpl_scalar @simpl_hints(Hint.XML_LEAF) @xml_tag("dc:type")		String				type;
+	@simpl_scalar @simpl_hints(Hint.XML_LEAF) @simpl_tag("dc:type")		String				type;
 	/**
 	 * Probably the mime-type, but alas not necessarily.
 	 */
-	@simpl_scalar @simpl_hints(Hint.XML_LEAF) @xml_tag("dc:format")		String				format;
+	@simpl_scalar @simpl_hints(Hint.XML_LEAF) @simpl_tag("dc:format")		String				format;
 	/**
 	 * Recommended best practice is to identify the resource by means of a string or number conforming to a formal identification system. Formal identification systems include but are not limited to the Uniform Resource Identifier (URI) (including the Uniform Resource Locator (URL)), the Digital Object Identifier (DOI) and the International Standard Book Number (ISBN).
 	 */
-	@simpl_scalar @simpl_hints(Hint.XML_LEAF) @xml_tag("dc:identifier")	ParsedURL			identifier;
+	@simpl_scalar @simpl_hints(Hint.XML_LEAF) @simpl_tag("dc:identifier")	ParsedURL			identifier;
 	// language
 	// relation
 	// coverage

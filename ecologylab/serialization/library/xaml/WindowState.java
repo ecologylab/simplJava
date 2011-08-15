@@ -3,8 +3,9 @@
  */
 package ecologylab.serialization.library.xaml;
 
-import ecologylab.serialization.ElementState.xml_tag;
 import ecologylab.serialization.TranslationScope;
+import ecologylab.serialization.annotations.simpl_scalar;
+import ecologylab.serialization.annotations.simpl_tag;
 
 /**
  * 
@@ -13,7 +14,7 @@ import ecologylab.serialization.TranslationScope;
  * @author awebb
  *
  */
-@xml_tag("Window")
+@simpl_tag("Window")
 public class WindowState extends FrameworkElementState
 {
 	
@@ -21,8 +22,8 @@ public class WindowState extends FrameworkElementState
 	static final String XAML_NAMESPACE 	= "http://schemas.microsoft.com/winfx/2006/xaml";
 	
 	@simpl_scalar 						String xmlns 		= NAMESPACE;
-	@simpl_scalar @xml_tag("xmlns:x")	String xmlnsXaml 	=  XAML_NAMESPACE;
-	@simpl_scalar @xml_tag("Title") 	String title;
+	@simpl_scalar @simpl_tag("xmlns:x")	String xmlnsXaml 	=  XAML_NAMESPACE;
+	@simpl_scalar @simpl_tag("Title") 	String title;
 	
 	public WindowState(String title)
 	{

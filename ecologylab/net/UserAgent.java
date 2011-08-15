@@ -4,6 +4,8 @@
 package ecologylab.net;
 
 import ecologylab.serialization.ElementState;
+import ecologylab.serialization.annotations.simpl_scalar;
+import ecologylab.serialization.annotations.simpl_tag;
 import ecologylab.serialization.types.element.Mappable;
 
 /**
@@ -15,11 +17,11 @@ public class UserAgent extends ElementState implements Mappable<String>
 	@simpl_scalar
 	String	name;
 
-	@xml_tag("string")
+	@simpl_tag("string")
 	@simpl_scalar
 	String	userAgentString;
 
-	@xml_tag("default")
+	@simpl_tag("default")
 	@simpl_scalar
 	boolean	defaultAgent;
 

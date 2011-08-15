@@ -4,6 +4,7 @@
 package ecologylab.appframework.types;
 
 import ecologylab.serialization.ElementState;
+import ecologylab.serialization.annotations.simpl_scalar;
 
 /**
  * @author robinson

@@ -6,14 +6,16 @@ package ecologylab.tests;
 import java.util.ArrayList;
 
 import ecologylab.serialization.ElementState;
-import ecologylab.serialization.ElementState.xml_tag;
 import ecologylab.serialization.SIMPLTranslationException;
 import ecologylab.serialization.TranslationScope;
+import ecologylab.serialization.annotations.simpl_collection;
+import ecologylab.serialization.annotations.simpl_scalar;
+import ecologylab.serialization.annotations.simpl_tag;
 /**
  * @author Zachary O. Toups (toupsz@cs.tamu.edu)
  *
  */
-@xml_tag("fred:flintstone") 
+@simpl_tag("fred:flintstone") 
 public class Composed extends ElementState
 {
     @simpl_collection("ClassTagged") ArrayList<ClassTagged> tagged = new ArrayList<ClassTagged>();

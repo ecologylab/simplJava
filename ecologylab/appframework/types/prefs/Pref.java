@@ -11,6 +11,7 @@ import ecologylab.appframework.ApplicationEnvironment;
 import ecologylab.collections.Scope;
 import ecologylab.serialization.ElementState;
 import ecologylab.serialization.simpl_inherit;
+import ecologylab.serialization.annotations.simpl_scalar;
 import ecologylab.serialization.types.element.Mappable;
 
 /**

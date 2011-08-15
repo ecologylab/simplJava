@@ -5,8 +5,8 @@ package ecologylab.appframework;
 
 import java.io.IOException;
 
-import ecologylab.generic.Debug;
 import ecologylab.generic.Continuation;
+import ecologylab.generic.Debug;
 import ecologylab.io.DownloadProcessor;
 import ecologylab.io.Downloadable;
 

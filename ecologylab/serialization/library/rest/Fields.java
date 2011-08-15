@@ -2,8 +2,10 @@ package ecologylab.serialization.library.rest;
 
 import java.net.URL;
 
-import ecologylab.serialization.Hint;
 import ecologylab.serialization.simpl_inherit;
+import ecologylab.serialization.annotations.Hint;
+import ecologylab.serialization.annotations.simpl_hints;
+import ecologylab.serialization.annotations.simpl_scalar;
 import ecologylab.serialization.library.dc.Dc;
 
 @simpl_inherit

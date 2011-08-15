@@ -3,8 +3,6 @@
  */
 package ecologylab.serialization.types.scalar;
 
-import java.io.IOException;
-
 import ecologylab.serialization.ScalarUnmarshallingContext;
 import ecologylab.serialization.TranslationContext;
 import ecologylab.serialization.simpl_inherit;

@@ -2,7 +2,10 @@ package ecologylab.standalone.researchnotebook.testxml;
 
 import ecologylab.net.ParsedURL;
 import ecologylab.serialization.ElementState;
-import ecologylab.serialization.Hint;
+import ecologylab.serialization.annotations.Hint;
+import ecologylab.serialization.annotations.simpl_hints;
+import ecologylab.serialization.annotations.simpl_scalar;
+import ecologylab.serialization.annotations.simpl_tag;
 
 // TestChannel.java 
 public class TestItem extends ElementState{
@@ -10,7 +13,7 @@ public class TestItem extends ElementState{
 	@simpl_scalar @simpl_hints(Hint.XML_LEAF) ParsedURL link;
 	@simpl_scalar @simpl_hints(Hint.XML_LEAF) String description; 
 	@simpl_scalar @simpl_hints(Hint.XML_LEAF) String guid; 
-	@xml_tag("pubDate") @simpl_scalar @simpl_hints(Hint.XML_LEAF) String pubDate;
+	@simpl_tag("pubDate") @simpl_scalar @simpl_hints(Hint.XML_LEAF) String pubDate;
 	
 	public String getTitle() {
 		return title;

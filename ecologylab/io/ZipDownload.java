@@ -18,8 +18,8 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
 import ecologylab.appframework.StatusReporter;
-import ecologylab.generic.Debug;
 import ecologylab.generic.Continuation;
+import ecologylab.generic.Debug;
 import ecologylab.net.NetTools;
 import ecologylab.net.ParsedURL;
 

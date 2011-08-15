@@ -6,6 +6,8 @@ package ecologylab.tests;
 import ecologylab.serialization.ElementState;
 import ecologylab.serialization.SIMPLTranslationException;
 import ecologylab.serialization.TranslationScope;
+import ecologylab.serialization.annotations.simpl_format;
+import ecologylab.serialization.annotations.simpl_scalar;
 
 /**
  * @author Zachary O. Toups (toupsz@cs.tamu.edu)

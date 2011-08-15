@@ -4,10 +4,13 @@ import java.util.ArrayList;
 
 import ecologylab.net.ParsedURL;
 import ecologylab.serialization.ElementState;
-import ecologylab.serialization.ElementState.xml_tag;
 import ecologylab.serialization.SIMPLTranslationException;
 import ecologylab.serialization.TranslationScope;
 import ecologylab.serialization.simpl_inherit;
+import ecologylab.serialization.annotations.simpl_collection;
+import ecologylab.serialization.annotations.simpl_nowrap;
+import ecologylab.serialization.annotations.simpl_scalar;
+import ecologylab.serialization.annotations.simpl_tag;
 
 /**
  * Top level result set collection element for Yahoo search.
@@ -18,18 +21,18 @@ import ecologylab.serialization.simpl_inherit;
  * @author andruid
  */
 @simpl_inherit
-@xml_tag("ResultSet")
+@simpl_tag("ResultSet")
 public class ResultSet extends ElementState
 {
 	
-	@simpl_scalar 	@xml_tag("xsi:schemaLocation")		String 		schemaLocation;
-	@simpl_scalar 	@xml_tag("type")					String 		type;
-	@simpl_scalar  @xml_tag("moreSearch")				String 		moreSearch;
+	@simpl_scalar 	@simpl_tag("xsi:schemaLocation")		String 		schemaLocation;
+	@simpl_scalar 	@simpl_tag("type")					String 		type;
+	@simpl_scalar  @simpl_tag("moreSearch")				String 		moreSearch;
 	
-	@simpl_scalar	@xml_tag("totalResultsAvailable")	int			totalResultsAvailable;
-	@simpl_scalar	@xml_tag("totalResultsReturned")	int			totalResultsReturned;
+	@simpl_scalar	@simpl_tag("totalResultsAvailable")	int			totalResultsAvailable;
+	@simpl_scalar	@simpl_tag("totalResultsReturned")	int			totalResultsReturned;
 	
-	@simpl_scalar	@xml_tag("firstResultPosition")		int			firstResultPosition;
+	@simpl_scalar	@simpl_tag("firstResultPosition")		int			firstResultPosition;
 	
 	@simpl_nowrap
 	@simpl_collection("Result")	ArrayList<Result>					results;

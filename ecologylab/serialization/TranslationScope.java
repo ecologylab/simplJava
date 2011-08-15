@@ -14,8 +14,10 @@ import java.util.Map;
 import ecologylab.collections.Scope;
 import ecologylab.generic.HashMapArrayList;
 import ecologylab.net.ParsedURL;
-import ecologylab.serialization.types.CollectionType;
-import ecologylab.serialization.types.FundamentalTypes;
+import ecologylab.serialization.annotations.simpl_map;
+import ecologylab.serialization.annotations.simpl_nowrap;
+import ecologylab.serialization.annotations.simpl_scalar;
+import ecologylab.serialization.annotations.simpl_tag;
 import ecologylab.serialization.types.ScalarType;
 import ecologylab.serialization.types.TypeRegistry;
 
@@ -730,9 +732,9 @@ public final class TranslationScope extends ElementState
 		Annotation[] annotations = thatClass.getDeclaredAnnotations();
 		for (Annotation annotation : annotations)
 		{
-			if (annotation.annotationType().equals(xml_tag.class))
+			if (annotation.annotationType().equals(simpl_tag.class))
 			{
-				return xml_tag.class.cast(annotation).value();
+				return simpl_tag.class.cast(annotation).value();
 			}
 		}
 		return XMLTools.getXmlTagName(thatClass.getSimpleName(), "State");

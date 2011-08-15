@@ -5,8 +5,10 @@ import java.util.ArrayList;
 
 import ecologylab.net.ParsedURL;
 import ecologylab.serialization.ElementState;
-import ecologylab.serialization.ElementState.xml_tag;
 import ecologylab.serialization.SIMPLTranslationException;
+import ecologylab.serialization.annotations.simpl_collection;
+import ecologylab.serialization.annotations.simpl_nowrap;
+import ecologylab.serialization.annotations.simpl_tag;
 import ecologylab.serialization.library.dc.Dc;
 
 /**
@@ -23,7 +25,7 @@ import ecologylab.serialization.library.dc.Dc;
  * @author andruid
  */
 //@xml_inherit
-@xml_tag("rdf:RDF")
+@simpl_tag("rdf:RDF")
 public class RDFState extends ElementState // ArrayListState<Item>
 {
 	@simpl_nowrap 

@@ -7,6 +7,8 @@ import java.util.ArrayList;
 
 import ecologylab.serialization.ElementState;
 import ecologylab.serialization.simpl_inherit;
+import ecologylab.serialization.annotations.simpl_collection;
+import ecologylab.serialization.annotations.simpl_nowrap;
 
 public @simpl_inherit class Records extends ElementState
 {

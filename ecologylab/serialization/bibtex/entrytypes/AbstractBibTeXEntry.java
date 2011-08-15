@@ -4,6 +4,10 @@ import java.util.ArrayList;
 
 import ecologylab.serialization.ElementState;
 import ecologylab.serialization.simpl_inherit;
+import ecologylab.serialization.annotations.bibtex_key;
+import ecologylab.serialization.annotations.bibtex_tag;
+import ecologylab.serialization.annotations.simpl_collection;
+import ecologylab.serialization.annotations.simpl_scalar;
 
 /**
  * The abstract base class for BibTeX entry types. Holds the citation key and common fields such

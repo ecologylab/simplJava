@@ -2,6 +2,8 @@ package ecologylab.serialization.types;
 
 import ecologylab.serialization.ElementState;
 import ecologylab.serialization.simpl_inherit;
+import ecologylab.serialization.annotations.simpl_other_tags;
+import ecologylab.serialization.annotations.simpl_scalar;
 
 /**
  * Common base class for S.IM.PL scalar (ScalarType), composite (ClassDescriptor), and collection (CollectionType) types.
@@ -19,7 +21,7 @@ abstract public class SimplBaseType extends ElementState
 	 * This is the unique platform-independent identifier that S.IM.PL uses to describe this entity.
 	 */
 	@simpl_scalar
-	@xml_other_tags({"field_name", "described_class_name"})
+	@simpl_other_tags({"field_name", "described_class_name"})
 	protected String	name;
 
 	public SimplBaseType()

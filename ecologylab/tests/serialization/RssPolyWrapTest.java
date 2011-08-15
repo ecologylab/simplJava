@@ -3,19 +3,18 @@
  */
 package ecologylab.tests.serialization;
 
-import java.util.ArrayList;
-
 import ecologylab.net.ParsedURL;
 import ecologylab.serialization.ElementState;
 import ecologylab.serialization.SIMPLTranslationException;
 import ecologylab.serialization.TranslationScope;
-import ecologylab.serialization.ElementState.xml_tag;
+import ecologylab.serialization.annotations.simpl_composite;
+import ecologylab.serialization.annotations.simpl_tag;
 
 /**
  * @author andruid
  *
  */
-@xml_tag("rss")
+@simpl_tag("rss")
 public class RssPolyWrapTest extends Base
 {
 	@simpl_composite		ChannelTest		channel;

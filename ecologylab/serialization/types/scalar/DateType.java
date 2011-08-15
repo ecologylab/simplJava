@@ -4,14 +4,12 @@
 package ecologylab.serialization.types.scalar;
 
 import java.text.DateFormat;
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
 import ecologylab.serialization.ScalarUnmarshallingContext;
 import ecologylab.serialization.simpl_inherit;
 import ecologylab.serialization.types.CrossLanguageTypeConstants;
-import ecologylab.serialization.types.ScalarType;
 
 /**
  * Type system entry for {@link java.util.Date Date}.

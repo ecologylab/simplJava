@@ -5,6 +5,7 @@ import java.util.Date;
 import ecologylab.appframework.types.prefs.Pref;
 import ecologylab.net.NetTools;
 import ecologylab.serialization.ElementState;
+import ecologylab.serialization.annotations.simpl_scalar;
 
 /**
  * request message for the Logging server to open new log file and write the header.

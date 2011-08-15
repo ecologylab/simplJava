@@ -5,6 +5,7 @@ package ecologylab.serialization.types;
 
 import ecologylab.generic.ReflectionTools;
 import ecologylab.serialization.simpl_inherit;
+import ecologylab.serialization.annotations.simpl_scalar;
 
 /**
  * Re-usable unit of the cross-language S.IM.PL type system.

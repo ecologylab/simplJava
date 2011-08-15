@@ -3,6 +3,9 @@ package ecologylab.serialization.library.rest;
 import java.util.ArrayList;
 
 import ecologylab.serialization.ElementState;
+import ecologylab.serialization.annotations.simpl_collection;
+import ecologylab.serialization.annotations.simpl_composite;
+import ecologylab.serialization.annotations.simpl_nowrap;
 
 /**
  * Represents REST search results

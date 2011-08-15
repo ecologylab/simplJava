@@ -4,6 +4,7 @@
 package ecologylab.serialization.library.jnlp.information;
 
 import ecologylab.serialization.ElementState;
+import ecologylab.serialization.annotations.simpl_scalar;
 
 /**
  * Contains an HTTP URL to an image file in either GIF or JPEG format. The icons are used to represents the application

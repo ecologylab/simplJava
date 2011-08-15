@@ -4,6 +4,8 @@
 package ecologylab.serialization.library.jnlp.information;
 
 import ecologylab.serialization.ElementState;
+import ecologylab.serialization.annotations.simpl_composite;
+import ecologylab.serialization.annotations.simpl_scalar;
 
 /**
  * shortcut element: The optional shortcut element can be used to indicate an application's preferences for desktop

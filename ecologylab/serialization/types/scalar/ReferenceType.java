@@ -5,8 +5,6 @@ package ecologylab.serialization.types.scalar;
 
 import java.io.IOException;
 
-import org.codehaus.jackson.JsonGenerator;
-import org.codehaus.jackson.io.JsonStringEncoder;
 import org.json.simple.JSONObject;
 
 import ecologylab.serialization.TranslationContext;

@@ -6,8 +6,13 @@ import java.util.ArrayList;
 
 import ecologylab.net.ParsedURL;
 import ecologylab.serialization.ElementState;
-import ecologylab.serialization.ElementState.bibtex_type;
 import ecologylab.serialization.SIMPLTranslationException;
+import ecologylab.serialization.annotations.bibtex_key;
+import ecologylab.serialization.annotations.bibtex_tag;
+import ecologylab.serialization.annotations.bibtex_type;
+import ecologylab.serialization.annotations.simpl_collection;
+import ecologylab.serialization.annotations.simpl_nowrap;
+import ecologylab.serialization.annotations.simpl_scalar;
 
 @bibtex_type("article")
 public class Entry extends ElementState

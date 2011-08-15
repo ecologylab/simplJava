@@ -2,6 +2,7 @@ package ecologylab.textformat;
 
 import ecologylab.appframework.types.prefs.Pref;
 import ecologylab.serialization.ElementState;
+import ecologylab.serialization.annotations.simpl_scalar;
 import ecologylab.serialization.types.element.Mappable;
 
 /**

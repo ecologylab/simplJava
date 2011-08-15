@@ -1,11 +1,13 @@
 package ecologylab.serialization.bibtex.entrytypes;
 
-import ecologylab.serialization.ElementState.bibtex_type;
-import ecologylab.serialization.ElementState.xml_tag;
 import ecologylab.serialization.simpl_inherit;
+import ecologylab.serialization.annotations.bibtex_tag;
+import ecologylab.serialization.annotations.bibtex_type;
+import ecologylab.serialization.annotations.simpl_scalar;
+import ecologylab.serialization.annotations.simpl_tag;
 
 @simpl_inherit
-@xml_tag("bibtex_techreport")
+@simpl_tag("bibtex_techreport")
 @bibtex_type("techreport")
 public class BibTeXTechReport extends AbstractBibTeXEntry
 {

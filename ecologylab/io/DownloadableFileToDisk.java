@@ -8,8 +8,8 @@ import java.io.InputStream;
 import java.io.OutputStream;
 
 import ecologylab.appframework.StatusReporter;
-import ecologylab.generic.Debug;
 import ecologylab.generic.Continuation;
+import ecologylab.generic.Debug;
 import ecologylab.net.ParsedURL;
 
 public class DownloadableFileToDisk 

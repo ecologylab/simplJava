@@ -5,6 +5,7 @@ import java.io.IOException;
 import ecologylab.serialization.ElementState;
 import ecologylab.serialization.SIMPLTranslationException;
 import ecologylab.serialization.TranslationScope;
+import ecologylab.serialization.annotations.simpl_scalar;
 
 public class TestReferenceAndPrimitiveScalars extends ElementState {
 

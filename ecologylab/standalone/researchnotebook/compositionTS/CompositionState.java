@@ -1,6 +1,8 @@
 package ecologylab.standalone.researchnotebook.compositionTS;
 
 import ecologylab.serialization.ElementState;
+import ecologylab.serialization.annotations.simpl_composite;
+import ecologylab.serialization.annotations.simpl_scalar;
 import ecologylab.standalone.researchnotebook.testxml.SiteSet;
 
 public class CompositionState extends ElementState{

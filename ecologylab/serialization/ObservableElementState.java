@@ -3,7 +3,6 @@
  */
 package ecologylab.serialization;
 
-import java.util.Observer;
 import java.util.Vector;
 
 

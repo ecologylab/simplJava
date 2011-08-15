@@ -3,8 +3,10 @@
  */
 package ecologylab.serialization.library.xaml;
 
-import ecologylab.serialization.ElementState.xml_tag;
-import ecologylab.serialization.Hint;
+import ecologylab.serialization.annotations.Hint;
+import ecologylab.serialization.annotations.simpl_hints;
+import ecologylab.serialization.annotations.simpl_scalar;
+import ecologylab.serialization.annotations.simpl_tag;
 
 /**
  * ecologylab.serialization representation of the TextBlock WPF element for translating to XAML.
@@ -12,7 +14,7 @@ import ecologylab.serialization.Hint;
  * @author awebb
  *
  */
-@xml_tag("TextBlock")
+@simpl_tag("TextBlock")
 public class TextBlockState extends PanelChildState
 {
 	public static final String WRAP 		= "Wrap";
@@ -20,12 +22,12 @@ public class TextBlockState extends PanelChildState
 	public static final String BOLD			= "Bold";
 	public static final String UNDERLINE 	= "Underline";
 	
-	@simpl_scalar @xml_tag("FontSize") 		int 	fontSize;
-	@simpl_scalar @xml_tag("FontFamily") 		String 	fontFamily;
-	@simpl_scalar @xml_tag("TextWrapping")		String 	textWrap;
-	@simpl_scalar @xml_tag("FontStyle")		String  fontStyle;
-	@simpl_scalar @xml_tag("FontWeight")		String  fontWeight;
-	@simpl_scalar @xml_tag("TextAlignment") 	String 	alignment;
+	@simpl_scalar @simpl_tag("FontSize") 		int 	fontSize;
+	@simpl_scalar @simpl_tag("FontFamily") 		String 	fontFamily;
+	@simpl_scalar @simpl_tag("TextWrapping")		String 	textWrap;
+	@simpl_scalar @simpl_tag("FontStyle")		String  fontStyle;
+	@simpl_scalar @simpl_tag("FontWeight")		String  fontWeight;
+	@simpl_scalar @simpl_tag("TextAlignment") 	String 	alignment;
 	
 	@simpl_scalar @simpl_hints(Hint.XML_TEXT) String textNode;
 	

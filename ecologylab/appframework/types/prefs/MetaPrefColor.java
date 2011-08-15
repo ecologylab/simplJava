@@ -5,6 +5,7 @@ package ecologylab.appframework.types.prefs;
 
 import java.awt.Color;
 
+import ecologylab.serialization.annotations.simpl_scalar;
 import ecologylab.serialization.types.ScalarType;
 import ecologylab.serialization.types.TypeRegistry;
 

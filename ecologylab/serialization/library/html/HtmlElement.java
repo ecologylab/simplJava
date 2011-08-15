@@ -1,21 +1,23 @@
 package ecologylab.serialization.library.html;
 
 import ecologylab.serialization.ElementState;
+import ecologylab.serialization.annotations.simpl_scalar;
+import ecologylab.serialization.annotations.simpl_tag;
 
 public class HtmlElement extends ElementState
 {
 	@simpl_scalar
 	String	id;
 
-	@xml_tag("class")
+	@simpl_tag("class")
 	@simpl_scalar
 	String	cssClass;
 
-	@xml_tag("itemprop")
+	@simpl_tag("itemprop")
 	@simpl_scalar
 	String	schemaOrgItemProp;
 	
-	@xml_tag("itemscope itemtype")
+	@simpl_tag("itemscope itemtype")
 	@simpl_scalar
 	String schemaOrgItemType;
 

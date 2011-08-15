@@ -4,6 +4,7 @@
 package ecologylab.appframework.types.prefs;
 
 import ecologylab.serialization.simpl_inherit;
+import ecologylab.serialization.annotations.simpl_scalar;
 
 /**
  * Pref for an Integer

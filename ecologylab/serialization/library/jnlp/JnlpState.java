@@ -13,6 +13,11 @@ import ecologylab.generic.Debug;
 import ecologylab.serialization.ElementState;
 import ecologylab.serialization.SIMPLTranslationException;
 import ecologylab.serialization.TranslationScope;
+import ecologylab.serialization.annotations.simpl_collection;
+import ecologylab.serialization.annotations.simpl_composite;
+import ecologylab.serialization.annotations.simpl_nowrap;
+import ecologylab.serialization.annotations.simpl_scalar;
+import ecologylab.serialization.annotations.simpl_tag;
 import ecologylab.serialization.library.jnlp.applet.AppletDesc;
 import ecologylab.serialization.library.jnlp.application.ApplicationDesc;
 import ecologylab.serialization.library.jnlp.information.InformationElement;
@@ -60,11 +65,11 @@ public class JnlpState extends ElementState implements Cloneable
 	ArrayList<AllPermissionsElement>	security;
 
 	@simpl_composite
-	@xml_tag("resources")
+	@simpl_tag("resources")
 	ResourceElementArray							resources;
 
 	@simpl_composite
-	@xml_tag("application-desc")
+	@simpl_tag("application-desc")
 	ApplicationDesc										applicationDesc;
 
 	@simpl_nowrap

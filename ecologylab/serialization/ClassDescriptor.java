@@ -12,7 +12,16 @@ import java.util.Set;
 
 import ecologylab.generic.HashMapArrayList;
 import ecologylab.generic.ReflectionTools;
-import ecologylab.serialization.ElementState.simpl_map_key_field;
+import ecologylab.serialization.annotations.Hint;
+import ecologylab.serialization.annotations.bibtex_key;
+import ecologylab.serialization.annotations.bibtex_type;
+import ecologylab.serialization.annotations.simpl_collection;
+import ecologylab.serialization.annotations.simpl_composite;
+import ecologylab.serialization.annotations.simpl_map;
+import ecologylab.serialization.annotations.simpl_map_key_field;
+import ecologylab.serialization.annotations.simpl_nowrap;
+import ecologylab.serialization.annotations.simpl_other_tags;
+import ecologylab.serialization.annotations.simpl_scalar;
 import ecologylab.serialization.types.CollectionType;
 import ecologylab.serialization.types.ScalarType;
 import ecologylab.serialization.types.TypeRegistry;
@@ -58,7 +67,7 @@ public class ClassDescriptor<ES extends ElementState, FD extends FieldDescriptor
 	private ClassDescriptor superClass;
 	
 	@simpl_collection("interface")
-	@xml_other_tags("inerface")					// handle spelling error that was here
+	@simpl_other_tags("inerface")					// handle spelling error that was here
 	private ArrayList<String> interfaces;
 
 	/**
@@ -300,7 +309,7 @@ public class ClassDescriptor<ES extends ElementState, FD extends FieldDescriptor
 	 * @param thatClass
 	 * @return
 	 */
-	public static ClassDescriptor getClassDescriptor(Class<? extends ElementState> thatClass)
+	public static ClassDescriptor getClassDescriptor(Class<?> thatClass)
 	{
 		String className = thatClass.getName();
 		// stay out of the synchronized block most of the time
@@ -967,7 +976,7 @@ public class ClassDescriptor<ES extends ElementState, FD extends FieldDescriptor
 			Class<ES> thisClass = getDescribedClass();
 			if (thisClass != null)
 			{
-				final ElementState.xml_other_tags otherTagsAnnotation = thisClass .getAnnotation(xml_other_tags.class);
+				final simpl_other_tags otherTagsAnnotation = thisClass .getAnnotation(simpl_other_tags.class);
 		
 				// commented out since getAnnotation also includes inherited annotations
 				// ElementState.xml_other_tags otherTagsAnnotation =

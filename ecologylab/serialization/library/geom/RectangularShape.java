@@ -6,6 +6,7 @@ package ecologylab.serialization.library.geom;
 import java.awt.Shape;
 
 import ecologylab.serialization.ElementState;
+import ecologylab.serialization.annotations.simpl_scalar;
 
 public abstract class RectangularShape extends ElementState implements Shape
 {

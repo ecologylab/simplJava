@@ -7,7 +7,8 @@ import java.util.Random;
 
 import ecologylab.net.ParsedURL;
 import ecologylab.serialization.ElementState;
-import ecologylab.serialization.ElementState.xml_tag;
+import ecologylab.serialization.annotations.simpl_scalar;
+import ecologylab.serialization.annotations.simpl_tag;
 import ecologylab.serialization.types.element.Mappable;
 
 /**
@@ -16,7 +17,7 @@ import ecologylab.serialization.types.element.Mappable;
  * @author andruid 
  */
 
-@xml_tag("site")
+@simpl_tag("site")
 public 
 class BasicSite extends ElementState implements Mappable<String>
 {

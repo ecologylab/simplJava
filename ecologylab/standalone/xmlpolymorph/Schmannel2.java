@@ -6,9 +6,11 @@ package ecologylab.standalone.xmlpolymorph;
 import java.util.ArrayList;
 
 import ecologylab.serialization.ElementState;
-import ecologylab.serialization.ElementState.xml_tag;
 import ecologylab.serialization.SIMPLTranslationException;
 import ecologylab.serialization.TranslationScope;
+import ecologylab.serialization.annotations.simpl_collection;
+import ecologylab.serialization.annotations.simpl_scope;
+import ecologylab.serialization.annotations.simpl_tag;
 import ecologylab.serialization.library.rss.Item;
 import ecologylab.serialization.library.rss.RssTranslations;
 
@@ -16,7 +18,7 @@ import ecologylab.serialization.library.rss.RssTranslations;
  * @author andruid
  *
  */
-@xml_tag("schmannel")
+@simpl_tag("schmannel")
 public class Schmannel2 extends ElementState
 {
   private static final String	SCOPE_NAME	= "schm_rss";

@@ -10,6 +10,10 @@ import java.util.ArrayList;
 import ecologylab.appframework.types.prefs.PrefSet;
 import ecologylab.serialization.ElementState;
 import ecologylab.serialization.SIMPLTranslationException;
+import ecologylab.serialization.annotations.simpl_collection;
+import ecologylab.serialization.annotations.simpl_nowrap;
+import ecologylab.serialization.annotations.simpl_scalar;
+import ecologylab.serialization.annotations.simpl_tag;
 
 /**
  * @author Zachary O. Toups (zach@ecologylab.net)
@@ -18,7 +22,7 @@ import ecologylab.serialization.SIMPLTranslationException;
 public class ApplicationDesc extends ElementState
 {
 	@simpl_scalar
-	@xml_tag("main-class")
+	@simpl_tag("main-class")
 	String						mainClass;
 
 	@simpl_nowrap

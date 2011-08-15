@@ -3,6 +3,8 @@
  */
 package ecologylab.serialization.library.jnlp.resource;
 
+import ecologylab.serialization.annotations.simpl_scalar;
+
 /**
  * The property element defines a system property that will be available through the System.getProperty and
  * System.setProperties methods. It has two required attributes: name and value. For example:

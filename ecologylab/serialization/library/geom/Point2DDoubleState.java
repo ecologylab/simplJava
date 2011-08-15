@@ -3,6 +3,7 @@ package ecologylab.serialization.library.geom;
 import java.awt.geom.Point2D;
 
 import ecologylab.serialization.ElementState;
+import ecologylab.serialization.annotations.simpl_scalar;
 
 /**
  * Encapsulates a Point2D.Double for use in translating to/from XML.

@@ -9,6 +9,10 @@ import java.util.LinkedHashMap;
 import ecologylab.collections.Scope;
 import ecologylab.serialization.ElementState;
 import ecologylab.serialization.simpl_inherit;
+import ecologylab.serialization.annotations.simpl_classes;
+import ecologylab.serialization.annotations.simpl_collection;
+import ecologylab.serialization.annotations.simpl_scalar;
+import ecologylab.serialization.annotations.simpl_tag;
 import ecologylab.serialization.types.ScalarType;
 
 /**
@@ -29,7 +33,7 @@ public abstract class MetaPref<T> extends ElementState implements WidgetTypes
 	 * Unique identifier for Preference name with convenient lookup in 
      * automatically generated HashMap.
 	 */
-  @xml_tag("id")  
+  @simpl_tag("id")  
 	@simpl_scalar 	String		m_id;
 	
 	/**

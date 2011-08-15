@@ -4,16 +4,18 @@
 package ecologylab.tests;
 
 import ecologylab.serialization.ElementState;
-import ecologylab.serialization.ElementState.xml_tag;
+import ecologylab.serialization.annotations.simpl_composite;
+import ecologylab.serialization.annotations.simpl_scalar;
+import ecologylab.serialization.annotations.simpl_tag;
 
 /**
  * @author Zachary O. Toups (toupsz@cs.tamu.edu)
  *
  */
-public @xml_tag("CLASS_NAME_TAG") class ClassTagged extends ElementState
+public @simpl_tag("CLASS_NAME_TAG") class ClassTagged extends ElementState
 {
-    @simpl_scalar @xml_tag("BLARG") String blarg = null;
-    @simpl_composite @xml_tag("ASDF:NU") FieldTagged fieldTagged = new FieldTagged();
+    @simpl_scalar @simpl_tag("BLARG") String blarg = null;
+    @simpl_composite @simpl_tag("ASDF:NU") FieldTagged fieldTagged = new FieldTagged();
     
     /**
      * 

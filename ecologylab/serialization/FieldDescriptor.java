@@ -27,8 +27,8 @@ import sun.reflect.generics.reflectiveObjects.TypeVariableImpl;
 import ecologylab.generic.HashMapArrayList;
 import ecologylab.generic.ReflectionTools;
 import ecologylab.generic.StringTools;
-import ecologylab.serialization.ElementState.simpl_map_key_field;
 import ecologylab.serialization.TranslationScope.GRAPH_SWITCH;
+import ecologylab.serialization.annotations.*;
 import ecologylab.serialization.library.html.A;
 import ecologylab.serialization.library.html.Div;
 import ecologylab.serialization.library.html.Input;
@@ -344,8 +344,8 @@ public class FieldDescriptor extends DescriptorBase implements FieldTypes, Mappa
 	private boolean derivePolymorphicDescriptors(Field field)
 	{
 		// @xml_scope
-		final ElementState.simpl_scope scopeAnnotationObj = field
-				.getAnnotation(ElementState.simpl_scope.class);
+		final simpl_scope scopeAnnotationObj = field
+				.getAnnotation(simpl_scope.class);
 		final String scopeAnnotation = (scopeAnnotationObj == null) ? null : scopeAnnotationObj.value();
 
 		if (scopeAnnotation != null && scopeAnnotation.length() > 0)
@@ -357,8 +357,8 @@ public class FieldDescriptor extends DescriptorBase implements FieldTypes, Mappa
 			}
 		}
 		// @xml_classes
-		final ElementState.simpl_classes classesAnnotationObj = field
-				.getAnnotation(ElementState.simpl_classes.class);
+		final simpl_classes classesAnnotationObj = field
+				.getAnnotation(simpl_classes.class);
 		final Class[] classesAnnotation = (classesAnnotationObj == null) ? null : classesAnnotationObj
 				.value();
 		if ((classesAnnotation != null) && (classesAnnotation.length > 0))
@@ -510,8 +510,8 @@ public class FieldDescriptor extends DescriptorBase implements FieldTypes, Mappa
 			isCDATA = xmlHint == Hint.XML_LEAF_CDATA || xmlHint == Hint.XML_TEXT_CDATA;
 		}
 
-		ElementState.simpl_filter filterAnnotation = field
-				.getAnnotation(ElementState.simpl_filter.class);
+		simpl_filter filterAnnotation = field
+				.getAnnotation(simpl_filter.class);
 		if (filterAnnotation != null)
 		{
 			String regexString = filterAnnotation.regex();
@@ -542,8 +542,8 @@ public class FieldDescriptor extends DescriptorBase implements FieldTypes, Mappa
 		{
 		case COMPOSITE_ELEMENT:
 		
-			String compositeTag = field.getAnnotation(ElementState.simpl_composite.class).value();
-			Boolean isWrap = field.isAnnotationPresent(ElementState.simpl_wrap.class);
+			String compositeTag = field.getAnnotation(simpl_composite.class).value();
+			Boolean isWrap = field.isAnnotationPresent(simpl_wrap.class);
 			
 			if (!checkAssignableFrom(ElementState.class, field, fieldClass, "@simpl_composite"))
 				result = IGNORED_ELEMENT;
@@ -582,7 +582,7 @@ public class FieldDescriptor extends DescriptorBase implements FieldTypes, Mappa
 			compositeTagName = compositeTag;
 			break;
 		case COLLECTION_ELEMENT:
-			final String collectionTag = field.getAnnotation(ElementState.simpl_collection.class).value();
+			final String collectionTag = field.getAnnotation(simpl_collection.class).value();
 			if (!checkAssignableFrom(Collection.class, field, fieldClass, "@xml_collection"))
 				return IGNORED_ELEMENT;
 
@@ -635,7 +635,7 @@ public class FieldDescriptor extends DescriptorBase implements FieldTypes, Mappa
 			collectionType					= TypeRegistry.getCollectionType(field);
 			break;
 		case MAP_ELEMENT:
-			String mapTag = field.getAnnotation(ElementState.simpl_map.class).value();
+			String mapTag = field.getAnnotation(simpl_map.class).value();
 			if (!checkAssignableFrom(Map.class, field, fieldClass, "@xml_map"))
 				return IGNORED_ELEMENT;
 
@@ -689,12 +689,12 @@ public class FieldDescriptor extends DescriptorBase implements FieldTypes, Mappa
 		{
 		case COLLECTION_ELEMENT:
 		case MAP_ELEMENT:
-			if (!field.isAnnotationPresent(ElementState.simpl_nowrap.class))
+			if (!field.isAnnotationPresent(simpl_nowrap.class))
 				wrapped = true;
 			collectionType	= TypeRegistry.getCollectionType(field);
 			break;
 		case COMPOSITE_ELEMENT:
-			if(field.isAnnotationPresent(ElementState.simpl_wrap.class))
+			if(field.isAnnotationPresent(simpl_wrap.class))
 				wrapped = true;
 		}
 	
@@ -2161,7 +2161,7 @@ public class FieldDescriptor extends DescriptorBase implements FieldTypes, Mappa
 			result = new ArrayList<String>();
 			if (this.getField() != null)
 			{
-				final ElementState.xml_other_tags otherTagsAnnotation = this.getField().getAnnotation(xml_other_tags.class);
+				final simpl_other_tags otherTagsAnnotation = this.getField().getAnnotation(simpl_other_tags.class);
 		
 				// commented out since getAnnotation also includes inherited annotations
 				// ElementState.xml_other_tags otherTagsAnnotation =
