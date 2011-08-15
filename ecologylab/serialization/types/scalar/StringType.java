@@ -5,6 +5,9 @@ package ecologylab.serialization.types.scalar;
 
 import java.io.IOException;
 
+import org.codehaus.jackson.JsonGenerator;
+import org.json.simple.JSONObject;
+
 import ecologylab.serialization.ScalarUnmarshallingContext;
 import ecologylab.serialization.TranslationContext;
 import ecologylab.serialization.XMLTools;
@@ -17,12 +20,11 @@ import ecologylab.serialization.types.CrossLanguageTypeConstants;
  * @author andruid
  */
 @simpl_inherit
-public class StringType extends ReferenceType<String>
-implements CrossLanguageTypeConstants
+public class StringType extends ReferenceType<String> implements CrossLanguageTypeConstants
 {
 	/**
-	 * This constructor should only be called once per session, through
-	 * a static initializer, typically in TypeRegistry.
+	 * This constructor should only be called once per session, through a static initializer,
+	 * typically in TypeRegistry.
 	 * <p>
 	 * To get the instance of this type object for use in translations, call
 	 * <code>TypeRegistry.get("java.lang.String")</code>.
@@ -36,9 +38,12 @@ implements CrossLanguageTypeConstants
 	/**
 	 * Just return the value itself. A transparent pass-through.
 	 * 
-	 * @see ecologylab.serialization.types.ScalarType#getInstance(java.lang.String, String[], ScalarUnmarshallingContext)
+	 * @see ecologylab.serialization.types.ScalarType#getInstance(java.lang.String, String[],
+	 *      ScalarUnmarshallingContext)
 	 */
-	@Override public String getInstance(String value, String[] formatStrings, ScalarUnmarshallingContext scalarUnmarshallingContext)
+	@Override
+	public String getInstance(String value, String[] formatStrings,
+			ScalarUnmarshallingContext scalarUnmarshallingContext)
 	{
 		return value;
 	}
@@ -49,7 +54,8 @@ implements CrossLanguageTypeConstants
 	 * @param instance
 	 * @return
 	 */
-	@Override public String marshall(String instance, TranslationContext serializationContext)
+	@Override
+	public String marshall(String instance, TranslationContext serializationContext)
 	{
 		return instance;
 	}
@@ -62,31 +68,47 @@ implements CrossLanguageTypeConstants
 	 * @param needsEscaping
 	 */
 	@Override
-	public void appendValue(String instance, StringBuilder buffy, boolean needsEscaping, TranslationContext serializationContext)
+	public void appendValue(String instance, StringBuilder buffy, boolean needsEscaping,
+			TranslationContext serializationContext)
 	{
+
 		if (needsEscaping)
 			XMLTools.escapeXML(buffy, instance);
 		else
 			buffy.append(instance);
 	}
+
 	/**
 	 * Append the String directly, unless it needs escaping, in which case, call escapeXML.
 	 * 
 	 * @param instance
 	 * @param appendable
 	 * @param needsEscaping
-	 * @throws IOException 
+	 * @throws IOException
 	 */
 	@Override
-	public void appendValue(String instance, Appendable appendable, boolean needsEscaping, TranslationContext serializationContext) 
-	throws IOException
+	public void appendValue(String instance, Appendable appendable, boolean needsEscaping,
+			TranslationContext serializationContext, FORMAT format) throws IOException
 	{
 		if (needsEscaping)
-			XMLTools.escapeXML(appendable, instance);
+		{
+			switch (format)
+			{
+			case JSON:
+				appendable.append(JSONObject.escape(instance));
+				break;
+			case XML:
+				XMLTools.escapeXML(appendable, instance);
+				break;
+			default:
+				XMLTools.escapeXML(appendable, instance);
+				break;
+			}
+		}
 		else
 			appendable.append(instance);
 	}
-	
+
 	/**
 	 * When editing, determines whether delimiters can be included in token strings.
 	 * 

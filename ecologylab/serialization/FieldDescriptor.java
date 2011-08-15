@@ -605,7 +605,7 @@ public class FieldDescriptor extends DescriptorBase implements FieldTypes, Mappa
 							+ " because the parameterized type argument for the Collection is missing.");
 					return IGNORED_ELEMENT;
 				}
-				if (ElementState.class.isAssignableFrom(collectionElementClass))
+				if (ElementState.class.isAssignableFrom(collectionElementClass) && !TypeRegistry.containsScalarType(collectionElementClass))
 				{
 					elementClassDescriptor = ClassDescriptor.getClassDescriptor(collectionElementClass);
 					elementClass = elementClassDescriptor.getDescribedClass();
@@ -1049,7 +1049,7 @@ public class FieldDescriptor extends DescriptorBase implements FieldTypes, Mappa
 				appendable.append(':');
 				appendable.append('"');
 
-				scalarType.appendValue(appendable, this, context, null);
+				scalarType.appendValue(appendable, this, context, null, FORMAT.JSON);
 				appendable.append('"');
 
 			}
@@ -1153,7 +1153,7 @@ public class FieldDescriptor extends DescriptorBase implements FieldTypes, Mappa
 				appendable.append('=');
 				appendable.append('"');
 
-				scalarType.appendValue(appendable, this, context, serializationContext);
+				scalarType.appendValue(appendable, this, context, serializationContext, FORMAT.XML);
 				appendable.append('"');
 			}
 		}
@@ -1201,7 +1201,7 @@ public class FieldDescriptor extends DescriptorBase implements FieldTypes, Mappa
 			{
 				StringBuilder navigatesToBuffy	= new StringBuilder();
 				navigatesScalarType							= navigatesFD.getScalarType();
-				navigatesScalarType.appendValue(navigatesToBuffy, navigatesFD, context, serializationContext);
+				navigatesScalarType.appendValue(navigatesToBuffy, navigatesFD, context, serializationContext, FORMAT.XML);
 				labelAnchor.setHref(navigatesToBuffy.toString());
 				labelAnchor.setLink(labelString);
 				labelDiv.members.add(labelAnchor);
@@ -1215,12 +1215,12 @@ public class FieldDescriptor extends DescriptorBase implements FieldTypes, Mappa
 			tr.cells.add(labelTd);
 
 			StringBuilder valueBuffy = new StringBuilder();
-			scalarType.appendValue(valueBuffy, this, context, serializationContext);
+			scalarType.appendValue(valueBuffy, this, context, serializationContext, FORMAT.XML);
 			
 			if (navigatesFD != null)
 			{
 				StringBuilder buffy = new StringBuilder();
-				navigatesScalarType.appendValue(buffy, navigatesFD, context, serializationContext);
+				navigatesScalarType.appendValue(buffy, navigatesFD, context, serializationContext, FORMAT.XML);
 				valueAnchor.setHref(buffy.toString());
 				valueAnchor.setLink(valueBuffy.toString());
 				valueDiv.members.add(valueAnchor);
@@ -1273,7 +1273,7 @@ public class FieldDescriptor extends DescriptorBase implements FieldTypes, Mappa
 					appendable.append('{');
 				}
 
-				scalarType.appendValue(appendable, this, context, null);
+				scalarType.appendValue(appendable, this, context, null, FORMAT.BIBTEX);
 
 				if (!isBibtexKey)
 					appendable.append('}');
@@ -1414,7 +1414,7 @@ public class FieldDescriptor extends DescriptorBase implements FieldTypes, Mappa
 			}
 
 			ScalarType scalarType = this.scalarType;
-			scalarType.appendValue(instance, appendable, false, null);
+			scalarType.appendValue(instance, appendable, false, null, FORMAT.BIBTEX);
 		}
 	}
 
@@ -1429,7 +1429,7 @@ public class FieldDescriptor extends DescriptorBase implements FieldTypes, Mappa
 			}
 
 			ScalarType scalarType = this.scalarType;
-			scalarType.appendValue(appendable, this, instance, null);
+			scalarType.appendValue(appendable, this, instance, null, FORMAT.BIBTEX);
 
 		}
 	}
@@ -1443,7 +1443,7 @@ public class FieldDescriptor extends DescriptorBase implements FieldTypes, Mappa
 		{
 			if (!isFirst)
 				value.append(", ");
-			scalarType.appendValue(value, this, instance, null);			
+			scalarType.appendValue(value, this, instance, null, FORMAT.XML);			
 		}
 		
 		return value.toString();
@@ -1461,7 +1461,7 @@ public class FieldDescriptor extends DescriptorBase implements FieldTypes, Mappa
 
 			ScalarType scalarType = this.scalarType;
 			appendable.append('"');
-			scalarType.appendValue(instance, appendable, false, null);
+			scalarType.appendValue(instance, appendable, false, null, FORMAT.JSON);
 			appendable.append('"');
 		}
 	}
@@ -1487,7 +1487,7 @@ public class FieldDescriptor extends DescriptorBase implements FieldTypes, Mappa
 
 			if (isCDATA)
 				appendable.append(START_CDATA);
-			scalarType.appendValue(instance, appendable, !isCDATA, null); // escape if not CDATA! :-)
+			scalarType.appendValue(instance, appendable, !isCDATA, null, FORMAT.XML); // escape if not CDATA! :-)
 			if (isCDATA)
 				appendable.append(END_CDATA);
 
@@ -1510,7 +1510,7 @@ public class FieldDescriptor extends DescriptorBase implements FieldTypes, Mappa
 	{
 		if (isCDATA)
 			appendable.append(START_CDATA);
-		scalarType.appendValue(appendable, this, context, null); // escape if not CDATA! :-)
+		scalarType.appendValue(appendable, this, context, null, FORMAT.XML); // escape if not CDATA! :-)
 		if (isCDATA)
 			appendable.append(END_CDATA);
 	}
@@ -1545,7 +1545,7 @@ public class FieldDescriptor extends DescriptorBase implements FieldTypes, Mappa
 
 				if (isCDATA)
 					appendable.append(START_CDATA);
-				scalarType.appendValue(appendable, this, context, serializationContext); // escape if not
+				scalarType.appendValue(appendable, this, context, serializationContext, FORMAT.XML); // escape if not
 																																									// CDATA! :-)
 				if (isCDATA)
 					appendable.append(END_CDATA);

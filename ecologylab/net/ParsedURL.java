@@ -578,24 +578,7 @@ public class ParsedURL extends Debug implements MimeType
 	 */
 	public String noAnchorNoQueryPageString()
 	{
-		String string = toString();
-		String result = null;
-		if (string != null)
-		{
-			int qIndex = string.indexOf('?');
-			if (qIndex == -1)
-			{ // strip anchor
-				int aIndex = string.indexOf('#');
-				if (qIndex != -1)
-					result = string.substring(0, aIndex);
-				else
-					result = string;
-			}
-			else
-				// dont worry about stripping anchor cause if it was there, it'd be after ?
-				result = string.substring(0, qIndex); // strip query
-		}
-		return result;
+		return StringTools.noAnchorNoQueryPageString(url);
 	}
 
 	/*
@@ -603,7 +586,7 @@ public class ParsedURL extends Debug implements MimeType
 	 */
 	public String noAnchorPageString()
 	{
-		return isFile() ? file.getAbsolutePath() : StringTools.noAnchorPageString(url);
+		return StringTools.noAnchorPageString(url);
 	}
 
 	/**
@@ -1505,6 +1488,43 @@ public class ParsedURL extends Debug implements MimeType
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+	}
+	
+	/**
+	 * Extract arguments from the "query" portion of the URL (the part after ?).
+	 * 
+	 * @return	HashMap of String name / value pairs.
+	 */
+	public HashMap<String, String> extractParams()
+	{
+		HashMap<String, String> result	= null;
 		
+		return StringTools.doubleSplit(url);
+	}
+	
+	/**
+	 * Form a new ParsedURL using the base of this, while forming the query from a map of name / value pairs.
+	 * 
+	 * @param newParamMap	Map of name / value pairs.
+	 * 
+	 * @return	A new ParsedURL based on this one and the input argument map, or this, if that map is the same as in this.
+	 */
+	public ParsedURL updateParams(HashMap<String, String> newParamMap)
+	{
+		HashMap<String, String> oldParamMap	= extractParams();
+		
+		String newArgString	= StringTools.unDoubleSplit(newParamMap);
+		String noArgsNoQuery= StringTools.noAnchorPageString(url, false);
+		ParsedURL result		= this;
+		if (newArgString != null && newArgString.length() > 0)
+		{
+			//TODO -- check to see if args are the same or different.
+			result						= getAbsolute(noArgsNoQuery + '?' + newArgString);
+		}
+		else if (oldParamMap.size() != 0)
+		{
+			result						= getAbsolute(noArgsNoQuery);
+		}
+		return result;
 	}
 }

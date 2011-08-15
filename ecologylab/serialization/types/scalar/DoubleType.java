@@ -12,6 +12,7 @@ import ecologylab.serialization.FieldDescriptor;
 import ecologylab.serialization.ScalarUnmarshallingContext;
 import ecologylab.serialization.TranslationContext;
 import ecologylab.serialization.simpl_inherit;
+import ecologylab.serialization.ElementState.FORMAT;
 import ecologylab.serialization.types.CrossLanguageTypeConstants;
 import ecologylab.serialization.types.ScalarType;
 
@@ -185,7 +186,7 @@ public class DoubleType extends ScalarType<Double> implements CrossLanguageTypeC
 	 */
 	@Override
 	public void appendValue(Appendable buffy, FieldDescriptor fieldDescriptor, Object context,
-			TranslationContext serializationContext) throws IllegalArgumentException,
+			TranslationContext serializationContext, FORMAT format) throws IllegalArgumentException,
 			IllegalAccessException, IOException
 	{
 		buffy.append(getValueToAppend(fieldDescriptor, context));

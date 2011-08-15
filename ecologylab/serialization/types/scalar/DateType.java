@@ -27,7 +27,8 @@ public class DateType extends ReferenceType<Date> implements CrossLanguageTypeCo
 		"yyyy:MM:dd HH:mm:ss",
 		"yyyy:MM:dd HH:mm",
 		"yyyy-MM-dd HH:mm:ss",
-		"yyyy-MM-dd HH:mm"
+		"yyyy-MM-dd HH:mm",
+		"MMM dd, yyyy",
 	};
 	static final DateFormat	dateFormats[]			= new DateFormat[datePatterns.length + 1];
 
@@ -66,6 +67,18 @@ public class DateType extends ReferenceType<Date> implements CrossLanguageTypeCo
       {
       	// simply try the next pattern
       }
+      if (formatStrings != null)
+      	for (String thatFormat: formatStrings)
+      	{
+          try 
+          {
+            return new SimpleDateFormat(thatFormat).parse(value);
+          } catch (java.text.ParseException ex) 
+          {
+          	// simply try the next pattern
+          }
+      		
+      	}
  		}
 		error("Failed to parse date: " + value);
 		return null;

@@ -142,7 +142,7 @@ public class BooleanType extends ScalarType<Boolean> implements CrossLanguageTyp
 	 */
 	@Override
 	public void appendValue(Appendable buffy, FieldDescriptor fieldDescriptor, Object context,
-			TranslationContext serializationContext) throws IllegalArgumentException,
+			TranslationContext serializationContext, FORMAT format) throws IllegalArgumentException,
 			IllegalAccessException, IOException
 	{
 		buffy.append(getValueToAppend(fieldDescriptor, context));

@@ -24,14 +24,16 @@ public class ElementStateJSONPushHandler extends Debug implements ScalarUnmarsha
 		FieldTypes
 {
 
-	TranslationScope		translationScope;
+	TranslationScope						translationScope;
 
-	TranslationContext	translationContext;
+	TranslationContext					translationContext;
 
 	/**
 	 * JsonParser object from the Jackson JSON parsing library. Implements a push API for parsing JSON
 	 */
-	JsonParser					jp	= null;
+	JsonParser									jp	= null;
+
+	DeserializationHookStrategy	deserializationHookStrategy;
 
 	/**
 	 * Constructs that creates a JSON deserialization handler
@@ -46,6 +48,23 @@ public class ElementStateJSONPushHandler extends Debug implements ScalarUnmarsha
 	{
 		this.translationScope = translationScope;
 		this.translationContext = translationContext;
+		this.deserializationHookStrategy = null;
+	}
+	
+	/**
+	 * Constructs that creates a JSON deserialization handler
+	 * 
+	 * @param translationScope
+	 *          translation scope to use for de/serializing subsequent char sequences
+	 * @param translationContext
+	 *          used for graph handling
+	 */
+	public ElementStateJSONPushHandler(TranslationScope translationScope,
+			TranslationContext translationContext, DeserializationHookStrategy deserializationHookStrategy)
+	{
+		this.translationScope = translationScope;
+		this.translationContext = translationContext;
+		this.deserializationHookStrategy = deserializationHookStrategy;
 	}
 
 	/**
@@ -82,15 +101,19 @@ public class ElementStateJSONPushHandler extends Debug implements ScalarUnmarsha
 			// find the classdescriptor for the root element.
 			ClassDescriptor rootClassDescriptor = translationScope.getClassDescriptorByTag(jp
 					.getCurrentName());
+			
 			root = rootClassDescriptor.getInstance();
+			root.setupRoot();
+			root.deserializationPreHook();
+			if (deserializationHookStrategy != null)
+				deserializationHookStrategy.deserializationPreHook(root, null);
 
 			// move to the first field of the root element.
 			jp.nextToken();
 			jp.nextToken();
 
-			// complete the object model of the root element and recursively of the fields it is composed
-			// of
-			createObjectModelBetter(root, rootClassDescriptor);
+			// complete the object model from root and recursively of the fields it is composed of
+			createObjectModel(root, rootClassDescriptor);
 
 			return root;
 		}
@@ -114,7 +137,7 @@ public class ElementStateJSONPushHandler extends Debug implements ScalarUnmarsha
 	 * @throws IOException
 	 * @throws SIMPLTranslationException
 	 */
-	private void createObjectModelBetter(ElementState root, ClassDescriptor rootClassDescriptor)
+	private void createObjectModel(ElementState root, ClassDescriptor rootClassDescriptor)
 			throws JsonParseException, IOException, SIMPLTranslationException
 	{
 		FieldDescriptor currentFieldDescriptor = null;
@@ -141,13 +164,26 @@ public class ElementStateJSONPushHandler extends Debug implements ScalarUnmarsha
 					break;
 				case COMPOSITE_ELEMENT:
 					jp.nextToken();
-					subRoot = getSubRoot(currentFieldDescriptor, jp.getCurrentName());
+
+					String tagName = jp.getCurrentName();
+					subRoot = getSubRoot(currentFieldDescriptor, tagName);
+
+					ClassDescriptor subRootClassDescriptor = currentFieldDescriptor
+							.getChildClassDescriptor(tagName);
+
+					if (subRoot != null)
+						subRoot.setupInParent(root, subRootClassDescriptor);
+
 					currentFieldDescriptor.setFieldToComposite(root, subRoot);
 					break;
 				case COLLECTION_ELEMENT:
 					jp.nextToken();
 					if (currentFieldDescriptor.isPolymorphic())
 					{
+						// ignore the wrapper tag
+						if (!currentFieldDescriptor.isWrapped())
+							jp.nextToken();
+
 						while (jp.getCurrentToken() != JsonToken.END_ARRAY)
 						{
 							jp.nextToken();
@@ -178,19 +214,24 @@ public class ElementStateJSONPushHandler extends Debug implements ScalarUnmarsha
 					jp.nextToken();
 					if (currentFieldDescriptor.isPolymorphic())
 					{
+
+						// ignore the wrapper tag
+						if (!currentFieldDescriptor.isWrapped())
+							jp.nextToken();
+
 						while (jp.getCurrentToken() != JsonToken.END_ARRAY)
 						{
 							jp.nextToken();
 							jp.nextToken();
 
 							subRoot = getSubRoot(currentFieldDescriptor, jp.getCurrentName());
-							if(subRoot instanceof Mappable)
+							if (subRoot instanceof Mappable)
 							{
 								final Object key = ((Mappable) subRoot).key();
 								Map map = (Map) currentFieldDescriptor.automaticLazyGetCollectionOrMap(root);
 								map.put(key, subRoot);
 							}
-							
+
 							jp.nextToken();
 							jp.nextToken();
 						}
@@ -201,7 +242,7 @@ public class ElementStateJSONPushHandler extends Debug implements ScalarUnmarsha
 						while (jp.nextToken() != JsonToken.END_ARRAY)
 						{
 							subRoot = getSubRoot(currentFieldDescriptor, jp.getCurrentName());
-							if(subRoot instanceof Mappable)
+							if (subRoot instanceof Mappable)
 							{
 								final Object key = ((Mappable) subRoot).key();
 								Map map = (Map) currentFieldDescriptor.automaticLazyGetCollectionOrMap(root);
@@ -226,6 +267,10 @@ public class ElementStateJSONPushHandler extends Debug implements ScalarUnmarsha
 
 			jp.nextToken();
 		}
+
+		root.deserializationPostHook();
+		if (deserializationHookStrategy != null)
+			deserializationHookStrategy.deserializationPostHook(root, currentFieldDescriptor);
 	}
 
 	/**
@@ -260,8 +305,35 @@ public class ElementStateJSONPushHandler extends Debug implements ScalarUnmarsha
 			{
 				ClassDescriptor subRootClassDescriptor = currentFieldDescriptor
 						.getChildClassDescriptor(tagName);
+
+				if (subRootClassDescriptor == null)
+				{
+					System.out.println("*************************** ");
+					System.out.println(tagName + " TAG NOT FOUND");
+					jp.nextToken();
+					System.out.println(jp.getText());
+					jp.nextToken();
+					System.out.println(jp.getText());
+					jp.nextToken();
+					System.out.println(jp.getText());
+					jp.nextToken();
+					System.out.println(jp.getText());
+					jp.nextToken();
+					System.out.println(jp.getText());
+					jp.nextToken();
+					System.out.println(jp.getText());
+					jp.nextToken();
+					System.out.println(jp.getText());
+					jp.nextToken();
+					System.out.println(jp.getText());
+					jp.nextToken();
+					System.out.println(jp.getText());
+					System.out.println("*************************** ");
+				}
+
 				subRoot = subRootClassDescriptor.getInstance();
-				createObjectModelBetter(subRoot, subRootClassDescriptor);
+
+				createObjectModel(subRoot, subRootClassDescriptor);
 			}
 		}
 
