@@ -11,7 +11,7 @@ import ecologylab.oodss.messages.ErrorResponse;
 import ecologylab.oodss.messages.ResponseMessage;
 import ecologylab.serialization.SIMPLTranslationException;
 import ecologylab.serialization.XMLTools;
-import ecologylab.serialization.simpl_inherit;
+import ecologylab.serialization.annotations.simpl_inherit;
 import ecologylab.serialization.annotations.simpl_scalar;
 
 /**

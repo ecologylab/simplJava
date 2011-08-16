@@ -1,8 +1,8 @@
 package ecologylab.serialization.bibtex.entrytypes;
 
-import ecologylab.serialization.simpl_inherit;
 import ecologylab.serialization.annotations.bibtex_tag;
 import ecologylab.serialization.annotations.bibtex_type;
+import ecologylab.serialization.annotations.simpl_inherit;
 import ecologylab.serialization.annotations.simpl_scalar;
 import ecologylab.serialization.annotations.simpl_tag;
 

@@ -83,7 +83,7 @@ public class ApplicationDesc extends ElementState
 	 * @see ecologylab.serialization.ElementState#serializationPreHook()
 	 */
 	@Override
-	protected void serializationPreHook()
+	public void serializationPreHook()
 	{
 		if (prefSet != null)
 		{
@@ -110,7 +110,7 @@ public class ApplicationDesc extends ElementState
 	 * @see ecologylab.serialization.ElementState#serializationPostHook()
 	 */
 	@Override
-	protected void serializationPostHook()
+	public void serializationPostHook()
 	{
 		if (this.prefSetArgumentIndex > -1)
 		{ // we need to remove it from the arguments list

@@ -1,4 +1,4 @@
-package ecologylab.serialization;
+package ecologylab.serialization.annotations;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Inherited;
@@ -7,8 +7,9 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Metalanguage declaration for classes with metalanguage inside, 
- * which are derived from other classes that also have metalanguage that needs interpreting.
+ * Class-level annotation.
+ * S.IM.PL Serialization transparency. 
+ * Enables overriding the class used for the FieldDescriptors for fields inside a particular type.
  * 
  * @author andruid
  */
@@ -17,7 +18,7 @@ import java.lang.annotation.Target;
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
 
-public @interface simpl_inherit
+public @interface simpl_descriptor_classes
 {
-
+  Class[] value();
 }

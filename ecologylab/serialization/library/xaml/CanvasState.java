@@ -2,7 +2,7 @@ package ecologylab.serialization.library.xaml;
 
 import java.awt.Color;
 
-import ecologylab.serialization.simpl_inherit;
+import ecologylab.serialization.annotations.simpl_inherit;
 import ecologylab.serialization.annotations.simpl_tag;
 
 /**

@@ -9,7 +9,7 @@ import org.json.simple.JSONObject;
 
 import ecologylab.serialization.TranslationContext;
 import ecologylab.serialization.XMLTools;
-import ecologylab.serialization.simpl_inherit;
+import ecologylab.serialization.annotations.simpl_inherit;
 import ecologylab.serialization.types.ScalarType;
 
 /**

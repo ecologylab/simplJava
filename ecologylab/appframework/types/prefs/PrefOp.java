@@ -4,7 +4,7 @@
 package ecologylab.appframework.types.prefs;
 
 import ecologylab.oodss.logging.MixedInitiativeOp;
-import ecologylab.serialization.simpl_inherit;
+import ecologylab.serialization.annotations.simpl_inherit;
 
 /**
  * @author damaraju

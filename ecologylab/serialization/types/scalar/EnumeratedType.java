@@ -4,7 +4,7 @@ import java.lang.reflect.Field;
 
 import ecologylab.serialization.ScalarUnmarshallingContext;
 import ecologylab.serialization.XMLTools;
-import ecologylab.serialization.simpl_inherit;
+import ecologylab.serialization.annotations.simpl_inherit;
 
 @simpl_inherit
 public class EnumeratedType extends ReferenceType<Enum>

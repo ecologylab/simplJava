@@ -7,6 +7,7 @@ import java.io.File;
 import java.io.IOException;
 
 import ecologylab.oodss.exceptions.SaveFailedException;
+import ecologylab.serialization.annotations.simpl_inherit;
 
 /**
  * This class is configured with a file path that serves as its backing store and provides a save()

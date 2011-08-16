@@ -28,7 +28,19 @@ import ecologylab.generic.HashMapArrayList;
 import ecologylab.generic.ReflectionTools;
 import ecologylab.generic.StringTools;
 import ecologylab.serialization.TranslationScope.GRAPH_SWITCH;
-import ecologylab.serialization.annotations.*;
+import ecologylab.serialization.annotations.Hint;
+import ecologylab.serialization.annotations.simpl_classes;
+import ecologylab.serialization.annotations.simpl_collection;
+import ecologylab.serialization.annotations.simpl_composite;
+import ecologylab.serialization.annotations.simpl_filter;
+import ecologylab.serialization.annotations.simpl_inherit;
+import ecologylab.serialization.annotations.simpl_map;
+import ecologylab.serialization.annotations.simpl_map_key_field;
+import ecologylab.serialization.annotations.simpl_nowrap;
+import ecologylab.serialization.annotations.simpl_other_tags;
+import ecologylab.serialization.annotations.simpl_scalar;
+import ecologylab.serialization.annotations.simpl_scope;
+import ecologylab.serialization.annotations.simpl_wrap;
 import ecologylab.serialization.library.html.A;
 import ecologylab.serialization.library.html.Div;
 import ecologylab.serialization.library.html.Input;
@@ -1741,7 +1753,7 @@ public class FieldDescriptor extends DescriptorBase implements FieldTypes, Mappa
 	 * @param scalarUnmarshallingContext
 	 *          TODO
 	 */
-	protected void setFieldToScalar(Object context, String value,
+	public void setFieldToScalar(Object context, String value,
 			ScalarUnmarshallingContext scalarUnmarshallingContext)
 	{
 		if ((value == null) /* || (value.length() == 0) removed by Alex to allow empty delims */)
@@ -1868,7 +1880,7 @@ public class FieldDescriptor extends DescriptorBase implements FieldTypes, Mappa
 	 *          XML leafNode that has the value we need to add, after type conversion.
 	 * @throws SIMPLTranslationException
 	 */
-	void addLeafNodeToCollection(ElementState activeES, String leafNodeValue,
+	public void addLeafNodeToCollection(Object activeES, String leafNodeValue,
 			ScalarUnmarshallingContext scalarUnmarshallingContext) throws SIMPLTranslationException
 	{
 		if (leafNodeValue != null)
@@ -1938,7 +1950,7 @@ public class FieldDescriptor extends DescriptorBase implements FieldTypes, Mappa
 	 * @param activeES
 	 * @return
 	 */
-	Object automaticLazyGetCollectionOrMap(ElementState activeES)
+	public Object automaticLazyGetCollectionOrMap(Object activeES)
 	{
 		Object collection = null;
 		try
@@ -2009,7 +2021,7 @@ public class FieldDescriptor extends DescriptorBase implements FieldTypes, Mappa
 
 		if (TranslationScope.graphSwitch == GRAPH_SWITCH.ON)
 		{
-			ElementState alreadyUnmarshalledObject = graphContext.getFromMap(attributes);
+			Object alreadyUnmarshalledObject = graphContext.getFromMap(attributes);
 
 			if (alreadyUnmarshalledObject != null)
 				result = alreadyUnmarshalledObject;
@@ -2048,7 +2060,7 @@ public class FieldDescriptor extends DescriptorBase implements FieldTypes, Mappa
 
 	}
 
-	void setFieldToComposite(ElementState context, Object nestedObject)
+	public void setFieldToComposite(Object context, Object nestedObject)
 			throws SIMPLTranslationException
 	{
 		try
@@ -2070,7 +2082,7 @@ public class FieldDescriptor extends DescriptorBase implements FieldTypes, Mappa
 		this.declaringClassDescriptor = null;
 	}
 
-	static final FieldDescriptor	IGNORED_ELEMENT_FIELD_DESCRIPTOR;
+	public static final FieldDescriptor	IGNORED_ELEMENT_FIELD_DESCRIPTOR;
 
 	static
 	{
@@ -2482,20 +2494,6 @@ public class FieldDescriptor extends DescriptorBase implements FieldTypes, Mappa
 		return dependencies;
 	}
 	
-	@Override
-	protected void deserializationPostHook()
-	{
-//		switch (type)
-//		{
-//		case COLLECTION_ELEMENT:
-//		case COLLECTION_SCALAR:
-//		case MAP_ELEMENT:
-//		case MAP_SCALAR:
-//			collectionType	= TypeRegistry.getCollectionTypeBySimpleName(fieldType);
-//			break;
-//		}
-	}
-
 	/**
 	 * @return	The Java name of the ElementState subclass or ScalarType of the this, depending on whether it is composite or scalar.
 	 */

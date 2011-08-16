@@ -14,7 +14,7 @@ import ecologylab.oodss.distributed.common.SessionObjects;
 import ecologylab.oodss.distributed.exception.MessageTooLargeException;
 import ecologylab.oodss.distributed.server.DoubleThreadedNIOServer;
 import ecologylab.oodss.distributed.server.clientsessionmanager.SessionHandle;
-import ecologylab.serialization.simpl_inherit;
+import ecologylab.serialization.annotations.simpl_inherit;
 
 /**
  * A request that indicates that the client wishes to be permanently

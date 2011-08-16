@@ -2,7 +2,7 @@ package ecologylab.oodss.messages;
 
 import ecologylab.collections.Scope;
 import ecologylab.net.ParsedURL;
-import ecologylab.serialization.simpl_inherit;
+import ecologylab.serialization.annotations.simpl_inherit;
 import ecologylab.serialization.annotations.simpl_scalar;
 
 /**

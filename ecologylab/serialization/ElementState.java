@@ -52,7 +52,7 @@ import ecologylab.serialization.annotations.bibtex_key;
  * 
  * @version 2.9
  */
-public class ElementState extends Debug implements FieldTypes, XMLTranslationExceptionTypes
+public class ElementState extends Debug implements FieldTypes, XMLTranslationExceptionTypes, ISimplSerializable
 {
 
 	private boolean	isRoot	= false;
@@ -379,7 +379,7 @@ public class ElementState extends Debug implements FieldTypes, XMLTranslationExc
 			SIMPLTranslationException
 	{
 		// To handle cyclic pointers. map marshalled ElementState Objects.
-		graphContext.mapElementState(this);
+		graphContext.mapObject(this);
 
 		fieldDescriptor.writeJSONElementStart(appendable, withTag);
 
@@ -605,7 +605,7 @@ public class ElementState extends Debug implements FieldTypes, XMLTranslationExc
 	{
 
 		// To handle cyclic pointers. map marshalled ElementState Objects.
-		graphContext.mapElementState(this);
+		graphContext.mapObject(this);
 
 		ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
 		DataOutputStream outputBuffer = new DataOutputStream(byteArrayOutputStream);
@@ -1021,7 +1021,7 @@ public class ElementState extends Debug implements FieldTypes, XMLTranslationExc
 	{
 
 		// To handle cyclic pointers. map marshalled ElementState Objects.
-		graphContext.mapElementState(this);
+		graphContext.mapObject(this);
 
 		this.serializationPreHook();
 
@@ -1293,24 +1293,12 @@ public class ElementState extends Debug implements FieldTypes, XMLTranslationExc
 	{
 
 		// To handle cyclic pointers. map marshalled ElementState Objects.
-		serializationContext.mapElementState(this);
+		serializationContext.mapObject(this);
 
 		this.serializationPreHook();
 
 		fieldDescriptor.writeElementStart(appendable);
 
-		// TODO -- namespace support
-		// ArrayList<FieldToXMLOptimizations> xmlnsF2XOs =
-		// classDescriptor().xmlnsAttributeOptimizations();
-		// int numXmlnsAttributes = (xmlnsF2XOs == null) ? 0 : xmlnsF2XOs.size();
-		// if (numXmlnsAttributes > 0)
-		// {
-		// for (int i=0; i<numXmlnsAttributes; i++)
-		// {
-		// FieldToXMLOptimizations xmlnsF2Xo = xmlnsF2XOs.get(i);
-		// xmlnsF2Xo.xmlnsAttr(appendable);
-		// }
-		// }
 		ArrayList<FieldDescriptor> attributeFieldDescriptors = classDescriptor()
 				.attributeFieldDescriptors();
 
@@ -1663,46 +1651,6 @@ public class ElementState extends Debug implements FieldTypes, XMLTranslationExc
 	}
 
 	/**
-	 * Perform custom processing immediately before translating this to XML.
-	 * <p/>
-	 * This, the default implementation, does nothing. Sub-classes may wish to override.
-	 * 
-	 */
-	protected void serializationPreHook()
-	{
-
-	}
-
-	/**
-	 * Perform processing immediately after serializing this.
-	 * <p/>
-	 * The default implementation does nothing. Sub-classes may wish to override.
-	 */
-	protected void serializationPostHook()
-	{
-
-	}
-
-	/**
-	 * Perform custom processing immediately after all translation from XML is completed. This allows
-	 * a newly-created ElementState object to perform any post processing with all the data it will
-	 * have from XML.
-	 * <p/>
-	 * This method is called by NodeToJavaOptimizations.createChildElement() or translateToXML
-	 * depending on whether the element in question is a child or the top-level parent.
-	 * <p/>
-	 * This, the default implementation, does nothing. Sub-classes may wish to override. dd
-	 */
-	protected void deserializationPostHook()
-	{
-
-	}
-
-	protected void deserializationPreHook()
-	{
-	}
-
-	/**
 	 * Clear data structures and references to enable garbage collecting of resources associated with
 	 * this.
 	 */
@@ -1890,5 +1838,33 @@ public class ElementState extends Debug implements FieldTypes, XMLTranslationExc
 	public boolean getStrictObjectGraphRequired()
 	{
 		return classDescriptor().getStrictObjectGraphRequired();
+	}
+
+	@Override
+	public void deserializationPostHook()
+	{
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void deserializationPreHook()
+	{
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void serializationPostHook()
+	{
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void serializationPreHook()
+	{
+		// TODO Auto-generated method stub
+		
 	}
 }

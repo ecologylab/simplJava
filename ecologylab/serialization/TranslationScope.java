@@ -18,6 +18,7 @@ import ecologylab.serialization.annotations.simpl_map;
 import ecologylab.serialization.annotations.simpl_nowrap;
 import ecologylab.serialization.annotations.simpl_scalar;
 import ecologylab.serialization.annotations.simpl_tag;
+import ecologylab.serialization.deserializers.JSONPullDeserializer;
 import ecologylab.serialization.types.ScalarType;
 import ecologylab.serialization.types.TypeRegistry;
 
@@ -1191,7 +1192,7 @@ public final class TranslationScope extends ElementState
 	public ElementState deserializeCharSequence(CharSequence charSequence, FORMAT format,
 			TranslationContext translationContext) throws SIMPLTranslationException
 	{
-		ElementState result = null;
+		Object result = null;
 		switch (format)
 		{
 		case XML:
@@ -1200,7 +1201,7 @@ public final class TranslationScope extends ElementState
 			break;
 		case JSON:
 			// ElementStateJSONHandler jsonHandler = new ElementStateJSONHandler(this);
-			ElementStateJSONPushHandler jsonHandler = new ElementStateJSONPushHandler(this,
+			JSONPullDeserializer jsonHandler = new JSONPullDeserializer(this,
 					new TranslationContext());
 			result = jsonHandler.parse(charSequence);
 			break;
@@ -1208,7 +1209,7 @@ public final class TranslationScope extends ElementState
 			ElementStateTLVHandler tlvHandler = new ElementStateTLVHandler(this);
 			result = tlvHandler.parse(charSequence);
 		}
-		return result;
+		return (ElementState) result;
 	}
 
 	public ElementState deserializeCharSequence(CharSequence charSequence)
@@ -1694,7 +1695,7 @@ public final class TranslationScope extends ElementState
 	 * Rebuild structures after serializing only some fields.
 	 */
 	@Override
-	protected void deserializationPostHook()
+	public void deserializationPostHook()
 	{
 		for (ClassDescriptor classDescriptor : entriesByTag.values())
 		{

@@ -1,7 +1,7 @@
 package ecologylab.oodss.logging;
 
 import ecologylab.serialization.ElementState;
-import ecologylab.serialization.simpl_inherit;
+import ecologylab.serialization.annotations.simpl_inherit;
 import ecologylab.serialization.annotations.simpl_scalar;
 
 /**
@@ -25,7 +25,8 @@ abstract public @simpl_inherit class BasicOp extends ElementState
 	 * 
 	 * @see ecologylab.serialization.ElementState#serializationPreHook()
 	 */
-	@Override protected void serializationPreHook(){
+	@Override
+	public void serializationPreHook(){
 		//this.sessionTime = System.currentTimeMillis() - Logging.sessionStartTime();
 	}
 

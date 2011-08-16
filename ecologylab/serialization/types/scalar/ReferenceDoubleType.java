@@ -1,6 +1,6 @@
 package ecologylab.serialization.types.scalar;
 
-import ecologylab.serialization.simpl_inherit;
+import ecologylab.serialization.annotations.simpl_inherit;
 import ecologylab.serialization.types.CrossLanguageTypeConstants;
 
 /**

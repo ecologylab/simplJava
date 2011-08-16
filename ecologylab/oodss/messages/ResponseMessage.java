@@ -1,7 +1,7 @@
 package ecologylab.oodss.messages;
 
 import ecologylab.collections.Scope;
-import ecologylab.serialization.simpl_inherit;
+import ecologylab.serialization.annotations.simpl_inherit;
 
 /**
  * Abstract base class for ecologylab.oodss DCF response messages.

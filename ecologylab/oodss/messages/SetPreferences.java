@@ -5,8 +5,8 @@ import ecologylab.collections.Scope;
 import ecologylab.generic.ConsoleUtils;
 import ecologylab.serialization.SIMPLTranslationException;
 import ecologylab.serialization.TranslationScope;
-import ecologylab.serialization.simpl_inherit;
 import ecologylab.serialization.annotations.simpl_composite;
+import ecologylab.serialization.annotations.simpl_inherit;
 
 /**
  * The message sent by ServicesClientApplet to Java application running ServicesServer at 

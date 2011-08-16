@@ -1,7 +1,7 @@
 package ecologylab.oodss.messages;
 
 import ecologylab.collections.Scope;
-import ecologylab.serialization.simpl_inherit;
+import ecologylab.serialization.annotations.simpl_inherit;
 
 /**
  * This is a message for the case when the server wants to ignore certain requests and send nothing to the client.

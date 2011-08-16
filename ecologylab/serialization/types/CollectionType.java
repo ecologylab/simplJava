@@ -6,7 +6,7 @@ package ecologylab.serialization.types;
 import java.util.Collection;
 import java.util.Map;
 
-import ecologylab.serialization.simpl_inherit;
+import ecologylab.serialization.annotations.simpl_inherit;
 import ecologylab.serialization.annotations.simpl_scalar;
 
 /**

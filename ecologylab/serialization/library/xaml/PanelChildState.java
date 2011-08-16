@@ -5,7 +5,7 @@ package ecologylab.serialization.library.xaml;
 
 import java.awt.Rectangle;
 
-import ecologylab.serialization.simpl_inherit;
+import ecologylab.serialization.annotations.simpl_inherit;
 import ecologylab.serialization.annotations.simpl_scalar;
 import ecologylab.serialization.annotations.simpl_tag;
 

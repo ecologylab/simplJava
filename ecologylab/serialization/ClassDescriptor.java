@@ -17,11 +17,14 @@ import ecologylab.serialization.annotations.bibtex_key;
 import ecologylab.serialization.annotations.bibtex_type;
 import ecologylab.serialization.annotations.simpl_collection;
 import ecologylab.serialization.annotations.simpl_composite;
+import ecologylab.serialization.annotations.simpl_descriptor_classes;
+import ecologylab.serialization.annotations.simpl_inherit;
 import ecologylab.serialization.annotations.simpl_map;
 import ecologylab.serialization.annotations.simpl_map_key_field;
 import ecologylab.serialization.annotations.simpl_nowrap;
 import ecologylab.serialization.annotations.simpl_other_tags;
 import ecologylab.serialization.annotations.simpl_scalar;
+import ecologylab.serialization.annotations.simpl_use_equals_equals;
 import ecologylab.serialization.types.CollectionType;
 import ecologylab.serialization.types.ScalarType;
 import ecologylab.serialization.types.TypeRegistry;
@@ -153,7 +156,8 @@ public class ClassDescriptor<FD extends FieldDescriptor> extends DescriptorBase 
 		this.describedClassSimpleName = thatClass.getSimpleName();
 		this.describedClassPackageName = thatClass.getPackage().getName();
 
-		this.superClass = getClassDescriptor(thatClass.getSuperclass());
+		if (ISimplSerializable.class.isAssignableFrom(thatClass))
+			this.superClass = getClassDescriptor(thatClass.getSuperclass());
 
 		addGenericTypeVariables();
 		if (javaParser != null)
@@ -177,8 +181,7 @@ public class ClassDescriptor<FD extends FieldDescriptor> extends DescriptorBase 
 	 * @param interfaces
 	 */
 	protected ClassDescriptor(String tagName, String comment, String describedClassPackageName,
-			String describedClassSimpleName, ClassDescriptor<FD> superClass,
-			ArrayList<String> interfaces)
+			String describedClassSimpleName, ClassDescriptor<FD> superClass, ArrayList<String> interfaces)
 	{
 		super(tagName, describedClassPackageName + PACKAGE_CLASS_SEP + describedClassSimpleName,
 				comment);
@@ -258,8 +261,7 @@ public class ClassDescriptor<FD extends FieldDescriptor> extends DescriptorBase 
 	 *          An ElementState object that we're looking up Optimizations for.
 	 * @return
 	 */
-	public static ClassDescriptor<? extends FieldDescriptor> getClassDescriptor(
-			Object object)
+	public static ClassDescriptor<? extends FieldDescriptor> getClassDescriptor(Object object)
 	{
 		Class<? extends Object> thatClass = object.getClass();
 
@@ -279,13 +281,11 @@ public class ClassDescriptor<FD extends FieldDescriptor> extends DescriptorBase 
 	 * @param thatClass
 	 * @return
 	 */
-	public static ClassDescriptor<? extends FieldDescriptor> getClassDescriptor(
-			Class<?> thatClass)
+	public static ClassDescriptor<? extends FieldDescriptor> getClassDescriptor(Class<?> thatClass)
 	{
 		String className = thatClass.getName();
 		// stay out of the synchronized block most of the time
-		ClassDescriptor<? extends FieldDescriptor> result = globalClassDescriptorsMap
-				.get(className);
+		ClassDescriptor<? extends FieldDescriptor> result = globalClassDescriptorsMap.get(className);
 		if (result == null || !result.isGetAndOrganizeComplete)
 		{
 			// but still be thread safe!
@@ -303,16 +303,16 @@ public class ClassDescriptor<FD extends FieldDescriptor> extends DescriptorBase 
 						Class<?> aClass = descriptorsClassesAnnotation.value()[0];
 						Object[] args = new Object[1];
 						args[0] = thatClass;
-						
-						
-						result = (ClassDescriptor<? extends FieldDescriptor>) ReflectionTools.getInstance(aClass, CONSTRUCTOR_ARGS, args);
+
+						result = (ClassDescriptor<? extends FieldDescriptor>) ReflectionTools.getInstance(
+								aClass, CONSTRUCTOR_ARGS, args);
 					}
 					globalClassDescriptorsMap.put(className, result);
 
 					// NB: this call was moved out of the constructor to avoid recursion problems
 					result.deriveAndOrganizeFieldsRecursive(thatClass, null);
 					result.isGetAndOrganizeComplete = true;
-				}				
+				}
 			}
 		}
 		return result;
@@ -342,7 +342,6 @@ public class ClassDescriptor<FD extends FieldDescriptor> extends DescriptorBase 
 		}
 		return result;
 	}
-
 
 	public ArrayList<FD> attributeFieldDescriptors()
 	{
@@ -555,7 +554,7 @@ public class ClassDescriptor<FD extends FieldDescriptor> extends DescriptorBase 
 				mapOtherTagsToFdForDeserialize(fieldDescriptor, fieldDescriptor.otherTags());
 			}
 			else
-			{ 
+			{
 				mapPolymorphicClassDescriptors(fieldDescriptor);
 			}
 			thatField.setAccessible(true); // else -- ignore non-annotated fields
@@ -566,7 +565,7 @@ public class ClassDescriptor<FD extends FieldDescriptor> extends DescriptorBase 
 	protected void mapOtherTagsToFdForDeserialize(FD fieldDescriptor, ArrayList<String> otherTags)
 	{
 		if (otherTags != null)
-		{			
+		{
 			for (String otherTag : otherTags)
 				mapTagToFdForDeserialize(otherTag, fieldDescriptor);
 		}
@@ -951,7 +950,7 @@ public class ClassDescriptor<FD extends FieldDescriptor> extends DescriptorBase 
 	}
 
 	@Override
-	protected void deserializationPreHook()
+	public void deserializationPreHook()
 	{
 		synchronized (globalClassDescriptorsMap)
 		{

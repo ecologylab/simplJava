@@ -1,6 +1,6 @@
 package ecologylab.oodss.messages;
 
-import ecologylab.serialization.simpl_inherit;
+import ecologylab.serialization.annotations.simpl_inherit;
 
 /**
  * The ResponseMessage send from server to client when the RequestMessage

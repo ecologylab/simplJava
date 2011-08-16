@@ -3,9 +3,9 @@ package ecologylab.oodss.messages;
 import java.util.Hashtable;
 
 import ecologylab.collections.Scope;
-import ecologylab.serialization.simpl_inherit;
 import ecologylab.serialization.annotations.Hint;
 import ecologylab.serialization.annotations.simpl_hints;
+import ecologylab.serialization.annotations.simpl_inherit;
 import ecologylab.serialization.annotations.simpl_scalar;
 
 @simpl_inherit
