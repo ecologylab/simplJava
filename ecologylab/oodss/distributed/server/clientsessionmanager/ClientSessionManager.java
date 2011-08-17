@@ -25,7 +25,7 @@ import ecologylab.serialization.TranslationScope;
  * 
  * @author Zachary O. Toups (zach@ecologylab.net)
  */
-public class ClientSessionManager<S extends Scope> extends TCPClientSessionManager<S> implements ServerConstants
+public class ClientSessionManager<S extends Scope, PARENT extends Scope> extends TCPClientSessionManager<S, PARENT> implements ServerConstants
 {
 	/**
 	 * Creates a new ContextManager.
@@ -40,7 +40,7 @@ public class ClientSessionManager<S extends Scope> extends TCPClientSessionManag
 	 */
 	public ClientSessionManager(String sessionId, int maxPacketSize, NIOServerIOThread server,
 			NIOServerProcessor frontend, SelectionKey socketKey, TranslationScope translationScope,
-			Scope<?> registry)
+			PARENT registry)
 	{
 		super(sessionId, maxPacketSize, server, frontend, socketKey, translationScope, registry);
 	}

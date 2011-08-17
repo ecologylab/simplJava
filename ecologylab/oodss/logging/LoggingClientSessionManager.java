@@ -19,7 +19,7 @@ import ecologylab.serialization.TranslationScope;
  * @author eunyee
  * @author Zachary O. Toups (zach@ecologylab.net)
  */
-public class LoggingClientSessionManager extends ClientSessionManager<LoggingContextScope<?>>
+public class LoggingClientSessionManager extends ClientSessionManager<LoggingContextScope<?>, Scope<?>>
 {
 	boolean	end	= false;
 
@@ -29,13 +29,13 @@ public class LoggingClientSessionManager extends ClientSessionManager<LoggingCon
 	 * @param server
 	 * @param socket
 	 * @param translationScope
-	 * @param registry
+	 * @param appObjScope
 	 */
 	public LoggingClientSessionManager(String sessionId, int maxPacketSize,
 			NIOLoggingServer loggingServer, NIOServerIOThread server, SelectionKey sk,
-			TranslationScope translationScope, Scope registry)
+			TranslationScope translationScope, Scope<?> appObjScope)
 	{
-		super(sessionId, maxPacketSize, server, loggingServer, sk, translationScope, registry);
+		super(sessionId, maxPacketSize, server, loggingServer, sk, translationScope, appObjScope);
 	}
 
 	@Override

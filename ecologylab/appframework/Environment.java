@@ -345,14 +345,6 @@ public interface Environment
 	public void status(String msg);
 
 	/**
-	 * Get a parameter or property, based on a key. Implements a name/value pair.
-	 * 
-	 * @param name
-	 *          The name of the key.
-	 */
-	String lookupStringPreference(String name);
-
-	/**
 	 * 
 	 * Change type from URL to ParsedURL.
 	 */
@@ -390,4 +382,6 @@ public interface Environment
 	 *          Frame to open it in within the web page. This may or may not be used.
 	 */
 	public void navigate(ParsedURL purl, String frame);
+
+	public String getApplicationName();
 }

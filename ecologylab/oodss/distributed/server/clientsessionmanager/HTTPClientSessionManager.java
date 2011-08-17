@@ -11,7 +11,7 @@ import ecologylab.oodss.messages.ResponseMessage;
 import ecologylab.oodss.messages.UpdateMessage;
 import ecologylab.serialization.TranslationScope;
 
-public abstract class HTTPClientSessionManager<S extends Scope> extends TCPClientSessionManager<S>
+public abstract class HTTPClientSessionManager<S extends Scope, PARENT extends Scope> extends TCPClientSessionManager<S, PARENT>
 {
 
 	static final String	HTTP_VERSION							= "HTTP/1.1";
@@ -28,7 +28,7 @@ public abstract class HTTPClientSessionManager<S extends Scope> extends TCPClien
 
 	public HTTPClientSessionManager(String sessionId, int maxPacketSize, NIOServerIOThread server,
 			NIOServerProcessor frontend, SelectionKey socket, TranslationScope translationScope,
-			Scope<?> registry)
+			PARENT registry)
 	{
 		super(sessionId, maxPacketSize, server, frontend, socket, translationScope, registry);
 	}

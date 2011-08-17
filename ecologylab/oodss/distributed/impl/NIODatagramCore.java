@@ -317,7 +317,6 @@ public abstract class NIODatagramCore<S extends Scope> extends Debug implements 
 					}
 					catch (InterruptedException e)
 					{
-						// TODO Auto-generated catch block
 						e.printStackTrace();
 					}
 				}
@@ -344,6 +343,7 @@ public abstract class NIODatagramCore<S extends Scope> extends Debug implements 
 				MessageWithMetadata<ServiceMessage<S>, MessageMetaData> mdataMessage = null;
 				try
 				{
+//					debug("1");
 					mdataMessage = outgoingMessageQueue.take();
 
 					buffer.putLong(mdataMessage.getUid());
@@ -352,11 +352,13 @@ public abstract class NIODatagramCore<S extends Scope> extends Debug implements 
 
 					builder.flip();
 
+//					debug("2");
 					encoder.encode(builder, buffer, true);
 					buffer.flip();
 
 					if (doCompress)
 					{
+//						debug("3");
 						/* Compress message */
 						byte[] array = inBuffer;
 						buffer.get(inBuffer, 0, buffer.limit());
@@ -376,6 +378,7 @@ public abstract class NIODatagramCore<S extends Scope> extends Debug implements 
 						}
 						else
 						{
+//							debug("4");
 							compressedSize = deflater.deflate(outBuffer, 0, outBuffer.length);
 							buffer.clear();
 							buffer.put(outBuffer, 0, compressedSize);
@@ -388,6 +391,7 @@ public abstract class NIODatagramCore<S extends Scope> extends Debug implements 
 						/* debug("Input size: " + uncompressedSize + " and output size: " + compressedSize); */
 					}
 
+//					debug("5");
 					DatagramChannel channel = (DatagramChannel) mdataMessage.getAttachment().key.channel();
 					if (channel.isConnected())
 					{
@@ -434,10 +438,14 @@ public abstract class NIODatagramCore<S extends Scope> extends Debug implements 
 				}
 				finally
 				{
+//					debug("6");
 					buffer.clear();
+//					debug("7");
 					builder.clear();
+//					debug("8");
 					if (mdataMessage != null)
 					{
+//						debug("9");
 						metaDataPool.release(mdataMessage.getAttachment());
 						messagePool.release(mdataMessage);
 					}
@@ -447,7 +455,7 @@ public abstract class NIODatagramCore<S extends Scope> extends Debug implements 
 	}
 
 	/**
-	 * Packet recieving thread. Deserializes incoming messages and passes them
+	 * Packet receiving thread. Deserializes incoming messages and passes them
 	 * onto the packet handler threads.
 	 * 
 	 * @author bilhamil

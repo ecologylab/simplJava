@@ -14,6 +14,7 @@ import java.nio.charset.Charset;
 import java.nio.charset.CharsetEncoder;
 import java.util.ArrayList;
 
+import ecologylab.appframework.ApplicationEnvironment;
 import ecologylab.appframework.Memory;
 import ecologylab.appframework.PropertiesAndDirectories;
 import ecologylab.appframework.types.prefs.Pref;
@@ -161,9 +162,13 @@ public class Logging<T extends MixedInitiativeOp> extends ElementState implement
 	 */
 	public Logging(String logFileName, int maxOpsBeforeWrite)
 	{
-		this(logFileName, false, maxOpsBeforeWrite, Pref.lookupInt(LOGGING_MODE_PARAM, NO_LOGGING),
-				Pref.lookupString(LOGGING_HOST_PARAM, "localhost"), Pref.lookupInt(LOGGING_PORT_PARAM,
-						ServicesHostsAndPorts.LOGGING_PORT));
+		this(	logFileName,
+					false,
+					maxOpsBeforeWrite,
+					Pref.lookupInt(LOGGING_MODE_PARAM, NO_LOGGING),
+					Pref.lookupString(LOGGING_HOST_PARAM, "localhost"),
+					Pref.lookupInt(LOGGING_PORT_PARAM, ServicesHostsAndPorts.LOGGING_PORT),
+					null);
 	}
 
 	/**
@@ -184,9 +189,53 @@ public class Logging<T extends MixedInitiativeOp> extends ElementState implement
 	 * @param loggingPort
 	 *          the port of the host to which to log if using networked logging (may be 0 if local
 	 *          logging is desired).
+	 * @deprecated Use {@link #Logging(String,boolean,int,int,String,int,ApplicationEnvironment)}
+	 *             instead
 	 */
-	public Logging(String logFileName, boolean logFileNameAbsolute, int maxOpsBeforeWrite,
-			int logMode, String loggingHost, int loggingPort)
+	public Logging(	String logFileName,
+									boolean logFileNameAbsolute,
+									int maxOpsBeforeWrite,
+									int logMode,
+									String loggingHost,
+									int loggingPort)
+	{
+		this(	logFileName,
+					logFileNameAbsolute,
+					maxOpsBeforeWrite,
+					logMode,
+					loggingHost,
+					loggingPort,
+					null);
+	}
+
+	/**
+	 * Instantiates a Logging object based on the supplied parameters. This constructor does not rely
+	 * on {@link ecologylab.appframework.types.prefs.Pref Pref}s.
+	 * 
+	 * @param logFileName
+	 *          the name of the file to which the log will be written.
+	 * @param logFileNameAbsolute
+	 *          TODO
+	 * @param maxOpsBeforeWrite
+	 *          the maximum number of ops to record in memory before writing them to the set media.
+	 * @param logMode
+	 *          the media to which the logger will write, such as a memory-mapped file or a server.
+	 * @param loggingHost
+	 *          the host to which to log if using networked logging (may be null if local logging is
+	 *          desired).
+	 * @param loggingPort
+	 *          the port of the host to which to log if using networked logging (may be 0 if local
+	 *          logging is desired).
+	 * @param environment
+	 *          TODO
+	 */
+	public Logging(	String logFileName,
+									boolean logFileNameAbsolute,
+									int maxOpsBeforeWrite,
+									int logMode,
+									String loggingHost,
+									int loggingPort,
+									ApplicationEnvironment environment)
 	{
 		this(maxOpsBeforeWrite);
 
@@ -209,7 +258,10 @@ public class Logging<T extends MixedInitiativeOp> extends ElementState implement
 					File logDir;
 					if (!logFileNameAbsolute)
 					{
-						logDir = PropertiesAndDirectories.logDir();
+						if (environment == null)
+							logDir = PropertiesAndDirectories.logDir();
+						else
+							logDir = PropertiesAndDirectories.logDir(environment);
 					}
 					else
 					{
@@ -331,9 +383,11 @@ public class Logging<T extends MixedInitiativeOp> extends ElementState implement
 				NIOClient loggingClient = null;
 				try
 				{
-					loggingClient = new NIOClient(loggingHost, loggingPort,
-							DefaultServicesTranslations.get(), new Scope(),
-							NIOLoggingServer.MAX_MESSAGE_SIZE_CHARS_LOGGING);
+					loggingClient = new NIOClient(loggingHost,
+																				loggingPort,
+																				DefaultServicesTranslations.get(),
+																				new Scope(),
+																				NIOLoggingServer.MAX_MESSAGE_SIZE_CHARS_LOGGING);
 
 					// CONNECT TO SERVER
 					if (loggingClient.connect())
@@ -454,6 +508,7 @@ public class Logging<T extends MixedInitiativeOp> extends ElementState implement
 	 */
 	public void start()
 	{
+		debug("Logging starting up...");
 		if ((logWriters != null) && (thread == null))
 		{
 			thread = new Thread(this);
@@ -718,9 +773,8 @@ public class Logging<T extends MixedInitiativeOp> extends ElementState implement
 
 		FileChannel							channel							= null;
 
-		private CharsetEncoder	encoder							= Charset.forName(
-																										NetworkingConstants.CHARACTER_ENCODING)
-																										.newEncoder();
+		private CharsetEncoder	encoder							= Charset.forName(NetworkingConstants.CHARACTER_ENCODING)
+																													.newEncoder();
 
 		private File						logFile;
 
@@ -1044,8 +1098,7 @@ public class Logging<T extends MixedInitiativeOp> extends ElementState implement
 				firstHalf.setBuffer(new StringBuilder(bufferToLog.subSequence(0, half)));
 
 				LogOps secondHalf = new LogOps();
-				secondHalf
-						.setBuffer(new StringBuilder(bufferToLog.subSequence(half, bufferToLog.length())));
+				secondHalf.setBuffer(new StringBuilder(bufferToLog.subSequence(half, bufferToLog.length())));
 
 				this.writeLogMessage(firstHalf);
 				this.writeLogMessage(secondHalf);

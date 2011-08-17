@@ -40,24 +40,22 @@ import ecologylab.serialization.TranslationScope;
 public class NIODatagramServer<S extends Scope> extends NIODatagramCore<S> implements
 		NIOServerProcessor
 {
-	private long																										sidIndex							= 1;
+	private long																										sidIndex								= 1;
 
-	private ConcurrentHashMap<String, DatagramClientSessionManager>	sidToSessionManager		= new ConcurrentHashMap<String, DatagramClientSessionManager>();
+	private ConcurrentHashMap<String, DatagramClientSessionManager>	sidToSessionManager			= new ConcurrentHashMap<String, DatagramClientSessionManager>();
 
-	private ConcurrentHashMap<SocketAddress, String>								socketAddressesToSids	= new ConcurrentHashMap<SocketAddress, String>();
+	private ConcurrentHashMap<SocketAddress, String>								socketAddressesToSids		= new ConcurrentHashMap<SocketAddress, String>();
 
-	private ConcurrentHashMap<String, SocketAddress>								sidsToSocketAddresses	= new ConcurrentHashMap<String, SocketAddress>();
+	private ConcurrentHashMap<String, SocketAddress>								sidsToSocketAddresses		= new ConcurrentHashMap<String, SocketAddress>();
 
-	/**
-	 * Map in which keys are sessionTokens, and values are associated SessionHandles
-	 */
+	/** Map in which keys are sessionTokens, and values are associated SessionHandles */
 	private HashMapArrayList<Object, SessionHandle>									clientSessionHandleMap	= new HashMapArrayList<Object, SessionHandle>();
 
-	protected S																											applicationObjectScope;
+	// protected S applicationObjectScope;
 
 	private MessageDigest																						digester;
 
-	private int																											dispensedTokens				= 1;
+	private int																											dispensedTokens					= 1;
 
 	private int																											portNumber;
 
@@ -72,15 +70,18 @@ public class NIODatagramServer<S extends Scope> extends NIODatagramCore<S> imple
 	 * @param useCompression
 	 *          whether or not to use compression
 	 */
-	public NIODatagramServer(int portNumber, TranslationScope translationScope, S objectRegistry,
-			boolean useCompression)
+	public NIODatagramServer(	int portNumber,
+														TranslationScope translationScope,
+														S objectRegistry,
+														boolean useCompression)
 	{
 		super(translationScope, objectRegistry, useCompression);
 
-		this.applicationObjectScope = objectRegistry;
+		// this.applicationObjectScope = objectRegistry;
 
-		applicationObjectScope.put(SessionObjects.SESSIONS_MAP, clientSessionHandleMap);
-		
+		this.objectRegistry.put(SessionObjects.SESSIONS_MAP, clientSessionHandleMap);
+		// applicationObjectScope.put(SessionObjects.SESSIONS_MAP, clientSessionHandleMap);
+
 		DatagramChannel chan;
 
 		this.portNumber = portNumber;
@@ -121,11 +122,14 @@ public class NIODatagramServer<S extends Scope> extends NIODatagramCore<S> imple
 	}
 
 	/**
-	 * Initializes and starts the datagram server. Open's up the server on all 
-	 * interfaces. Doesn't use compression by default.
-	 * @param portNumber service's port number
+	 * Initializes and starts the datagram server. Open's up the server on all interfaces. Doesn't use
+	 * compression by default.
+	 * 
+	 * @param portNumber
+	 *          service's port number
 	 * @param translationScope
-	 * @param objectRegistry application scope
+	 * @param objectRegistry
+	 *          application scope
 	 */
 	public NIODatagramServer(int portNumber, TranslationScope translationScope, S objectRegistry)
 	{
@@ -157,27 +161,30 @@ public class NIODatagramServer<S extends Scope> extends NIODatagramCore<S> imple
 				socketAddressesToSids.put(address, sid);
 				sidsToSocketAddresses.put(sid, address);
 
-				DatagramClientSessionManager mngr = this.generateContextManager(sid, key,
-						this.applicationObjectScope, address);
-				
+				DatagramClientSessionManager mngr = this.generateContextManager(sid,
+																																				key,
+																																				this.objectRegistry,
+																																				// this.applicationObjectScope,
+																																				address);
+
 				SessionHandle hndl = new SessionHandle(mngr);
-				
+
 				sidToSessionManager.put(sid, mngr);
 				clientSessionHandleMap.put(sid, hndl);
-				
+
 				mngr.getScope().put(SessionObjects.SESSION_HANDLE, new SessionHandle(mngr));
 			}
 
 			clientSessionManager = sidToSessionManager.get(sid);
 
 			/*
-			 * Have to keep track of the most recent key if messages are
-			 * coming in on multiple ports on the server.
+			 * Have to keep track of the most recent key if messages are coming in on multiple ports on
+			 * the server.
 			 */
 			clientSessionManager.updateKey(key);
-			
-			ResponseMessage response = clientSessionManager.processRequest((RequestMessage) message,
-					((InetSocketAddress) address).getAddress());
+
+			ResponseMessage response = clientSessionManager.processRequest(	(RequestMessage) message,
+																																			((InetSocketAddress) address).getAddress());
 
 			if (response != null)
 				this.sendMessage(response, key, uid, address);
@@ -185,11 +192,11 @@ public class NIODatagramServer<S extends Scope> extends NIODatagramCore<S> imple
 		}
 	}
 
-	//					
-	//					
-	//					
-	//					
-	//					
+	//
+	//
+	//
+	//
+	//
 	// // client expecting a new sid back
 	// // try to restore previous sid
 	// if ((sid = socketAddressesToSids.get(address)) != null)
@@ -290,8 +297,7 @@ public class NIODatagramServer<S extends Scope> extends NIODatagramCore<S> imple
 		}
 		if (message instanceof MultiRequestMessage)
 		{
-			Collection<ResponseMessage> responses = ((MultiRequestMessage) message)
-					.performService(clientRegistry);
+			Collection<ResponseMessage> responses = ((MultiRequestMessage) message).performService(clientRegistry);
 			for (ResponseMessage response : responses)
 			{
 				this.sendMessage(response, key, uid, address);
@@ -340,9 +346,10 @@ public class NIODatagramServer<S extends Scope> extends NIODatagramCore<S> imple
 	/**
 	 * @return the global scope for this server
 	 */
-	public Scope getGlobalScope()
+	public S getApplicationObjectScope()
 	{
-		return applicationObjectScope;
+		return this.objectRegistry;
+		// return applicationObjectScope;
 	}
 
 	/**
@@ -355,7 +362,7 @@ public class NIODatagramServer<S extends Scope> extends NIODatagramCore<S> imple
 	 * @return
 	 */
 	protected DatagramClientSessionManager generateContextManager(String sessionId, SelectionKey sk,
-			Scope registryIn, InetSocketAddress address)
+			S registryIn, InetSocketAddress address)
 	{
 		return new DatagramClientSessionManager(sessionId, this, sk, registryIn, address);
 	}
@@ -433,19 +440,22 @@ public class NIODatagramServer<S extends Scope> extends NIODatagramCore<S> imple
 	}
 
 	@Override
-	public ByteBufferPool getSharedByteBufferPool() {
+	public ByteBufferPool getSharedByteBufferPool()
+	{
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
-	public CharBufferPool getSharedCharBufferPool() {
+	public CharBufferPool getSharedCharBufferPool()
+	{
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
-	public StringBuilderPool getSharedStringBuilderPool() {
+	public StringBuilderPool getSharedStringBuilderPool()
+	{
 		// TODO Auto-generated method stub
 		return null;
 	}

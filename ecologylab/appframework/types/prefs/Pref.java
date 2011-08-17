@@ -7,7 +7,7 @@ import java.awt.Color;
 import java.io.File;
 import java.util.LinkedList;
 
-import ecologylab.appframework.ApplicationEnvironment;
+import ecologylab.appframework.SingletonApplicationEnvironment;
 import ecologylab.collections.Scope;
 import ecologylab.serialization.ElementState;
 import ecologylab.serialization.simpl_inherit;
@@ -26,7 +26,7 @@ public abstract class Pref<T> extends ElementState implements Mappable<String>, 
 	static final Scope<Pref<?>>							allPrefsMap	= new Scope<Pref<?>>();
 
 	/** The ApplicationEnvironment associated with this JVM. */
-	static final ApplicationEnvironment			aE					= null;
+	static final SingletonApplicationEnvironment			aE					= null;
 
 	/** Name of a Pref; provides index into the preferences map. */
 	@simpl_scalar

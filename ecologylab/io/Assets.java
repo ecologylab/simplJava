@@ -9,8 +9,10 @@ import java.net.URLEncoder;
 
 import ecologylab.appframework.ApplicationEnvironment;
 import ecologylab.appframework.ApplicationProperties;
+import ecologylab.appframework.Environment;
 import ecologylab.appframework.EnvironmentGeneric;
 import ecologylab.appframework.PropertiesAndDirectories;
+import ecologylab.appframework.SingletonApplicationEnvironment;
 import ecologylab.appframework.StatusReporter;
 import ecologylab.appframework.types.AssetState;
 import ecologylab.appframework.types.AssetsState;
@@ -74,7 +76,6 @@ public class Assets extends Debug implements ApplicationProperties
 	 */
 	static
 	{
-		assetsRoot = EnvironmentGeneric.configDir();
 		cacheRoot = /*
 								 * ApplicationEnvironment.runningInEclipse() ? EnvironmentGeneric.configDir().file()
 								 * :
@@ -193,9 +194,33 @@ public class Assets extends Debug implements ApplicationProperties
 	public static File getAsset(AssetsRoot assetsRoot, String relativePath, String assetName,
 			StatusReporter status, boolean forceDownload, float version)
 	{
-		File result = relativePath != null ? getAsset(assetsRoot, relativePath) : assetsRoot
-				.getCacheRoot();
-		if (!ApplicationEnvironment.runningInEclipse())
+		File result = relativePath != null ? getAsset(assetsRoot, relativePath)
+				: assetsRoot.getCacheRoot();
+		if (!SingletonApplicationEnvironment.runningInEclipse())
+			downloadZip(assetsRoot, assetName, status, forceDownload, version);
+
+		return result;
+	}
+
+	/**
+	 * Version of getAsset that uses a non-singleton ApplicationEnvironment to know where to store
+	 * assets.
+	 * 
+	 * @param assetsRoot
+	 * @param relativePath
+	 * @param assetName
+	 * @param status
+	 * @param forceDownload
+	 * @param version
+	 * @param env
+	 * @return
+	 */
+	public static File getAsset(AssetsRoot assetsRoot, String relativePath, String assetName,
+			StatusReporter status, boolean forceDownload, float version, ApplicationEnvironment env)
+	{
+		File result = relativePath != null ? getAsset(assetsRoot, relativePath)
+				: assetsRoot.getCacheRoot();
+		if (!env.isRunningInEclipse())
 			downloadZip(assetsRoot, assetName, status, forceDownload, version);
 
 		return result;
@@ -211,7 +236,10 @@ public class Assets extends Debug implements ApplicationProperties
 			boolean forceDownload, float version)
 	{
 		downloadZip(assetsRoot.getAssetRoot().getRelative(assetName + ".zip", "forming zip location"),
-				assetsRoot.getCacheRoot(), status, forceDownload, version);
+								assetsRoot.getCacheRoot(),
+								status,
+								forceDownload,
+								version);
 	}
 
 	/**
@@ -219,7 +247,7 @@ public class Assets extends Debug implements ApplicationProperties
 	 * unless the zip file already exists at the target location, in which case, do nothing.
 	 * 
 	 * @param status
-	 *          The Status object that provides a source of state change visiblity; can be null.
+	 *          The Status object that provides a source of state change visibility; can be null.
 	 * @param forceDownload
 	 * @param version
 	 */
@@ -236,11 +264,13 @@ public class Assets extends Debug implements ApplicationProperties
 		if (forceDownload || !zipFileDestination.canRead()
 				|| !localVersionIsUpToDate(zipFileName, version))
 		{
-			ZipDownload downloadingZip = ZipDownload.downloadAndPerhapsUncompress(sourceZip, targetDir,
-					status, true);
-			
-			Debug.println("downloading zip: "+downloadingZip.toString());
-			
+			ZipDownload downloadingZip = ZipDownload.downloadAndPerhapsUncompress(sourceZip,
+																																						targetDir,
+																																						status,
+																																						true);
+
+			Debug.println("downloading zip: " + downloadingZip.toString());
+
 			if (downloadingZip != null) // null if already available locally or error
 			{
 				downloadingZip.waitForDownload();
@@ -258,7 +288,18 @@ public class Assets extends Debug implements ApplicationProperties
 	 */
 	public static ParsedURL assetsRoot()
 	{
-		return assetsRoot;
+		return EnvironmentGeneric.configDir();
+	}
+
+	/**
+	 * Get the source URL root of the tree of assets for this application. Default is the configDir(),
+	 * which in turn is the config subdir of codebase.
+	 * 
+	 * @return ParsedURL referring to the root of the remote place we download assets from.
+	 */
+	public static ParsedURL assetsRoot(Environment e)
+	{
+		return EnvironmentGeneric.configDir(e);
 	}
 
 	/**
@@ -285,9 +326,30 @@ public class Assets extends Debug implements ApplicationProperties
 		if ((targetPath != null) && (targetPath.length() > 0))
 			targetDir = Files.newFile(targetDir, targetPath);
 
-		downloadXML(assetsRoot().getRelative(sourcePath, "forming Asset path location"), targetDir,
-				status);
+		downloadXML(assetsRoot().getRelative(sourcePath, "forming Asset path location"),
+								targetDir,
+								status);
+	}
 
+	/**
+	 * Download XML from the sourcePath, within the assetsRoot (the application's config dir), to the
+	 * target path within the applicationDir.
+	 * 
+	 * @param sourcePath
+	 * @param targetPath
+	 * @param status
+	 */
+	public static void downloadXML(Environment e, String sourcePath, String targetPath,
+			StatusReporter status)
+	{
+		File targetDir = cacheRoot();
+		if ((targetPath != null) && (targetPath.length() > 0))
+			targetDir = Files.newFile(targetDir, targetPath);
+
+		downloadXML(EnvironmentGeneric.configDir(e).getRelative(sourcePath,
+																														"forming Asset path location"),
+								targetDir,
+								status);
 	}
 
 	/**
@@ -315,8 +377,10 @@ public class Assets extends Debug implements ApplicationProperties
 		if (!xmlFileDestination.canRead())
 		{
 			// we just want to download it, not uncompress it... (using code from zip downloading stuff)
-			ZipDownload downloadingZip = ZipDownload.downloadAndPerhapsUncompress(sourceXML, targetDir,
-					status, false);
+			ZipDownload downloadingZip = ZipDownload.downloadAndPerhapsUncompress(sourceXML,
+																																						targetDir,
+																																						status,
+																																						false);
 			if (downloadingZip != null) // null if already available locally or error
 			{
 				downloadingZip.waitForDownload();

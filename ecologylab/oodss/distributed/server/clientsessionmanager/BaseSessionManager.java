@@ -21,7 +21,7 @@ import ecologylab.oodss.messages.UpdateMessage;
  * @author Zachary O. Toups (zach@ecologylab.net)
  * 
  */
-public abstract class BaseSessionManager<S extends Scope> extends Debug
+public abstract class BaseSessionManager<S extends Scope, PARENT extends Scope> extends Debug
 {
 
 	/**
@@ -75,7 +75,7 @@ public abstract class BaseSessionManager<S extends Scope> extends Debug
 	 * 
 	 */
 	public BaseSessionManager(String sessionId, NIOServerProcessor frontend, SelectionKey socket,
-			Scope<?> baseScope)
+			PARENT baseScope)
 	{
 		super();
 
@@ -98,7 +98,7 @@ public abstract class BaseSessionManager<S extends Scope> extends Debug
 	 * @param baseScope
 	 * @return
 	 */
-	protected S generateContextScope(Scope<?> baseScope)
+	protected S generateContextScope(PARENT baseScope)
 	{
 		return (S) new Scope(baseScope);
 	}
