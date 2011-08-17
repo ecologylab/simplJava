@@ -40,27 +40,27 @@ import ecologylab.translators.hibernate.hbmxml.HibernateProperty;
 public class HibernateXmlMappingGenerator extends Debug
 {
 	
-	public static final String						XML_HEAD														= "<?xml version=\"1.0\"?>\n<!DOCTYPE hibernate-mapping PUBLIC \"-//Hibernate/Hibernate Mapping DTD 3.0//EN\" \"http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd\">\n";
+	public static final String											XML_HEAD								= "<?xml version=\"1.0\"?>\n<!DOCTYPE hibernate-mapping PUBLIC \"-//Hibernate/Hibernate Mapping DTD 3.0//EN\" \"http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd\">\n";
 
 	/**
 	 * the implementation class of DbNameGenerator. when a new HibernateXmlMappingGenerator is newed,
 	 * this static member will be used to create the generator.
 	 */
-	public static Class										DB_NAME_GENERATOR_CLASS							= DefaultCachedDbNameGenerator.class;
+	public static Class<? extends DbNameGenerator>	DB_NAME_GENERATOR_CLASS	= DefaultCachedDbNameGenerator.class;
 
-	private DbNameGenerator								dbNameGenerator;
-	
-	private TranslationScope							translationScope;
+	private DbNameGenerator													dbNameGenerator;
 
-	private Map<String, String>						idFieldNameByClass;
+	private TranslationScope												translationScope;
 
-	private Map<String, HibernateMapping>	allMapping													= new HashMap<String, HibernateMapping>();
+	private Map<String, String>											idFieldNameByClass;
+
+	private Map<String, HibernateMapping>						allMapping							= new HashMap<String, HibernateMapping>();
 
 	public HibernateXmlMappingGenerator()
 	{
 		try
 		{
-			dbNameGenerator = (DbNameGenerator) DB_NAME_GENERATOR_CLASS.newInstance();
+			dbNameGenerator = DB_NAME_GENERATOR_CLASS.newInstance();
 		}
 		catch (InstantiationException e)
 		{
@@ -103,7 +103,7 @@ public class HibernateXmlMappingGenerator extends Debug
 
 		List<String> mappingImports = new ArrayList<String>();
 
-		for (ClassDescriptor cd : translationScope.getClassDescriptors())
+		for (ClassDescriptor cd : translationScope.entriesByClassName().values())
 		{
 			HibernateMapping mapping = new HibernateMapping();
 			mapping.setMappingPackageName(cd.getDescribedClassPackageName());
@@ -119,8 +119,7 @@ public class HibernateXmlMappingGenerator extends Debug
 		for (HibernateMapping mapping : allMapping.values())
 		{
 			HibernateClass currentClass = mapping.getMappedClasses().get(0);
-			String tableName = currentClass.getTable();
-			File newHbmFile = new File(hbmDir, tableName + ".hbm.xml");
+			File newHbmFile = new File(hbmDir, currentClass.getName() + ".hbm.xml");
 			mappingImports.add(String.format("<mapping file=\"%s\" />", newHbmFile.getPath()));
 			PrintWriter writer = new PrintWriter(newHbmFile);
 			writer.println(XML_HEAD);
@@ -144,7 +143,10 @@ public class HibernateXmlMappingGenerator extends Debug
 			String idFieldName = findIdFieldName(cd);
 			String idColName = findIdColName(cd);
 			thatClass.setId(new HibernateClassId(idFieldName, idColName, HibernateClassIdGenerator.identityGenerator));
-			thatClass.setCache(new HibernateClassCache());
+			
+			// this is optional. if second level cache is disabled this will cause an error
+//			thatClass.setCache(new HibernateClassCache());
+			
 			// thatClass.setDiscriminatorValue(cd.getDescribedClassName());
 			// thatClass.setDiscriminator(new HibernateClassDiscriminator(DISCRIMINATOR_COLUMN_NAME));
 		}

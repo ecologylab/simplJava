@@ -114,7 +114,7 @@ public class JavaTranslator implements JavaTranslationConstants
 			{
 				if (fieldDescriptor.belongsTo(classDescriptor))
 				{					
-					appendFieldAsJavaAttribute(fieldDescriptor, classFile);						
+					appendFieldAsJavaAttribute(inputClass, fieldDescriptor, classFile);						
 				}
 			}
 
@@ -467,13 +467,14 @@ public class JavaTranslator implements JavaTranslationConstants
 
 	/**
 	 * Generating code for the given field descriptor
-	 * 
+	 * @param contextCd TODO
 	 * @param fieldDescriptor
 	 * @param appendable
+	 * 
 	 * @throws IOException
 	 * @throws DotNetTranslationException
 	 */
-	private void appendFieldAsJavaAttribute(FieldDescriptor fieldDescriptor, Appendable appendable)
+	private void appendFieldAsJavaAttribute(ClassDescriptor contextCd, FieldDescriptor fieldDescriptor, Appendable appendable)
 			throws IOException, JavaTranslationException
 	{
 		registerNamespaces(fieldDescriptor);
@@ -489,7 +490,7 @@ public class JavaTranslator implements JavaTranslationConstants
 		appendCommentBoundary(appendable, true, isKeyword);
 
 		appendFieldComments(fieldDescriptor, appendable);
-		appendFieldAnnotations(fieldDescriptor, appendable);
+		appendFieldAnnotations(contextCd, fieldDescriptor, appendable);
 		appendable.append(TAB);
 		appendable.append(PRIVATE);
 		appendable.append(SPACE);
@@ -593,12 +594,13 @@ public class JavaTranslator implements JavaTranslationConstants
 
 	/**
 	 * A method to generate the annotations in the java code
-	 * 
+	 * @param contextCd TODO
 	 * @param fieldDescriptor
 	 * @param appendable
+	 * 
 	 * @throws IOException
 	 */
-	private void appendFieldAnnotations(FieldDescriptor fieldDescriptor, Appendable appendable)
+	private void appendFieldAnnotations(ClassDescriptor contextCd, FieldDescriptor fieldDescriptor, Appendable appendable)
 			throws IOException
 	{
 		int type = fieldDescriptor.getType();
@@ -675,18 +677,19 @@ public class JavaTranslator implements JavaTranslationConstants
 			appendAnnotation(appendable, JavaTranslationUtilities.getJavaScopeAnnotation(polyScope), TAB);
 		}
 		
-		appendFieldAnnotationsHook(appendable, fieldDescriptor, TAB);
+		appendFieldAnnotationsHook(appendable, contextCd, fieldDescriptor, TAB);
 	}
 	
 	/**
 	 * (for adding customized annotations, e.g. meta-metadata specific ones)
 	 * 
 	 * @param appendable
+	 * @param contextCd TODO
 	 * @param classDesc
 	 * @param tabSpacing
 	 * @throws IOException 
 	 */
-	protected void appendFieldAnnotationsHook(Appendable appendable, FieldDescriptor fieldDesc, String spacing) throws IOException
+	protected void appendFieldAnnotationsHook(Appendable appendable, ClassDescriptor contextCd, FieldDescriptor fieldDesc, String spacing) throws IOException
 	{
 		
 	}

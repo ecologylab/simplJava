@@ -7,6 +7,7 @@ import ecologylab.semantics.metametadata.MetaMetadataCompositeField;
 import ecologylab.semantics.metametadata.MetaMetadataField;
 import ecologylab.semantics.metametadata.MetaMetadataScalarField;
 import ecologylab.semantics.metametadata.exceptions.MetaMetadataException;
+import ecologylab.serialization.ClassDescriptor;
 import ecologylab.serialization.FieldDescriptor;
 import ecologylab.serialization.FieldTypes;
 import ecologylab.serialization.types.ScalarType;
@@ -28,14 +29,14 @@ public class MetaMetadataJavaTranslator extends JavaTranslator
 	}
 
 	@Override
-	protected void appendFieldAnnotationsHook(Appendable appendable, FieldDescriptor fieldDesc, String spacing) throws IOException
+	protected void appendFieldAnnotationsHook(Appendable appendable, ClassDescriptor contextCd, FieldDescriptor fieldDesc, String spacing) throws IOException
 	{
-		super.appendFieldAnnotationsHook(appendable, fieldDesc, spacing);
+		super.appendFieldAnnotationsHook(appendable, contextCd, fieldDesc, spacing);
 		
 		MetadataFieldDescriptor fd = (MetadataFieldDescriptor) fieldDesc;
 		MetaMetadataField f = fd.getDefiningMmdField();
 		String annotations = f.getAdditionalAnnotationsInJava();
-		appendable.append(annotations);
+		appendable.append(spacing).append(annotations).append(SINGLE_LINE_BREAK);
 	}
 
 	@Override

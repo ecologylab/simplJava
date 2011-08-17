@@ -11,7 +11,6 @@ import java.util.List;
 import ecologylab.appframework.PropertiesAndDirectories;
 import ecologylab.generic.Debug;
 import ecologylab.io.Files;
-import ecologylab.semantics.generated.library.RepositoryMetadataTranslationScope;
 import ecologylab.semantics.metadata.builtins.MetadataBuiltinsTranslationScope;
 import ecologylab.semantics.metametadata.MetaMetadata;
 import ecologylab.semantics.metametadata.MetaMetadataRepository;
@@ -52,6 +51,13 @@ public class NewMetaMetadataCompiler extends Debug
 		jt.translateToJava(new File(generatedSemanticsLocation), tscope);
 		createTranslationScopeClass(generatedSemanticsLocation,
 				REPOSITORY_METADATA_TRANSLATION_SCOPE_PACKAGE_NAME, repository);
+		
+		compilerHook(repository);
+	}
+	
+	protected void compilerHook(MetaMetadataRepository repository)
+	{
+		
 	}
 
 	public void createTranslationScopeClass(String generatedSemanticsRootDir, String packageName,
