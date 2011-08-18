@@ -266,7 +266,7 @@ implements CrossLanguageTypeConstants
 	public void appendValue(Appendable buffy, FieldDescriptor fieldDescriptor, Object context, TranslationContext serializationContext, FORMAT format)
 			throws IllegalArgumentException, IllegalAccessException, IOException
 	{
-		Object instance = fieldDescriptor.getField().get(context);
+		Object instance = fieldDescriptor.getValue(context);
 
 		appendValue((T) instance, buffy, !fieldDescriptor.isCDATA(), serializationContext, format);
 	}

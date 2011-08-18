@@ -1392,26 +1392,8 @@ public class ElementState extends Debug implements FieldTypes, XMLTranslationExc
 				}
 				else
 				{
-					Object thatReferenceObject = null;
-					Field childField = childFD.getField();
-					try
-					{
-						thatReferenceObject = childField.get(this);
-					}
-					catch (IllegalAccessException e)
-					{
-						debugA("WARNING re-trying access! " + e.getStackTrace()[0]);
-						childField.setAccessible(true);
-						try
-						{
-							thatReferenceObject = childField.get(this);
-						}
-						catch (IllegalAccessException e1)
-						{
-							error("Can't access " + childField.getName());
-							e1.printStackTrace();
-						}
-					}
+					Object thatReferenceObject = childFD.getValue(this);
+					
 					// ignore null reference objects
 					if (thatReferenceObject == null)
 						continue;
