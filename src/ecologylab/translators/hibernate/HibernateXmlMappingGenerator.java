@@ -3,10 +3,16 @@ package ecologylab.translators.hibernate;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.PrintWriter;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import ecologylab.appframework.PropertiesAndDirectories;
 import ecologylab.generic.Debug;
@@ -18,7 +24,6 @@ import ecologylab.serialization.FieldTypes;
 import ecologylab.serialization.SIMPLTranslationException;
 import ecologylab.serialization.TranslationScope;
 import ecologylab.translators.hibernate.hbmxml.HibernateClass;
-import ecologylab.translators.hibernate.hbmxml.HibernateClassCache;
 import ecologylab.translators.hibernate.hbmxml.HibernateClassId;
 import ecologylab.translators.hibernate.hbmxml.HibernateClassIdGenerator;
 import ecologylab.translators.hibernate.hbmxml.HibernateCollection;
@@ -36,7 +41,7 @@ import ecologylab.translators.hibernate.hbmxml.HibernateProperty;
  * @author quyin
  * 
  */
-@SuppressWarnings("rawtypes")
+@SuppressWarnings({ "rawtypes", "unchecked" })
 public class HibernateXmlMappingGenerator extends Debug
 {
 	
@@ -136,7 +141,7 @@ public class HibernateXmlMappingGenerator extends Debug
 		HibernateClass thatClass = null;
 
 		ClassDescriptor superCd = cd.getSuperClass();
-		if (superCd == null || !this.translationScope.getClassDescriptors().contains(superCd))
+		if (superCd == null || this.translationScope.getClassDescriptorByClassName(superCd.getDescribedClassName()) == null)
 		{
 			thatClass = new HibernateClass();
 
@@ -159,6 +164,7 @@ public class HibernateXmlMappingGenerator extends Debug
 		thatClass.setTable(dbNameGenerator.getTableName(cd));
 
 		thatClass.setProperties(new HashMapArrayList<String, HibernateFieldBase>());
+		cd.resolveUnresolvedScopeAnnotationFDs();
 		for (Object fdObj : cd.getDeclaredFieldDescriptorsByFieldName().values())
 		{
 			FieldDescriptor fd = (FieldDescriptor) fdObj;
@@ -235,13 +241,23 @@ public class HibernateXmlMappingGenerator extends Debug
 
 	protected HibernateComposite generateCompositeMapping(ClassDescriptor mmd, FieldDescriptor fd)
 	{
-		ClassDescriptor elementCd = fd.getElementClassDescriptor();
-		if (elementCd == null)
+		ClassDescriptor elementCd = null;
+		
+		if (fd.isPolymorphic())
 		{
-			warning("Empty element ClassDescriptor (might be polymorphic field): " + fd);
-			return null;
+			elementCd = ClassDescriptor.getClassDescriptor((Class) fd.getField().getType());
+		}
+		else
+		{
+			elementCd = fd.getElementClassDescriptor();
 		}
 
+		if (elementCd == null)
+		{
+			warning("Cannot find or determine element ClassDescriptor: " + fd);
+			return null;
+		}
+		
 		HibernateComposite comp = new HibernateComposite();
 		comp.setName(fd.getName());
 		comp.setColumn(dbNameGenerator.getColumnName(fd));
@@ -251,13 +267,30 @@ public class HibernateXmlMappingGenerator extends Debug
 
 	protected HibernateCollection generateElementCollectionMapping(ClassDescriptor cd, FieldDescriptor fd)
 	{
-		ClassDescriptor elementCd = fd.getElementClassDescriptor();
-		if (elementCd == null)
+		ClassDescriptor elementCd = null;
+		
+		if (fd.isPolymorphic())
 		{
-			warning("Empty element ClassDescriptor (might be polymorphic field): " + fd);
-			return null;
+			Type genericType = fd.getField().getGenericType(); // the List<T> type
+			if (genericType instanceof ParameterizedType)
+			{
+				Type elementType = ((ParameterizedType) genericType).getActualTypeArguments()[0];
+				if (elementType instanceof ParameterizedType)
+					elementType = ((ParameterizedType) elementType).getRawType();
+				elementCd = ClassDescriptor.getClassDescriptor((Class) elementType);
+			}
+		}
+		else
+		{
+			elementCd = fd.getElementClassDescriptor();
 		}
 
+		if (elementCd == null)
+		{
+			warning("Cannot find or determine element ClassDescriptor: " + fd);
+			return null;
+		}
+		
 		HibernateCollection coll = new HibernateCollection();
 		coll.setName(fd.getName());
 		coll.setTable(dbNameGenerator.getAssociationTableName(cd, fd));
