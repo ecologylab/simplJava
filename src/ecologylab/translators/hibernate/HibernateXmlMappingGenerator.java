@@ -30,6 +30,7 @@ import ecologylab.translators.hibernate.hbmxml.HibernateCollection;
 import ecologylab.translators.hibernate.hbmxml.HibernateCollectionScalar;
 import ecologylab.translators.hibernate.hbmxml.HibernateComposite;
 import ecologylab.translators.hibernate.hbmxml.HibernateFieldBase;
+import ecologylab.translators.hibernate.hbmxml.HibernateIndex;
 import ecologylab.translators.hibernate.hbmxml.HibernateJoinedSubclass;
 import ecologylab.translators.hibernate.hbmxml.HibernateKey;
 import ecologylab.translators.hibernate.hbmxml.HibernateManyToMany;
@@ -295,6 +296,7 @@ public class HibernateXmlMappingGenerator extends Debug
 		coll.setName(fd.getName());
 		coll.setTable(dbNameGenerator.getAssociationTableName(cd, fd));
 		coll.setKey(new HibernateKey(findIdColName(cd)));
+		coll.setIndex(new HibernateIndex(dbNameGenerator.getAssociationTableIndexName(cd, fd)));
 		coll.setManyToMany(new HibernateManyToMany(dbNameGenerator.getAssociationTableColumnName(elementCd), elementCd.getDescribedClassName()));
 
 		// FIXME set reverse mapping?
@@ -313,6 +315,7 @@ public class HibernateXmlMappingGenerator extends Debug
 		coll.setName(fd.getName());
 		coll.setTable(dbNameGenerator.getAssociationTableName(cd, fd));
 		coll.setKey(new HibernateKey(dbNameGenerator.getAssociationTableColumnName(cd)));
+		coll.setIndex(new HibernateIndex(dbNameGenerator.getAssociationTableIndexName(cd, fd)));
 		coll.setElement(new HibernateCollectionScalar(DbNameGenerator.SCALAR_COLLECTION_VALUE_COLUMN_NAME, fd.getScalarType().getJavaTypeName()));
 		return coll;
 	}

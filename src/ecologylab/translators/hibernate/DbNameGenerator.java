@@ -27,6 +27,8 @@ public interface DbNameGenerator
 	public String getAssociationTableName(ClassDescriptor cd, FieldDescriptor fd);
 
 	public String getAssociationTableColumnName(ClassDescriptor cd);
+	
+	public String getAssociationTableIndexName(ClassDescriptor cd, FieldDescriptor fd);
 
 	/**
 	 * clear cache if any.

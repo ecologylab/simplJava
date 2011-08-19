@@ -437,6 +437,11 @@ public class DefaultCachedDbNameGenerator extends Debug implements DbNameGenerat
 		return getTableName(cd) + "_id";
 	}
 	
+	public String getAssociationTableIndexName(ClassDescriptor cd, FieldDescriptor fd)
+	{
+		return getAssociationTableName(cd, fd) + "__index";
+	}
+	
 	public void clearCache()
 	{
 		cachedNames.clear();

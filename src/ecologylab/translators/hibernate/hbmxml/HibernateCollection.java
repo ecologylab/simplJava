@@ -13,7 +13,7 @@ import ecologylab.serialization.ElementState.xml_tag;
  * 
  */
 @simpl_inherit
-@xml_tag("bag")
+@xml_tag("list")
 public class HibernateCollection extends HibernateFieldBase
 {
 
@@ -25,6 +25,9 @@ public class HibernateCollection extends HibernateFieldBase
 
 	@simpl_composite
 	private HibernateKey							key;
+	
+	@simpl_composite
+	private HibernateIndex						index;
 
 	@simpl_composite
 	@xml_tag("many-to-many")
@@ -66,6 +69,16 @@ public class HibernateCollection extends HibernateFieldBase
 	public void setKey(HibernateKey key)
 	{
 		this.key = key;
+	}
+
+	public HibernateIndex getIndex()
+	{
+		return index;
+	}
+
+	public void setIndex(HibernateIndex index)
+	{
+		this.index = index;
 	}
 
 	public void setManyToMany(HibernateManyToMany manyToMany)
