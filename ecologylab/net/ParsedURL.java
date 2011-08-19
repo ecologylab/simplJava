@@ -1527,4 +1527,25 @@ public class ParsedURL extends Debug implements MimeType
 		}
 		return result;
 	}
+	
+	public ParsedURL changeHost(String newHost)
+	{
+		ParsedURL result	= null;
+		if (newHost != null && newHost.length() > 0)
+		{
+			int port		= url.getPort();
+			try
+			{
+				URL newURL	= (port > 0) ? new URL(url.getProtocol(), newHost, port, url.getFile()) :
+					new URL(url.getProtocol(), newHost, url.getFile());
+				
+				result	= new ParsedURL(newURL);
+			}
+			catch (MalformedURLException e)
+			{
+				e.printStackTrace();
+			}
+		}
+		return result;
+	}
 }
