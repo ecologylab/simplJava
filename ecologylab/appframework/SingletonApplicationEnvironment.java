@@ -430,7 +430,8 @@ public class SingletonApplicationEnvironment extends ApplicationEnvironment impl
 			return;
 		try
 		{
-			Pref.useAndSetPrefInt("graphics_device", Integer.parseInt(arg));
+			int screenNum = Integer.parseInt(arg);
+			Pref.useAndSetPrefInt("graphics_device", screenNum);
 
 		}
 		catch (NumberFormatException e)
