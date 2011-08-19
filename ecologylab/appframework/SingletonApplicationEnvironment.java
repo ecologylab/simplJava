@@ -1084,7 +1084,7 @@ public class SingletonApplicationEnvironment extends ApplicationEnvironment impl
 			StringBuilder sb = new StringBuilder();
 			for (int i = 0; i < numArgs; i++)
 				sb.append(navigateArgs[i]).append(' ');
-			Debug.println("navigate: " + navigateArgs.toString());
+			Debug.println("navigate: " + sb);
 			try
 			{
 				Process p = Runtime.getRuntime().exec(navigateArgs);
