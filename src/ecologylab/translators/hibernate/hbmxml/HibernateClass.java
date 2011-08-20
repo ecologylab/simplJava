@@ -1,9 +1,7 @@
 package ecologylab.translators.hibernate.hbmxml;
 
 import ecologylab.generic.HashMapArrayList;
-import ecologylab.serialization.ElementState;
 import ecologylab.serialization.ElementState.xml_tag;
-import ecologylab.serialization.types.element.Mappable;
 import ecologylab.serialization.simpl_inherit;
 
 /**
@@ -14,7 +12,7 @@ import ecologylab.serialization.simpl_inherit;
  */
 @simpl_inherit
 @xml_tag("class")
-public class HibernateClass extends ElementState implements Mappable<String>
+public class HibernateClass extends HibernateBasic
 {
 
 	@simpl_scalar
@@ -38,11 +36,14 @@ public class HibernateClass extends ElementState implements Mappable<String>
 
 	@simpl_map
 	@simpl_nowrap
-	@simpl_classes({ HibernateFieldBase.class, HibernateProperty.class, HibernateComposite.class, HibernateCollection.class })
+	@simpl_classes({ HibernateProperty.class, HibernateComposite.class, HibernateList.class,
+			HibernateMap.class })
+	@simpl_serialization_order(8)
 	private HashMapArrayList<String, HibernateFieldBase>	properties;
 
 	public HibernateClass()
 	{
+		super();
 	}
 
 	public String getName()
@@ -113,29 +114,6 @@ public class HibernateClass extends ElementState implements Mappable<String>
 	public HashMapArrayList<String, HibernateFieldBase> getProperties()
 	{
 		return properties;
-	}
-
-	public String key()
-	{
-		return name;
-	}
-
-	public boolean isColumnMapped(String associationTableColumnName)
-	{
-		if (properties != null)
-		{
-			for (HibernateFieldBase mappedField : properties)
-			{
-				if (mappedField instanceof HibernateCollection)
-				{
-					HibernateCollection mappedCollection = (HibernateCollection) mappedField;
-					HibernateManyToMany m2m = mappedCollection.getManyToMany();
-					if (m2m != null && associationTableColumnName.equals(m2m.getColumn()))
-						return true;
-				}
-			}
-		}
-		return false;
 	}
 
 }

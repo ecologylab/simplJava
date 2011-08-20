@@ -1,38 +1,31 @@
-/**
- * 
- */
 package ecologylab.translators.hibernate.hbmxml;
 
+import ecologylab.serialization.ElementState.xml_tag;
 import ecologylab.serialization.simpl_inherit;
 
-/**
- * The Hibernate mapping of class discriminators.
- * 
- * @author quyin
- * 
- */
 @simpl_inherit
-public class HibernateClassDiscriminator extends HibernateBasic
+@xml_tag("map-key")
+public class HibernateMapKey extends HibernateBasic
 {
 
 	@simpl_scalar
 	private String	column;
 
 	@simpl_scalar
-	private String	type	= "string";
+	private String	type;
 
 	@simpl_scalar
-	private boolean	force	= true;
-
-	public HibernateClassDiscriminator()
+	private int			length;
+	
+	public HibernateMapKey()
 	{
 		super();
 	}
-
-	public HibernateClassDiscriminator(String column)
+	
+	public HibernateMapKey(String type)
 	{
 		this();
-		this.column = column;
+		this.type = type;
 	}
 
 	public String getColumn()
@@ -55,14 +48,14 @@ public class HibernateClassDiscriminator extends HibernateBasic
 		this.type = type;
 	}
 
-	public void setForce(boolean force)
+	public int getLength()
 	{
-		this.force = force;
+		return length;
 	}
 
-	public boolean isForce()
+	public void setLength(int length)
 	{
-		return force;
+		this.length = length;
 	}
 
 }

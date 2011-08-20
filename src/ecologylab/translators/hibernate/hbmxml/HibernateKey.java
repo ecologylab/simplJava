@@ -3,7 +3,6 @@
  */
 package ecologylab.translators.hibernate.hbmxml;
 
-import ecologylab.serialization.ElementState;
 import ecologylab.serialization.simpl_inherit;
 
 /**
@@ -13,7 +12,7 @@ import ecologylab.serialization.simpl_inherit;
  * 
  */
 @simpl_inherit
-public class HibernateKey extends ElementState
+public class HibernateKey extends HibernateBasic
 {
 
 	@simpl_scalar
@@ -25,10 +24,12 @@ public class HibernateKey extends ElementState
 
 	public HibernateKey()
 	{
+		super();
 	}
 
 	public HibernateKey(String column)
 	{
+		this();
 		this.column = column;
 	}
 

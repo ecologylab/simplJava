@@ -3,7 +3,6 @@
  */
 package ecologylab.translators.hibernate.hbmxml;
 
-import ecologylab.serialization.ElementState;
 import ecologylab.serialization.simpl_inherit;
 
 /**
@@ -13,7 +12,7 @@ import ecologylab.serialization.simpl_inherit;
  * 
  */
 @simpl_inherit
-public class HibernateClassCache extends ElementState
+public class HibernateClassCache extends HibernateBasic
 {
 
 	public static final String	TRANSACTIONAL					= "transactional";
@@ -29,10 +28,12 @@ public class HibernateClassCache extends ElementState
 
 	public HibernateClassCache()
 	{
+		super();
 	}
 
 	public HibernateClassCache(String usage)
 	{
+		this();
 		this.usage = usage;
 	}
 

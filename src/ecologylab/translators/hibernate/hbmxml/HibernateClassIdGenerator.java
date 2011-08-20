@@ -3,7 +3,6 @@
  */
 package ecologylab.translators.hibernate.hbmxml;
 
-import ecologylab.serialization.ElementState;
 import ecologylab.serialization.simpl_inherit;
 
 /**
@@ -13,7 +12,7 @@ import ecologylab.serialization.simpl_inherit;
  * 
  */
 @simpl_inherit
-public class HibernateClassIdGenerator extends ElementState
+public class HibernateClassIdGenerator extends HibernateBasic
 {
 
 	public static final HibernateClassIdGenerator	identityGenerator	= new HibernateClassIdGenerator("identity");
@@ -24,10 +23,12 @@ public class HibernateClassIdGenerator extends ElementState
 
 	public HibernateClassIdGenerator()
 	{
+		super();
 	}
 
 	public HibernateClassIdGenerator(String generatorClass)
 	{
+		this();
 		this.generatorClass = generatorClass;
 	}
 

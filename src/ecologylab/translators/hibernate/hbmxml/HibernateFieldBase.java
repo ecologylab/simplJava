@@ -3,7 +3,6 @@
  */
 package ecologylab.translators.hibernate.hbmxml;
 
-import ecologylab.serialization.ElementState;
 import ecologylab.serialization.simpl_inherit;
 import ecologylab.serialization.types.element.Mappable;
 
@@ -14,7 +13,7 @@ import ecologylab.serialization.types.element.Mappable;
  * 
  */
 @simpl_inherit
-public abstract class HibernateFieldBase extends ElementState implements Mappable<String>
+public abstract class HibernateFieldBase extends HibernateBasic implements Mappable<String>
 {
 
 	public static final String	LAZY_FALSE		= "false";
@@ -33,6 +32,7 @@ public abstract class HibernateFieldBase extends ElementState implements Mappabl
 
 	public HibernateFieldBase()
 	{
+		super();
 	}
 
 	public String getName()

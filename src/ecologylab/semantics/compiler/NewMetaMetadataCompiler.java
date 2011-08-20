@@ -34,14 +34,12 @@ public class NewMetaMetadataCompiler extends Debug
 			JavaTranslationException
 	{
 		debug("\n\nloading repository ...\n\n");
+		TranslationScope.setGraphSwitch();
 		MetaMetadataRepository repository = config.loadRepository();
 		TranslationScope tscope = repository
 				.traverseAndGenerateTranslationScope(META_METADATA_COMPILER_TSCOPE_NAME);
-		TranslationScope.setGraphSwitch();
 		TranslationScope metadataBuiltInTScope = MetadataBuiltinsTranslationScope.get();
 		
-		System.out.println(tscope.serialize());
-
 		MetaMetadataJavaTranslator jt = config.createJavaTranslator();
 		for (ClassDescriptor cd : metadataBuiltInTScope.getClassDescriptors())
 			jt.excludeClassFromTranslation(cd);

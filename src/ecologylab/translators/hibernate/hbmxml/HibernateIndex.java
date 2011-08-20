@@ -1,12 +1,11 @@
 package ecologylab.translators.hibernate.hbmxml;
 
-import ecologylab.serialization.ElementState;
 import ecologylab.serialization.ElementState.xml_tag;
 import ecologylab.serialization.simpl_inherit;
 
 @simpl_inherit
 @xml_tag("index")
-public class HibernateIndex extends ElementState
+public class HibernateIndex extends HibernateBasic
 {
 
 	@simpl_scalar
@@ -23,16 +22,18 @@ public class HibernateIndex extends ElementState
 	
 	public HibernateIndex()
 	{
-		
+		super();
 	}
 
 	public HibernateIndex(String columnName)
 	{
+		this();
 		this.column = columnName;
 	}
 
 	public HibernateIndex(String columnName, String typeName)
 	{
+		this();
 		this.column = columnName;
 		this.type = typeName;
 	}

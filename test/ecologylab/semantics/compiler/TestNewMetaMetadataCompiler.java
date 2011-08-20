@@ -7,10 +7,6 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import ecologylab.io.Files;
-import ecologylab.semantics.compiler.CompilerConfig;
-import ecologylab.semantics.compiler.DefaultCompilerConfig;
-import ecologylab.semantics.compiler.NewMetaMetadataCompiler;
-import ecologylab.semantics.generated.library.RepositoryMetadataTranslationScope;
 import ecologylab.semantics.metadata.scalar.MetadataString;
 import ecologylab.semantics.metametadata.MetaMetadata;
 import ecologylab.semantics.metametadata.MetaMetadataCollectionField;

@@ -3,7 +3,7 @@
  */
 package ecologylab.translators.hibernate.hbmxml;
 
-import ecologylab.serialization.ElementState;
+import ecologylab.serialization.ElementState.xml_tag;
 import ecologylab.serialization.simpl_inherit;
 
 /**
@@ -13,34 +13,28 @@ import ecologylab.serialization.simpl_inherit;
  * 
  */
 @simpl_inherit
-public class HibernateManyToMany extends ElementState
+@xml_tag("many-to-many")
+public class HibernateManyToMany extends HibernateAssociationBase
 {
-
-	@simpl_scalar
-	private String	column;
-
+	
 	@simpl_scalar
 	@xml_tag("class")
 	private String	mappedClassName;
+	
+	@simpl_scalar
+	private String	lazy;
 
 	public HibernateManyToMany()
 	{
+		super();
+		this.setLazy(HibernateFieldBase.LAZY_PROXY);
 	}
 
 	public HibernateManyToMany(String column, String mappedClassName)
 	{
-		this.column = column;
+		this();
+		this.setColumn(column);
 		this.mappedClassName = mappedClassName;
-	}
-
-	public String getColumn()
-	{
-		return column;
-	}
-
-	public void setColumn(String column)
-	{
-		this.column = column;
 	}
 
 	public String getMappedClassName()
@@ -51,6 +45,16 @@ public class HibernateManyToMany extends ElementState
 	public void setMappedClassName(String mappedClassName)
 	{
 		this.mappedClassName = mappedClassName;
+	}
+
+	public String getLazy()
+	{
+		return lazy;
+	}
+
+	public void setLazy(String lazy)
+	{
+		this.lazy = lazy;
 	}
 
 }

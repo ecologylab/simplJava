@@ -3,7 +3,7 @@
  */
 package ecologylab.translators.hibernate.hbmxml;
 
-import ecologylab.serialization.ElementState;
+import ecologylab.serialization.ElementState.xml_tag;
 import ecologylab.serialization.simpl_inherit;
 
 /**
@@ -11,14 +11,15 @@ import ecologylab.serialization.simpl_inherit;
  * 
  */
 @simpl_inherit
-public class HibernateCollectionScalar extends ElementState
+@xml_tag("element")
+public class HibernateElement extends HibernateAssociationBase
 {
 
 	@simpl_scalar
-	private String	column;
+	private String	type;
 
 	@simpl_scalar
-	private String	type;
+	private int			length;
 
 	@simpl_scalar
 	@xml_tag("not-null")
@@ -27,24 +28,16 @@ public class HibernateCollectionScalar extends ElementState
 	@simpl_scalar
 	private boolean	unique	= false;
 
-	public HibernateCollectionScalar()
+	public HibernateElement()
 	{
+		super();
 	}
 
-	public HibernateCollectionScalar(String column, String type)
+	public HibernateElement(String column, String type)
 	{
-		this.column = column;
+		this();
+		this.setColumn(column);
 		this.type = type;
-	}
-
-	public String getColumn()
-	{
-		return column;
-	}
-
-	public void setColumn(String column)
-	{
-		this.column = column;
 	}
 
 	public void setType(String type)
@@ -55,6 +48,16 @@ public class HibernateCollectionScalar extends ElementState
 	public String getType()
 	{
 		return type;
+	}
+
+	public int getLength()
+	{
+		return length;
+	}
+
+	public void setLength(int length)
+	{
+		this.length = length;
 	}
 
 	public boolean isNotNull()

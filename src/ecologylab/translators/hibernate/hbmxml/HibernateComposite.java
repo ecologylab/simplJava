@@ -3,8 +3,8 @@
  */
 package ecologylab.translators.hibernate.hbmxml;
 
-import ecologylab.serialization.simpl_inherit;
 import ecologylab.serialization.ElementState.xml_tag;
+import ecologylab.serialization.simpl_inherit;
 
 /**
  * The Hibernate mapping for many-to-one relationships (or composite properties).
@@ -23,6 +23,7 @@ public class HibernateComposite extends HibernateProperty
 
 	public HibernateComposite()
 	{
+		super();
 		this.setLazy(LAZY_PROXY);
 	}
 

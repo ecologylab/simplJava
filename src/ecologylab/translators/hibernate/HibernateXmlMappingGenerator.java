@@ -5,14 +5,12 @@ import java.io.FileNotFoundException;
 import java.io.PrintWriter;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
+import java.lang.reflect.TypeVariable;
 import java.util.ArrayList;
-import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import ecologylab.appframework.PropertiesAndDirectories;
 import ecologylab.generic.Debug;
@@ -26,14 +24,16 @@ import ecologylab.serialization.TranslationScope;
 import ecologylab.translators.hibernate.hbmxml.HibernateClass;
 import ecologylab.translators.hibernate.hbmxml.HibernateClassId;
 import ecologylab.translators.hibernate.hbmxml.HibernateClassIdGenerator;
-import ecologylab.translators.hibernate.hbmxml.HibernateCollection;
-import ecologylab.translators.hibernate.hbmxml.HibernateCollectionScalar;
 import ecologylab.translators.hibernate.hbmxml.HibernateComposite;
+import ecologylab.translators.hibernate.hbmxml.HibernateElement;
 import ecologylab.translators.hibernate.hbmxml.HibernateFieldBase;
 import ecologylab.translators.hibernate.hbmxml.HibernateIndex;
 import ecologylab.translators.hibernate.hbmxml.HibernateJoinedSubclass;
 import ecologylab.translators.hibernate.hbmxml.HibernateKey;
+import ecologylab.translators.hibernate.hbmxml.HibernateList;
 import ecologylab.translators.hibernate.hbmxml.HibernateManyToMany;
+import ecologylab.translators.hibernate.hbmxml.HibernateMap;
+import ecologylab.translators.hibernate.hbmxml.HibernateMapKey;
 import ecologylab.translators.hibernate.hbmxml.HibernateMapping;
 import ecologylab.translators.hibernate.hbmxml.HibernateProperty;
 
@@ -125,7 +125,8 @@ public class HibernateXmlMappingGenerator extends Debug
 		for (HibernateMapping mapping : allMapping.values())
 		{
 			HibernateClass currentClass = mapping.getMappedClasses().get(0);
-			File newHbmFile = new File(hbmDir, currentClass.getName() + ".hbm.xml");
+			String entityClassName = currentClass.getName().replace('$', '_');
+			File newHbmFile = new File(hbmDir, entityClassName + ".hbm.xml");
 			mappingImports.add(String.format("<mapping file=\"%s\" />", newHbmFile.getPath()));
 			PrintWriter writer = new PrintWriter(newHbmFile);
 			writer.println(XML_HEAD);
@@ -134,6 +135,7 @@ public class HibernateXmlMappingGenerator extends Debug
 			writer.close();
 		}
 
+		Collections.sort(mappingImports);
 		return mappingImports;
 	}
 
@@ -196,8 +198,9 @@ public class HibernateXmlMappingGenerator extends Debug
 		else
 		{
 			String result = findIdFieldName(cd.getSuperClass());
-			if (result != null)
-				this.idFieldNameByClass.put(cd.getDescribedClassName(), result);
+			if (result == null)
+				result = DbNameGenerator.DEFAULT_ORM_ID_FIELD_NAME;
+			this.idFieldNameByClass.put(cd.getDescribedClassName(), result);
 			return result;
 		}
 	}
@@ -216,10 +219,16 @@ public class HibernateXmlMappingGenerator extends Debug
 			thatField = generateCompositeMapping(cd, fd);
 			break;
 		case FieldTypes.COLLECTION_ELEMENT:
-			thatField = generateElementCollectionMapping(cd, fd);
+			thatField = generateListOfElementMapping(cd, fd);
 			break;
 		case FieldTypes.COLLECTION_SCALAR:
-			thatField = generateScalarCollectionMapping(cd, fd);
+			thatField = generateListOfScalarMapping(cd, fd);
+			break;
+		case FieldTypes.MAP_ELEMENT:
+			thatField = generateMapOfElementMapping(cd, fd);
+			break;
+		case FieldTypes.MAP_SCALAR:
+			thatField = generateMapOfScalarMapping(cd, fd);
 			break;
 		default:
 			throw new MetaMetadataException("Unknown field type: " + cd + ": " + fd + ": " + typeCode);
@@ -233,7 +242,7 @@ public class HibernateXmlMappingGenerator extends Debug
 		HibernateProperty prop = new HibernateProperty();
 		prop.setName(fd.getName());
 		prop.setColumn(dbNameGenerator.getColumnName(fd));
-		prop.setType(fd.getScalarType().getJavaTypeName());
+		prop.setType(translateType(fd.getScalarType().getJavaTypeName()));
 		
 		// TODO index?
 		
@@ -266,7 +275,7 @@ public class HibernateXmlMappingGenerator extends Debug
 		return comp;
 	}
 
-	protected HibernateCollection generateElementCollectionMapping(ClassDescriptor cd, FieldDescriptor fd)
+	protected HibernateList generateListOfElementMapping(ClassDescriptor cd, FieldDescriptor fd)
 	{
 		ClassDescriptor elementCd = null;
 		
@@ -278,6 +287,8 @@ public class HibernateXmlMappingGenerator extends Debug
 				Type elementType = ((ParameterizedType) genericType).getActualTypeArguments()[0];
 				if (elementType instanceof ParameterizedType)
 					elementType = ((ParameterizedType) elementType).getRawType();
+				if (elementType instanceof TypeVariable)
+					elementType = ((TypeVariable) elementType).getBounds()[0];
 				elementCd = ClassDescriptor.getClassDescriptor((Class) elementType);
 			}
 		}
@@ -292,32 +303,110 @@ public class HibernateXmlMappingGenerator extends Debug
 			return null;
 		}
 		
-		HibernateCollection coll = new HibernateCollection();
+		HibernateList coll = new HibernateList();
 		coll.setName(fd.getName());
 		coll.setTable(dbNameGenerator.getAssociationTableName(cd, fd));
 		coll.setKey(new HibernateKey(findIdColName(cd)));
 		coll.setIndex(new HibernateIndex(dbNameGenerator.getAssociationTableIndexName(cd, fd)));
-		coll.setManyToMany(new HibernateManyToMany(dbNameGenerator.getAssociationTableColumnName(elementCd), elementCd.getDescribedClassName()));
+		coll.setAssociation(new HibernateManyToMany(dbNameGenerator.getAssociationTableColumnName(elementCd), elementCd.getDescribedClassName()));
 
-		// FIXME set reverse mapping?
-		// String theOtherTableName = tableNames.get(elementCd);
-		// HibernateClass theOtherMappedClass =
-		// this.hibernateMappings.getMappedClasses().get(theOtherTableName);
-		// if (theOtherMappedClass != null && theOtherMappedClass.isColumnMapped(thisIdColumnName))
-		// coll.setInverse(true);
+		// TODO reverse mapping
 
 		return coll;
 	}
 
-	protected HibernateCollection generateScalarCollectionMapping(ClassDescriptor cd, FieldDescriptor fd)
+	protected HibernateList generateListOfScalarMapping(ClassDescriptor cd, FieldDescriptor fd)
 	{
-		HibernateCollection coll = new HibernateCollection();
+		HibernateList coll = new HibernateList();
 		coll.setName(fd.getName());
 		coll.setTable(dbNameGenerator.getAssociationTableName(cd, fd));
 		coll.setKey(new HibernateKey(dbNameGenerator.getAssociationTableColumnName(cd)));
 		coll.setIndex(new HibernateIndex(dbNameGenerator.getAssociationTableIndexName(cd, fd)));
-		coll.setElement(new HibernateCollectionScalar(DbNameGenerator.SCALAR_COLLECTION_VALUE_COLUMN_NAME, fd.getScalarType().getJavaTypeName()));
+		coll.setAssociation(new HibernateElement(
+				DbNameGenerator.SCALAR_COLLECTION_VALUE_COLUMN_NAME,
+				translateType(fd.getScalarType().getJavaTypeName()))
+		);
+		
+		// TODO reverse mapping
+		
 		return coll;
 	}
 
+	protected HibernateFieldBase generateMapOfElementMapping(ClassDescriptor cd, FieldDescriptor fd)
+	{
+		HibernateMap map = new HibernateMap();
+		map.setName(fd.getName());
+		map.setTable(dbNameGenerator.getAssociationTableName(cd, fd));
+		map.setKey(new HibernateKey(dbNameGenerator.getAssociationTableColumnName(cd)));
+		
+		Type genericType = fd.getField().getGenericType();
+		if (genericType instanceof ParameterizedType)
+		{
+			ParameterizedType mapParam = (ParameterizedType) genericType;
+			Type[] typeArgs = mapParam.getActualTypeArguments();
+			if (typeArgs.length == 2)
+			{
+				// TODO if these args are not Class (only Type), we should be able to ignore type parameters
+				Class keyType = (Class) typeArgs[0];
+				Class valueType = (Class) typeArgs[1];
+				map.setMapKey(new HibernateMapKey(translateType(keyType.getName())));
+				map.setAssociation(new HibernateManyToMany(
+						dbNameGenerator.getAssociationTableColumnName(ClassDescriptor.getClassDescriptor(valueType)),
+						valueType.getName()) // this is not a scalar, no need to translate type
+				);
+				return map;
+			}
+			else
+			{
+				error("expected 2 type argments: " + fd.getField());
+			}
+		}
+		else
+		{
+			error("expected parameterized type: " + fd.getField());
+		}
+		return null;
+	}
+	
+	protected HibernateFieldBase generateMapOfScalarMapping(ClassDescriptor cd, FieldDescriptor fd)
+	{
+		HibernateMap map = new HibernateMap();
+		map.setName(fd.getName());
+		map.setTable(dbNameGenerator.getAssociationTableName(cd, fd));
+		map.setKey(new HibernateKey(dbNameGenerator.getAssociationTableColumnName(cd)));
+		
+		Type genericType = fd.getField().getGenericType();
+		if (genericType instanceof ParameterizedType)
+		{
+			ParameterizedType mapParam = (ParameterizedType) genericType;
+			Type[] typeArgs = mapParam.getActualTypeArguments();
+			if (typeArgs.length == 2)
+			{
+				// TODO if these args are not Class (only Type), we should be able to ignore type parameters
+				Class keyType = (Class) typeArgs[0];
+				Class valueType = (Class) typeArgs[1];
+				map.setMapKey(new HibernateMapKey(translateType(keyType.getName())));
+				map.setAssociation(new HibernateElement(
+						DbNameGenerator.SCALAR_COLLECTION_VALUE_COLUMN_NAME,
+						translateType(valueType.getName())) // this is a scalar, must translate type
+				);
+				return map;
+			}
+			else
+			{
+				error("expected 2 type argments: " + fd.getField());
+			}
+		}
+		else
+		{
+			error("expected parameterized type: " + fd.getField());
+		}
+		return null;
+	}
+
+	protected String translateType(String typeName)
+	{
+		return typeName;
+	}
+	
 }

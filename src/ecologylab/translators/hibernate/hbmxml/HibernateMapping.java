@@ -1,9 +1,8 @@
 package ecologylab.translators.hibernate.hbmxml;
 
 import ecologylab.generic.HashMapArrayList;
-import ecologylab.serialization.ElementState;
-import ecologylab.serialization.simpl_inherit;
 import ecologylab.serialization.ElementState.xml_tag;
+import ecologylab.serialization.simpl_inherit;
 
 /**
  * The Hibernate mapping XML (hbm.xml) root element.
@@ -13,7 +12,7 @@ import ecologylab.serialization.ElementState.xml_tag;
  */
 @xml_tag("hibernate-mapping")
 @simpl_inherit
-public class HibernateMapping extends ElementState
+public class HibernateMapping extends HibernateBasic
 {
 
 	@simpl_scalar
@@ -21,12 +20,14 @@ public class HibernateMapping extends ElementState
 	private String																		mappingPackageName;
 
 	@simpl_map
+	@simpl_map_key_field("name")
 	@simpl_nowrap
 	@simpl_classes({ HibernateClass.class, HibernateJoinedSubclass.class })
 	private HashMapArrayList<String, HibernateClass>	mappedClasses;
 
 	public HibernateMapping()
 	{
+		super();
 		mappedClasses = new HashMapArrayList<String, HibernateClass>();
 	}
 
