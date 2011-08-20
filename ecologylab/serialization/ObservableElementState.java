@@ -11,6 +11,7 @@ import java.util.Vector;
  * @author andrew
  *
  */
+@simpl_inherit
 public class ObservableElementState extends ElementState
 {
 	private boolean changed = false;

@@ -1563,8 +1563,10 @@ public class FieldDescriptor extends DescriptorBase implements FieldTypes, Mappa
 		if (context != null)
 		{
 			ScalarType scalarType = this.scalarType;
-			Field field = this.field;
-			if (!scalarType.isDefaultValue(field, context))
+//			Field field = this.field;
+//			if (!scalarType.isDefaultValue(field, context)) // this line fails with proxy classes
+			Object value = this.getValue(context);
+			if (value != null && !scalarType.isDefaultValue(value.toString()))
 			{
 				// for this field, generate <tag>value</tag>
 
