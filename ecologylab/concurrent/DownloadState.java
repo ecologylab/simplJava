@@ -4,8 +4,6 @@ import java.io.IOException;
 
 import ecologylab.generic.Debug;
 import ecologylab.generic.Continuation;
-import ecologylab.io.BasicSite;
-import ecologylab.io.Downloadable;
 
 /**
  * Closure that keeps state about a download, as it progresses.

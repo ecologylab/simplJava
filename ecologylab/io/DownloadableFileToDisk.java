@@ -8,6 +8,8 @@ import java.io.InputStream;
 import java.io.OutputStream;
 
 import ecologylab.appframework.StatusReporter;
+import ecologylab.concurrent.BasicSite;
+import ecologylab.concurrent.Downloadable;
 import ecologylab.generic.Debug;
 import ecologylab.generic.Continuation;
 import ecologylab.net.ParsedURL;

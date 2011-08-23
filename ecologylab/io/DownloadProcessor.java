@@ -2,6 +2,7 @@ package ecologylab.io;
 
 import java.io.IOException;
 
+import ecologylab.concurrent.Downloadable;
 import ecologylab.generic.Continuation;
 
 

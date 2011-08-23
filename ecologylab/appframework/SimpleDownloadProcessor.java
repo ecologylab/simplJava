@@ -5,10 +5,10 @@ package ecologylab.appframework;
 
 import java.io.IOException;
 
+import ecologylab.concurrent.Downloadable;
 import ecologylab.generic.Debug;
 import ecologylab.generic.Continuation;
 import ecologylab.io.DownloadProcessor;
-import ecologylab.io.Downloadable;
 
 /**
  * A simple download processor: just download the Downloadable immediately.

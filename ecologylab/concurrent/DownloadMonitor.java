@@ -18,9 +18,7 @@ import ecologylab.generic.Continuation;
 import ecologylab.generic.Generic;
 import ecologylab.generic.MathTools;
 import ecologylab.generic.NewPorterStemmer;
-import ecologylab.io.BasicSite;
 import ecologylab.io.DownloadProcessor;
-import ecologylab.io.Downloadable;
 
 /**
  * Non-linear flow multiplexer. Tracks downloads of <code>Downloadable</code> objects. Dispatches
@@ -532,6 +530,11 @@ public class DownloadMonitor<T extends Downloadable> extends Monitor implements
 		//The next time we encounter the site, get a different interval.
 			siteTimeTable.put(site, System.currentTimeMillis() + site.getDecentDownloadInterval()); 
 		}
+	}
+	
+	Long nextAvailableTimeForSite(BasicSite site)
+	{
+		return siteTimeTable.get(site);
 	}
 	
 	public void setAbnormallyLongNextAvailableTimeForSite(BasicSite site)
