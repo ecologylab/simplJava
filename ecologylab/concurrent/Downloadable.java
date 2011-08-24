@@ -37,6 +37,14 @@ public interface Downloadable
    public ParsedURL location();
    
    /**
+    * Can be used to reduce image download waits, in conjunction with BasicSite;
+    * otherwise ignored.
+    * 
+    * @return
+    */
+   public boolean isImage();
+   
+   /**
     * 
     * @return	What to tell the user about what is being downloaded.
     */
