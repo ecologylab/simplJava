@@ -456,4 +456,13 @@ public class ZipDownload extends Debug implements Downloadable, Continuation
 				e.printStackTrace();
 			}
 	}
+
+	/**
+	 * Default empty implementation; will be ignored for this type.
+	 */
+	@Override
+	public boolean isImage()
+	{
+		return false;
+	}
 }
