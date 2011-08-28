@@ -11,6 +11,7 @@ import ecologylab.serialization.ScalarUnmarshallingContext;
 import ecologylab.serialization.TranslationContext;
 import ecologylab.serialization.XMLTools;
 import ecologylab.serialization.annotations.simpl_inherit;
+import ecologylab.serialization.serializers.Format;
 import ecologylab.serialization.types.CrossLanguageTypeConstants;
 
 /**
@@ -61,7 +62,7 @@ public class StringBuilderType extends ReferenceType<StringBuilder> implements
 
 	@Override
 	public void appendValue(StringBuilder instance, Appendable appendable, boolean needsEscaping,
-			TranslationContext serializationContext, FORMAT format) throws IOException
+			TranslationContext serializationContext, Format format) throws IOException
 	{
 		if (needsEscaping)
 		{

@@ -19,6 +19,8 @@ import ecologylab.serialization.annotations.simpl_nowrap;
 import ecologylab.serialization.annotations.simpl_scalar;
 import ecologylab.serialization.annotations.simpl_tag;
 import ecologylab.serialization.deserializers.JSONPullDeserializer;
+import ecologylab.serialization.deserializers.XMLPullDeserializer;
+import ecologylab.serialization.serializers.Format;
 import ecologylab.serialization.types.ScalarType;
 import ecologylab.serialization.types.TypeRegistry;
 
@@ -1153,13 +1155,13 @@ public final class TranslationScope extends ElementState
 		return deserialize(xmlFile, translationContext);
 	}
 
-	public ElementState deserializeByteArray(byte[] byteArray, FORMAT format)
+	public ElementState deserializeByteArray(byte[] byteArray, Format format)
 			throws SIMPLTranslationException
 	{
 		return deserializeByteArray(byteArray, format, new TranslationContext());
 	}
 
-	public ElementState deserializeByteArray(byte[] byteArray, FORMAT format,
+	public ElementState deserializeByteArray(byte[] byteArray, Format format,
 			TranslationContext translationContext) throws SIMPLTranslationException
 	{
 		ElementState result = null;
@@ -1183,31 +1185,38 @@ public final class TranslationScope extends ElementState
 		return result;
 	}
 
-	public ElementState deserializeCharSequence(CharSequence charSequence, FORMAT format)
+	public ElementState deserializeCharSequence(CharSequence charSequence, Format format)
 			throws SIMPLTranslationException
 	{
 		return deserializeCharSequence(charSequence, format, new TranslationContext());
 	}
 
-	public ElementState deserializeCharSequence(CharSequence charSequence, FORMAT format,
+	public ElementState deserializeCharSequence(CharSequence charSequence, Format format,
 			TranslationContext translationContext) throws SIMPLTranslationException
 	{
 		Object result = null;
-		switch (format)
+		try
 		{
-		case XML:
-			ElementStateSAXHandler saxHandler = new ElementStateSAXHandler(this, translationContext);
-			result = saxHandler.parse(charSequence);
-			break;
-		case JSON:
-			// ElementStateJSONHandler jsonHandler = new ElementStateJSONHandler(this);
-			JSONPullDeserializer jsonHandler = new JSONPullDeserializer(this,
-					new TranslationContext());
-			result = jsonHandler.parse(charSequence);
-			break;
-		case TLV:
-			ElementStateTLVHandler tlvHandler = new ElementStateTLVHandler(this);
-			result = tlvHandler.parse(charSequence);
+
+			switch (format)
+			{
+			case XML:
+				XMLPullDeserializer xmlDeserializer = new XMLPullDeserializer(this, translationContext);
+				result = xmlDeserializer.parse(charSequence);
+				break;
+			case JSON:
+				// ElementStateJSONHandler jsonHandler = new ElementStateJSONHandler(this);
+				JSONPullDeserializer jsonHandler = new JSONPullDeserializer(this, new TranslationContext());
+				result = jsonHandler.parse(charSequence);
+				break;
+			case TLV:
+				ElementStateTLVHandler tlvHandler = new ElementStateTLVHandler(this);
+				result = tlvHandler.parse(charSequence);
+			}
+		}
+		catch (Exception ex)
+		{
+			System.out.println(ex.toString());
 		}
 		return (ElementState) result;
 	}

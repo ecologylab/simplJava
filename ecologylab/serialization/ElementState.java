@@ -19,6 +19,7 @@ import org.xml.sax.Attributes;
 import ecologylab.generic.Debug;
 import ecologylab.serialization.TranslationScope.GRAPH_SWITCH;
 import ecologylab.serialization.annotations.bibtex_key;
+import ecologylab.serialization.serializers.Format;
 
 /**
  * This class is the heart of the <code>ecologylab.serialization</code> translation framework.
@@ -57,13 +58,6 @@ public class ElementState extends Debug implements FieldTypes, XMLTranslationExc
 
 	private boolean	isRoot	= false;
 
-	// --------//
-
-	public enum FORMAT
-	{
-		XML, JSON, TLV, YAML, BIBTEX;
-	}
-
 	/**
 	 * Link for a DOM tree. should be removed. its not a tree!!
 	 */
@@ -96,7 +90,7 @@ public class ElementState extends Debug implements FieldTypes, XMLTranslationExc
 	{
 	}
 
-	public void serialize(OutputStream outStream, FORMAT format) throws SIMPLTranslationException
+	public void serialize(OutputStream outStream, Format format) throws SIMPLTranslationException
 	{
 		if (outStream == null)
 			throw new SIMPLTranslationException("outStream is null");
@@ -421,7 +415,7 @@ public class ElementState extends Debug implements FieldTypes, XMLTranslationExc
 			}
 		}
 
-		graphContext.appendSimplIdIfRequired(appendable, this, FORMAT.JSON);
+		graphContext.appendSimplIdIfRequired(appendable, this, Format.JSON);
 
 		boolean elementsSerialized = false;
 		for (int i = 0; i < numElements; i++)
@@ -813,7 +807,7 @@ public class ElementState extends Debug implements FieldTypes, XMLTranslationExc
 	 * @throws SIMPLTranslationException
 	 * 
 	 */
-	public StringBuilder serialize(FORMAT format) throws SIMPLTranslationException
+	public StringBuilder serialize(Format format) throws SIMPLTranslationException
 	{
 		ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
 		serialize(outputStream, format);
@@ -1068,7 +1062,7 @@ public class ElementState extends Debug implements FieldTypes, XMLTranslationExc
 		}
 
 		// To handle cyclic graphs append simpl id as an attribute.
-		graphContext.appendSimplIdIfRequired(buffy, this, FORMAT.XML);
+		graphContext.appendSimplIdIfRequired(buffy, this, Format.XML);
 
 		ArrayList<FieldDescriptor> elementFieldDescriptors = classDescriptor()
 				.elementFieldDescriptors();
@@ -1328,7 +1322,7 @@ public class ElementState extends Debug implements FieldTypes, XMLTranslationExc
 		}
 
 		// To handle cyclic graphs append simpl id as an attribute.
-		serializationContext.appendSimplIdIfRequired(appendable, this, FORMAT.XML);
+		serializationContext.appendSimplIdIfRequired(appendable, this, Format.XML);
 
 		// ArrayList<Field> elementFields = optimizations.elementFields();
 		ArrayList<FieldDescriptor> elementFieldDescriptors = classDescriptor()
@@ -1774,7 +1768,7 @@ public class ElementState extends Debug implements FieldTypes, XMLTranslationExc
 	{
 		if (TranslationScope.graphSwitch == GRAPH_SWITCH.ON && graphContext.alreadyMarshalled(nestedES))
 		{
-			graphContext.appendSimplRefId(appendable, nestedES, nestedF2XO, FORMAT.XML, false);
+			graphContext.appendSimplRefId(appendable, nestedES, nestedF2XO, Format.XML, false);
 		}
 		else
 		{
@@ -1788,7 +1782,7 @@ public class ElementState extends Debug implements FieldTypes, XMLTranslationExc
 	{
 		if (TranslationScope.graphSwitch == GRAPH_SWITCH.ON && graphContext.alreadyMarshalled(nestedES))
 		{
-			graphContext.appendSimplRefId(appendable, nestedES, nestedF2XO, FORMAT.JSON, withTag);
+			graphContext.appendSimplRefId(appendable, nestedES, nestedF2XO, Format.JSON, withTag);
 		}
 		else
 		{

@@ -13,6 +13,7 @@ import ecologylab.serialization.annotations.bibtex_type;
 import ecologylab.serialization.annotations.simpl_collection;
 import ecologylab.serialization.annotations.simpl_nowrap;
 import ecologylab.serialization.annotations.simpl_scalar;
+import ecologylab.serialization.serializers.Format;
 
 @bibtex_type("article")
 public class Entry extends ElementState
@@ -301,7 +302,7 @@ public class Entry extends ElementState
 		e.setAddress("Piscataway, NJ, USA");
 		e.setKeywords(keywords);
 
-		e.serialize(System.out, FORMAT.BIBTEX);
+		e.serialize(System.out, Format.BIBTEX);
 	}
 
 

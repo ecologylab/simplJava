@@ -12,6 +12,7 @@ import ecologylab.serialization.ScalarUnmarshallingContext;
 import ecologylab.serialization.TranslationContext;
 import ecologylab.serialization.annotations.simpl_inherit;
 import ecologylab.serialization.annotations.simpl_scalar;
+import ecologylab.serialization.serializers.Format;
 
 /**
  * Basic unit of the scalar type system. Manages marshalling from a Java class that represents a
@@ -262,7 +263,7 @@ implements CrossLanguageTypeConstants
 	 * @throws IllegalAccessException
 	 * @throws IllegalArgumentException
 	 */
-	public void appendValue(Appendable buffy, FieldDescriptor fieldDescriptor, Object context, TranslationContext serializationContext, FORMAT format)
+	public void appendValue(Appendable buffy, FieldDescriptor fieldDescriptor, Object context, TranslationContext serializationContext, Format format)
 			throws IllegalArgumentException, IllegalAccessException, IOException
 	{
 		Object instance = fieldDescriptor.getField().get(context);
@@ -316,7 +317,7 @@ implements CrossLanguageTypeConstants
 		buffy.append(marshall(instance, serializationContext));
 	}
 
-	public void appendValue(T instance, Appendable appendable, boolean needsEscaping, TranslationContext serializationContext, FORMAT format)
+	public void appendValue(T instance, Appendable appendable, boolean needsEscaping, TranslationContext serializationContext, Format format)
 			throws IOException
 	{
 		appendable.append(marshall(instance, serializationContext));

@@ -156,7 +156,7 @@ public class ClassDescriptor<FD extends FieldDescriptor> extends DescriptorBase 
 		this.describedClassSimpleName = thatClass.getSimpleName();
 		this.describedClassPackageName = thatClass.getPackage().getName();
 
-		if (ISimplSerializable.class.isAssignableFrom(thatClass))
+		if (thatClass.isAnnotationPresent(simpl_inherit.class))
 			this.superClass = getClassDescriptor(thatClass.getSuperclass());
 
 		addGenericTypeVariables();

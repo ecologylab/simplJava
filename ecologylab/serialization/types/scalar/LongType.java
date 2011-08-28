@@ -10,6 +10,7 @@ import ecologylab.serialization.FieldDescriptor;
 import ecologylab.serialization.ScalarUnmarshallingContext;
 import ecologylab.serialization.TranslationContext;
 import ecologylab.serialization.annotations.simpl_inherit;
+import ecologylab.serialization.serializers.Format;
 import ecologylab.serialization.types.CrossLanguageTypeConstants;
 import ecologylab.serialization.types.ScalarType;
 
@@ -150,7 +151,7 @@ public class LongType extends ScalarType<Long> implements CrossLanguageTypeConst
 	 */
 	@Override
 	public void appendValue(Appendable buffy, FieldDescriptor fieldDescriptor, Object context,
-			TranslationContext serializationContext, FORMAT format) throws IllegalArgumentException,
+			TranslationContext serializationContext, Format format) throws IllegalArgumentException,
 			IllegalAccessException, IOException
 	{
 		buffy.append(getValueToAppend(fieldDescriptor, context));

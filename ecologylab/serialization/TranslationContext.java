@@ -12,8 +12,8 @@ import org.xml.sax.Attributes;
 import ecologylab.collections.MultiMap;
 import ecologylab.generic.Debug;
 import ecologylab.net.ParsedURL;
-import ecologylab.serialization.ElementState.FORMAT;
 import ecologylab.serialization.TranslationScope.GRAPH_SWITCH;
+import ecologylab.serialization.serializers.Format;
 
 public class TranslationContext extends Debug implements ScalarUnmarshallingContext, FieldTypes
 {
@@ -200,7 +200,7 @@ public class TranslationContext extends Debug implements ScalarUnmarshallingCont
 	}
 
 	public void appendSimplIdIfRequired(Appendable appendable, Object elementState,
-			FORMAT format) throws IOException
+			Format format) throws IOException
 	{
 		if (TranslationScope.graphSwitch == GRAPH_SWITCH.ON && this.needsHashCode(elementState))
 		{
@@ -221,7 +221,7 @@ public class TranslationContext extends Debug implements ScalarUnmarshallingCont
 	}
 
 	public void appendSimplRefId(Appendable appendable, Object elementState,
-			FieldDescriptor compositeElementFD, FORMAT format, boolean withTag) throws IOException
+			FieldDescriptor compositeElementFD, Format format, boolean withTag) throws IOException
 	{
 		switch (format)
 		{
@@ -282,7 +282,7 @@ public class TranslationContext extends Debug implements ScalarUnmarshallingCont
 	}
 
 	private void appendSimplIdAttribute(Appendable appendable, Object elementState,
-			FORMAT format) throws IOException
+			Format format) throws IOException
 	{
 		switch (format)
 		{

@@ -9,9 +9,9 @@ import ecologylab.serialization.ElementState;
 import ecologylab.serialization.ElementStateBibTeXHandler;
 import ecologylab.serialization.FieldTypes;
 import ecologylab.serialization.SIMPLTranslationException;
-import ecologylab.serialization.ElementState.FORMAT;
 import ecologylab.serialization.bibtex.entrytypes.AbstractBibTeXEntry;
 import ecologylab.serialization.bibtex.entrytypes.BibTeXInProceedings;
+import ecologylab.serialization.serializers.Format;
 
 /**
  * The BibTeX parser class.
@@ -388,7 +388,7 @@ public class BibTeXParser implements FieldTypes
 		List<AbstractBibTeXEntry> entities = parse(sb.toString().toCharArray());
 		for (AbstractBibTeXEntry entity : entities)
 		{
-			entity.serialize(System.out, FORMAT.XML);
+			entity.serialize(System.out, Format.XML);
 			System.out.println();
 //			entity.serialize(System.out, FORMAT.BIBTEX);
 		}

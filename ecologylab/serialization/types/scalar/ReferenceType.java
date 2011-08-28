@@ -10,6 +10,7 @@ import org.json.simple.JSONObject;
 import ecologylab.serialization.TranslationContext;
 import ecologylab.serialization.XMLTools;
 import ecologylab.serialization.annotations.simpl_inherit;
+import ecologylab.serialization.serializers.Format;
 import ecologylab.serialization.types.ScalarType;
 
 /**
@@ -59,7 +60,7 @@ abstract public class ReferenceType<T> extends ScalarType<T>
 
 	@Override
 	public void appendValue(T instance, Appendable buffy, boolean needsEscaping,
-			TranslationContext serializationContext, FORMAT format) throws IOException
+			TranslationContext serializationContext, Format format) throws IOException
 	{
 		String instanceString = marshall(instance, serializationContext); // andruid 1/4/10
 																																			// instance.toString();

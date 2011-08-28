@@ -23,7 +23,7 @@ import ecologylab.serialization.TranslationScope;
 import ecologylab.serialization.types.element.Mappable;
 
 /**
- * JSON deserialization handler class. Uses the push API for parsing the input JSON docuemets.
+ * JSON deserialization handler class. Uses the pull API for parsing the input JSON documents.
  * 
  * @author nabeelshahzad
  * 
@@ -37,7 +37,7 @@ public class JSONPullDeserializer extends Debug implements ScalarUnmarshallingCo
 	TranslationContext					translationContext;
 
 	/**
-	 * JsonParser object from the Jackson JSON parsing library. Implements a push API for parsing JSON
+	 * JsonParser object from the Jackson JSON parsing library. Implements a pull API for parsing JSON
 	 */
 	JsonParser									jp	= null;
 
@@ -301,8 +301,7 @@ public class JSONPullDeserializer extends Debug implements ScalarUnmarshallingCo
 
 		if (jp.getCurrentToken() == JsonToken.FIELD_NAME)
 		{
-			// check for simpl.ref if exists that we need an already created instance, instead of creating
-			// a new one.
+			// check for simpl.ref if exists that we need an already created instance
 			if (jp.getText().equals(TranslationContext.JSON_SIMPL_REF))
 			{
 				jp.nextToken();
