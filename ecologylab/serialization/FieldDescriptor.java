@@ -1834,7 +1834,21 @@ public class FieldDescriptor extends DescriptorBase implements FieldTypes, Mappa
 		if (filterRegex != null)
 		{
 			Matcher matcher = filterRegex.matcher(value);
-			value = matcher.replaceAll(filterReplace);
+			if (filterReplace == null)
+			{
+				if (matcher.find())
+				{
+					value = matcher.group();
+				}
+				else
+				{
+					value = "";
+				}
+			}
+			else
+			{
+				value = matcher.replaceAll(filterReplace);
+			}
 		}
 		return value;
 	}

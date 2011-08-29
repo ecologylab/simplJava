@@ -1664,7 +1664,7 @@ public class ElementState extends Debug implements FieldTypes, XMLTranslationExc
 	{
 		String regex();
 
-		String replace() default "";
+		String replace();
 	}
 
 	/**
