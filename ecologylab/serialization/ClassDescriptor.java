@@ -197,7 +197,7 @@ public class ClassDescriptor<FD extends FieldDescriptor> extends DescriptorBase 
 	 */
 	private FieldDescriptor	scalarTextFD;
 
-	FieldDescriptor getScalarTextFD()
+	public FieldDescriptor getScalarTextFD()
 	{
 		return scalarTextFD;
 	}

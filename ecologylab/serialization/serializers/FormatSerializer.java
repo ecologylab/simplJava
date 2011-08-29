@@ -1,20 +1,12 @@
 package ecologylab.serialization.serializers;
 
+import ecologylab.serialization.FieldDescriptor;
+
 public abstract class FormatSerializer
 {
 
-	
-	
-	
-	
-	
-	/**
-	 * @param args
-	 */
-	public static void main(String[] args)
+	public void elementStart(FieldDescriptor fieldDescriptor)
 	{
-		// TODO Auto-generated method stub
-
+		
 	}
-
 }
