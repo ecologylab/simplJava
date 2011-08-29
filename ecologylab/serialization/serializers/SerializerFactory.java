@@ -5,58 +5,40 @@ import ecologylab.serialization.SIMPLTranslationException;
 /**
  * 
  * @author nabeelshahzad
- *
+ * 
  */
 public class SerializerFactory
 {
 
-	private static FormatSerializer	xmlSerializer			= null;
+	private static FormatSerializer	xmlSerializer			= new XMLSerializer();
 
-	private static FormatSerializer	jsonSerializer		= null;
+	private static FormatSerializer	jsonSerializer		= new JSONSerializer();
 
-	private static FormatSerializer	tlvSerializer			= null;
+	private static FormatSerializer	tlvSerializer			= new TLVSerializer();
 
-	private static FormatSerializer	bibitexSerializer	= null;
-	
-	
-  /**
-   * 
-   * @param format
-   * @return FormatSerializer
-   * @throws SIMPLTranslationException
-   */
+	private static FormatSerializer	bibitexSerializer	= new BibtexSerializer();
+
+	/**
+	 * returns the specific type of serializer based on the input format
+	 * 
+	 * @param format
+	 * @return FormatSerializer
+	 * @throws SIMPLTranslationException
+	 */
 	public static FormatSerializer getSerializer(Format format) throws SIMPLTranslationException
 	{
 		switch (format)
 		{
 		case XML:
-			if (xmlSerializer == null)
-			{
-				xmlSerializer = new XMLSerializer();
-				return xmlSerializer;
-			}
+			return xmlSerializer;
 		case JSON:
-			if (jsonSerializer == null)
-			{
-				jsonSerializer = new JSONSerializer();
-				return jsonSerializer;
-			}
+			return jsonSerializer;
 		case TLV:
-			if (tlvSerializer == null)
-			{
-				tlvSerializer = new TLVSerializer();
-				return tlvSerializer;
-			}
+			return tlvSerializer;
 		case BIBTEX:
-			if (bibitexSerializer == null)
-			{
-				bibitexSerializer = new BibtexSerializer();
-				return bibitexSerializer;
-			}
-			else
-				return bibitexSerializer;
+			return bibitexSerializer;
 		default:
-			throw new SIMPLTranslationException(format + "format not supported");
+			throw new SIMPLTranslationException(format + " format not supported");
 		}
 	}
 

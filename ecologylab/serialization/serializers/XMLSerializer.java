@@ -17,7 +17,7 @@ public class XMLSerializer extends FormatSerializer implements FieldTypes
 	{
 	}
 
-	// serializes root and then calls the recursive method for serialization
+	@Override
 	public void serialize(Object object, Appendable appendable, TranslationContext translationContext)
 			throws SIMPLTranslationException
 	{
@@ -98,51 +98,31 @@ public class XMLSerializer extends FormatSerializer implements FieldTypes
 			}
 		}
 		return false;
-
-	}
-
-	private void writeObjectEnd(ClassDescriptor<? extends FieldDescriptor> rootObjectClassDescriptor,
-			Appendable appendable)
-	{
-		// TODO Auto-generated method stub
-
 	}
 
 	private void writeWrap(FieldDescriptor childFd, Appendable appendable, boolean close)
 	{
 		// TODO Auto-generated method stub
-
 	}
 
 	private void writeValueAsLeaf(Object object, FieldDescriptor childFd, Appendable appendable)
 	{
 		// TODO Auto-generated method stub
-
 	}
 
 	private void writeValueAsText(Object object, FieldDescriptor scalarTextFD)
 	{
 		// TODO Auto-generated method stub
-
 	}
 
 	private void writeClose(Appendable appendable)
 	{
 		// TODO Auto-generated method stub
-
 	}
 
 	private void writeValueAsAtrribute(Object object, FieldDescriptor childFd, Appendable appendable)
 	{
 		// TODO Auto-generated method stub
-
-	}
-
-	private void writeObjectStart(
-			ClassDescriptor<? extends FieldDescriptor> rootObjectClassDescriptor, Appendable appendable)
-	{
-		// TODO Auto-generated method stub
-
 	}
 
 }

@@ -25,6 +25,9 @@ import ecologylab.serialization.annotations.simpl_nowrap;
 import ecologylab.serialization.annotations.simpl_other_tags;
 import ecologylab.serialization.annotations.simpl_scalar;
 import ecologylab.serialization.annotations.simpl_use_equals_equals;
+import ecologylab.serialization.serializers.Format;
+import ecologylab.serialization.serializers.FormatSerializer;
+import ecologylab.serialization.serializers.SerializerFactory;
 import ecologylab.serialization.types.CollectionType;
 import ecologylab.serialization.types.ScalarType;
 import ecologylab.serialization.types.TypeRegistry;
@@ -965,5 +968,38 @@ public class ClassDescriptor<FD extends FieldDescriptor> extends DescriptorBase 
 				}
 			}
 		}
+	}
+
+	/**
+	 * Static method for serializing an object to the defined format. TranslationContext is
+	 * automatically initialized to handle graphs if enabled
+	 * 
+	 * @param object
+	 * @param appendable
+	 * @param format
+	 * @throws SIMPLTranslationException
+	 */
+	public static void serialize(Object object, Appendable appendable, Format format)
+			throws SIMPLTranslationException
+	{
+		TranslationContext translationContext = new TranslationContext();
+		serialize(object, appendable, format, translationContext);
+	}
+
+	/**
+	 * Static method for serializing an object. accepts translation context which a user can supply
+	 * to pass in additional information for the serialization method to use
+	 * 
+	 * @param object
+	 * @param appendable
+	 * @param format
+	 * @param translationContext
+	 * @throws SIMPLTranslationException
+	 */
+	public static void serialize(Object object, Appendable appendable, Format format,
+			TranslationContext translationContext) throws SIMPLTranslationException
+	{
+		FormatSerializer formatSerializer = SerializerFactory.getSerializer(format);
+		formatSerializer.serialize(object, appendable, translationContext);
 	}
 }
