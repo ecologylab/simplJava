@@ -65,7 +65,7 @@ public class JavascriptTranslator
 
 	 */
 	private void translateToJavascript(Class<? extends ElementState> inputClass, Appendable appendable)
-			throws IOException, DotNetTranslationException
+			throws IOException
 	{
 		ClassDescriptor<?, ?> classDescriptor = ClassDescriptor.getClassDescriptor(inputClass);
 		
@@ -274,7 +274,7 @@ public class JavascriptTranslator
 	 * @throws DotNetTranslationException
 	 */
 	public void translateToJavascript(File fileLocation, TranslationScope tScope)
-			throws IOException, DotNetTranslationException
+			throws IOException
 	{
 		System.out.println("Translating...");
 		System.out.println("Parsing source files to extract comments... not yet really");
