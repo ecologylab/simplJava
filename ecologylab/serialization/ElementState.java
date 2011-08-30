@@ -1418,7 +1418,7 @@ public class ElementState extends Debug implements FieldTypes, XMLTranslationExc
 							childFD.writeWrap(appendable, false);
 						for (Object next : thatCollection)
 						{
-							if (isScalar) // leaf node!
+							if (isScalar) // af node!
 							{
 								try
 								{

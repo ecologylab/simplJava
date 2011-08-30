@@ -1,5 +1,6 @@
 package ecologylab.serialization;
 
+import java.io.IOException;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.TypeVariable;
@@ -969,6 +970,23 @@ public class ClassDescriptor<FD extends FieldDescriptor> extends DescriptorBase 
 			}
 		}
 	}
+	
+	/**
+	 * Static method for serializing an object to the defined format. TranslationContext is
+	 * automatically initialized to handle graphs if enabled
+	 * 
+	 * @param object
+	 * @param stringBuilder
+	 * @param format
+	 * @throws SIMPLTranslationException
+	 * @throws IOException 
+	 */
+	public static void serialize(Object object, StringBuilder stringBuilder, Format format)
+			throws SIMPLTranslationException, IOException
+	{
+		TranslationContext translationContext = new TranslationContext();
+		serialize(object, stringBuilder, format, translationContext);
+	}
 
 	/**
 	 * Static method for serializing an object to the defined format. TranslationContext is
@@ -978,9 +996,10 @@ public class ClassDescriptor<FD extends FieldDescriptor> extends DescriptorBase 
 	 * @param appendable
 	 * @param format
 	 * @throws SIMPLTranslationException
+	 * @throws IOException 
 	 */
 	public static void serialize(Object object, Appendable appendable, Format format)
-			throws SIMPLTranslationException
+			throws SIMPLTranslationException, IOException
 	{
 		TranslationContext translationContext = new TranslationContext();
 		serialize(object, appendable, format, translationContext);
@@ -995,11 +1014,30 @@ public class ClassDescriptor<FD extends FieldDescriptor> extends DescriptorBase 
 	 * @param format
 	 * @param translationContext
 	 * @throws SIMPLTranslationException
+	 * @throws IOException 
 	 */
 	public static void serialize(Object object, Appendable appendable, Format format,
-			TranslationContext translationContext) throws SIMPLTranslationException
+			TranslationContext translationContext) throws SIMPLTranslationException, IOException
 	{
 		FormatSerializer formatSerializer = SerializerFactory.getSerializer(format);
 		formatSerializer.serialize(object, appendable, translationContext);
+	}
+	
+	/**
+	 * Static method for serializing an object. accepts translation context which a user can supply
+	 * to pass in additional information for the serialization method to use
+	 *  
+	 * @param object
+	 * @param stringBuilder
+	 * @param format
+	 * @param translationContext
+	 * @throws SIMPLTranslationException
+	 * @throws IOException
+	 */
+	public static void serialize(Object object, StringBuilder stringBuilder, Format format,
+			TranslationContext translationContext) throws SIMPLTranslationException, IOException
+	{
+		FormatSerializer formatSerializer = SerializerFactory.getSerializer(format);
+		formatSerializer.serialize(object, stringBuilder, translationContext);
 	}
 }

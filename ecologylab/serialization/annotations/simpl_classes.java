@@ -3,8 +3,6 @@ package ecologylab.serialization.annotations;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
-import ecologylab.serialization.ElementState;
-
 /**
  * Supplementary metalanguage declaration that can be applied only to a field. The argument is an
  * array of Class objects.
@@ -18,5 +16,5 @@ import ecologylab.serialization.ElementState;
 @Retention(RetentionPolicy.RUNTIME)
 public @interface simpl_classes
 {
-	Class<? extends ElementState>[] value();
+	Class<? extends Object>[] value();
 }

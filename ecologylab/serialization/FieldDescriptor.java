@@ -67,37 +67,13 @@ public class FieldDescriptor extends DescriptorBase implements FieldTypes, Mappa
 
 	@simpl_scalar
 	protected Field																		field;																												// TODO
-																																																									// --
-																																																									// will
-																																																									// not
-																																																									// need
-																																																									// to
-																																																									// serialize
-																																																									// this
-																																																									// field,
-																																																									// but
-																																																									// lets
-																																																									// keep
-																																																									// doing
-																																																									// it
 
-	// but lets keep doing it;
-	// otherwise: that will temporarily break de/serialization in Objective C
 	/**
 	 * For nested elements, and collections or maps of nested elements. The class descriptor
 	 */
 
 	@simpl_composite
-	private ClassDescriptor														elementClassDescriptor;																			// TODO:
-																																																									// reading
-																																																									// this
-																																																									// representation
-																																																									// in
-																																																									// any
-																																																									// other
-																																																									// language
-
-	// will require it to have graph serialization working!
+	private ClassDescriptor														elementClassDescriptor;
 
 	@simpl_scalar
 	private String																		mapKeyFieldName;
@@ -109,13 +85,7 @@ public class FieldDescriptor extends DescriptorBase implements FieldTypes, Mappa
 	protected ClassDescriptor													declaringClassDescriptor;
 
 	@simpl_scalar
-	private Class																			elementClass;																								// TODO
-																																																									// --
-																																																									// do
-																																																									// not
-																																																									// serialize
-																																																									// this
-																																																									// field
+	private Class																			elementClass;
 
 	@simpl_scalar
 	private boolean																		isGeneric;
@@ -127,23 +97,26 @@ public class FieldDescriptor extends DescriptorBase implements FieldTypes, Mappa
 	 * derived from the field declaration (using field name or @xml_tag).
 	 * <p/>
 	 * However, for polymorphic fields, such as those declared using @xml_class, @xml_classes, or
+	 * 
 	 * @xml_scope, the tag is derived from the class declaration (using class name or @xml_tag). This
-	 * is, for example, required for polymorphic nested and collection fields. For these fields, this
-	 * slot contains an array of the legal classes, which will be bound to this field during
-	 * translateFromXML().
+	 *             is, for example, required for polymorphic nested and collection fields. For these
+	 *             fields, this slot contains an array of the legal classes, which will be bound to
+	 *             this field during translateFromXML().
 	 */
 	@simpl_map("polymorph_class_descriptor")
 	@simpl_map_key_field("tagName")
 	private HashMapArrayList<String, ClassDescriptor>	polymorphClassDescriptors;																		// TODO
-																																																									// serialize
-																																																									// this
+
+	// serialize
+	// this
 
 	@simpl_map("polymorph_class")
 	private HashMap<String, Class>										polymorphClasses;																						// TODO
-																																																									// do
-																																																									// not
-																																																									// serialize
-																																																									// this
+
+	// do
+	// not
+	// serialize
+	// this
 
 	@simpl_map("library_namespace")
 	private HashMap<String, String>										libraryNamespaces					= new HashMap<String, String>();
@@ -281,7 +254,7 @@ public class FieldDescriptor extends DescriptorBase implements FieldTypes, Mappa
 	// nameSpacePrefix
 	{
 		super(XMLTools.getXmlTagName(field), field.getName()); // uses field name or @xml_tag
-																														// declaration
+		// declaration
 		this.declaringClassDescriptor = declaringClassDescriptor;
 		this.field = field;
 		this.field.setAccessible(true);
@@ -578,8 +551,8 @@ public class FieldDescriptor extends DescriptorBase implements FieldTypes, Mappa
 			String compositeTag = field.getAnnotation(simpl_composite.class).value();
 			Boolean isWrap = field.isAnnotationPresent(simpl_wrap.class);
 
-			if (!checkAssignableFrom(ElementState.class, field, fieldClass, "@simpl_composite"))
-				result = IGNORED_ELEMENT;
+			// if (!checkAssignableFrom(ElementState.class, field, fieldClass, "@simpl_composite"))
+			// result = IGNORED_ELEMENT;
 
 			boolean compositeTagIsNullOrEmpty = StringTools.isNullOrEmpty(compositeTag);
 			if (!isPolymorphic())
@@ -638,8 +611,7 @@ public class FieldDescriptor extends DescriptorBase implements FieldTypes, Mappa
 							+ " because the parameterized type argument for the Collection is missing.");
 					return IGNORED_ELEMENT;
 				}
-				if (ElementState.class.isAssignableFrom(collectionElementClass)
-						&& !TypeRegistry.containsScalarType(collectionElementClass))
+				if (!TypeRegistry.containsScalarType(collectionElementClass))
 				{
 					elementClassDescriptor = ClassDescriptor.getClassDescriptor(collectionElementClass);
 					elementClass = elementClassDescriptor.getDescribedClass();
@@ -1057,12 +1029,18 @@ public class FieldDescriptor extends DescriptorBase implements FieldTypes, Mappa
 		}
 	}
 
-	public boolean isDefaultValue(Object context) throws IllegalArgumentException,
-			IllegalAccessException
+	public boolean isDefaultValue(Object context) throws SIMPLTranslationException
 	{
-		if (context != null)
-			return scalarType.isDefaultValue(this.field, context);
-		return false;
+		try
+		{
+			if (context != null)
+				return scalarType.isDefaultValue(this.field, context);
+			return false;
+		}
+		catch (Exception ex)
+		{
+			throw new SIMPLTranslationException("checking for defalut value raised exception", ex);
+		}
 	}
 
 	public void appendValueAsJSONAttribute(Appendable appendable, Object context, boolean isFirst)
@@ -1226,7 +1204,7 @@ public class FieldDescriptor extends DescriptorBase implements FieldTypes, Mappa
 			A valueAnchor = new A();
 
 			if (valueCssClass != null) // does this cause problems? if so, is it because mmd is wrong?
-																	// andruid & aaron 7/8/11
+				// andruid & aaron 7/8/11
 				valueDiv.setCssClass(valueCssClass);
 			if (schemaOrgItemProp != null)
 				valueDiv.setSchemaOrgItemProp(schemaOrgItemProp);
@@ -1528,7 +1506,7 @@ public class FieldDescriptor extends DescriptorBase implements FieldTypes, Mappa
 			if (isCDATA)
 				appendable.append(START_CDATA);
 			scalarType.appendValue(instance, appendable, !isCDATA, null, Format.XML); // escape if not
-																																								// CDATA! :-)
+			// CDATA! :-)
 			if (isCDATA)
 				appendable.append(END_CDATA);
 
@@ -1587,8 +1565,8 @@ public class FieldDescriptor extends DescriptorBase implements FieldTypes, Mappa
 				if (isCDATA)
 					appendable.append(START_CDATA);
 				scalarType.appendValue(appendable, this, context, serializationContext, Format.XML); // escape
-																																															// if
-																																															// not
+				// if
+				// not
 				// CDATA! :-)
 				if (isCDATA)
 					appendable.append(END_CDATA);
@@ -2430,7 +2408,7 @@ public class FieldDescriptor extends DescriptorBase implements FieldTypes, Mappa
 		return elementClassDescriptor;
 	}
 
-	/**
+/**
 	 * @return the name of the field used for key in this map. this is indicated through {@code
 	 *         @simpl_map_key_field}, and is de/serializable.
 	 */
@@ -2558,8 +2536,42 @@ public class FieldDescriptor extends DescriptorBase implements FieldTypes, Mappa
 
 	public Object getObject(Object object)
 	{
-		// TODO Auto-generated method stub
-		return null;
+		Object thatReferenceObject = null;
+		Field childField = this.getField();
+		try
+		{
+			thatReferenceObject = childField.get(object);
+		}
+		catch (IllegalAccessException e)
+		{
+			debugA("WARNING re-trying access! " + e.getStackTrace()[0]);
+			childField.setAccessible(true);
+			try
+			{
+				thatReferenceObject = childField.get(this);
+			}
+			catch (IllegalAccessException e1)
+			{
+				error("Can't access " + childField.getName());
+				e1.printStackTrace();
+			}
+		}
+		return thatReferenceObject;
+	}
+
+	public void appendValue(Appendable appendable, Object object,
+			TranslationContext translationContext, Format format) throws SIMPLTranslationException
+	{
+
+		try
+		{
+			scalarType.appendValue(appendable, this, object, translationContext, format);
+		}
+		catch (Exception ex)
+		{
+			throw new SIMPLTranslationException("appendValue exception. ", ex);
+		}
+
 	}
 
 }
