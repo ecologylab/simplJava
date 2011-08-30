@@ -1148,6 +1148,7 @@ public final class TranslationScope extends ElementState
 		return deserialize(xmlFile, translationContext);
 	}
 
+	
 	public ElementState deserializeByteArray(byte[] byteArray, FORMAT format)
 			throws SIMPLTranslationException
 	{
