@@ -20,7 +20,6 @@ import ecologylab.io.DownloadProcessor;
 import ecologylab.io.Files;
 import ecologylab.io.ZipDownload;
 import ecologylab.net.ParsedURL;
-import ecologylab.serialization.ClassDescriptor;
 import ecologylab.serialization.SIMPLTranslationException;
 import ecologylab.serialization.TranslationScope;
 import ecologylab.serialization.XMLTranslationExceptionTypes;
@@ -845,11 +844,11 @@ public class ApplicationEnvironment extends Debug implements Environment,
 				String decodedPrefsXML = URLDecoder.decode(prefSpec, "UTF-8");
 				debugA("Loading prefs from JNLP: " + decodedPrefsXML);
 
-				debugA("TranslationScope: \n");
-				for (ClassDescriptor c : translationScope.getClassDescriptors())
-				{
-					debugA(c.toString());
-				}
+//				debugA("TranslationScope: \n");
+//				for (ClassDescriptor c : translationScope.getClassDescriptors())
+//				{
+//					debugA(c.toString());
+//				}
 
 				prefSet = PrefSet.loadFromCharSequence(decodedPrefsXML, translationScope);
 			}

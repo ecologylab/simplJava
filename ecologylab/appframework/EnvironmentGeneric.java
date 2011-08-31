@@ -17,7 +17,6 @@ import ecologylab.net.ParsedURL;
  */
 public class EnvironmentGeneric extends Generic
 {
-
 	protected static ParsedURL	configDir;
 
 	public static ParsedURL codeBase()

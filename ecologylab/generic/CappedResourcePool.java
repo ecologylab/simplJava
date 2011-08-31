@@ -2,8 +2,6 @@ package ecologylab.generic;
 
 public abstract class CappedResourcePool<T> extends ResourcePool<T>
 {
-	private Object releaseCondVar = new Object();
-	
 	private int maximumSize;
 	
 	protected CappedResourcePool(boolean instantiateResourcesInPool, int initialPoolSize,
@@ -13,11 +11,13 @@ public abstract class CappedResourcePool<T> extends ResourcePool<T>
 		this.maximumSize = maximumSize;
 	}
 
+	@Override
 	protected synchronized void onRelease(T resourceToRelease)
 	{
 		this.notify();
 	}
 	
+	@Override
 	protected synchronized void onAcquire()
 	{
 		while(this.getPoolSize() == 0 && this.getCapacity() * 2 > maximumSize)

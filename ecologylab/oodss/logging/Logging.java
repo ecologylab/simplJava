@@ -573,14 +573,14 @@ public class Logging<T extends MixedInitiativeOp> extends ElementState implement
 					logWriter.writeLogMessage(sendEpilogue);
 				}
 
-				try
-				{
-					debug("epilogue contents: " + sendEpilogue.serialize());
-				}
-				catch (SIMPLTranslationException e)
-				{
-					e.printStackTrace();
-				}
+				// try
+				// {
+				// debug("epilogue contents: " + sendEpilogue.serialize());
+				// }
+				// catch (SIMPLTranslationException e)
+				// {
+				// e.printStackTrace();
+				// }
 
 				synchronized (threadSemaphore)
 				{

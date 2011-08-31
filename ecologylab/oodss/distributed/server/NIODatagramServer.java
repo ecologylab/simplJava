@@ -27,6 +27,7 @@ import ecologylab.oodss.messages.MultiRequestMessage;
 import ecologylab.oodss.messages.RequestMessage;
 import ecologylab.oodss.messages.ResponseMessage;
 import ecologylab.oodss.messages.ServiceMessage;
+import ecologylab.serialization.SIMPLTranslationException;
 import ecologylab.serialization.TranslationScope;
 
 /**
@@ -59,6 +60,8 @@ public class NIODatagramServer<S extends Scope> extends NIODatagramCore<S> imple
 
 	private int																											portNumber;
 
+	protected DatagramChannel																				chan;
+
 	/**
 	 * Initializes and starts the datagram Server. Open's up the server on all interfaces.
 	 * 
@@ -81,8 +84,6 @@ public class NIODatagramServer<S extends Scope> extends NIODatagramCore<S> imple
 
 		this.objectRegistry.put(SessionObjects.SESSIONS_MAP, clientSessionHandleMap);
 		// applicationObjectScope.put(SessionObjects.SESSIONS_MAP, clientSessionHandleMap);
-
-		DatagramChannel chan;
 
 		this.portNumber = portNumber;
 		try
@@ -425,10 +426,8 @@ public class NIODatagramServer<S extends Scope> extends NIODatagramCore<S> imple
 
 			return true;
 		}
-		else
-		{
-			return false;
-		}
+
+		return false;
 	}
 
 	/**
@@ -458,5 +457,23 @@ public class NIODatagramServer<S extends Scope> extends NIODatagramCore<S> imple
 	{
 		// TODO Auto-generated method stub
 		return null;
+	}
+
+	/**
+	 * @see ecologylab.oodss.distributed.impl.NIODatagramCore#stop()
+	 */
+	@Override
+	public void stop()
+	{
+		super.stop();
+
+		try
+		{
+			this.chan.close();
+		}
+		catch (IOException e)
+		{
+			e.printStackTrace();
+		}
 	}
 }

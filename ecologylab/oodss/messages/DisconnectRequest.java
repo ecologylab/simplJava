@@ -38,7 +38,7 @@ public class DisconnectRequest<SCOPE extends Scope> extends RequestMessage<SCOPE
 	 * @see ecologylab.oodss.messages.RequestMessage#performService(ecologylab.collections.Scope)
 	 */
 	@Override
-	public ResponseMessage performService(Scope localScope)
+	public ResponseMessage performService(SCOPE localScope)
 	{
 		debug("**** running disconnect request ****");
 
