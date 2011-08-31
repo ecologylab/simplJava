@@ -1028,6 +1028,7 @@ public class ElementState extends Debug implements FieldTypes, XMLTranslationExc
 		graphContext.mapElementState(this);
 
 		this.serializationPreHook();
+		this.serializationPreHook(graphContext);
 
 		fieldDescriptor.writeElementStart(buffy);
 
@@ -1300,6 +1301,7 @@ public class ElementState extends Debug implements FieldTypes, XMLTranslationExc
 		serializationContext.mapElementState(this);
 
 		this.serializationPreHook();
+		this.serializationPreHook(serializationContext);
 
 		fieldDescriptor.writeElementStart(appendable);
 
@@ -2025,6 +2027,17 @@ public class ElementState extends Debug implements FieldTypes, XMLTranslationExc
 	 * 
 	 */
 	protected void serializationPreHook()
+	{
+
+	}
+
+	/**
+	 * Perform custom processing immediately before translating this to XML.
+	 * <p/>
+	 * This, the default implementation, does nothing. Sub-classes may wish to override.
+	 * 
+	 */
+	protected void serializationPreHook(TranslationContext translationContext)
 	{
 
 	}
