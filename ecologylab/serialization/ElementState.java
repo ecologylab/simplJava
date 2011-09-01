@@ -121,7 +121,6 @@ public class ElementState extends Debug implements FieldTypes, XMLTranslationExc
 				serializeToBibtex(classDescriptor().pseudoFieldDescriptor(), new PrintStream(outStream),
 						graphContext);
 			}
-
 		}
 		catch (IOException e)
 		{

@@ -14,8 +14,10 @@ import ecologylab.serialization.XMLTools;
 import ecologylab.serialization.TranslationScope.GRAPH_SWITCH;
 
 /***
+ * JSONSerializaton. Guides serialization of data in JSON. Contains code that is specific to
+ * creating a valid JSON of the provided object. Supports graph handling.
  * 
- * @author nabeelshahzad
+ * @author nabeel
  * 
  */
 public class JSONSerializer extends FormatSerializer implements FieldTypes
@@ -351,7 +353,6 @@ public class JSONSerializer extends FormatSerializer implements FieldTypes
 		appendable.append('"');
 		fd.appendValue(appendable, object, translationContext, Format.JSON);
 		appendable.append('"');
-
 	}
 
 	/**

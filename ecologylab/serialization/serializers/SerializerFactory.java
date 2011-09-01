@@ -33,5 +33,4 @@ public class SerializerFactory
 			throw new SIMPLTranslationException(format + " format not supported");
 		}
 	}
-
 }

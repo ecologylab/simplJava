@@ -1,5 +1,8 @@
 package ecologylab.serialization.serializers;
 
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintStream;
@@ -9,15 +12,67 @@ import ecologylab.serialization.FieldDescriptor;
 import ecologylab.serialization.SIMPLTranslationException;
 import ecologylab.serialization.TranslationContext;
 import ecologylab.serialization.TranslationScope;
+import ecologylab.serialization.XMLTools;
 import ecologylab.serialization.TranslationScope.GRAPH_SWITCH;
 
 /**
+ * FormatSerializer. an abstract base class from where format-specific serializers derive. It main use is for exposing
+ * the API for serialization methods. It contains helper functions and wrapper serialization functions,
+ * allowing software developers to use different types of objects for serialization, such as
+ * System.out, File, StringBuilder, or return serialized data as StringBuilder
  * 
  * @author nabeel
- *
+ *  
  */
 public abstract class FormatSerializer
 {
+	/**
+	 * 
+	 * @param object
+	 * @param outputFile
+	 * @throws SIMPLTranslationException
+	 * @throws IOException
+	 */
+	public void serialize(Object object, File outputFile) throws SIMPLTranslationException,
+			IOException
+	{
+		XMLTools.createParentDirs(outputFile);
+
+		BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(outputFile));
+		serialize(object, bufferedWriter, new TranslationContext(outputFile.getParentFile()));
+		bufferedWriter.close();
+	}
+
+	/**
+	 * 
+	 * @param object
+	 * @param outputFile
+	 * @param translationContext
+	 * @throws SIMPLTranslationException
+	 * @throws IOException
+	 */
+	public void serialize(Object object, File outputFile, TranslationContext translationContext)
+			throws SIMPLTranslationException, IOException
+	{
+		XMLTools.createParentDirs(outputFile);
+
+		BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(outputFile));
+		serialize(object, bufferedWriter, translationContext);
+		bufferedWriter.close();
+	}
+
+	/**
+	 * 
+	 * @param object
+	 * @return
+	 * @throws SIMPLTranslationException
+	 * @throws IOException
+	 */
+	public StringBuilder serialize(Object object) throws SIMPLTranslationException, IOException
+	{
+		return serialize(object, new TranslationContext());
+	}
+
 	/**
 	 * 
 	 * @param object
@@ -26,12 +81,12 @@ public abstract class FormatSerializer
 	 * @throws SIMPLTranslationException
 	 * @throws IOException
 	 */
-	public String serialize(Object object, TranslationContext translationContext)
+	public StringBuilder serialize(Object object, TranslationContext translationContext)
 			throws SIMPLTranslationException, IOException
 	{
 		final StringBuilder sb = new StringBuilder();
 		serialize(object, sb, translationContext);
-		return sb.toString();
+		return sb;
 	}
 
 	/**
@@ -105,7 +160,7 @@ public abstract class FormatSerializer
 			((ISimplSerializationPre) object).serializationPreHook();
 		}
 	}
-	
+
 	/**
 	 * 
 	 * @param object
