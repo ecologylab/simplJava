@@ -367,7 +367,7 @@ public class ElementState extends Debug implements FieldTypes, XMLTranslationExc
 	private void serializeToXML(FieldDescriptor pseudoFieldDescriptor, PrintStream printStream,
 			TranslationContext graphContext) throws SIMPLTranslationException, IOException
 	{
-		serializeToAppendable(pseudoFieldDescriptor, printStream, graphContext);
+		serializeToAppendable(pseudoFieldDescriptor, printStream, graphContext, null);
 	}
 
 	private void serializeToJSON(FieldDescriptor fieldDescriptor, PrintStream appendable,
@@ -913,9 +913,19 @@ public class ElementState extends Debug implements FieldTypes, XMLTranslationExc
 		XMLTools.createParentDirs(outputFile);
 
 		BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(outputFile));
-		serialize(bufferedWriter, outputFile.getParentFile());
+		serialize(bufferedWriter, outputFile.getParentFile(), null);
 		bufferedWriter.close();
 	}
+	
+	public void serialize(File outputFile, TranslationContext compositionContext) throws SIMPLTranslationException, IOException
+	{
+		XMLTools.createParentDirs(outputFile);
+
+		BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(outputFile));
+		serialize(bufferedWriter, outputFile.getParentFile(), compositionContext);
+		bufferedWriter.close();
+	}
+
 
 	/**
 	 * Translates a tree of ElementState objects, and writes the output to the Appendable passed in.
@@ -940,7 +950,7 @@ public class ElementState extends Debug implements FieldTypes, XMLTranslationExc
 	 */
 	public void serialize(Appendable appendable) throws SIMPLTranslationException
 	{
-		serialize(appendable, null);
+		serialize(appendable, null, null);
 	}
 
 	/**
@@ -968,7 +978,7 @@ public class ElementState extends Debug implements FieldTypes, XMLTranslationExc
 		}
 	}
 
-	public void serialize(Appendable appendable, File fileContext) throws SIMPLTranslationException
+	public void serialize(Appendable appendable, File fileContext, TranslationContext compositionContext) throws SIMPLTranslationException
 	{
 		if (appendable == null)
 			throw new SIMPLTranslationException("Appendable is null");
@@ -981,7 +991,7 @@ public class ElementState extends Debug implements FieldTypes, XMLTranslationExc
 					: new TranslationContext(fileContext);
 			graphContext.resolveGraph(this);
 			isRoot = true;
-			serializeToAppendable(classDescriptor().pseudoFieldDescriptor(), appendable, graphContext);
+			serializeToAppendable(classDescriptor().pseudoFieldDescriptor(), appendable, graphContext, compositionContext);
 
 		}
 		catch (IOException e)
@@ -1012,6 +1022,7 @@ public class ElementState extends Debug implements FieldTypes, XMLTranslationExc
 	 * <p/>
 	 * Note: to keep XML files from growing unduly large, there is a default value for each type.
 	 * Attributes which are set to the default value (for that type), are not emitted.
+	 * @param compositionContext TODO
 	 * 
 	 * @return the generated xml string
 	 * 
@@ -1287,21 +1298,22 @@ public class ElementState extends Debug implements FieldTypes, XMLTranslationExc
 	 * @param fieldDescriptor
 	 * @param appendable
 	 *          Appendable to translate into. Must be non-null. Can be a Writer, OutputStream, ...
-	 * 
+	 * @param compositionContext TODO
+	 * @param compositionContext TODO
 	 * @throws SIMPLTranslationException
 	 *           if a problem arises during translation. Problems with Field access are possible, but
 	 *           very unlikely.
 	 * @throws IOException
 	 */
 	private void serializeToAppendable(FieldDescriptor fieldDescriptor, Appendable appendable,
-			TranslationContext serializationContext) throws SIMPLTranslationException, IOException
+			TranslationContext serializationContext, TranslationContext compositionContext) throws SIMPLTranslationException, IOException
 	{
 
 		// To handle cyclic pointers. map marshalled ElementState Objects.
 		serializationContext.mapElementState(this);
 
 		this.serializationPreHook();
-		this.serializationPreHook(serializationContext);
+		this.serializationPreHook(compositionContext);
 
 		fieldDescriptor.writeElementStart(appendable);
 
@@ -2035,12 +2047,14 @@ public class ElementState extends Debug implements FieldTypes, XMLTranslationExc
 	 * Perform custom processing immediately before translating this to XML.
 	 * <p/>
 	 * This, the default implementation, does nothing. Sub-classes may wish to override.
+	 * @param compositionContext TODO
 	 * 
 	 */
 	protected void serializationPreHook(TranslationContext translationContext)
 	{
 
 	}
+	
 
 	/**
 	 * Perform processing immediately after serializing this.
@@ -2199,7 +2213,7 @@ public class ElementState extends Debug implements FieldTypes, XMLTranslationExc
 		}
 		else
 		{
-			nestedES.serializeToAppendable(nestedF2XO, appendable, graphContext);
+			nestedES.serializeToAppendable(nestedF2XO, appendable, graphContext, null);
 		}
 	}
 
