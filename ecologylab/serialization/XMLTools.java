@@ -319,8 +319,9 @@ public class XMLTools extends Debug implements CharacterConstants, SpecialCharac
 		String result = getBibtexTagAnnotationIfPresent(tagAnnotation);
 		if (result == null)
 		{
-			result = getXmlTagName(thatField.getName(), null);
+			result = getXmlTagName(thatField.getName(), null).replace('_', ' ');
 		}
+		
 		return result;
 	}
 

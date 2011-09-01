@@ -16,7 +16,7 @@ import ecologylab.serialization.XMLTools;
 import ecologylab.serialization.TranslationScope.GRAPH_SWITCH;
 
 /**
- * FormatSerializer. an abstract base class from where format-specific serializers derive. It main use is for exposing
+ * FormatSerializer. an abstract base class from where format-specific serializers derive. Its main use is for exposing
  * the API for serialization methods. It contains helper functions and wrapper serialization functions,
  * allowing software developers to use different types of objects for serialization, such as
  * System.out, File, StringBuilder, or return serialized data as StringBuilder

@@ -912,7 +912,7 @@ public class FieldDescriptor extends DescriptorBase implements FieldTypes, Mappa
 	public String getBibtexTagName()
 	{
 		if (bibtexTag == null || bibtexTag.equals(""))
-			return tagName;
+			bibtexTag = tagName;
 		return bibtexTag;
 	}
 
@@ -1284,8 +1284,6 @@ public class FieldDescriptor extends DescriptorBase implements FieldTypes, Mappa
 				{
 					appendable.append('\n');
 					appendable.append(' ');
-					String bibTeXTagName = getBibtexTagName();
-					bibTeXTagName = bibTeXTagName.replace('_', ' ');
 					appendable.append(getBibtexTagName());
 					appendable.append('=');
 					appendable.append('{');
@@ -2571,7 +2569,11 @@ public class FieldDescriptor extends DescriptorBase implements FieldTypes, Mappa
 		{
 			throw new SIMPLTranslationException("appendValue exception. ", ex);
 		}
-
+	}
+	
+	public boolean isBibtexKey()
+	{
+		return isBibtexKey;
 	}
 
 }
