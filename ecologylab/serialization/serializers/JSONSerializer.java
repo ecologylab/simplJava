@@ -9,10 +9,21 @@ import ecologylab.serialization.FieldDescriptor;
 import ecologylab.serialization.FieldTypes;
 import ecologylab.serialization.SIMPLTranslationException;
 import ecologylab.serialization.TranslationContext;
+import ecologylab.serialization.TranslationScope;
 import ecologylab.serialization.XMLTools;
+import ecologylab.serialization.TranslationScope.GRAPH_SWITCH;
 
+/***
+ * 
+ * @author nabeelshahzad
+ * 
+ */
 public class JSONSerializer extends FormatSerializer implements FieldTypes
 {
+
+	private static final String	JSON_SIMPL_ID		= "simpl.id";
+
+	private static final String	JSON_SIMPL_REF	= "simpl.ref";
 
 	public JSONSerializer()
 	{
@@ -36,13 +47,23 @@ public class JSONSerializer extends FormatSerializer implements FieldTypes
 		writeClose(appendable);
 	}
 
+	/**
+	 * 
+	 * @param object
+	 * @param rootObjectFieldDescriptor
+	 * @param appendable
+	 * @param translationContext
+	 * @param withTag
+	 * @throws SIMPLTranslationException
+	 * @throws IOException
+	 */
 	private void serialize(Object object, FieldDescriptor rootObjectFieldDescriptor,
 			Appendable appendable, TranslationContext translationContext, boolean withTag)
 			throws SIMPLTranslationException, IOException
 	{
 		if (alreadySerialized(object, translationContext))
 		{
-			writeSimplRef(object, rootObjectFieldDescriptor, appendable);
+			writeSimplRef(object, rootObjectFieldDescriptor, withTag, appendable);
 			return;
 		}
 
@@ -62,12 +83,29 @@ public class JSONSerializer extends FormatSerializer implements FieldTypes
 		serializationPostHook(object);
 	}
 
+	/**
+	 * 
+	 * @param object
+	 * @param appendable
+	 * @param translationContext
+	 * @param allFieldDescriptors
+	 * @throws SIMPLTranslationException
+	 * @throws IOException
+	 */
 	private void serializeFields(Object object, Appendable appendable,
 			TranslationContext translationContext,
 			ArrayList<? extends FieldDescriptor> allFieldDescriptors) throws SIMPLTranslationException,
 			IOException
 	{
 		int numOfFields = 0;
+
+		if (TranslationScope.graphSwitch == GRAPH_SWITCH.ON)
+		{
+			if (translationContext.needsHashCode(object))
+			{
+				writeSimplIdAttribute(object, appendable, allFieldDescriptors.size() <= 0);
+			}
+		}
 
 		for (FieldDescriptor childFd : allFieldDescriptors)
 		{
@@ -95,8 +133,18 @@ public class JSONSerializer extends FormatSerializer implements FieldTypes
 			if (++numOfFields < allFieldDescriptors.size())
 				appendable.append(',');
 		}
+
 	}
 
+	/**
+	 * 
+	 * @param object
+	 * @param appendable
+	 * @param translationContext
+	 * @param childFd
+	 * @throws SIMPLTranslationException
+	 * @throws IOException
+	 */
 	private void serializeComposite(Object object, Appendable appendable,
 			TranslationContext translationContext, FieldDescriptor childFd)
 			throws SIMPLTranslationException, IOException
@@ -107,6 +155,15 @@ public class JSONSerializer extends FormatSerializer implements FieldTypes
 		serialize(compositeObject, compositeObjectFieldDescriptor, appendable, translationContext, true);
 	}
 
+	/**
+	 * 
+	 * @param object
+	 * @param appendable
+	 * @param translationContext
+	 * @param childFd
+	 * @throws IOException
+	 * @throws SIMPLTranslationException
+	 */
 	private void serializeCompositeCollection(Object object, Appendable appendable,
 			TranslationContext translationContext, FieldDescriptor childFd) throws IOException,
 			SIMPLTranslationException
@@ -133,6 +190,15 @@ public class JSONSerializer extends FormatSerializer implements FieldTypes
 		writeWrap(childFd, appendable, true);
 	}
 
+	/**
+	 * 
+	 * @param object
+	 * @param appendable
+	 * @param translationContext
+	 * @param childFd
+	 * @throws IOException
+	 * @throws SIMPLTranslationException
+	 */
 	private void serializePolymorphicCollection(Object object, Appendable appendable,
 			TranslationContext translationContext, FieldDescriptor childFd) throws IOException,
 			SIMPLTranslationException
@@ -160,8 +226,15 @@ public class JSONSerializer extends FormatSerializer implements FieldTypes
 
 	}
 
-	
-
+	/**
+	 * 
+	 * @param object
+	 * @param appendable
+	 * @param translationContext
+	 * @param childFd
+	 * @throws IOException
+	 * @throws SIMPLTranslationException
+	 */
 	private void serializeScalarCollection(Object object, Appendable appendable,
 			TranslationContext translationContext, FieldDescriptor childFd) throws IOException,
 			SIMPLTranslationException
@@ -181,6 +254,15 @@ public class JSONSerializer extends FormatSerializer implements FieldTypes
 		writeWrap(childFd, appendable, true);
 	}
 
+	/**
+	 * 
+	 * @param object
+	 * @param fd
+	 * @param appendable
+	 * @param translationContext
+	 * @throws IOException
+	 * @throws SIMPLTranslationException
+	 */
 	private void serializeScalar(Object object, FieldDescriptor fd, Appendable appendable,
 			TranslationContext translationContext) throws IOException, SIMPLTranslationException
 	{
@@ -196,6 +278,11 @@ public class JSONSerializer extends FormatSerializer implements FieldTypes
 		}
 	}
 
+	/**
+	 * 
+	 * @param appendable
+	 * @throws IOException
+	 */
 	private void writeCollectionEnd(Appendable appendable) throws IOException
 	{
 		appendable.append(']');
@@ -207,15 +294,29 @@ public class JSONSerializer extends FormatSerializer implements FieldTypes
 		appendable.append(':');
 		appendable.append('[');
 	}
-	
-	private void writePolymorphicCollectionStart(FieldDescriptor fd, Appendable appendable) throws IOException
+
+	/**
+	 * 
+	 * @param fd
+	 * @param appendable
+	 * @throws IOException
+	 */
+	private void writePolymorphicCollectionStart(FieldDescriptor fd, Appendable appendable)
+			throws IOException
 	{
 		appendable.append('"').append(fd.getTagName()).append('"');
 		appendable.append(':');
 		appendable.append('[');
-		
+
 	}
 
+	/**
+	 * 
+	 * @param fd
+	 * @param appendable
+	 * @param close
+	 * @throws IOException
+	 */
 	private void writeWrap(FieldDescriptor fd, Appendable appendable, boolean close)
 			throws IOException
 	{
@@ -235,6 +336,15 @@ public class JSONSerializer extends FormatSerializer implements FieldTypes
 		}
 	}
 
+	/**
+	 * 
+	 * @param object
+	 * @param fd
+	 * @param appendable
+	 * @param translationContext
+	 * @throws IOException
+	 * @throws SIMPLTranslationException
+	 */
 	private void writeCollectionScalar(Object object, FieldDescriptor fd, Appendable appendable,
 			TranslationContext translationContext) throws IOException, SIMPLTranslationException
 	{
@@ -244,6 +354,13 @@ public class JSONSerializer extends FormatSerializer implements FieldTypes
 
 	}
 
+	/**
+	 * 
+	 * @param fd
+	 * @param appendable
+	 * @param withTag
+	 * @throws IOException
+	 */
 	private void writeObjectStart(FieldDescriptor fd, Appendable appendable, boolean withTag)
 			throws IOException
 	{
@@ -255,20 +372,66 @@ public class JSONSerializer extends FormatSerializer implements FieldTypes
 		appendable.append('{');
 	}
 
-	private void writeSimplRef(Object object, FieldDescriptor rootObjectFieldDescriptor,
-			Appendable appendable)
+	/**
+	 * 
+	 * @param object
+	 * @param rootObjectFieldDescriptor
+	 * @param appendable
+	 * @throws IOException
+	 */
+	private void writeSimplRef(Object object, FieldDescriptor fd, boolean withTag,
+			Appendable appendable) throws IOException
 	{
-		// TODO Auto-generated method stub
-
+		writeObjectStart(fd, appendable, withTag);
+		writeSimplRefAttribute(object, appendable);
+		writeClose(appendable);
 	}
 
-	private void writeClose(Appendable appendable) throws IOException
+	private void writeSimplRefAttribute(Object object, Appendable appendable) throws IOException
 	{
-		appendable.append('}');
+		appendable.append('"');
+		appendable.append(JSON_SIMPL_REF);
+		appendable.append('"');
+		appendable.append(':');
+		appendable.append('"');
+		appendable.append(((Integer) object.hashCode()).toString());
+		appendable.append('"');
 	}
 
+	private void writeSimplIdAttribute(Object object, Appendable appendable, boolean last)
+			throws IOException
+	{
+		appendable.append('"');
+		appendable.append(JSON_SIMPL_ID);
+		appendable.append('"');
+		appendable.append(':');
+		appendable.append('"');
+		appendable.append(((Integer) object.hashCode()).toString());
+
+		if (!last)
+		{
+			appendable.append('"');
+			appendable.append(',');
+		}
+	}
+
+	/**
+	 * 
+	 * @param appendable
+	 * @throws IOException
+	 */
 	private void writeStart(Appendable appendable) throws IOException
 	{
 		appendable.append('{');
+	}
+
+	/**
+	 * 
+	 * @param appendable
+	 * @throws IOException
+	 */
+	private void writeClose(Appendable appendable) throws IOException
+	{
+		appendable.append('}');
 	}
 }

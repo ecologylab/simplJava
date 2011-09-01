@@ -11,8 +11,21 @@ import ecologylab.serialization.TranslationContext;
 import ecologylab.serialization.TranslationScope;
 import ecologylab.serialization.TranslationScope.GRAPH_SWITCH;
 
+/**
+ * 
+ * @author nabeel
+ *
+ */
 public abstract class FormatSerializer
 {
+	/**
+	 * 
+	 * @param object
+	 * @param translationContext
+	 * @return
+	 * @throws SIMPLTranslationException
+	 * @throws IOException
+	 */
 	public String serialize(Object object, TranslationContext translationContext)
 			throws SIMPLTranslationException, IOException
 	{
@@ -21,6 +34,14 @@ public abstract class FormatSerializer
 		return sb.toString();
 	}
 
+	/**
+	 * 
+	 * @param object
+	 * @param stringBuilder
+	 * @param translationContext
+	 * @throws SIMPLTranslationException
+	 * @throws IOException
+	 */
 	public void serialize(Object object, final StringBuilder stringBuilder,
 			TranslationContext translationContext) throws SIMPLTranslationException, IOException
 	{
@@ -36,6 +57,14 @@ public abstract class FormatSerializer
 		serialize(object, new PrintStream(outputStream), translationContext);
 	}
 
+	/**
+	 * 
+	 * @param object
+	 * @param appendable
+	 * @param translationContext
+	 * @throws SIMPLTranslationException
+	 * @throws IOException
+	 */
 	public void serialize(Object object, Appendable appendable, TranslationContext translationContext)
 			throws SIMPLTranslationException, IOException
 	{
@@ -43,11 +72,20 @@ public abstract class FormatSerializer
 		// particular format
 	}
 
+	/**
+	 * 
+	 * @param object
+	 * @return
+	 */
 	protected ClassDescriptor<? extends FieldDescriptor> getClassDescriptor(Object object)
 	{
 		return ClassDescriptor.getClassDescriptor(object.getClass());
 	}
 
+	/**
+	 * 
+	 * @param object
+	 */
 	protected void serializationPostHook(Object object)
 	{
 		if (object instanceof ISimplSerializationPost)
@@ -56,6 +94,10 @@ public abstract class FormatSerializer
 		}
 	}
 
+	/**
+	 * 
+	 * @param object
+	 */
 	protected void serializationPreHook(Object object)
 	{
 		if (object instanceof ISimplSerializationPre)
@@ -64,6 +106,12 @@ public abstract class FormatSerializer
 		}
 	}
 	
+	/**
+	 * 
+	 * @param object
+	 * @param translationContext
+	 * @return
+	 */
 	protected boolean alreadySerialized(Object object, TranslationContext translationContext)
 	{
 		return TranslationScope.graphSwitch == GRAPH_SWITCH.ON
