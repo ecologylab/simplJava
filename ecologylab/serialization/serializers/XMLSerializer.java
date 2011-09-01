@@ -9,13 +9,23 @@ import ecologylab.serialization.FieldDescriptor;
 import ecologylab.serialization.FieldTypes;
 import ecologylab.serialization.SIMPLTranslationException;
 import ecologylab.serialization.TranslationContext;
+import ecologylab.serialization.TranslationScope;
 import ecologylab.serialization.XMLTools;
+import ecologylab.serialization.TranslationScope.GRAPH_SWITCH;
 
 public class XMLSerializer extends FormatSerializer implements FieldTypes
 {
-	private static final String	START_CDATA	= "<![CDATA[";
+	private static final String	START_CDATA			= "<![CDATA[";
 
-	private static final String	END_CDATA		= "]]>";
+	private static final String	END_CDATA				= "]]>";
+
+	private static final String	SIMPL_NAMESPACE	= " xmlns:simpl=\"http://ecologylab.net/research/simplGuide/serialization/index.html\"";
+
+	private boolean							isRoot					= true;
+
+	private static final String	SIMPL_REF				= "simpl:ref";
+
+	private static final String	SIMPL_ID				= "simpl:id";
 
 	public XMLSerializer()
 	{
@@ -25,6 +35,8 @@ public class XMLSerializer extends FormatSerializer implements FieldTypes
 	public void serialize(Object object, Appendable appendable, TranslationContext translationContext)
 			throws SIMPLTranslationException, IOException
 	{
+		translationContext.resolveGraph(object);
+
 		ClassDescriptor<? extends FieldDescriptor> rootObjectClassDescriptor = ClassDescriptor
 				.getClassDescriptor(object.getClass());
 
@@ -37,7 +49,15 @@ public class XMLSerializer extends FormatSerializer implements FieldTypes
 			throws SIMPLTranslationException, IOException
 	{
 
-		// serialization pre hook
+		if (alreadySerialized(object, translationContext))
+		{
+			writeSimplRef(object, rootObjectFieldDescriptor, appendable);
+			return;
+		}
+
+		translationContext.mapObject(object);
+
+		serializationPreHook(object);
 
 		ClassDescriptor<? extends FieldDescriptor> rootObjectClassDescriptor = getClassDescriptor(object);
 
@@ -62,7 +82,7 @@ public class XMLSerializer extends FormatSerializer implements FieldTypes
 
 			if (hasXMLText)
 			{
-				writeValueAsText(object, rootObjectClassDescriptor.getScalarTextFD());
+				writeValueAsText(object, rootObjectClassDescriptor.getScalarTextFD(), appendable);
 			}
 
 			serializeFields(object, appendable, translationContext, elementFieldDescriptors);
@@ -70,13 +90,13 @@ public class XMLSerializer extends FormatSerializer implements FieldTypes
 			writeObjectClose(rootObjectFieldDescriptor, appendable);
 		}
 
-		// serialization post hook
+		serializationPostHook(object);
 	}
 
 	private void serializeAttributes(Object object, Appendable appendable,
 			TranslationContext translationContext,
 			ClassDescriptor<? extends FieldDescriptor> rootObjectClassDescriptor)
-			throws SIMPLTranslationException
+			throws SIMPLTranslationException, IOException
 	{
 		ArrayList<? extends FieldDescriptor> attributeFieldDescriptors = rootObjectClassDescriptor
 				.attributeFieldDescriptors();
@@ -90,6 +110,20 @@ public class XMLSerializer extends FormatSerializer implements FieldTypes
 			catch (Exception ex)
 			{
 				throw new SIMPLTranslationException("serialize for attribute " + object, ex);
+			}
+		}
+
+		if (TranslationScope.graphSwitch == GRAPH_SWITCH.ON)
+		{
+			if (translationContext.needsHashCode(object))
+			{
+				writeSimplIdAttribute(object, appendable);
+			}
+
+			if (isRoot && translationContext.isGraph())
+			{
+				writeSimplNameSpace(appendable);
+				isRoot = false;
 			}
 		}
 	}
@@ -108,11 +142,12 @@ public class XMLSerializer extends FormatSerializer implements FieldTypes
 				break;
 			case COMPOSITE_ELEMENT:
 				Object compositeObject = childFd.getObject(object);
-
 				FieldDescriptor compositeObjectFieldDescriptor = childFd.isPolymorphic() ? getClassDescriptor(
 						compositeObject).pseudoFieldDescriptor()
 						: childFd;
+				writeWrap(childFd, appendable, false);
 				serialize(compositeObject, compositeObjectFieldDescriptor, appendable, translationContext);
+				writeWrap(childFd, appendable, true);
 				break;
 			case COLLECTION_SCALAR:
 			case MAP_SCALAR:
@@ -143,10 +178,15 @@ public class XMLSerializer extends FormatSerializer implements FieldTypes
 		}
 	}
 
-	private ClassDescriptor<? extends FieldDescriptor> getClassDescriptor(Object object)
+	private void writeSimplRef(Object object, FieldDescriptor fd, Appendable appendable)
+			throws IOException
 	{
-		return ClassDescriptor.getClassDescriptor(object.getClass());
+		writeObjectStart(fd, appendable);
+		writeSimplRefAttribute(object, appendable);
+		writeCompleteClose(appendable);
 	}
+
+
 
 	private void writeObjectStart(FieldDescriptor fd, Appendable appendable) throws IOException
 	{
@@ -185,9 +225,17 @@ public class XMLSerializer extends FormatSerializer implements FieldTypes
 		appendable.append('<').append('/').append(fd.elementStart()).append('>');
 	}
 
-	private void writeValueAsText(Object object, FieldDescriptor scalarTextFD)
+	private void writeValueAsText(Object object, FieldDescriptor fd, Appendable appendable)
+			throws SIMPLTranslationException, IOException
 	{
-		// TODO Auto-generated method stub
+		if (fd.isDefaultValue(object))
+		{
+			if (fd.isCDATA())
+				appendable.append(START_CDATA);
+			fd.appendValue(appendable, object, null, Format.XML);
+			if (fd.isCDATA())
+				appendable.append(END_CDATA);
+		}
 	}
 
 	private void writeClose(Appendable appendable) throws IOException
@@ -214,4 +262,28 @@ public class XMLSerializer extends FormatSerializer implements FieldTypes
 		}
 	}
 
+	private void writeSimplNameSpace(Appendable appendable) throws IOException
+	{
+		appendable.append(SIMPL_NAMESPACE);
+	}
+
+	private void writeSimplRefAttribute(Object object, Appendable appendable) throws IOException
+	{
+		appendable.append(' ');
+		appendable.append(SIMPL_REF);
+		appendable.append('=');
+		appendable.append('"');
+		appendable.append(((Integer) object.hashCode()).toString());
+		appendable.append('"');
+	}
+
+	private void writeSimplIdAttribute(Object object, Appendable appendable) throws IOException
+	{
+		appendable.append(' ');
+		appendable.append(SIMPL_ID);
+		appendable.append('=');
+		appendable.append('"');
+		appendable.append(((Integer) object.hashCode()).toString());
+		appendable.append('"');
+	}
 }

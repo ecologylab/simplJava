@@ -10,14 +10,6 @@ import ecologylab.serialization.SIMPLTranslationException;
 public class SerializerFactory
 {
 
-	private static FormatSerializer	xmlSerializer			= new XMLSerializer();
-
-	private static FormatSerializer	jsonSerializer		= new JSONSerializer();
-
-	private static FormatSerializer	tlvSerializer			= new TLVSerializer();
-
-	private static FormatSerializer	bibitexSerializer	= new BibtexSerializer();
-
 	/**
 	 * returns the specific type of serializer based on the input format
 	 * 
@@ -30,13 +22,13 @@ public class SerializerFactory
 		switch (format)
 		{
 		case XML:
-			return xmlSerializer;
+			return new XMLSerializer();
 		case JSON:
-			return jsonSerializer;
+			return new JSONSerializer();
 		case TLV:
-			return tlvSerializer;
+			return new TLVSerializer();
 		case BIBTEX:
-			return bibitexSerializer;
+			return new BibtexSerializer();
 		default:
 			throw new SIMPLTranslationException(format + " format not supported");
 		}

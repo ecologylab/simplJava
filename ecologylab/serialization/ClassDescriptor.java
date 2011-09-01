@@ -347,6 +347,16 @@ public class ClassDescriptor<FD extends FieldDescriptor> extends DescriptorBase 
 		return result;
 	}
 
+	public ArrayList<FD> allFieldDescriptors()
+	{
+		ArrayList<FD> allFieldDescriptors = new ArrayList<FD>();
+		if (attributeFieldDescriptors != null)
+			allFieldDescriptors.addAll(attributeFieldDescriptors);
+		if (elementFieldDescriptors != null)
+			allFieldDescriptors.addAll(elementFieldDescriptors);
+		return allFieldDescriptors;
+	}
+
 	public ArrayList<FD> attributeFieldDescriptors()
 	{
 		return attributeFieldDescriptors;
@@ -970,7 +980,7 @@ public class ClassDescriptor<FD extends FieldDescriptor> extends DescriptorBase 
 			}
 		}
 	}
-	
+
 	/**
 	 * Static method for serializing an object to the defined format. TranslationContext is
 	 * automatically initialized to handle graphs if enabled
@@ -979,7 +989,7 @@ public class ClassDescriptor<FD extends FieldDescriptor> extends DescriptorBase 
 	 * @param stringBuilder
 	 * @param format
 	 * @throws SIMPLTranslationException
-	 * @throws IOException 
+	 * @throws IOException
 	 */
 	public static void serialize(Object object, StringBuilder stringBuilder, Format format)
 			throws SIMPLTranslationException, IOException
@@ -996,7 +1006,7 @@ public class ClassDescriptor<FD extends FieldDescriptor> extends DescriptorBase 
 	 * @param appendable
 	 * @param format
 	 * @throws SIMPLTranslationException
-	 * @throws IOException 
+	 * @throws IOException
 	 */
 	public static void serialize(Object object, Appendable appendable, Format format)
 			throws SIMPLTranslationException, IOException
@@ -1006,15 +1016,15 @@ public class ClassDescriptor<FD extends FieldDescriptor> extends DescriptorBase 
 	}
 
 	/**
-	 * Static method for serializing an object. accepts translation context which a user can supply
-	 * to pass in additional information for the serialization method to use
+	 * Static method for serializing an object. accepts translation context which a user can supply to
+	 * pass in additional information for the serialization method to use
 	 * 
 	 * @param object
 	 * @param appendable
 	 * @param format
 	 * @param translationContext
 	 * @throws SIMPLTranslationException
-	 * @throws IOException 
+	 * @throws IOException
 	 */
 	public static void serialize(Object object, Appendable appendable, Format format,
 			TranslationContext translationContext) throws SIMPLTranslationException, IOException
@@ -1022,11 +1032,11 @@ public class ClassDescriptor<FD extends FieldDescriptor> extends DescriptorBase 
 		FormatSerializer formatSerializer = SerializerFactory.getSerializer(format);
 		formatSerializer.serialize(object, appendable, translationContext);
 	}
-	
+
 	/**
-	 * Static method for serializing an object. accepts translation context which a user can supply
-	 * to pass in additional information for the serialization method to use
-	 *  
+	 * Static method for serializing an object. accepts translation context which a user can supply to
+	 * pass in additional information for the serialization method to use
+	 * 
 	 * @param object
 	 * @param stringBuilder
 	 * @param format
