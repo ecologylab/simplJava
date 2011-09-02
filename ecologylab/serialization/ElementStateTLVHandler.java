@@ -7,8 +7,8 @@ import java.util.Map;
 
 import ecologylab.generic.Debug;
 import ecologylab.net.ParsedURL;
-import ecologylab.serialization.tlv.TLVEvents;
-import ecologylab.serialization.tlv.TLVParser;
+import ecologylab.serialization.deserializers.parsers.tlv.TLVEvents;
+import ecologylab.serialization.deserializers.parsers.tlv.TLVParser;
 import ecologylab.serialization.types.element.Mappable;
 
 public class ElementStateTLVHandler extends Debug implements TLVEvents, FieldTypes,

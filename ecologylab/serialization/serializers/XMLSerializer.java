@@ -13,6 +13,11 @@ import ecologylab.serialization.TranslationScope;
 import ecologylab.serialization.XMLTools;
 import ecologylab.serialization.TranslationScope.GRAPH_SWITCH;
 
+/**
+ * XML Specific serializer
+ * 
+ * @author nabeel
+ */
 public class XMLSerializer extends FormatSerializer implements FieldTypes
 {
 	private static final String	START_CDATA			= "<![CDATA[";
@@ -44,6 +49,15 @@ public class XMLSerializer extends FormatSerializer implements FieldTypes
 				translationContext);
 	}
 
+	/**
+	 * 
+	 * @param object
+	 * @param rootObjectFieldDescriptor
+	 * @param appendable
+	 * @param translationContext
+	 * @throws SIMPLTranslationException
+	 * @throws IOException
+	 */
 	private void serialize(Object object, FieldDescriptor rootObjectFieldDescriptor,
 			Appendable appendable, TranslationContext translationContext)
 			throws SIMPLTranslationException, IOException
@@ -93,6 +107,15 @@ public class XMLSerializer extends FormatSerializer implements FieldTypes
 		serializationPostHook(object);
 	}
 
+	/**
+	 * 
+	 * @param object
+	 * @param appendable
+	 * @param translationContext
+	 * @param rootObjectClassDescriptor
+	 * @throws SIMPLTranslationException
+	 * @throws IOException
+	 */
 	private void serializeAttributes(Object object, Appendable appendable,
 			TranslationContext translationContext,
 			ClassDescriptor<? extends FieldDescriptor> rootObjectClassDescriptor)
@@ -128,6 +151,15 @@ public class XMLSerializer extends FormatSerializer implements FieldTypes
 		}
 	}
 
+	/**
+	 * 
+	 * @param object
+	 * @param appendable
+	 * @param translationContext
+	 * @param elementFieldDescriptors
+	 * @throws SIMPLTranslationException
+	 * @throws IOException
+	 */
 	private void serializeFields(Object object, Appendable appendable,
 			TranslationContext translationContext,
 			ArrayList<? extends FieldDescriptor> elementFieldDescriptors)
@@ -178,6 +210,13 @@ public class XMLSerializer extends FormatSerializer implements FieldTypes
 		}
 	}
 
+	/**
+	 * 
+	 * @param object
+	 * @param fd
+	 * @param appendable
+	 * @throws IOException
+	 */
 	private void writeSimplRef(Object object, FieldDescriptor fd, Appendable appendable)
 			throws IOException
 	{
@@ -186,23 +225,45 @@ public class XMLSerializer extends FormatSerializer implements FieldTypes
 		writeCompleteClose(appendable);
 	}
 
-
-
+	/**
+	 * 
+	 * @param fd
+	 * @param appendable
+	 * @throws IOException
+	 */
 	private void writeObjectStart(FieldDescriptor fd, Appendable appendable) throws IOException
 	{
 		appendable.append('<').append(fd.elementStart());
 	}
 
+	/**
+	 * 
+	 * @param fd
+	 * @param appendable
+	 * @throws IOException
+	 */
 	private void writeObjectClose(FieldDescriptor fd, Appendable appendable) throws IOException
 	{
 		appendable.append('<').append('/').append(fd.elementStart()).append('>');
 	}
 
+	/**
+	 * 
+	 * @param appendable
+	 * @throws IOException
+	 */
 	private void writeCompleteClose(Appendable appendable) throws IOException
 	{
 		appendable.append('/').append('>');
 	}
 
+	/**
+	 * 
+	 * @param fd
+	 * @param appendable
+	 * @param close
+	 * @throws IOException
+	 */
 	private void writeWrap(FieldDescriptor fd, Appendable appendable, boolean close)
 			throws IOException
 	{
@@ -215,6 +276,15 @@ public class XMLSerializer extends FormatSerializer implements FieldTypes
 		}
 	}
 
+	/**
+	 * 
+	 * @param object
+	 * @param fd
+	 * @param appendable
+	 * @param translationContext
+	 * @throws SIMPLTranslationException
+	 * @throws IOException
+	 */
 	private void writeValueAsLeaf(Object object, FieldDescriptor fd, Appendable appendable,
 			TranslationContext translationContext) throws SIMPLTranslationException, IOException
 	{
@@ -225,6 +295,14 @@ public class XMLSerializer extends FormatSerializer implements FieldTypes
 		appendable.append('<').append('/').append(fd.elementStart()).append('>');
 	}
 
+	/**
+	 * 
+	 * @param object
+	 * @param fd
+	 * @param appendable
+	 * @throws SIMPLTranslationException
+	 * @throws IOException
+	 */
 	private void writeValueAsText(Object object, FieldDescriptor fd, Appendable appendable)
 			throws SIMPLTranslationException, IOException
 	{
@@ -238,11 +316,25 @@ public class XMLSerializer extends FormatSerializer implements FieldTypes
 		}
 	}
 
+	/**
+	 * 
+	 * @param appendable
+	 * @throws IOException
+	 */
 	private void writeClose(Appendable appendable) throws IOException
 	{
 		appendable.append('>');
 	}
 
+	/**
+	 * 
+	 * @param object
+	 * @param fd
+	 * @param appendable
+	 * @param translationContext
+	 * @throws SIMPLTranslationException
+	 * @throws IOException
+	 */
 	private void writeValueAsAtrribute(Object object, FieldDescriptor fd, Appendable appendable,
 			TranslationContext translationContext) throws SIMPLTranslationException, IOException
 	{
@@ -262,11 +354,22 @@ public class XMLSerializer extends FormatSerializer implements FieldTypes
 		}
 	}
 
+	/**
+	 * 
+	 * @param appendable
+	 * @throws IOException
+	 */
 	private void writeSimplNameSpace(Appendable appendable) throws IOException
 	{
 		appendable.append(SIMPL_NAMESPACE);
 	}
 
+	/**
+	 * 
+	 * @param object
+	 * @param appendable
+	 * @throws IOException
+	 */
 	private void writeSimplRefAttribute(Object object, Appendable appendable) throws IOException
 	{
 		appendable.append(' ');
@@ -277,6 +380,12 @@ public class XMLSerializer extends FormatSerializer implements FieldTypes
 		appendable.append('"');
 	}
 
+	/**
+	 * 
+	 * @param object
+	 * @param appendable
+	 * @throws IOException
+	 */
 	private void writeSimplIdAttribute(Object object, Appendable appendable) throws IOException
 	{
 		appendable.append(' ');

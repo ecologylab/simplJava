@@ -5,7 +5,7 @@ import java.util.Collection;
 
 import ecologylab.generic.Debug;
 import ecologylab.net.ParsedURL;
-import ecologylab.serialization.bibtex.BibTeXEvents;
+import ecologylab.serialization.deserializers.parsers.bibtex.BibTeXEvents;
 
 public class ElementStateBibTeXHandler extends Debug implements BibTeXEvents,
 		ScalarUnmarshallingContext

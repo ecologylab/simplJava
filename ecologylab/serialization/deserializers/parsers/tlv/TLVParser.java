@@ -1,4 +1,4 @@
-package ecologylab.serialization.tlv;
+package ecologylab.serialization.deserializers.parsers.tlv;
 
 import ecologylab.serialization.ClassDescriptor;
 import ecologylab.serialization.FieldDescriptor;

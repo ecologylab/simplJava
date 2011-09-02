@@ -1,4 +1,4 @@
-package ecologylab.serialization.tlv;
+package ecologylab.serialization.deserializers.parsers.tlv;
 
 /*
  *   

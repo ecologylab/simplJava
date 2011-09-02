@@ -1,4 +1,4 @@
-package ecologylab.serialization.bibtex;
+package ecologylab.serialization.deserializers.parsers.bibtex;
 
 import ecologylab.serialization.ElementState;
 

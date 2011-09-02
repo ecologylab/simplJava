@@ -1,4 +1,4 @@
-package ecologylab.serialization.bibtex.entrytypes;
+package ecologylab.serialization.deserializers.parsers.bibtex.entrytypes;
 
 import ecologylab.serialization.annotations.bibtex_tag;
 import ecologylab.serialization.annotations.bibtex_type;

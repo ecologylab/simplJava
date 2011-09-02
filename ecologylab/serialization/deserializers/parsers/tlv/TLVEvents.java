@@ -1,4 +1,4 @@
-package ecologylab.serialization.tlv;
+package ecologylab.serialization.deserializers.parsers.tlv;
 
 /**
  * Interface which can be implemented by the class handling parsing of tlv messages.
