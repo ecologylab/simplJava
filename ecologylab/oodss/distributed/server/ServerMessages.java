@@ -6,4 +6,6 @@ public interface ServerMessages {
 	public void putServerObject(Object o);
 	
 	public String getAPushFromWebSocket(String s, String sessionId);
+
+	public void newClientAdded(String sessionId);
 }
