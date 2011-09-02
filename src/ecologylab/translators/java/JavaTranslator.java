@@ -479,20 +479,7 @@ public class JavaTranslator implements JavaTranslationConstants
 	{
 		registerNamespaces(fieldDescriptor);
 
-		String javaType = null;
-		int fieldType = fieldDescriptor.getType();
-		switch (fieldType)
-		{
-		case FieldTypes.SCALAR:
-			javaType = fieldDescriptor.getScalarType().getSimpleName();
-			break;
-		case FieldTypes.COLLECTION_SCALAR:
-			javaType = fieldDescriptor.getJavaType();
-			break;
-		default:
-			javaType = fieldDescriptor.getJavaType();
-			break;
-		}
+		String javaType = fieldDescriptor.getJavaType();
 		if (javaType == null)
 		{
 			System.out.println("ERROR, no valid JavaType found for : " + fieldDescriptor);
