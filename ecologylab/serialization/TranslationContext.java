@@ -49,7 +49,8 @@ public class TranslationContext extends Debug implements ScalarUnmarshallingCont
 
 	public TranslationContext(File fileDirContext)
 	{
-		setBaseDirFile(fileDirContext);
+		if (fileDirContext != null)
+			setBaseDirFile(fileDirContext);
 	}
 
 	public void setBaseDirFile(File fileDirContext)

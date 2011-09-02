@@ -39,9 +39,12 @@ public class ElementStateJSONHandler extends Debug implements ContentHandler, Fi
 
 	ArrayList<Integer>					elementsInCollection	= new ArrayList<Integer>();
 
-	public ElementStateJSONHandler(TranslationScope translationScope)
+	TranslationContext								translationContext;
+
+	public ElementStateJSONHandler(TranslationScope translationScope, TranslationContext translationContext)
 	{
-		this.translationScope = translationScope;
+		this.translationScope 	= translationScope;
+		this.translationContext	= translationContext;
 	}
 
 	public ElementState parse(CharSequence charSequence)
@@ -73,7 +76,7 @@ public class ElementStateJSONHandler extends Debug implements ContentHandler, Fi
 	public void endJSON() throws ParseException, IOException
 	{
 		if ((jsonTranslationException == null) && (root != null))
-			root.deserializationPostHook();
+			root.deserializationPostHook(translationContext);
 
 		// ElementState.recycleDeserializationMappings();
 	}
@@ -122,7 +125,7 @@ public class ElementStateJSONHandler extends Debug implements ContentHandler, Fi
 				parentES.createChildHook(currentES);
 			else
 				debug("cool - post ns element");
-			currentES.deserializationPostHook();
+			currentES.deserializationPostHook(translationContext);
 			if (deserializationHookStrategy != null)
 				deserializationHookStrategy.deserializationPostHook(currentES, currentFD);
 			this.currentElementState = currentES.parent;

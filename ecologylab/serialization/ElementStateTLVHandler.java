@@ -33,11 +33,14 @@ public class ElementStateTLVHandler extends Debug implements TLVEvents, FieldTyp
 	File															fileContext;
 
 	DeserializationHookStrategy				deserializationHookStrategy;
+	
+	TranslationContext								translationContext;
 
-	public ElementStateTLVHandler(TranslationScope translationScope)
+	public ElementStateTLVHandler(TranslationScope translationScope, TranslationContext newParam)
 	{
 		this.translationScope = translationScope;
 		tlvParser = new TLVParser(this, translationScope);
+		this.translationContext	= translationContext;
 	}
 
 	public ElementState parse(CharSequence charSequence)
@@ -88,7 +91,7 @@ public class ElementStateTLVHandler extends Debug implements TLVEvents, FieldTyp
 				parentES.createChildHook(currentES);
 			else
 				debug("cool - post ns element");
-			currentES.deserializationPostHook();
+			currentES.deserializationPostHook(translationContext);
 			if (deserializationHookStrategy != null)
 				deserializationHookStrategy.deserializationPostHook(currentES, currentFD);
 			this.currentElementState = currentES.parent;
@@ -112,7 +115,7 @@ public class ElementStateTLVHandler extends Debug implements TLVEvents, FieldTyp
 	public void endTLV()
 	{
 		if ((tlvTranslationException == null) && (root != null))
-			root.deserializationPostHook();
+			root.deserializationPostHook(translationContext);
 
 	}
 

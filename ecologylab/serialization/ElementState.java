@@ -2094,14 +2094,26 @@ public class ElementState extends Debug implements FieldTypes, XMLTranslationExc
 	 * This method is called by NodeToJavaOptimizations.createChildElement() or translateToXML
 	 * depending on whether the element in question is a child or the top-level parent.
 	 * <p/>
-	 * This, the default implementation, does nothing. Sub-classes may wish to override. dd
+	 * This, the default implementation, calls the version of this with no params, for backward compatability. 
+	 * 
+	 * Sub-classes may wish to override. 
+	 * 
+	 * @param translationContext Holds state from outside, in order to facilitate building real objects.
+	 */
+	protected void deserializationPostHook(TranslationContext translationContext)
+	{
+		this.deserializationPostHook();
+	}
+
+	/**
+	 * This, the default implementation, does nothing.
 	 */
 	protected void deserializationPostHook()
 	{
 
 	}
 
-	protected void deserializationPreHook()
+	protected void deserializationPreHook(TranslationContext translationContext)
 	{
 	}
 

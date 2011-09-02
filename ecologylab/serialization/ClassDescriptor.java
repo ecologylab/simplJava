@@ -1088,7 +1088,7 @@ public class ClassDescriptor<ES extends ElementState, FD extends FieldDescriptor
 		return result;
 	}
 	@Override
-	protected void deserializationPreHook()
+	protected void deserializationPreHook(TranslationContext translationContext)
 	{
 		synchronized (globalClassDescriptorsMap)
 		{
@@ -1108,7 +1108,7 @@ public class ClassDescriptor<ES extends ElementState, FD extends FieldDescriptor
 	 * Rebuild structures after serializing only some fields.
 	 */
 	@Override
-	protected void deserializationPostHook()
+	protected void deserializationPostHook(TranslationContext translationContext)
 	{
 		String name	= this.getName();
 		

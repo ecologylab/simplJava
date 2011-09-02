@@ -2529,7 +2529,7 @@ public class FieldDescriptor extends DescriptorBase implements FieldTypes, Mappa
 	}
 	
 	@Override
-	protected void deserializationPostHook()
+	protected void deserializationPostHook(TranslationContext translationContext)
 	{
 //		switch (type)
 //		{

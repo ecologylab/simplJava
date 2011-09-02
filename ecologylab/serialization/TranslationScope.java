@@ -1171,7 +1171,7 @@ public final class TranslationScope extends ElementState
 			result = jsonHandler.parse(new String(byteArray));
 			break;
 		case TLV:
-			ElementStateTLVHandler tlvHandler = new ElementStateTLVHandler(this);
+			ElementStateTLVHandler tlvHandler = new ElementStateTLVHandler(this, translationContext);
 			result = tlvHandler.parse(byteArray);
 			break;
 		}
@@ -1200,7 +1200,7 @@ public final class TranslationScope extends ElementState
 			result = jsonHandler.parse(charSequence);
 			break;
 		case TLV:
-			ElementStateTLVHandler tlvHandler = new ElementStateTLVHandler(this);
+			ElementStateTLVHandler tlvHandler = new ElementStateTLVHandler(this, translationContext);
 			result = tlvHandler.parse(charSequence);
 		}
 		return result;
@@ -1683,7 +1683,7 @@ public final class TranslationScope extends ElementState
 	 * Rebuild structures after serializing only some fields.
 	 */
 	@Override
-	protected void deserializationPostHook()
+	protected void deserializationPostHook(TranslationContext translationContext)
 	{
 		for (ClassDescriptor classDescriptor: entriesByTag.values())
 		{

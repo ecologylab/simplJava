@@ -104,7 +104,7 @@ public class ElementStateJSONPushHandler extends Debug implements ScalarUnmarsha
 			
 			root = rootClassDescriptor.getInstance();
 			root.setupRoot();
-			root.deserializationPreHook();
+			root.deserializationPreHook(translationContext);
 			if (deserializationHookStrategy != null)
 				deserializationHookStrategy.deserializationPreHook(root, null);
 
@@ -268,7 +268,7 @@ public class ElementStateJSONPushHandler extends Debug implements ScalarUnmarsha
 			jp.nextToken();
 		}
 
-		root.deserializationPostHook();
+		root.deserializationPostHook(translationContext);
 		if (deserializationHookStrategy != null)
 			deserializationHookStrategy.deserializationPostHook(root, currentFieldDescriptor);
 	}
