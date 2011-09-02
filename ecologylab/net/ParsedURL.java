@@ -85,6 +85,8 @@ public class ParsedURL extends Debug implements MimeType
 	/* domain value string of the ulr */
 	protected String						domain															= null;
 	
+	protected boolean						includePrefix												= true;
+	
 	public static CookieManager cookieManager = new CookieManager();
 	
 	static
@@ -365,8 +367,10 @@ public class ParsedURL extends Debug implements MimeType
 		String result = string;
 		if (result == null)
 		{
-			if (isFile())
+			if (isFile() && includePrefix)
 				result = "file://" + file.toString().replace('\\', '/');
+			else if (isFile() && !includePrefix)
+				result = file.toString().replace('\\', '/');
 			else if (url == null)
 				result = "weirdly null";
 			else
@@ -1547,5 +1551,10 @@ public class ParsedURL extends Debug implements MimeType
 			}
 		}
 		return result;
+	}
+
+	public void setIncludePrefix(boolean includePrefix)
+	{
+		this.includePrefix = includePrefix;
 	}
 }
