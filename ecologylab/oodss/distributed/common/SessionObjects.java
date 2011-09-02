@@ -39,4 +39,10 @@ public interface SessionObjects
 	public static final String															SESSION_HANDLE					= "SESSION_HANLDE";
 	
 	public static final String							APPLICATION_ENVIRONMENT				= "application_environment";
+	
+	public static final String SESSION_ID = "session_id";
+	
+	public static final String SESSIONS_MAP_BY_SESSION_ID = "sessions_map_by_session_id";
+	
+	public static final String OODSS_WEBSOCKET_SERVER = "oodss_websocket_server";
 }
