@@ -36,9 +36,9 @@ public class TranslationContext extends Debug implements ScalarUnmarshallingCont
 
 	private HashMap<String, ElementState>		unmarshalledObjects			= new HashMap<String, ElementState>();
 
-	protected ParsedURL											purlContext;
+	protected ParsedURL											baseDirPurl;
 
-	protected File													fileContext;
+	protected File													baseDirFile;
 
 	protected String												delimiter								= ",";
 
@@ -47,17 +47,22 @@ public class TranslationContext extends Debug implements ScalarUnmarshallingCont
 
 	}
 
-	public TranslationContext(File fileContext)
+	public TranslationContext(File fileDirContext)
 	{
-		this.fileContext = fileContext;
-		this.purlContext = new ParsedURL(fileContext);
+		setBaseDirFile(fileDirContext);
+	}
+
+	public void setBaseDirFile(File fileDirContext)
+	{
+		this.baseDirFile = fileDirContext;
+		this.baseDirPurl = new ParsedURL(fileDirContext);
 	}
 
 	public TranslationContext(ParsedURL purlContext)
 	{
-		this.purlContext = purlContext;
+		this.baseDirPurl = purlContext;
 		if (purlContext.isFile())
-			this.fileContext = purlContext.file();
+			this.baseDirFile = purlContext.file();
 	}
 
 	public boolean handleSimplIds(final String tag, final String value, ElementState elementState)
@@ -332,14 +337,14 @@ public class TranslationContext extends Debug implements ScalarUnmarshallingCont
 	@Override
 	public ParsedURL purlContext()
 	{
-		return (purlContext != null) ? purlContext : (fileContext != null) ? new ParsedURL(fileContext)
+		return (baseDirPurl != null) ? baseDirPurl : (baseDirFile != null) ? new ParsedURL(baseDirFile)
 				: null;
 	}
 
 	@Override
 	public File fileContext()
 	{
-		return (fileContext != null) ? fileContext : (purlContext != null) ? purlContext.file() : null;
+		return (baseDirFile != null) ? baseDirFile : (baseDirPurl != null) ? baseDirPurl.file() : null;
 	}
 
 	public String getDelimiter()
