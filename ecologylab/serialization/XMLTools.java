@@ -643,7 +643,8 @@ public class XMLTools extends Debug implements CharacterConstants, SpecialCharac
 		if (outputDirName != null) // if no parent dir exist, don't make dirs.
 		{
 			File outputDir = new File(outputDirName);
-			if (!outputDir.mkdirs())
+			outputDir.mkdirs();
+			if (!outputDir.exists())
 				throw new SIMPLTranslationException(
 						"Can't make directories due to permissions problems: " + outputDirName);
 		}
