@@ -2317,10 +2317,7 @@ public class FieldDescriptor extends DescriptorBase implements FieldTypes, Mappa
 		}
 		if (scalarType != null && !isCollection())
 		{
-			if (fieldType != null)
-				result = fieldType;
-			else
-				result = scalarType.getJavaTypeName();
+			result = scalarType.getSimpleName();
 		}
 		else
 		{
