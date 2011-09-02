@@ -13,8 +13,7 @@ import ecologylab.serialization.XMLTools;
 
 /**
  * 
- * @author nabeelshahzad
- * 
+ * @author nabeelshahzad 
  */
 public class BibtexSerializer extends FormatSerializer implements FieldTypes
 {
@@ -63,6 +62,15 @@ public class BibtexSerializer extends FormatSerializer implements FieldTypes
 		serializationPostHook(object);
 	}
 
+	/**
+	 * 
+	 * @param object
+	 * @param appendable
+	 * @param translationContext
+	 * @param allFieldDescriptors
+	 * @throws IOException
+	 * @throws SIMPLTranslationException
+	 */
 	private void serializeFields(Object object, Appendable appendable,
 			TranslationContext translationContext,
 			ArrayList<? extends FieldDescriptor> allFieldDescriptors) throws IOException,
@@ -96,6 +104,15 @@ public class BibtexSerializer extends FormatSerializer implements FieldTypes
 		}
 	}
 
+	/**
+	 * 
+	 * @param object
+	 * @param fd
+	 * @param appendable
+	 * @param translationContext
+	 * @throws SIMPLTranslationException
+	 * @throws IOException
+	 */
 	private void serializeScalar(Object object, FieldDescriptor fd, Appendable appendable,
 			TranslationContext translationContext) throws SIMPLTranslationException, IOException
 	{
@@ -116,6 +133,15 @@ public class BibtexSerializer extends FormatSerializer implements FieldTypes
 		}
 	}
 
+	/**
+	 * 
+	 * @param object
+	 * @param fd
+	 * @param appendable
+	 * @param translationContext
+	 * @throws SIMPLTranslationException
+	 * @throws IOException
+	 */
 	private void writeBibtexAttribute(Object object, FieldDescriptor fd, Appendable appendable,
 			TranslationContext translationContext) throws SIMPLTranslationException, IOException
 	{
@@ -135,6 +161,15 @@ public class BibtexSerializer extends FormatSerializer implements FieldTypes
 			appendable.append('}');
 	}
 
+	/**
+	 * 
+	 * @param object
+	 * @param appendable
+	 * @param translationContext
+	 * @param fd
+	 * @throws IOException
+	 * @throws SIMPLTranslationException
+	 */
 	private void serializeCompositeCollection(Object object, Appendable appendable,
 			TranslationContext translationContext, FieldDescriptor fd) throws IOException,
 			SIMPLTranslationException
@@ -163,6 +198,15 @@ public class BibtexSerializer extends FormatSerializer implements FieldTypes
 		}
 	}
 
+	/**
+	 * 
+	 * @param object
+	 * @param appendable
+	 * @param translationContext
+	 * @param fd
+	 * @throws IOException
+	 * @throws SIMPLTranslationException
+	 */
 	private void serializeScalarCollection(Object object, Appendable appendable,
 			TranslationContext translationContext, FieldDescriptor fd) throws IOException,
 			SIMPLTranslationException
@@ -187,6 +231,12 @@ public class BibtexSerializer extends FormatSerializer implements FieldTypes
 		}
 	}
 
+	/**
+	 * 
+	 * @param fd
+	 * @param appendable
+	 * @throws IOException
+	 */
 	private void writeCollectionStart(FieldDescriptor fd, Appendable appendable) throws IOException
 	{
 		appendable.append(fd.getTagName());
@@ -194,11 +244,24 @@ public class BibtexSerializer extends FormatSerializer implements FieldTypes
 		appendable.append("{");
 	}
 
+	/**
+	 * 
+	 * @param appendable
+	 * @throws IOException
+	 */
 	private void writeCollectionEnd(Appendable appendable) throws IOException
 	{
 		appendable.append("}");
 	}
 
+	/**
+	 * 
+	 * @param collectionObject
+	 * @param fd
+	 * @param appendable
+	 * @param translationContext
+	 * @throws SIMPLTranslationException
+	 */
 	private void writeCollectionScalar(Object collectionObject, FieldDescriptor fd,
 			Appendable appendable, TranslationContext translationContext)
 			throws SIMPLTranslationException
@@ -206,11 +269,22 @@ public class BibtexSerializer extends FormatSerializer implements FieldTypes
 		fd.appendValue(appendable, collectionObject, translationContext, Format.BIBTEX);
 	}
 
+	/**
+	 * 
+	 * @param appendable
+	 * @throws IOException
+	 */
 	private void writeClose(Appendable appendable) throws IOException
 	{
 		appendable.append('}');
 	}
 
+	/**
+	 * 
+	 * @param fd
+	 * @param appendable
+	 * @throws IOException
+	 */
 	private void writeObjectStart(FieldDescriptor fd, Appendable appendable) throws IOException
 	{
 		appendable.append('@');
