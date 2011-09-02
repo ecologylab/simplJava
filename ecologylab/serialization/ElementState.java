@@ -56,7 +56,7 @@ import ecologylab.serialization.TranslationScope.GRAPH_SWITCH;
  * 
  * @version 2.9
  */
-public class ElementState extends Debug implements FieldTypes, XMLTranslationExceptionTypes
+public class ElementState<PES extends ElementState> extends Debug implements FieldTypes, XMLTranslationExceptionTypes
 {
 
 	private boolean	isRoot	= false;
@@ -71,13 +71,13 @@ public class ElementState extends Debug implements FieldTypes, XMLTranslationExc
 	/**
 	 * Link for a DOM tree. should be removed. its not a tree!!
 	 */
-	transient ElementState									parent;
+	transient PES									parent;
 
 	/**
 	 * to handle objects with multiple parents this variable helps keep track of parents in
 	 * deserializing graph
 	 */
-	Stack<ElementState>											parents										= null;
+	Stack<PES>											parents										= null;
 
 	/**
 	 * Just-in time look-up tables to make translation be efficient. Allocated on a per class basis.
@@ -1628,7 +1628,7 @@ public class ElementState extends Debug implements FieldTypes, XMLTranslationExc
 	/**
 	 * @return the parent
 	 */
-	public ElementState parent()
+	public PES parent()
 	{
 		// return (parent != null) ? parent :
 		// (parents != null && !parents.empty()) ? parents.firstElement() : null;
@@ -1640,7 +1640,7 @@ public class ElementState extends Debug implements FieldTypes, XMLTranslationExc
 	 * 
 	 * @param parent
 	 */
-	public void setParent(ElementState parent)
+	public void setParent(PES parent)
 	{
 		this.parent = parent;
 	}
@@ -2162,23 +2162,24 @@ public class ElementState extends Debug implements FieldTypes, XMLTranslationExc
 		this.classDescriptor = ourClassDescriptor;
 	}
 
-	private void manageParents(ElementState newParent)
+	private void manageParents(ElementState parentES)
 	{
+		PES parentPES 	=  (PES) parentES;
 		if (this.parent == null)
 		{
-			this.parent = newParent;
+			this.parent = parentPES;
 		}
 		else
 		{
 			if (this.parents == null)
 			{
-				this.parents = new Stack<ElementState>();
+				this.parents = new Stack<PES>();
 				this.parents.push(this.parent);
-				this.parents.push(newParent);
+				this.parents.push(parentPES);
 			}
 			else
 			{
-				this.parents.push(newParent);
+				this.parents.push(parentPES);
 			}
 		}
 	}

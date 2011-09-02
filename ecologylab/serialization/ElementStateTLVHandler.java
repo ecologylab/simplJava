@@ -71,7 +71,7 @@ public class ElementStateTLVHandler extends Debug implements TLVEvents, FieldTyp
 		if (currentES.parents == null || currentES.parents.isEmpty())
 			parentES = currentES.parent;
 		else
-			parentES = currentES.parents.peek();
+			parentES = (ElementState) currentES.parents.peek();
 
 		switch (curentFdType)
 		// every good push deserves a pop :-) (and othertimes, not!)

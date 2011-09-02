@@ -653,7 +653,7 @@ public class ElementStateSAXHandler extends Debug implements ContentHandler, Fie
 		if (currentES.parents == null || currentES.parents.isEmpty())
 			parentES = currentES.parent;
 		else
-			parentES = currentES.parents.peek();
+			parentES = (ElementState) currentES.parents.peek();
 
 		// final ElementState parentES = currentES.parent;
 
