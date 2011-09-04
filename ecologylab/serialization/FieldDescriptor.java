@@ -372,12 +372,11 @@ public class FieldDescriptor extends DescriptorBase implements FieldTypes, Mappa
 		{
 			initPolymorphClassDescriptorsArrayList(classesAnnotation.length);
 			for (Class thatClass : classesAnnotation)
-				if (ElementState.class.isAssignableFrom(thatClass))
-				{
-					ClassDescriptor classDescriptor = ClassDescriptor.getClassDescriptor(thatClass);
-					registerPolymorphicDescriptor(classDescriptor);
-					polymorphClasses.put(classDescriptor.getTagName(), classDescriptor.getDescribedClass());
-				}
+			{
+				ClassDescriptor classDescriptor = ClassDescriptor.getClassDescriptor(thatClass);
+				registerPolymorphicDescriptor(classDescriptor);
+				polymorphClasses.put(classDescriptor.getTagName(), classDescriptor.getDescribedClass());
+			}
 		}
 		return polymorphClassDescriptors != null;
 	}
@@ -421,7 +420,8 @@ public class FieldDescriptor extends DescriptorBase implements FieldTypes, Mappa
 		TranslationScope scope = TranslationScope.get(scopeAnnotation);
 		if (scope != null)
 		{
-			Collection<ClassDescriptor<? extends FieldDescriptor>> scopeClassDescriptors = scope.getClassDescriptors();
+			Collection<ClassDescriptor<? extends FieldDescriptor>> scopeClassDescriptors = scope
+					.getClassDescriptors();
 			initPolymorphClassDescriptorsArrayList(scopeClassDescriptors.size());
 			for (ClassDescriptor<? extends FieldDescriptor> classDescriptor : scopeClassDescriptors)
 			{
@@ -2570,7 +2570,7 @@ public class FieldDescriptor extends DescriptorBase implements FieldTypes, Mappa
 			throw new SIMPLTranslationException("appendValue exception. ", ex);
 		}
 	}
-	
+
 	public boolean isBibtexKey()
 	{
 		return isBibtexKey;

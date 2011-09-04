@@ -115,9 +115,8 @@ public class XMLPullDeserializer extends Debug implements FieldTypes
 				currentFieldDescriptor = (currentFieldDescriptor != null)
 						&& (currentFieldDescriptor.getType() == IGNORED_ELEMENT) ? FieldDescriptor.IGNORED_ELEMENT_FIELD_DESCRIPTOR
 						: (currentFieldDescriptor != null && currentFieldDescriptor.getType() == WRAPPER) ? currentFieldDescriptor
-								.getWrappedFD()
-								: rootClassDescriptor.getFieldDescriptorByTag(xmlStreamReader.getLocalName(),
-										translationScope, null);
+								.getWrappedFD() : rootClassDescriptor.getFieldDescriptorByTag(
+								xmlStreamReader.getLocalName(), translationScope, null);
 
 				int fieldType = currentFieldDescriptor.getType();
 
@@ -127,7 +126,7 @@ public class XMLPullDeserializer extends Debug implements FieldTypes
 					xmlStreamReader.next();
 					String value = xmlStreamReader.getText();
 					currentFieldDescriptor.setFieldToScalar(root, value, translationContext);
-					xmlStreamReader.next();					
+					xmlStreamReader.next();
 					break;
 				case COMPOSITE_ELEMENT:
 					String tagName = xmlStreamReader.getLocalName();
@@ -135,18 +134,26 @@ public class XMLPullDeserializer extends Debug implements FieldTypes
 					currentFieldDescriptor.setFieldToComposite(root, subRoot);
 					break;
 				case COLLECTION_ELEMENT:
-					while(currentFieldDescriptor.getCollectionOrMapTagName().equals(xmlStreamReader.getLocalName()))
+					if (!currentFieldDescriptor.isPolymorphic())
 					{
-						if (event == XMLStreamConstants.START_ELEMENT)
+						while (currentFieldDescriptor.getCollectionOrMapTagName().equals(
+								xmlStreamReader.getLocalName()))
 						{
-							String compositeTagName = xmlStreamReader.getLocalName();
-							subRoot = getSubRoot(currentFieldDescriptor, compositeTagName);
-							Collection collection = (Collection) currentFieldDescriptor
-									.automaticLazyGetCollectionOrMap(root);
-							collection.add(subRoot);
-							
-							event = nextEvent();
+							if (event == XMLStreamConstants.START_ELEMENT)
+							{
+								String compositeTagName = xmlStreamReader.getLocalName();
+								subRoot = getSubRoot(currentFieldDescriptor, compositeTagName);
+								Collection collection = (Collection) currentFieldDescriptor
+										.automaticLazyGetCollectionOrMap(root);
+								collection.add(subRoot);
+
+								event = nextEvent();
+							}
 						}
+					}
+					else
+					{
+						String s = currentFieldDescriptor.getTagName();
 					}
 					break;
 				case MAP_ELEMENT:
