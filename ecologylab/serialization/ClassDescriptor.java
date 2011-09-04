@@ -870,7 +870,7 @@ public class ClassDescriptor<FD extends FieldDescriptor> extends DescriptorBase 
 		return scalarValueFieldDescripotor;
 	}
 
-	public ClassDescriptor getSuperClass()
+	public ClassDescriptor<? extends FieldDescriptor> getSuperClass()
 	{
 		return superClass;
 	}

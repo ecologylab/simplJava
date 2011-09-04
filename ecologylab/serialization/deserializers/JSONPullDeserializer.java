@@ -206,7 +206,6 @@ public class JSONPullDeserializer extends Debug implements ScalarUnmarshallingCo
 							jp.nextToken();
 							jp.nextToken();
 						}
-
 					}
 					else
 					{

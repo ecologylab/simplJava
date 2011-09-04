@@ -38,14 +38,14 @@ public final class TranslationScope extends ElementState
 		ON, OFF
 	}
 
-	public static GRAPH_SWITCH												graphSwitch								= GRAPH_SWITCH.OFF;
+	public static GRAPH_SWITCH																						graphSwitch								= GRAPH_SWITCH.OFF;
 
-	private static final int													GUESS_CLASSES_PER_TSCOPE	= 5;
+	private static final int																							GUESS_CLASSES_PER_TSCOPE	= 5;
 
 	@simpl_scalar
-	private/* final */String													name;
+	private/* final */String																							name;
 
-	private TranslationScope[]												inheritedTranslationScopes;
+	private TranslationScope[]																						inheritedTranslationScopes;
 
 	/**
 	 * Fundamentally, a TranslationScope consists of a set of class simple names. These are mapped to
@@ -56,25 +56,25 @@ public final class TranslationScope extends ElementState
 	 * there are multiple possibilities. This is the case when internal and external versions of a
 	 * message and its constituents are defined for a messaging API.
 	 */
-	private Scope<ClassDescriptor>										entriesByClassSimpleName	= new Scope<ClassDescriptor>();
+	private Scope<ClassDescriptor<? extends FieldDescriptor>>							entriesByClassSimpleName	= new Scope<ClassDescriptor<? extends FieldDescriptor>>();
 
-	private Scope<ClassDescriptor>										entriesByClassName				= new Scope<ClassDescriptor>();
+	private Scope<ClassDescriptor<? extends FieldDescriptor>>							entriesByClassName				= new Scope<ClassDescriptor<? extends FieldDescriptor>>();
 
 	@simpl_nowrap
 	@simpl_map("class_descriptor")
-	private Scope<ClassDescriptor>										entriesByTag							= new Scope<ClassDescriptor>();
+	private Scope<ClassDescriptor<? extends FieldDescriptor>>							entriesByTag							= new Scope<ClassDescriptor<? extends FieldDescriptor>>();
 
-	private HashMap<Integer, ClassDescriptor>					entriesByTLVId						= new HashMap<Integer, ClassDescriptor>();
+	private HashMap<Integer, ClassDescriptor<? extends FieldDescriptor>>	entriesByTLVId						= new HashMap<Integer, ClassDescriptor<? extends FieldDescriptor>>();
 
-	private Scope<ClassDescriptor>										entriesByBibTeXType				= new Scope<ClassDescriptor>();
+	private Scope<ClassDescriptor<? extends FieldDescriptor>>							entriesByBibTeXType				= new Scope<ClassDescriptor<? extends FieldDescriptor>>();
 
-	private final Scope<Class<?>>											nameSpaceClassesByURN			= new Scope<Class<?>>();
+	private final Scope<Class<?>>																					nameSpaceClassesByURN			= new Scope<Class<?>>();
 
-	private static HashMap<String, TranslationScope>	allTranslationScopes			= new HashMap<String, TranslationScope>();
+	private static HashMap<String, TranslationScope>											allTranslationScopes			= new HashMap<String, TranslationScope>();
 
-	public static final String												STATE											= "State";
+	public static final String																						STATE											= "State";
 
-	private boolean																		performFilters;
+	private boolean																												performFilters;
 
 	static
 	{
@@ -464,14 +464,15 @@ public final class TranslationScope extends ElementState
 	 * @param inheritedMap
 	 * @param warn
 	 */
-	private void updateMapWithValues(Map<String, ClassDescriptor> inheritedMap,
-			Map<String, ClassDescriptor> newMap, String warn)
+	private void updateMapWithValues(
+			Map<String, ClassDescriptor<? extends FieldDescriptor>> inheritedMap,
+			Map<String, ClassDescriptor<? extends FieldDescriptor>> newMap, String warn)
 	{
 		// XXX ANDRUID + ZACH -> concurrent modification exception can occur here (for loop) if
 		// inheritedMap is modified elsewhere
 		for (String key : inheritedMap.keySet())
 		{
-			ClassDescriptor translationEntry = inheritedMap.get(key);
+			ClassDescriptor<? extends FieldDescriptor> translationEntry = inheritedMap.get(key);
 			updateMapWithEntry(newMap, key, translationEntry, warn);
 		}
 	}
@@ -485,10 +486,10 @@ public final class TranslationScope extends ElementState
 	 *          Must be non-null.
 	 * @param warn
 	 */
-	private void updateMapWithEntry(Map<String, ClassDescriptor> newMap, String key,
-			ClassDescriptor translationEntry, String warn)
+	private void updateMapWithEntry(Map<String, ClassDescriptor<? extends FieldDescriptor>> newMap,
+			String key, ClassDescriptor<? extends FieldDescriptor> translationEntry, String warn)
 	{
-		ClassDescriptor existingEntry = newMap.get(key);
+		ClassDescriptor<? extends FieldDescriptor> existingEntry = newMap.get(key);
 
 		// final boolean entryExists = existingEntry != null;
 		// final boolean newEntry = existingEntry != translationEntry;
@@ -630,7 +631,7 @@ public final class TranslationScope extends ElementState
 		return (entry == null) ? null : entry.getDescribedClass();
 	}
 
-	public ClassDescriptor getClassDescriptorByTag(String tag)
+	public ClassDescriptor<? extends FieldDescriptor> getClassDescriptorByTag(String tag)
 	{
 		return entriesByTag.get(tag);
 	}
@@ -679,7 +680,8 @@ public final class TranslationScope extends ElementState
 	public ArrayList<Class<?>> getAllClasses()
 	{
 		ArrayList<Class<?>> classes = new ArrayList<Class<?>>();
-		Collection<ClassDescriptor> classDescriptors = this.getClassDescriptors();
+		Collection<ClassDescriptor<? extends FieldDescriptor>> classDescriptors = this
+				.getClassDescriptors();
 
 		for (TranslationScope translationScope : allTranslationScopes.values())
 		{
@@ -1040,12 +1042,12 @@ public final class TranslationScope extends ElementState
 		return result;
 	}
 
-	protected HashMap<String, ClassDescriptor> entriesByClassSimpleName()
+	protected HashMap<String, ClassDescriptor<? extends FieldDescriptor>> entriesByClassSimpleName()
 	{
 		return entriesByClassSimpleName;
 	}
 
-	public HashMap<String, ClassDescriptor> entriesByClassName()
+	public HashMap<String, ClassDescriptor<? extends FieldDescriptor>> entriesByClassName()
 	{
 		return entriesByClassName;
 	}
@@ -1071,12 +1073,12 @@ public final class TranslationScope extends ElementState
 		}
 	}
 
-	private Collection<ClassDescriptor>	classDescriptors;
+	private Collection<ClassDescriptor<? extends FieldDescriptor>>	classDescriptors;
 
 	// FIXME -- implement this!
-	public Collection<ClassDescriptor> getClassDescriptors()
+	public Collection<ClassDescriptor<? extends FieldDescriptor>> getClassDescriptors()
 	{
-		Collection<ClassDescriptor> result = classDescriptors;
+		Collection<ClassDescriptor<? extends FieldDescriptor>> result = classDescriptors;
 		if (result == null)
 		{
 			// result = entriesByClassSimpleName.values();
@@ -1185,13 +1187,13 @@ public final class TranslationScope extends ElementState
 		return result;
 	}
 
-	public ElementState deserializeCharSequence(CharSequence charSequence, Format format)
+	public Object deserializeCharSequence(CharSequence charSequence, Format format)
 			throws SIMPLTranslationException
 	{
 		return deserializeCharSequence(charSequence, format, new TranslationContext());
 	}
 
-	public ElementState deserializeCharSequence(CharSequence charSequence, Format format,
+	public Object deserializeCharSequence(CharSequence charSequence, Format format,
 			TranslationContext translationContext) throws SIMPLTranslationException
 	{
 		Object result = null;
@@ -1218,7 +1220,7 @@ public final class TranslationScope extends ElementState
 		{
 			System.out.println(ex.toString());
 		}
-		return (ElementState) result;
+		return result;
 	}
 
 	public ElementState deserializeCharSequence(CharSequence charSequence)
@@ -1529,13 +1531,15 @@ public final class TranslationScope extends ElementState
 	public static TranslationScope augmentTranslationScopeWithClassDescriptors(
 			TranslationScope translationScope)
 	{
-		Collection<ClassDescriptor> allClassDescriptors = translationScope.getClassDescriptors();
+		Collection<ClassDescriptor<? extends FieldDescriptor>> allClassDescriptors = translationScope
+				.getClassDescriptors();
 
-		ArrayList<ClassDescriptor> allClasses = translationScope.getAllClassDescriptors();
-		Collection<ClassDescriptor> augmentedClasses = augmentTranslationScopeWithClassDescriptors(
+		ArrayList<ClassDescriptor<? extends FieldDescriptor>> allClasses = translationScope
+				.getAllClassDescriptors();
+		Collection<ClassDescriptor<? extends FieldDescriptor>> augmentedClasses = augmentTranslationScopeWithClassDescriptors(
 				allClasses).values();
 
-		ClassDescriptor[] augmentedClassesArray = (ClassDescriptor[]) augmentedClasses
+		ClassDescriptor<? extends FieldDescriptor>[] augmentedClassesArray = (ClassDescriptor[]) augmentedClasses
 				.toArray(new ClassDescriptor[augmentedClasses.size()]);
 
 		return new TranslationScope(translationScope.getName(), augmentedClassesArray);
@@ -1547,11 +1551,11 @@ public final class TranslationScope extends ElementState
 	 * @param allClasses
 	 * @return
 	 */
-	private static HashMap<String, ClassDescriptor> augmentTranslationScopeWithClassDescriptors(
-			ArrayList<ClassDescriptor> allClasses)
+	private static HashMap<String, ClassDescriptor<? extends FieldDescriptor>> augmentTranslationScopeWithClassDescriptors(
+			ArrayList<ClassDescriptor<? extends FieldDescriptor>> allClasses)
 	{
-		HashMap<String, ClassDescriptor> augmentedClasses = new HashMap<String, ClassDescriptor>();
-		for (ClassDescriptor thatClass : allClasses)
+		HashMap<String, ClassDescriptor<? extends FieldDescriptor>> augmentedClasses = new HashMap<String, ClassDescriptor<? extends FieldDescriptor>>();
+		for (ClassDescriptor<? extends FieldDescriptor> thatClass : allClasses)
 		{
 			augmentTranslationScope(thatClass, augmentedClasses);
 		}
@@ -1564,13 +1568,13 @@ public final class TranslationScope extends ElementState
 	 * @param thatClass
 	 * @param augmentedClasses
 	 */
-	private static void augmentTranslationScope(ClassDescriptor thatClass,
-			HashMap<String, ClassDescriptor> augmentedClasses)
+	private static void augmentTranslationScope(ClassDescriptor<? extends FieldDescriptor> thatClass,
+			HashMap<String, ClassDescriptor<? extends FieldDescriptor>> augmentedClasses)
 	{
 		if (augmentedClasses.put(thatClass.getDescribedClassSimpleName(), thatClass) != null)
 			return;
 
-		ClassDescriptor superClass = thatClass.getSuperClass();
+		ClassDescriptor<? extends FieldDescriptor> superClass = thatClass.getSuperClass();
 		if (superClass != null && !"ElementState".equals(superClass.getDescribedClassSimpleName()))
 		{
 			augmentTranslationScope(superClass, augmentedClasses);
@@ -1628,9 +1632,9 @@ public final class TranslationScope extends ElementState
 	 * 
 	 * @return
 	 */
-	public ArrayList<ClassDescriptor> getAllClassDescriptors()
+	public ArrayList<ClassDescriptor<? extends FieldDescriptor>> getAllClassDescriptors()
 	{
-		ArrayList<ClassDescriptor> classes = new ArrayList<ClassDescriptor>();
+		ArrayList<ClassDescriptor<? extends FieldDescriptor>> classes = new ArrayList<ClassDescriptor<? extends FieldDescriptor>>();
 
 		for (TranslationScope translationScope : allTranslationScopes.values())
 		{

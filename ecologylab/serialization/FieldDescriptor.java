@@ -421,9 +421,9 @@ public class FieldDescriptor extends DescriptorBase implements FieldTypes, Mappa
 		TranslationScope scope = TranslationScope.get(scopeAnnotation);
 		if (scope != null)
 		{
-			Collection<ClassDescriptor> scopeClassDescriptors = scope.getClassDescriptors();
+			Collection<ClassDescriptor<? extends FieldDescriptor>> scopeClassDescriptors = scope.getClassDescriptors();
 			initPolymorphClassDescriptorsArrayList(scopeClassDescriptors.size());
-			for (ClassDescriptor classDescriptor : scopeClassDescriptors)
+			for (ClassDescriptor<? extends FieldDescriptor> classDescriptor : scopeClassDescriptors)
 			{
 				String tagName = classDescriptor.getTagName();
 				polymorphClassDescriptors.put(tagName, classDescriptor);
