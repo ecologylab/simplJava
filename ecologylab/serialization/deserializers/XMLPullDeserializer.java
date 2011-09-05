@@ -3,6 +3,7 @@ package ecologylab.serialization.deserializers;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Collection;
+import java.util.Map;
 
 import javax.xml.stream.FactoryConfigurationError;
 import javax.xml.stream.XMLInputFactory;
@@ -21,6 +22,7 @@ import ecologylab.serialization.FieldTypes;
 import ecologylab.serialization.SIMPLTranslationException;
 import ecologylab.serialization.TranslationContext;
 import ecologylab.serialization.TranslationScope;
+import ecologylab.serialization.types.element.Mappable;
 
 public class XMLPullDeserializer extends Debug implements FieldTypes
 {
@@ -54,8 +56,6 @@ public class XMLPullDeserializer extends Debug implements FieldTypes
 		InputStream xmlStream = new StringInputStream(charSequence, StringInputStream.UTF8);
 		xmlStreamReader = XMLInputFactory.newInstance().createXMLStreamReader(xmlStream, "UTF-8");
 
-		// printParse();
-
 		Object root = null;
 
 		xmlStreamReader.next();
@@ -69,22 +69,6 @@ public class XMLPullDeserializer extends Debug implements FieldTypes
 		createObjectModel(root, rootClassDescriptor);
 
 		return root;
-	}
-
-	private void deserializeAttributes(Object root,
-			ClassDescriptor<? extends FieldDescriptor> rootClassDescriptor)
-	{
-		for (int i = 0; i < xmlStreamReader.getAttributeCount(); i++)
-		{
-			String tag = xmlStreamReader.getAttributeLocalName(i);
-			String value = xmlStreamReader.getAttributeValue(i);
-
-			FieldDescriptor attributeFieldDescriptor = rootClassDescriptor.getFieldDescriptorByTag(tag,
-					translationScope);
-
-			if (attributeFieldDescriptor != null)
-				attributeFieldDescriptor.setFieldToScalar(root, value, translationContext);
-		}
 	}
 
 	/**
@@ -115,8 +99,9 @@ public class XMLPullDeserializer extends Debug implements FieldTypes
 				currentFieldDescriptor = (currentFieldDescriptor != null)
 						&& (currentFieldDescriptor.getType() == IGNORED_ELEMENT) ? FieldDescriptor.IGNORED_ELEMENT_FIELD_DESCRIPTOR
 						: (currentFieldDescriptor != null && currentFieldDescriptor.getType() == WRAPPER) ? currentFieldDescriptor
-								.getWrappedFD() : rootClassDescriptor.getFieldDescriptorByTag(
-								xmlStreamReader.getLocalName(), translationScope, null);
+								.getWrappedFD()
+								: rootClassDescriptor.getFieldDescriptorByTag(xmlStreamReader.getLocalName(),
+										translationScope, null);
 
 				int fieldType = currentFieldDescriptor.getType();
 
@@ -134,60 +119,43 @@ public class XMLPullDeserializer extends Debug implements FieldTypes
 					currentFieldDescriptor.setFieldToComposite(root, subRoot);
 					break;
 				case COLLECTION_ELEMENT:
-					if (!currentFieldDescriptor.isPolymorphic())
+					while (currentFieldDescriptor.isCollectionTag(xmlStreamReader.getLocalName()))
 					{
-						while (currentFieldDescriptor.getCollectionOrMapTagName().equals(
-								xmlStreamReader.getLocalName()))
+						if (event == XMLStreamConstants.START_ELEMENT)
 						{
-							if (event == XMLStreamConstants.START_ELEMENT)
-							{
-								String compositeTagName = xmlStreamReader.getLocalName();
-								subRoot = getSubRoot(currentFieldDescriptor, compositeTagName);
-								Collection collection = (Collection) currentFieldDescriptor
-										.automaticLazyGetCollectionOrMap(root);
-								collection.add(subRoot);
+							String compositeTagName = xmlStreamReader.getLocalName();
+							subRoot = getSubRoot(currentFieldDescriptor, compositeTagName);
+							Collection collection = (Collection) currentFieldDescriptor
+									.automaticLazyGetCollectionOrMap(root);
+							collection.add(subRoot);
 
-								event = nextEvent();
-							}
+							event = nextEvent();
 						}
-					}
-					else
-					{
-						String s = currentFieldDescriptor.getTagName();
 					}
 					break;
 				case MAP_ELEMENT:
+					while (currentFieldDescriptor.isCollectionTag(xmlStreamReader.getLocalName()))
+					{
+						if (event == XMLStreamConstants.START_ELEMENT)
+						{
+							String compositeTagName = xmlStreamReader.getLocalName();
+							subRoot = getSubRoot(currentFieldDescriptor, compositeTagName);
+							if (subRoot instanceof Mappable)
+							{
+								final Object key = ((Mappable) subRoot).key();
+								Map map = (Map) currentFieldDescriptor.automaticLazyGetCollectionOrMap(root);
+								map.put(key, subRoot);
+							}
+
+							event = nextEvent();
+						}
+					}
 					break;
 				case WRAPPER:
 					break;
 				}
 			}
 		}
-	}
-
-	public void printParse() throws XMLStreamException
-	{
-		int event;
-		while (xmlStreamReader.hasNext())
-		{
-			event = xmlStreamReader.getEventType();
-			switch (event)
-			{
-			case XMLStreamConstants.START_ELEMENT:
-				System.out.println(xmlStreamReader.getLocalName());
-				break;
-			case XMLStreamConstants.END_ELEMENT:
-				System.out.println(xmlStreamReader.getLocalName());
-				break;
-			case XMLStreamConstants.CHARACTERS:
-				System.out.println(xmlStreamReader.getText());
-				break;
-			case XMLStreamConstants.CDATA:
-				System.out.println("cdata " + xmlStreamReader.getText());
-				break;
-			} // end switch
-			xmlStreamReader.next();
-		} // end while
 	}
 
 	/**
@@ -215,10 +183,26 @@ public class XMLPullDeserializer extends Debug implements FieldTypes
 		return subRoot;
 	}
 
+	private void deserializeAttributes(Object root,
+			ClassDescriptor<? extends FieldDescriptor> rootClassDescriptor)
+	{
+		for (int i = 0; i < xmlStreamReader.getAttributeCount(); i++)
+		{
+			String tag = xmlStreamReader.getAttributeLocalName(i);
+			String value = xmlStreamReader.getAttributeValue(i);
+
+			FieldDescriptor attributeFieldDescriptor = rootClassDescriptor.getFieldDescriptorByTag(tag,
+					translationScope);
+
+			if (attributeFieldDescriptor != null)
+				attributeFieldDescriptor.setFieldToScalar(root, value, translationContext);
+		}
+	}
+
 	private int nextEvent() throws XMLStreamException
 	{
 		int eventType = 0;
-
+		
 		// skip events that we don't handle.
 		while (xmlStreamReader.hasNext())
 		{
@@ -234,5 +218,30 @@ public class XMLPullDeserializer extends Debug implements FieldTypes
 		}
 
 		return eventType;
+	}
+
+	private void printParse() throws XMLStreamException
+	{
+		int event;
+		while (xmlStreamReader.hasNext())
+		{
+			event = xmlStreamReader.getEventType();
+			switch (event)
+			{
+			case XMLStreamConstants.START_ELEMENT:
+				System.out.println(xmlStreamReader.getLocalName());
+				break;
+			case XMLStreamConstants.END_ELEMENT:
+				System.out.println(xmlStreamReader.getLocalName());
+				break;
+			case XMLStreamConstants.CHARACTERS:
+				System.out.println(xmlStreamReader.getText());
+				break;
+			case XMLStreamConstants.CDATA:
+				System.out.println("cdata " + xmlStreamReader.getText());
+				break;
+			} // end switch
+			xmlStreamReader.next();
+		} // end while
 	}
 }

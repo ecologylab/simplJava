@@ -105,18 +105,10 @@ public class FieldDescriptor extends DescriptorBase implements FieldTypes, Mappa
 	 */
 	@simpl_map("polymorph_class_descriptor")
 	@simpl_map_key_field("tagName")
-	private HashMapArrayList<String, ClassDescriptor>	polymorphClassDescriptors;																		// TODO
-
-	// serialize
-	// this
+	private HashMapArrayList<String, ClassDescriptor>	polymorphClassDescriptors;
 
 	@simpl_map("polymorph_class")
-	private HashMap<String, Class>										polymorphClasses;																						// TODO
-
-	// do
-	// not
-	// serialize
-	// this
+	private HashMap<String, Class>										polymorphClasses;
 
 	@simpl_map("library_namespace")
 	private HashMap<String, String>										libraryNamespaces					= new HashMap<String, String>();
@@ -2560,7 +2552,6 @@ public class FieldDescriptor extends DescriptorBase implements FieldTypes, Mappa
 	public void appendValue(Appendable appendable, Object object,
 			TranslationContext translationContext, Format format) throws SIMPLTranslationException
 	{
-
 		try
 		{
 			scalarType.appendValue(appendable, this, object, translationContext, format);
@@ -2576,4 +2567,8 @@ public class FieldDescriptor extends DescriptorBase implements FieldTypes, Mappa
 		return isBibtexKey;
 	}
 
+	public boolean isCollectionTag(String tagName)
+	{
+		return isPolymorphic() ? polymorphClassDescriptors.containsKey(tagName) : collectionOrMapTagName.equals(tagName);
+	}
 }
