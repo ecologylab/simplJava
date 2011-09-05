@@ -5,6 +5,7 @@ import java.io.FileFilter;
 import java.io.FileWriter;
 import java.io.IOException;
 
+import ecologylab.semantics.metadata.scalar.types.SemanticsTypes;
 import ecologylab.semantics.metametadata.MetaMetadataCollectionFieldWithoutChildComposite;
 import ecologylab.semantics.metametadata.MetaMetadataCompositeField;
 import ecologylab.semantics.metametadata.MetaMetadataField;
@@ -15,6 +16,7 @@ import ecologylab.semantics.metametadata.NestedMetaMetadataFieldTranslationScope
 import ecologylab.serialization.ElementState.FORMAT;
 import ecologylab.serialization.SIMPLTranslationException;
 import ecologylab.serialization.TranslationScope;
+import ecologylab.serialization.TranslationScope.GRAPH_SWITCH;
 
 /**
  * A (preliminary) class for converting repository format. Currently, from XML to JSON.
@@ -94,6 +96,10 @@ public class RepositoryConverter
 
 	public static void main(String[] args)
 	{
+		TranslationScope.graphSwitch	= GRAPH_SWITCH.ON;
+		MetaMetadataRepository.initializeTypes();
+		new SemanticsTypes();
+		
 		RepositoryConverter rc = new RepositoryConverter();
 		rc.convertingRepositoryFromXmlToJson();
 	}
