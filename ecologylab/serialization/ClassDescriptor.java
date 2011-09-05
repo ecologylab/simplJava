@@ -992,7 +992,7 @@ public class ClassDescriptor<FD extends FieldDescriptor> extends DescriptorBase 
 	 * @throws IOException
 	 */
 	public static void serialize(Object object, StringBuilder stringBuilder, Format format)
-			throws SIMPLTranslationException, IOException
+			throws SIMPLTranslationException
 	{
 		TranslationContext translationContext = new TranslationContext();
 		serialize(object, stringBuilder, format, translationContext);
@@ -1009,7 +1009,7 @@ public class ClassDescriptor<FD extends FieldDescriptor> extends DescriptorBase 
 	 * @throws IOException
 	 */
 	public static void serialize(Object object, Appendable appendable, Format format)
-			throws SIMPLTranslationException, IOException
+			throws SIMPLTranslationException
 	{
 		TranslationContext translationContext = new TranslationContext();
 		serialize(object, appendable, format, translationContext);
@@ -1027,7 +1027,7 @@ public class ClassDescriptor<FD extends FieldDescriptor> extends DescriptorBase 
 	 * @throws IOException
 	 */
 	public static void serialize(Object object, Appendable appendable, Format format,
-			TranslationContext translationContext) throws SIMPLTranslationException, IOException
+			TranslationContext translationContext) throws SIMPLTranslationException
 	{
 		FormatSerializer formatSerializer = SerializerFactory.getSerializer(format);
 		formatSerializer.serialize(object, appendable, translationContext);
@@ -1045,7 +1045,7 @@ public class ClassDescriptor<FD extends FieldDescriptor> extends DescriptorBase 
 	 * @throws IOException
 	 */
 	public static void serialize(Object object, StringBuilder stringBuilder, Format format,
-			TranslationContext translationContext) throws SIMPLTranslationException, IOException
+			TranslationContext translationContext) throws SIMPLTranslationException
 	{
 		FormatSerializer formatSerializer = SerializerFactory.getSerializer(format);
 		formatSerializer.serialize(object, stringBuilder, translationContext);

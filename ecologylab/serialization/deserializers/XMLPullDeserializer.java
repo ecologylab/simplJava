@@ -55,6 +55,8 @@ public class XMLPullDeserializer extends Debug implements FieldTypes
 	{
 		InputStream xmlStream = new StringInputStream(charSequence, StringInputStream.UTF8);
 		xmlStreamReader = XMLInputFactory.newInstance().createXMLStreamReader(xmlStream, "UTF-8");
+		
+		//printParse();
 
 		Object root = null;
 
@@ -90,10 +92,10 @@ public class XMLPullDeserializer extends Debug implements FieldTypes
 	{
 		FieldDescriptor currentFieldDescriptor = null;
 		Object subRoot = null;
-		int event;
+		int event = 0;
 
-		while (xmlStreamReader.hasNext() && (event = nextEvent()) != XMLStreamConstants.END_ELEMENT)
-		{
+		while (xmlStreamReader.hasNext() && event != XMLStreamConstants.END_ELEMENT)
+		{			
 			if (event == XMLStreamConstants.START_ELEMENT)
 			{
 				currentFieldDescriptor = (currentFieldDescriptor != null)
@@ -155,6 +157,7 @@ public class XMLPullDeserializer extends Debug implements FieldTypes
 					break;
 				}
 			}
+			event = nextEvent();
 		}
 	}
 
@@ -173,36 +176,82 @@ public class XMLPullDeserializer extends Debug implements FieldTypes
 	private Object getSubRoot(FieldDescriptor currentFieldDescriptor, String tagName)
 			throws SIMPLTranslationException, JsonParseException, IOException, XMLStreamException
 	{
-
 		Object subRoot = null;
 		ClassDescriptor<? extends FieldDescriptor> subRootClassDescriptor = currentFieldDescriptor
 				.getChildClassDescriptor(tagName);
-		subRoot = subRootClassDescriptor.getInstance();
-		deserializeAttributes(subRoot, subRootClassDescriptor);
-		createObjectModel(subRoot, subRootClassDescriptor);
+
+		String simplReference = null;
+
+		if ((simplReference = getSimpleReference()) != null)
+		{
+			subRoot = translationContext.getFromMap(simplReference);
+			xmlStreamReader.next();
+		}
+		else
+		{
+			subRoot = subRootClassDescriptor.getInstance();
+			deserializeAttributes(subRoot, subRootClassDescriptor);
+			createObjectModel(subRoot, subRootClassDescriptor);
+		}
+
 		return subRoot;
 	}
 
-	private void deserializeAttributes(Object root,
+	private String getSimpleReference()
+	{
+		String simplReference = null;
+
+		for (int i = 0; i < xmlStreamReader.getAttributeCount(); i++)
+		{
+			String attributePrefix = xmlStreamReader.getAttributePrefix(i);
+			String tag = xmlStreamReader.getAttributeLocalName(i);
+			String value = xmlStreamReader.getAttributeValue(i);
+
+			if (TranslationContext.SIMPL.equals(attributePrefix))
+			{
+				if (tag.equals(TranslationContext.REF))
+				{
+					simplReference = value;
+				}
+			}
+		}
+
+		return simplReference;
+	}
+
+	private boolean deserializeAttributes(Object root,
 			ClassDescriptor<? extends FieldDescriptor> rootClassDescriptor)
 	{
 		for (int i = 0; i < xmlStreamReader.getAttributeCount(); i++)
 		{
+			String attributePrefix = xmlStreamReader.getAttributePrefix(i);
 			String tag = xmlStreamReader.getAttributeLocalName(i);
 			String value = xmlStreamReader.getAttributeValue(i);
 
-			FieldDescriptor attributeFieldDescriptor = rootClassDescriptor.getFieldDescriptorByTag(tag,
-					translationScope);
+			if (TranslationContext.SIMPL.equals(attributePrefix))
+			{
+				if (tag.equals(TranslationContext.ID))
+				{
+					translationContext.markAsUnmarshalled(value, root);
+				}
+			}
+			else
+			{
+				FieldDescriptor attributeFieldDescriptor = rootClassDescriptor.getFieldDescriptorByTag(tag,
+						translationScope);
 
-			if (attributeFieldDescriptor != null)
-				attributeFieldDescriptor.setFieldToScalar(root, value, translationContext);
+				if (attributeFieldDescriptor != null)
+					attributeFieldDescriptor.setFieldToScalar(root, value, translationContext);
+			}
 		}
+
+		return true;
 	}
 
 	private int nextEvent() throws XMLStreamException
 	{
 		int eventType = 0;
-		
+
 		// skip events that we don't handle.
 		while (xmlStreamReader.hasNext())
 		{

@@ -34,19 +34,26 @@ public class JSONSerializer extends FormatSerializer implements FieldTypes
 
 	@Override
 	public void serialize(Object object, Appendable appendable, TranslationContext translationContext)
-			throws SIMPLTranslationException, IOException
+			throws SIMPLTranslationException
 	{
 		translationContext.resolveGraph(object);
 
 		ClassDescriptor<? extends FieldDescriptor> rootObjectClassDescriptor = ClassDescriptor
 				.getClassDescriptor(object.getClass());
 
-		writeStart(appendable);
+		try
+		{
+			writeStart(appendable);
 
-		serialize(object, rootObjectClassDescriptor.pseudoFieldDescriptor(), appendable,
-				translationContext, true);
+			serialize(object, rootObjectClassDescriptor.pseudoFieldDescriptor(), appendable,
+					translationContext, true);
 
-		writeClose(appendable);
+			writeClose(appendable);
+		}
+		catch (IOException e)
+		{
+			throw new SIMPLTranslationException("IO Exception occurred", e);
+		}
 	}
 
 	/**

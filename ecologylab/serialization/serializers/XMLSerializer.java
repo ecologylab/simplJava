@@ -38,15 +38,22 @@ public class XMLSerializer extends FormatSerializer implements FieldTypes
 
 	@Override
 	public void serialize(Object object, Appendable appendable, TranslationContext translationContext)
-			throws SIMPLTranslationException, IOException
+			throws SIMPLTranslationException
 	{
 		translationContext.resolveGraph(object);
 
 		ClassDescriptor<? extends FieldDescriptor> rootObjectClassDescriptor = ClassDescriptor
 				.getClassDescriptor(object.getClass());
 
-		serialize(object, rootObjectClassDescriptor.pseudoFieldDescriptor(), appendable,
-				translationContext);
+		try
+		{
+			serialize(object, rootObjectClassDescriptor.pseudoFieldDescriptor(), appendable,
+					translationContext);
+		}
+		catch (IOException e)
+		{
+			throw new SIMPLTranslationException("IO Exception occurred", e);
+		}
 	}
 
 	/**
@@ -62,6 +69,9 @@ public class XMLSerializer extends FormatSerializer implements FieldTypes
 			Appendable appendable, TranslationContext translationContext)
 			throws SIMPLTranslationException, IOException
 	{
+
+		if (object == null)
+			return;
 
 		if (alreadySerialized(object, translationContext))
 		{

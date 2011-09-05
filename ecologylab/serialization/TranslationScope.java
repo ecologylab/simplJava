@@ -1699,9 +1699,17 @@ public final class TranslationScope extends ElementState
 	/**
 	 * This will switch on the graph serialization
 	 */
-	public static void setGraphSwitch()
+	public static void enableGraphSerialization()
 	{
 		graphSwitch = GRAPH_SWITCH.ON;
+	}
+	
+	/**
+	 * This will switch on the graph serialization
+	 */
+	public static void disableGraphSerialization()
+	{
+		graphSwitch = GRAPH_SWITCH.OFF;
 	}
 
 	/**

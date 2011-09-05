@@ -16,13 +16,14 @@ import ecologylab.serialization.XMLTools;
 import ecologylab.serialization.TranslationScope.GRAPH_SWITCH;
 
 /**
- * FormatSerializer. an abstract base class from where format-specific serializers derive. Its main use is for exposing
- * the API for serialization methods. It contains helper functions and wrapper serialization functions,
- * allowing software developers to use different types of objects for serialization, such as
- * System.out, File, StringBuilder, or return serialized data as StringBuilder
+ * FormatSerializer. an abstract base class from where format-specific serializers derive. Its main
+ * use is for exposing the API for serialization methods. It contains helper functions and wrapper
+ * serialization functions, allowing software developers to use different types of objects for
+ * serialization, such as System.out, File, StringBuilder, or return serialized data as
+ * StringBuilder
  * 
  * @author nabeel
- *  
+ * 
  */
 public abstract class FormatSerializer
 {
@@ -33,14 +34,21 @@ public abstract class FormatSerializer
 	 * @throws SIMPLTranslationException
 	 * @throws IOException
 	 */
-	public void serialize(Object object, File outputFile) throws SIMPLTranslationException,
-			IOException
+	public void serialize(Object object, File outputFile) throws SIMPLTranslationException
 	{
 		XMLTools.createParentDirs(outputFile);
+		serialize(object, outputFile, new TranslationContext());
 
-		BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(outputFile));
-		serialize(object, bufferedWriter, new TranslationContext(outputFile.getParentFile()));
-		bufferedWriter.close();
+		// try
+		// {
+		// BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(outputFile));
+		// serialize(object, bufferedWriter, new TranslationContext(outputFile.getParentFile()));
+		// bufferedWriter.close();
+		// }
+		// catch (IOException ex)
+		// {
+		// throw new SIMPLTranslationException("", ex);
+		// }
 	}
 
 	/**
@@ -52,13 +60,20 @@ public abstract class FormatSerializer
 	 * @throws IOException
 	 */
 	public void serialize(Object object, File outputFile, TranslationContext translationContext)
-			throws SIMPLTranslationException, IOException
+			throws SIMPLTranslationException
 	{
 		XMLTools.createParentDirs(outputFile);
 
-		BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(outputFile));
-		serialize(object, bufferedWriter, translationContext);
-		bufferedWriter.close();
+		try
+		{
+			BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(outputFile));
+			serialize(object, bufferedWriter, translationContext);
+			bufferedWriter.close();
+		}
+		catch (IOException ex)
+		{
+			throw new SIMPLTranslationException("IO Exception", ex);
+		}
 	}
 
 	/**
@@ -68,7 +83,7 @@ public abstract class FormatSerializer
 	 * @throws SIMPLTranslationException
 	 * @throws IOException
 	 */
-	public StringBuilder serialize(Object object) throws SIMPLTranslationException, IOException
+	public StringBuilder serialize(Object object) throws SIMPLTranslationException
 	{
 		return serialize(object, new TranslationContext());
 	}
@@ -82,7 +97,7 @@ public abstract class FormatSerializer
 	 * @throws IOException
 	 */
 	public StringBuilder serialize(Object object, TranslationContext translationContext)
-			throws SIMPLTranslationException, IOException
+			throws SIMPLTranslationException
 	{
 		final StringBuilder sb = new StringBuilder();
 		serialize(object, sb, translationContext);
@@ -98,7 +113,7 @@ public abstract class FormatSerializer
 	 * @throws IOException
 	 */
 	public void serialize(Object object, final StringBuilder stringBuilder,
-			TranslationContext translationContext) throws SIMPLTranslationException, IOException
+			TranslationContext translationContext) throws SIMPLTranslationException
 	{
 		OutputStream outputStream = new OutputStream()
 		{
@@ -121,7 +136,7 @@ public abstract class FormatSerializer
 	 * @throws IOException
 	 */
 	public void serialize(Object object, Appendable appendable, TranslationContext translationContext)
-			throws SIMPLTranslationException, IOException
+			throws SIMPLTranslationException
 	{
 		// method overriden by derived classes to provide serialization functionally relevant to a
 		// particular format
