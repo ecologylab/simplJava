@@ -11,7 +11,7 @@ import ecologylab.serialization.SIMPLTranslationException;
 import ecologylab.serialization.deserializers.parsers.bibtex.entrytypes.AbstractBibTeXEntry;
 import ecologylab.serialization.deserializers.parsers.bibtex.entrytypes.BibTeXInProceedings;
 import ecologylab.serialization.deserializers.pushhandlers.ElementStateBibTeXHandler;
-import ecologylab.serialization.serializers.enums.Format;
+import ecologylab.serialization.serializers.Format;
 
 /**
  * The BibTeX parser class.

@@ -23,7 +23,7 @@ import ecologylab.serialization.deserializers.pullhandlers.XMLPullDeserializer;
 import ecologylab.serialization.deserializers.pushhandlers.ElementStateJSONPushHandler;
 import ecologylab.serialization.deserializers.pushhandlers.ElementStateSAXHandler;
 import ecologylab.serialization.deserializers.pushhandlers.ElementStateTLVHandler;
-import ecologylab.serialization.serializers.enums.Format;
+import ecologylab.serialization.serializers.Format;
 import ecologylab.serialization.types.ScalarType;
 import ecologylab.serialization.types.TypeRegistry;
 

@@ -1,4 +1,4 @@
-package ecologylab.serialization.serializers.enums;
+package ecologylab.serialization.serializers;
 
 public enum StringFormat
 {

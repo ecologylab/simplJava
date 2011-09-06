@@ -1,4 +1,4 @@
-package ecologylab.serialization.serializers;
+package ecologylab.serialization.serializers.binaryformats;
 
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
@@ -16,7 +16,8 @@ import ecologylab.serialization.TranslationContext;
 import ecologylab.serialization.TranslationScope;
 import ecologylab.serialization.XMLTools;
 import ecologylab.serialization.TranslationScope.GRAPH_SWITCH;
-import ecologylab.serialization.serializers.enums.Format;
+import ecologylab.serialization.serializers.Format;
+import ecologylab.serialization.serializers.FormatSerializer;
 
 /**
  * 

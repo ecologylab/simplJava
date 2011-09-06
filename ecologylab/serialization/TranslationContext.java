@@ -13,7 +13,7 @@ import ecologylab.collections.MultiMap;
 import ecologylab.generic.Debug;
 import ecologylab.net.ParsedURL;
 import ecologylab.serialization.TranslationScope.GRAPH_SWITCH;
-import ecologylab.serialization.serializers.enums.Format;
+import ecologylab.serialization.serializers.Format;
 
 public class TranslationContext extends Debug implements ScalarUnmarshallingContext, FieldTypes
 {

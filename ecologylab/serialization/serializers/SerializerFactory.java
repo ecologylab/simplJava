@@ -1,7 +1,10 @@
 package ecologylab.serialization.serializers;
 
 import ecologylab.serialization.SIMPLTranslationException;
-import ecologylab.serialization.serializers.enums.Format;
+import ecologylab.serialization.serializers.binaryformats.TLVSerializer;
+import ecologylab.serialization.serializers.stringformats.BibtexSerializer;
+import ecologylab.serialization.serializers.stringformats.JSONSerializer;
+import ecologylab.serialization.serializers.stringformats.XMLSerializer;
 
 /**
  * 

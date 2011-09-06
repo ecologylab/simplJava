@@ -1,6 +1,6 @@
 package ecologylab.serialization.serializers;
 
-public class StringSerializer
+public enum BinaryFormat
 {
-
+	TLV;
 }

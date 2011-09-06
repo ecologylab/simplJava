@@ -8,7 +8,7 @@ import ecologylab.serialization.FieldDescriptor;
 import ecologylab.serialization.ScalarUnmarshallingContext;
 import ecologylab.serialization.TranslationContext;
 import ecologylab.serialization.annotations.simpl_inherit;
-import ecologylab.serialization.serializers.enums.Format;
+import ecologylab.serialization.serializers.Format;
 import ecologylab.serialization.types.ScalarType;
 
 /*

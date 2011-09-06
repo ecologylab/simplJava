@@ -1,4 +1,4 @@
-package ecologylab.serialization.serializers;
+package ecologylab.serialization.serializers.stringformats;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -10,7 +10,8 @@ import ecologylab.serialization.FieldTypes;
 import ecologylab.serialization.SIMPLTranslationException;
 import ecologylab.serialization.TranslationContext;
 import ecologylab.serialization.XMLTools;
-import ecologylab.serialization.serializers.enums.Format;
+import ecologylab.serialization.serializers.Format;
+import ecologylab.serialization.serializers.FormatSerializer;
 
 /**
  * 

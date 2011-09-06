@@ -1,4 +1,4 @@
-package ecologylab.serialization.serializers;
+package ecologylab.serialization.serializers.stringformats;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -12,7 +12,8 @@ import ecologylab.serialization.TranslationContext;
 import ecologylab.serialization.TranslationScope;
 import ecologylab.serialization.XMLTools;
 import ecologylab.serialization.TranslationScope.GRAPH_SWITCH;
-import ecologylab.serialization.serializers.enums.Format;
+import ecologylab.serialization.serializers.Format;
+import ecologylab.serialization.serializers.FormatSerializer;
 
 /***
  * JSONSerializaton. Guides serialization of data in JSON. Contains code that is specific to
