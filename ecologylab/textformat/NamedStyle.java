@@ -3,7 +3,7 @@ package ecologylab.textformat;
 import ecologylab.appframework.types.prefs.Pref;
 import ecologylab.serialization.ElementState;
 import ecologylab.serialization.annotations.simpl_scalar;
-import ecologylab.serialization.types.element.Mappable;
+import ecologylab.serialization.types.element.IMappable;
 
 /**
  * Set of variables that control the font style. May contain a name.
@@ -11,7 +11,7 @@ import ecologylab.serialization.types.element.Mappable;
  * @author alexgrau
  */
 public class NamedStyle extends ElementState
-implements Mappable<String>
+implements IMappable<String>
 {
 	public static final						int				STROKE_RECTANGLE_FIT 	= 0;
 	public static final						int				STROKE_SMOOTH_FIT 		= 1;

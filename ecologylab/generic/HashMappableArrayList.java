@@ -6,7 +6,7 @@ package ecologylab.generic;
 import java.util.Collection;
 import java.util.Map;
 
-import ecologylab.serialization.types.element.Mappable;
+import ecologylab.serialization.types.element.IMappable;
 
 /**
  * A HashMap with an ArrayList backing store, for speedy linear and hashed access.
@@ -17,7 +17,7 @@ import ecologylab.serialization.types.element.Mappable;
  * @author andruid
  * @param <K>
  */
-public class HashMappableArrayList<K, V extends Mappable<K>> extends HashMapArrayList<K, V>
+public class HashMappableArrayList<K, V extends IMappable<K>> extends HashMapArrayList<K, V>
 //implements Collection
 {
 

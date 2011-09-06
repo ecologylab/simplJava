@@ -1,4 +1,4 @@
-package ecologylab.serialization.deserializers;
+package ecologylab.serialization.deserializers.pullhandlers;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -19,7 +19,7 @@ import ecologylab.serialization.FieldTypes;
 import ecologylab.serialization.SIMPLTranslationException;
 import ecologylab.serialization.TranslationContext;
 import ecologylab.serialization.TranslationScope;
-import ecologylab.serialization.types.element.Mappable;
+import ecologylab.serialization.types.element.IMappable;
 
 /**
  * Pull API implementation to transform XML documets to corresponding object models. Utilizes
@@ -167,9 +167,9 @@ public class XMLPullDeserializer extends Debug implements FieldTypes
 						{
 							String compositeTagName = xmlStreamReader.getLocalName();
 							subRoot = getSubRoot(currentFieldDescriptor, compositeTagName);
-							if (subRoot instanceof Mappable)
+							if (subRoot instanceof IMappable)
 							{
-								final Object key = ((Mappable) subRoot).key();
+								final Object key = ((IMappable) subRoot).key();
 								Map map = (Map) currentFieldDescriptor.automaticLazyGetCollectionOrMap(root);
 								map.put(key, subRoot);
 							}

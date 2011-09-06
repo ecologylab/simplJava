@@ -1,4 +1,4 @@
-package ecologylab.serialization;
+package ecologylab.serialization.deserializers.pushhandlers;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -7,9 +7,18 @@ import java.util.Map;
 
 import ecologylab.generic.Debug;
 import ecologylab.net.ParsedURL;
+import ecologylab.serialization.ClassDescriptor;
+import ecologylab.serialization.DeserializationHookStrategy;
+import ecologylab.serialization.ElementState;
+import ecologylab.serialization.FieldDescriptor;
+import ecologylab.serialization.FieldTypes;
+import ecologylab.serialization.RootElementException;
+import ecologylab.serialization.SIMPLTranslationException;
+import ecologylab.serialization.ScalarUnmarshallingContext;
+import ecologylab.serialization.TranslationScope;
 import ecologylab.serialization.deserializers.parsers.tlv.TLVEvents;
 import ecologylab.serialization.deserializers.parsers.tlv.TLVParser;
-import ecologylab.serialization.types.element.Mappable;
+import ecologylab.serialization.types.element.IMappable;
 
 public class ElementStateTLVHandler extends Debug implements TLVEvents, FieldTypes,
 		ScalarUnmarshallingContext
@@ -74,9 +83,9 @@ public class ElementStateTLVHandler extends Debug implements TLVEvents, FieldTyp
 		// every good push deserves a pop :-) (and othertimes, not!)
 		{
 		case MAP_ELEMENT:
-			if (currentES instanceof Mappable)
+			if (currentES instanceof IMappable)
 			{
-				final Object key = ((Mappable) currentES).key();
+				final Object key = ((IMappable) currentES).key();
 				Map map = (Map) currentFD.automaticLazyGetCollectionOrMap(parentES);
 				// Map map = currentFD.getMap(parentES);
 				map.put(key, currentES);

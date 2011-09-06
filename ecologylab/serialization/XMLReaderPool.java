@@ -7,6 +7,7 @@ import org.xml.sax.SAXException;
 import org.xml.sax.XMLReader;
 
 import ecologylab.generic.ResourcePool;
+import ecologylab.serialization.deserializers.pushhandlers.ElementStateSAXHandler;
 
 /**
  * @author toupsz

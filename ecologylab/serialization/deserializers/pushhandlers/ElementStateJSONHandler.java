@@ -1,4 +1,4 @@
-package ecologylab.serialization;
+package ecologylab.serialization.deserializers.pushhandlers;
 
 import java.io.File;
 import java.io.IOException;
@@ -12,7 +12,16 @@ import org.json.simple.parser.ParseException;
 
 import ecologylab.generic.Debug;
 import ecologylab.net.ParsedURL;
-import ecologylab.serialization.types.element.Mappable;
+import ecologylab.serialization.ClassDescriptor;
+import ecologylab.serialization.DeserializationHookStrategy;
+import ecologylab.serialization.ElementState;
+import ecologylab.serialization.FieldDescriptor;
+import ecologylab.serialization.FieldTypes;
+import ecologylab.serialization.RootElementException;
+import ecologylab.serialization.SIMPLTranslationException;
+import ecologylab.serialization.ScalarUnmarshallingContext;
+import ecologylab.serialization.TranslationScope;
+import ecologylab.serialization.types.element.IMappable;
 
 public class ElementStateJSONHandler extends Debug implements ContentHandler, FieldTypes,
 		ScalarUnmarshallingContext
@@ -108,9 +117,9 @@ public class ElementStateJSONHandler extends Debug implements ContentHandler, Fi
 		// every good push deserves a pop :-) (and othertimes, not!)
 		{
 		case MAP_ELEMENT:
-			if (currentES instanceof Mappable)
+			if (currentES instanceof IMappable)
 			{
-				final Object key = ((Mappable) currentES).key();
+				final Object key = ((IMappable) currentES).key();
 				Map map = (Map) currentFD.automaticLazyGetCollectionOrMap(parentES);
 				// Map map = currentFD.getMap(parentES);
 				map.put(key, currentES);

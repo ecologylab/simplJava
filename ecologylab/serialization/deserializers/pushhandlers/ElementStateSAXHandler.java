@@ -1,7 +1,7 @@
 /**
  * 
  */
-package ecologylab.serialization;
+package ecologylab.serialization.deserializers.pushhandlers;
 
 import java.io.BufferedInputStream;
 import java.io.File;
@@ -30,8 +30,19 @@ import ecologylab.generic.StringInputStream;
 import ecologylab.net.ConnectionAdapter;
 import ecologylab.net.PURLConnection;
 import ecologylab.net.ParsedURL;
+import ecologylab.serialization.ClassDescriptor;
+import ecologylab.serialization.DeserializationHookStrategy;
+import ecologylab.serialization.ElementState;
+import ecologylab.serialization.FieldDescriptor;
+import ecologylab.serialization.FieldTypes;
+import ecologylab.serialization.RootElementException;
+import ecologylab.serialization.SIMPLTranslationException;
+import ecologylab.serialization.ScalarUnmarshallingContext;
+import ecologylab.serialization.TranslationContext;
+import ecologylab.serialization.TranslationScope;
+import ecologylab.serialization.XMLReaderPool;
 import ecologylab.serialization.annotations.simpl_map_key_field;
-import ecologylab.serialization.types.element.Mappable;
+import ecologylab.serialization.types.element.IMappable;
 
 /**
  * Use SAX to translate XML into a typed tree of ElementState objects.
@@ -661,9 +672,9 @@ public class ElementStateSAXHandler extends Debug implements ContentHandler, Fie
 		// every good push deserves a pop :-) (and othertimes, not!)
 		{
 		case MAP_ELEMENT:
-			if (currentES instanceof Mappable)
+			if (currentES instanceof IMappable)
 			{
-				final Object key = ((Mappable) currentES).key();
+				final Object key = ((IMappable) currentES).key();
 				Map map = (Map) currentFD.automaticLazyGetCollectionOrMap(parentES);
 				// Map map = currentFD.getMap(parentES);
 				map.put(key, currentES);

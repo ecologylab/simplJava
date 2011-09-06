@@ -1,4 +1,4 @@
-package ecologylab.serialization.deserializers;
+package ecologylab.serialization.deserializers.pushhandlers;
 
 import java.io.File;
 import java.io.IOException;
@@ -14,21 +14,22 @@ import ecologylab.generic.Debug;
 import ecologylab.net.ParsedURL;
 import ecologylab.serialization.ClassDescriptor;
 import ecologylab.serialization.DeserializationHookStrategy;
+import ecologylab.serialization.ElementState;
 import ecologylab.serialization.FieldDescriptor;
 import ecologylab.serialization.FieldTypes;
 import ecologylab.serialization.SIMPLTranslationException;
 import ecologylab.serialization.ScalarUnmarshallingContext;
 import ecologylab.serialization.TranslationContext;
 import ecologylab.serialization.TranslationScope;
-import ecologylab.serialization.types.element.Mappable;
+import ecologylab.serialization.types.element.IMappable;
 
 /**
- * JSON deserialization handler class. Uses the pull API for parsing the input JSON documents.
+ * JSON deserialization handler class. Uses the push API for parsing the input JSON docuemets.
  * 
  * @author nabeelshahzad
  * 
  */
-public class JSONPullDeserializer extends Debug implements ScalarUnmarshallingContext,
+public class ElementStateJSONPushHandler extends Debug implements ScalarUnmarshallingContext,
 		FieldTypes
 {
 
@@ -37,7 +38,7 @@ public class JSONPullDeserializer extends Debug implements ScalarUnmarshallingCo
 	TranslationContext					translationContext;
 
 	/**
-	 * JsonParser object from the Jackson JSON parsing library. Implements a pull API for parsing JSON
+	 * JsonParser object from the Jackson JSON parsing library. Implements a push API for parsing JSON
 	 */
 	JsonParser									jp	= null;
 
@@ -51,7 +52,7 @@ public class JSONPullDeserializer extends Debug implements ScalarUnmarshallingCo
 	 * @param translationContext
 	 *          used for graph handling
 	 */
-	public JSONPullDeserializer(TranslationScope translationScope,
+	public ElementStateJSONPushHandler(TranslationScope translationScope,
 			TranslationContext translationContext)
 	{
 		this.translationScope = translationScope;
@@ -67,7 +68,7 @@ public class JSONPullDeserializer extends Debug implements ScalarUnmarshallingCo
 	 * @param translationContext
 	 *          used for graph handling
 	 */
-	public JSONPullDeserializer(TranslationScope translationScope,
+	public ElementStateJSONPushHandler(TranslationScope translationScope,
 			TranslationContext translationContext, DeserializationHookStrategy deserializationHookStrategy)
 	{
 		this.translationScope = translationScope;
@@ -86,7 +87,7 @@ public class JSONPullDeserializer extends Debug implements ScalarUnmarshallingCo
 	 * @throws IOException
 	 * @throws SIMPLTranslationException
 	 */
-	public Object parse(CharSequence charSequence)
+	public ElementState parse(CharSequence charSequence)
 	{
 
 		try
@@ -104,18 +105,17 @@ public class JSONPullDeserializer extends Debug implements ScalarUnmarshallingCo
 			// move the first field in the document. typically it is the root element.
 			jp.nextToken();
 
-			Object root = null;
+			ElementState root = null;
 
 			// find the classdescriptor for the root element.
 			ClassDescriptor rootClassDescriptor = translationScope.getClassDescriptorByTag(jp
 					.getCurrentName());
 			
 			root = rootClassDescriptor.getInstance();
-			
-//			root.setupRoot();
-//			root.deserializationPreHook();
-//			if (deserializationHookStrategy != null)
-//				deserializationHookStrategy.deserializationPreHook(root, null);
+			root.setupRoot();
+			root.deserializationPreHook();
+			if (deserializationHookStrategy != null)
+				deserializationHookStrategy.deserializationPreHook(root, null);
 
 			// move to the first field of the root element.
 			jp.nextToken();
@@ -146,11 +146,11 @@ public class JSONPullDeserializer extends Debug implements ScalarUnmarshallingCo
 	 * @throws IOException
 	 * @throws SIMPLTranslationException
 	 */
-	private void createObjectModel(Object root, ClassDescriptor rootClassDescriptor)
+	private void createObjectModel(ElementState root, ClassDescriptor rootClassDescriptor)
 			throws JsonParseException, IOException, SIMPLTranslationException
 	{
 		FieldDescriptor currentFieldDescriptor = null;
-		Object subRoot = null;
+		ElementState subRoot = null;
 
 		// iterate through each element of the current composite element.
 		while (jp.getCurrentToken() != JsonToken.END_OBJECT)
@@ -180,8 +180,8 @@ public class JSONPullDeserializer extends Debug implements ScalarUnmarshallingCo
 					ClassDescriptor subRootClassDescriptor = currentFieldDescriptor
 							.getChildClassDescriptor(tagName);
 
-//					if (subRoot != null)
-//						subRoot.setupInParent(root, subRootClassDescriptor);
+					if (subRoot != null)
+						subRoot.setupInParent(root, subRootClassDescriptor);
 
 					currentFieldDescriptor.setFieldToComposite(root, subRoot);
 					break;
@@ -206,6 +206,7 @@ public class JSONPullDeserializer extends Debug implements ScalarUnmarshallingCo
 							jp.nextToken();
 							jp.nextToken();
 						}
+
 					}
 					else
 					{
@@ -222,6 +223,7 @@ public class JSONPullDeserializer extends Debug implements ScalarUnmarshallingCo
 					jp.nextToken();
 					if (currentFieldDescriptor.isPolymorphic())
 					{
+
 						// ignore the wrapper tag
 						if (!currentFieldDescriptor.isWrapped())
 							jp.nextToken();
@@ -232,9 +234,9 @@ public class JSONPullDeserializer extends Debug implements ScalarUnmarshallingCo
 							jp.nextToken();
 
 							subRoot = getSubRoot(currentFieldDescriptor, jp.getCurrentName());
-							if (subRoot instanceof Mappable)
+							if (subRoot instanceof IMappable)
 							{
-								final Object key = ((Mappable) subRoot).key();
+								final Object key = ((IMappable) subRoot).key();
 								Map map = (Map) currentFieldDescriptor.automaticLazyGetCollectionOrMap(root);
 								map.put(key, subRoot);
 							}
@@ -249,9 +251,9 @@ public class JSONPullDeserializer extends Debug implements ScalarUnmarshallingCo
 						while (jp.nextToken() != JsonToken.END_ARRAY)
 						{
 							subRoot = getSubRoot(currentFieldDescriptor, jp.getCurrentName());
-							if (subRoot instanceof Mappable)
+							if (subRoot instanceof IMappable)
 							{
-								final Object key = ((Mappable) subRoot).key();
+								final Object key = ((IMappable) subRoot).key();
 								Map map = (Map) currentFieldDescriptor.automaticLazyGetCollectionOrMap(root);
 								map.put(key, subRoot);
 							}
@@ -275,9 +277,9 @@ public class JSONPullDeserializer extends Debug implements ScalarUnmarshallingCo
 			jp.nextToken();
 		}
 
-//		root.deserializationPostHook();
-//		if (deserializationHookStrategy != null)
-//			deserializationHookStrategy.deserializationPostHook(root, currentFieldDescriptor);
+		root.deserializationPostHook();
+		if (deserializationHookStrategy != null)
+			deserializationHookStrategy.deserializationPostHook(root, currentFieldDescriptor);
 	}
 
 	/**
@@ -291,16 +293,17 @@ public class JSONPullDeserializer extends Debug implements ScalarUnmarshallingCo
 	 * @throws JsonParseException
 	 * @throws IOException
 	 */
-	private Object getSubRoot(FieldDescriptor currentFieldDescriptor, String tagName)
+	private ElementState getSubRoot(FieldDescriptor currentFieldDescriptor, String tagName)
 			throws SIMPLTranslationException, JsonParseException, IOException
 	{
 		jp.nextToken();
 
-		Object subRoot = null;
+		ElementState subRoot = null;
 
 		if (jp.getCurrentToken() == JsonToken.FIELD_NAME)
 		{
-			// check for simpl.ref if exists that we need an already created instance
+			// check for simpl.ref if exists that we need an already created instance, instead of creating
+			// a new one.
 			if (jp.getText().equals(TranslationContext.JSON_SIMPL_REF))
 			{
 				jp.nextToken();
@@ -312,6 +315,30 @@ public class JSONPullDeserializer extends Debug implements ScalarUnmarshallingCo
 				ClassDescriptor subRootClassDescriptor = currentFieldDescriptor
 						.getChildClassDescriptor(tagName);
 
+				if (subRootClassDescriptor == null)
+				{
+					System.out.println("*************************** ");
+					System.out.println(tagName + " TAG NOT FOUND");
+					jp.nextToken();
+					System.out.println(jp.getText());
+					jp.nextToken();
+					System.out.println(jp.getText());
+					jp.nextToken();
+					System.out.println(jp.getText());
+					jp.nextToken();
+					System.out.println(jp.getText());
+					jp.nextToken();
+					System.out.println(jp.getText());
+					jp.nextToken();
+					System.out.println(jp.getText());
+					jp.nextToken();
+					System.out.println(jp.getText());
+					jp.nextToken();
+					System.out.println(jp.getText());
+					jp.nextToken();
+					System.out.println(jp.getText());
+					System.out.println("*************************** ");
+				}
 
 				subRoot = subRootClassDescriptor.getInstance();
 
@@ -333,7 +360,7 @@ public class JSONPullDeserializer extends Debug implements ScalarUnmarshallingCo
 	 * @throws JsonParseException
 	 * @throws IOException
 	 */
-	private boolean handleSimplId(String tagName, Object root) throws JsonParseException,
+	private boolean handleSimplId(String tagName, ElementState root) throws JsonParseException,
 			IOException
 	{
 		if (tagName.equals(TranslationContext.JSON_SIMPL_ID))

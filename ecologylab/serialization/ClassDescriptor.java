@@ -32,7 +32,7 @@ import ecologylab.serialization.serializers.enums.Format;
 import ecologylab.serialization.types.CollectionType;
 import ecologylab.serialization.types.ScalarType;
 import ecologylab.serialization.types.TypeRegistry;
-import ecologylab.serialization.types.element.Mappable;
+import ecologylab.serialization.types.element.IMappable;
 
 /**
  * Cached object that holds all of the structures needed to optimize translations to and from XML
@@ -46,7 +46,7 @@ import ecologylab.serialization.types.element.Mappable;
  */
 @simpl_inherit
 public class ClassDescriptor<FD extends FieldDescriptor> extends DescriptorBase implements
-		FieldTypes, Mappable<String>, Iterable<FD>
+		FieldTypes, IMappable<String>, Iterable<FD>
 {
 
 	private static final String																												PACKAGE_CLASS_SEP										= ".";

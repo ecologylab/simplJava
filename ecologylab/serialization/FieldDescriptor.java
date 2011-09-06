@@ -51,7 +51,7 @@ import ecologylab.serialization.types.CollectionType;
 import ecologylab.serialization.types.FundamentalTypes;
 import ecologylab.serialization.types.ScalarType;
 import ecologylab.serialization.types.TypeRegistry;
-import ecologylab.serialization.types.element.Mappable;
+import ecologylab.serialization.types.element.IMappable;
 
 /**
  * Used to provide convenient access for setting and getting values, using the
@@ -60,7 +60,7 @@ import ecologylab.serialization.types.element.Mappable;
  * @author andruid
  */
 @simpl_inherit
-public class FieldDescriptor extends DescriptorBase implements FieldTypes, Mappable<String>
+public class FieldDescriptor extends DescriptorBase implements FieldTypes, IMappable<String>
 {
 
 	public static final String												NULL											= ScalarType.DEFAULT_VALUE_STRING;
