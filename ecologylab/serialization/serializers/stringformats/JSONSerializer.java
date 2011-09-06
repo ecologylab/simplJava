@@ -13,7 +13,6 @@ import ecologylab.serialization.TranslationScope;
 import ecologylab.serialization.XMLTools;
 import ecologylab.serialization.TranslationScope.GRAPH_SWITCH;
 import ecologylab.serialization.serializers.Format;
-import ecologylab.serialization.serializers.FormatSerializer;
 
 /***
  * JSONSerializaton. Guides serialization of data in JSON. Contains code that is specific to
@@ -22,7 +21,7 @@ import ecologylab.serialization.serializers.FormatSerializer;
  * @author nabeel
  * 
  */
-public class JSONSerializer extends FormatSerializer implements FieldTypes
+public class JSONSerializer extends StringSerializer implements FieldTypes
 {
 	public JSONSerializer()
 	{

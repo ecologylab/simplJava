@@ -13,14 +13,13 @@ import ecologylab.serialization.TranslationScope;
 import ecologylab.serialization.XMLTools;
 import ecologylab.serialization.TranslationScope.GRAPH_SWITCH;
 import ecologylab.serialization.serializers.Format;
-import ecologylab.serialization.serializers.FormatSerializer;
 
 /**
  * XML Specific serializer
  * 
  * @author nabeel
  */
-public class XMLSerializer extends FormatSerializer implements FieldTypes
+public class XMLSerializer extends StringSerializer implements FieldTypes
 {
 	private static final String	START_CDATA	= "<![CDATA[";
 

@@ -17,14 +17,13 @@ import ecologylab.serialization.TranslationScope;
 import ecologylab.serialization.XMLTools;
 import ecologylab.serialization.TranslationScope.GRAPH_SWITCH;
 import ecologylab.serialization.serializers.Format;
-import ecologylab.serialization.serializers.FormatSerializer;
 
 /**
  * 
  * @author nabeel
  * 
  */
-public class TLVSerializer extends FormatSerializer implements FieldTypes
+public class TLVSerializer extends BinarySerializer implements FieldTypes
 {
 
 	public TLVSerializer()

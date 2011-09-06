@@ -1,6 +1,8 @@
 package ecologylab.serialization.serializers.stringformats;
 
-public class StringSerializer
+import ecologylab.serialization.serializers.FormatSerializer;
+
+public class StringSerializer extends FormatSerializer
 {
 
 }

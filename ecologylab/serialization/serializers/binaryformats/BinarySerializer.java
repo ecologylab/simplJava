@@ -1,6 +1,8 @@
 package ecologylab.serialization.serializers.binaryformats;
 
-public class BinarySerializer
+import ecologylab.serialization.serializers.FormatSerializer;
+
+public class BinarySerializer extends FormatSerializer
 {
 
 }

@@ -38,17 +38,6 @@ public abstract class FormatSerializer
 	{
 		XMLTools.createParentDirs(outputFile);
 		serialize(object, outputFile, new TranslationContext());
-
-		// try
-		// {
-		// BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(outputFile));
-		// serialize(object, bufferedWriter, new TranslationContext(outputFile.getParentFile()));
-		// bufferedWriter.close();
-		// }
-		// catch (IOException ex)
-		// {
-		// throw new SIMPLTranslationException("", ex);
-		// }
 	}
 
 	/**

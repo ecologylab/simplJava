@@ -11,13 +11,12 @@ import ecologylab.serialization.SIMPLTranslationException;
 import ecologylab.serialization.TranslationContext;
 import ecologylab.serialization.XMLTools;
 import ecologylab.serialization.serializers.Format;
-import ecologylab.serialization.serializers.FormatSerializer;
 
 /**
  * 
  * @author nabeel
  */
-public class BibtexSerializer extends FormatSerializer implements FieldTypes
+public class BibtexSerializer extends StringSerializer implements FieldTypes
 {
 
 	public BibtexSerializer()
