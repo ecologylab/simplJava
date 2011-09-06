@@ -12,7 +12,7 @@ import ecologylab.serialization.ScalarUnmarshallingContext;
 import ecologylab.serialization.TranslationContext;
 import ecologylab.serialization.annotations.simpl_inherit;
 import ecologylab.serialization.annotations.simpl_scalar;
-import ecologylab.serialization.serializers.Format;
+import ecologylab.serialization.serializers.enums.Format;
 
 /**
  * Basic unit of the scalar type system. Manages marshalling from a Java class that represents a

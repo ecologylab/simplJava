@@ -12,6 +12,7 @@ import ecologylab.serialization.TranslationContext;
 import ecologylab.serialization.TranslationScope;
 import ecologylab.serialization.XMLTools;
 import ecologylab.serialization.TranslationScope.GRAPH_SWITCH;
+import ecologylab.serialization.serializers.enums.Format;
 
 /**
  * XML Specific serializer
@@ -20,17 +21,11 @@ import ecologylab.serialization.TranslationScope.GRAPH_SWITCH;
  */
 public class XMLSerializer extends FormatSerializer implements FieldTypes
 {
-	private static final String	START_CDATA			= "<![CDATA[";
+	private static final String	START_CDATA	= "<![CDATA[";
 
-	private static final String	END_CDATA				= "]]>";
+	private static final String	END_CDATA		= "]]>";
 
-	private static final String	SIMPL_NAMESPACE	= " xmlns:simpl=\"http://ecologylab.net/research/simplGuide/serialization/index.html\"";
-
-	private boolean							isRoot					= true;
-
-	private static final String	SIMPL_REF				= "simpl:ref";
-
-	private static final String	SIMPL_ID				= "simpl:id";
+	private boolean							isRoot			= true;
 
 	public XMLSerializer()
 	{
@@ -371,7 +366,7 @@ public class XMLSerializer extends FormatSerializer implements FieldTypes
 	 */
 	private void writeSimplNameSpace(Appendable appendable) throws IOException
 	{
-		appendable.append(SIMPL_NAMESPACE);
+		appendable.append(TranslationContext.SIMPL_NAMESPACE);
 	}
 
 	/**
@@ -383,7 +378,7 @@ public class XMLSerializer extends FormatSerializer implements FieldTypes
 	private void writeSimplRefAttribute(Object object, Appendable appendable) throws IOException
 	{
 		appendable.append(' ');
-		appendable.append(SIMPL_REF);
+		appendable.append(TranslationContext.SIMPL_REF);
 		appendable.append('=');
 		appendable.append('"');
 		appendable.append(((Integer) object.hashCode()).toString());
@@ -399,7 +394,7 @@ public class XMLSerializer extends FormatSerializer implements FieldTypes
 	private void writeSimplIdAttribute(Object object, Appendable appendable) throws IOException
 	{
 		appendable.append(' ');
-		appendable.append(SIMPL_ID);
+		appendable.append(TranslationContext.SIMPL_ID);
 		appendable.append('=');
 		appendable.append('"');
 		appendable.append(((Integer) object.hashCode()).toString());

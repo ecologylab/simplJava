@@ -13,7 +13,7 @@ import ecologylab.serialization.annotations.bibtex_type;
 import ecologylab.serialization.annotations.simpl_collection;
 import ecologylab.serialization.annotations.simpl_nowrap;
 import ecologylab.serialization.annotations.simpl_scalar;
-import ecologylab.serialization.serializers.Format;
+import ecologylab.serialization.serializers.enums.Format;
 
 @bibtex_type("article")
 public class Entry extends ElementState

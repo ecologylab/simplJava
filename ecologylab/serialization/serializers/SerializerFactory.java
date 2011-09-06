@@ -1,6 +1,7 @@
 package ecologylab.serialization.serializers;
 
 import ecologylab.serialization.SIMPLTranslationException;
+import ecologylab.serialization.serializers.enums.Format;
 
 /**
  * 

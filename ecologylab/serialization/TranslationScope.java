@@ -20,7 +20,7 @@ import ecologylab.serialization.annotations.simpl_scalar;
 import ecologylab.serialization.annotations.simpl_tag;
 import ecologylab.serialization.deserializers.JSONPullDeserializer;
 import ecologylab.serialization.deserializers.XMLPullDeserializer;
-import ecologylab.serialization.serializers.Format;
+import ecologylab.serialization.serializers.enums.Format;
 import ecologylab.serialization.types.ScalarType;
 import ecologylab.serialization.types.TypeRegistry;
 

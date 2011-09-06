@@ -10,9 +10,6 @@ import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamConstants;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
-
-import org.codehaus.jackson.JsonParseException;
-
 import ecologylab.generic.Debug;
 import ecologylab.generic.StringInputStream;
 import ecologylab.serialization.ClassDescriptor;
@@ -24,6 +21,12 @@ import ecologylab.serialization.TranslationContext;
 import ecologylab.serialization.TranslationScope;
 import ecologylab.serialization.types.element.Mappable;
 
+/**
+ * Pull API implementation to transform XML documets to corresponding object models. Utilizes
+ * XMLStreamReader to get sequential access to tags in XML.
+ * 
+ * @author nabeel
+ */
 public class XMLPullDeserializer extends Debug implements FieldTypes
 {
 	TranslationScope						translationScope;
@@ -37,10 +40,11 @@ public class XMLPullDeserializer extends Debug implements FieldTypes
 	/**
 	 * Constructs that creates a XML deserialization handler
 	 * 
+	 * 
 	 * @param translationScope
 	 *          translation scope to use for de/serializing subsequent char sequences
 	 * @param translationContext
-	 *          used for graph handling
+	 *          used for graph handling and other context information.
 	 */
 	public XMLPullDeserializer(TranslationScope translationScope,
 			TranslationContext translationContext)
@@ -50,20 +54,41 @@ public class XMLPullDeserializer extends Debug implements FieldTypes
 		this.deserializationHookStrategy = null;
 	}
 
+	/**
+	 * Parses a charsequence of the XML document and returns the corresponding object model.
+	 * 
+	 * @param charSequence
+	 * @return
+	 * @throws XMLStreamException
+	 * @throws FactoryConfigurationError
+	 * @throws SIMPLTranslationException
+	 * @throws IOException
+	 */
 	public Object parse(CharSequence charSequence) throws XMLStreamException,
 			FactoryConfigurationError, SIMPLTranslationException, IOException
 	{
 		InputStream xmlStream = new StringInputStream(charSequence, StringInputStream.UTF8);
 		xmlStreamReader = XMLInputFactory.newInstance().createXMLStreamReader(xmlStream, "UTF-8");
-		
-		//printParse();
 
 		Object root = null;
 
 		xmlStreamReader.next();
 
+		if (xmlStreamReader.getEventType() != XMLStreamConstants.START_ELEMENT)
+		{
+			throw new SIMPLTranslationException("start of and element expected");
+		}
+
+		String rootTag = xmlStreamReader.getLocalName();
+
 		ClassDescriptor<? extends FieldDescriptor> rootClassDescriptor = translationScope
-				.getClassDescriptorByTag(xmlStreamReader.getLocalName());
+				.getClassDescriptorByTag(rootTag);
+
+		if (rootClassDescriptor == null)
+		{
+			throw new SIMPLTranslationException("cannot find the class descriptor for root element <"
+					+ rootTag + ">; make sure if translation scope is correct.");
+		}
 
 		root = rootClassDescriptor.getInstance();
 		deserializeAttributes(root, rootClassDescriptor);
@@ -87,15 +112,15 @@ public class XMLPullDeserializer extends Debug implements FieldTypes
 	 * @throws XMLStreamException
 	 */
 	private void createObjectModel(Object root,
-			ClassDescriptor<? extends FieldDescriptor> rootClassDescriptor) throws JsonParseException,
-			IOException, SIMPLTranslationException, XMLStreamException
+			ClassDescriptor<? extends FieldDescriptor> rootClassDescriptor) throws IOException,
+			SIMPLTranslationException, XMLStreamException
 	{
 		FieldDescriptor currentFieldDescriptor = null;
 		Object subRoot = null;
 		int event = 0;
 
-		while (xmlStreamReader.hasNext() && event != XMLStreamConstants.END_ELEMENT)
-		{			
+		while (xmlStreamReader.hasNext() && (event = nextEvent()) != XMLStreamConstants.END_ELEMENT)
+		{
 			if (event == XMLStreamConstants.START_ELEMENT)
 			{
 				currentFieldDescriptor = (currentFieldDescriptor != null)
@@ -157,13 +182,12 @@ public class XMLPullDeserializer extends Debug implements FieldTypes
 					break;
 				}
 			}
-			event = nextEvent();
 		}
 	}
 
 	/**
-	 * Gets the sub root of the object model if its a composite object. Does graph handling Handles
-	 * simpl.ref tag to assign an already created instance of the composite object instead of creating
+	 * Gets the sub root of the object model if its a composite object. Does graph handling/ Handles
+	 * simpl:ref tag to assign an already created instance of the composite object instead of creating
 	 * a new one
 	 * 
 	 * @param currentFieldDescriptor
@@ -174,7 +198,7 @@ public class XMLPullDeserializer extends Debug implements FieldTypes
 	 * @throws XMLStreamException
 	 */
 	private Object getSubRoot(FieldDescriptor currentFieldDescriptor, String tagName)
-			throws SIMPLTranslationException, JsonParseException, IOException, XMLStreamException
+			throws SIMPLTranslationException, IOException, XMLStreamException
 	{
 		Object subRoot = null;
 		ClassDescriptor<? extends FieldDescriptor> subRootClassDescriptor = currentFieldDescriptor
@@ -197,6 +221,10 @@ public class XMLPullDeserializer extends Debug implements FieldTypes
 		return subRoot;
 	}
 
+	/**
+	 * 
+	 * @return
+	 */
 	private String getSimpleReference()
 	{
 		String simplReference = null;
@@ -219,6 +247,12 @@ public class XMLPullDeserializer extends Debug implements FieldTypes
 		return simplReference;
 	}
 
+	/**
+	 * 
+	 * @param root
+	 * @param rootClassDescriptor
+	 * @return
+	 */
 	private boolean deserializeAttributes(Object root,
 			ClassDescriptor<? extends FieldDescriptor> rootClassDescriptor)
 	{
@@ -241,13 +275,24 @@ public class XMLPullDeserializer extends Debug implements FieldTypes
 						translationScope);
 
 				if (attributeFieldDescriptor != null)
+				{
 					attributeFieldDescriptor.setFieldToScalar(root, value, translationContext);
+				}
+				else
+				{
+					debug("ignoring attribute: " + tag);
+				}
 			}
 		}
 
 		return true;
 	}
 
+	/**
+	 * 
+	 * @return
+	 * @throws XMLStreamException
+	 */
 	private int nextEvent() throws XMLStreamException
 	{
 		int eventType = 0;
@@ -269,7 +314,11 @@ public class XMLPullDeserializer extends Debug implements FieldTypes
 		return eventType;
 	}
 
-	private void printParse() throws XMLStreamException
+	/**
+	 * 
+	 * @throws XMLStreamException
+	 */
+	protected void printParse() throws XMLStreamException
 	{
 		int event;
 		while (xmlStreamReader.hasNext())

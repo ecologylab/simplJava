@@ -10,10 +10,11 @@ import ecologylab.serialization.FieldTypes;
 import ecologylab.serialization.SIMPLTranslationException;
 import ecologylab.serialization.TranslationContext;
 import ecologylab.serialization.XMLTools;
+import ecologylab.serialization.serializers.enums.Format;
 
 /**
  * 
- * @author nabeelshahzad
+ * @author nabeel
  */
 public class BibtexSerializer extends FormatSerializer implements FieldTypes
 {

@@ -12,6 +12,7 @@ import ecologylab.serialization.TranslationContext;
 import ecologylab.serialization.TranslationScope;
 import ecologylab.serialization.XMLTools;
 import ecologylab.serialization.TranslationScope.GRAPH_SWITCH;
+import ecologylab.serialization.serializers.enums.Format;
 
 /***
  * JSONSerializaton. Guides serialization of data in JSON. Contains code that is specific to
@@ -22,11 +23,6 @@ import ecologylab.serialization.TranslationScope.GRAPH_SWITCH;
  */
 public class JSONSerializer extends FormatSerializer implements FieldTypes
 {
-
-	private static final String	JSON_SIMPL_ID		= "simpl.id";
-
-	private static final String	JSON_SIMPL_REF	= "simpl.ref";
-
 	public JSONSerializer()
 	{
 
@@ -398,7 +394,7 @@ public class JSONSerializer extends FormatSerializer implements FieldTypes
 	private void writeSimplRefAttribute(Object object, Appendable appendable) throws IOException
 	{
 		appendable.append('"');
-		appendable.append(JSON_SIMPL_REF);
+		appendable.append(TranslationContext.JSON_SIMPL_REF);
 		appendable.append('"');
 		appendable.append(':');
 		appendable.append('"');
@@ -410,7 +406,7 @@ public class JSONSerializer extends FormatSerializer implements FieldTypes
 			throws IOException
 	{
 		appendable.append('"');
-		appendable.append(JSON_SIMPL_ID);
+		appendable.append(TranslationContext.JSON_SIMPL_ID);
 		appendable.append('"');
 		appendable.append(':');
 		appendable.append('"');

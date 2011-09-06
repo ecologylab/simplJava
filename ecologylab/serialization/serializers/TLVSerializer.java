@@ -16,6 +16,7 @@ import ecologylab.serialization.TranslationContext;
 import ecologylab.serialization.TranslationScope;
 import ecologylab.serialization.XMLTools;
 import ecologylab.serialization.TranslationScope.GRAPH_SWITCH;
+import ecologylab.serialization.serializers.enums.Format;
 
 /**
  * 
