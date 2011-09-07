@@ -1752,11 +1752,15 @@ public class FieldDescriptor extends DescriptorBase implements FieldTypes, Mappa
 			tr.cells.add(fieldName);
 	}
 
-	public void writeCompositeHtmlWrap(boolean close, String displayLabel, Tr tr) throws IOException
+	public void writeCompositeHtmlWrap(boolean close, String displayLabel, String schemaItemType, Tr tr) throws IOException
 	{		
 //			Td td = new Td();
 			Td fieldName = new Td();
 			Div text = new Div();
+			if (schemaItemType != null)
+			{
+				text.setSchemaOrgItemType(schemaItemType);
+			}
 			text.setCssClass("metadata_text");
 			fieldName.setCssClass("metadata_field_name");
 //			td.setCssClass("nested_field_value");
