@@ -46,6 +46,7 @@ import ecologylab.serialization.types.element.Mappable;
  * 
  * @author andruid
  */
+@SuppressWarnings("rawtypes")
 @simpl_inherit
 public class FieldDescriptor extends DescriptorBase implements FieldTypes, Mappable<String>
 {
@@ -107,7 +108,7 @@ public class FieldDescriptor extends DescriptorBase implements FieldTypes, Mappa
 	 * This slot makes sense only for attributes and leaf nodes
 	 */
 	@simpl_scalar
-	private ScalarType<?>				scalarType;
+	private ScalarType					scalarType;
 	
 	@simpl_composite
 	private CollectionType			collectionType;
@@ -1245,7 +1246,9 @@ public class FieldDescriptor extends DescriptorBase implements FieldTypes, Mappa
 			tr.cells.add(labelTd);
 
 			StringBuilder valueBuffy = new StringBuilder();
-			scalarType.appendValue(valueBuffy, this, context, serializationContext, FORMAT.XML);
+//			scalarType.appendValue(valueBuffy, this, context, serializationContext, FORMAT.XML);
+			Object instance = this.getValue(context);
+			scalarType.appendValue(instance, valueBuffy, false, serializationContext, FORMAT.XML);
 			
 			if (navigatesFD != null)
 			{
