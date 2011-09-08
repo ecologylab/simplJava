@@ -18,12 +18,12 @@ import ecologylab.serialization.annotations.simpl_map;
 import ecologylab.serialization.annotations.simpl_nowrap;
 import ecologylab.serialization.annotations.simpl_scalar;
 import ecologylab.serialization.annotations.simpl_tag;
-import ecologylab.serialization.deserializers.pullhandlers.JSONPullDeserializer;
-import ecologylab.serialization.deserializers.pullhandlers.XMLPullDeserializer;
+import ecologylab.serialization.deserializers.pullhandlers.PullDeserializer;
+import ecologylab.serialization.deserializers.pullhandlers.stringformats.JSONPullDeserializer;
+import ecologylab.serialization.deserializers.pullhandlers.stringformats.XMLPullDeserializer;
 import ecologylab.serialization.deserializers.pushhandlers.ElementStateJSONPushHandler;
 import ecologylab.serialization.deserializers.pushhandlers.ElementStateSAXHandler;
 import ecologylab.serialization.deserializers.pushhandlers.ElementStateTLVHandler;
-import ecologylab.serialization.serializers.Format;
 import ecologylab.serialization.types.ScalarType;
 import ecologylab.serialization.types.TypeRegistry;
 
@@ -1134,6 +1134,24 @@ public final class TranslationScope extends ElementState
 		allTranslationScopes.put(name, this);
 	}
 
+	public Object deserialize(File file, TranslationContext translationContext,
+			DeserializationHookStrategy deserializationHookStrategy, Format format)
+	{
+		PullDeserializer pullDeserializer = PullDeserializer.getDeserializer(this, translationContext,
+				deserializationHookStrategy, format);
+		return pullDeserializer.parse(file);
+	}
+
+	public Object deserialize(File file, TranslationContext translationContext, Format format)
+	{
+		return deserialize(file, translationContext, null, format);
+	}
+
+	public Object deserialize(File file, Format format)
+	{
+		return deserialize(file, new TranslationContext(), null, format);
+	}
+
 	/**
 	 * Translate a file XML to a strongly typed tree of XML objects.
 	 * 
@@ -1706,7 +1724,7 @@ public final class TranslationScope extends ElementState
 	{
 		graphSwitch = GRAPH_SWITCH.ON;
 	}
-	
+
 	/**
 	 * This will switch on the graph serialization
 	 */

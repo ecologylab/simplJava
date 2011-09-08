@@ -8,11 +8,11 @@ import java.lang.reflect.Field;
 import java.util.regex.Pattern;
 
 import ecologylab.serialization.FieldDescriptor;
+import ecologylab.serialization.Format;
 import ecologylab.serialization.ScalarUnmarshallingContext;
 import ecologylab.serialization.TranslationContext;
 import ecologylab.serialization.annotations.simpl_inherit;
 import ecologylab.serialization.annotations.simpl_scalar;
-import ecologylab.serialization.serializers.Format;
 
 /**
  * Basic unit of the scalar type system. Manages marshalling from a Java class that represents a

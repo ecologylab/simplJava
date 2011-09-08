@@ -1,4 +1,4 @@
-package ecologylab.serialization.deserializers.pullhandlers;
+package ecologylab.serialization.deserializers.pullhandlers.stringformats;
 
 import java.io.IOException;
 import java.io.InputStream;

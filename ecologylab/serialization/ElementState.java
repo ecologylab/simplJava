@@ -19,7 +19,6 @@ import org.xml.sax.Attributes;
 import ecologylab.generic.Debug;
 import ecologylab.serialization.TranslationScope.GRAPH_SWITCH;
 import ecologylab.serialization.annotations.bibtex_key;
-import ecologylab.serialization.serializers.Format;
 
 /**
  * This class is the heart of the <code>ecologylab.serialization</code> translation framework.

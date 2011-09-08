@@ -7,11 +7,10 @@ import java.util.List;
 
 import ecologylab.serialization.ElementState;
 import ecologylab.serialization.FieldTypes;
+import ecologylab.serialization.Format;
 import ecologylab.serialization.SIMPLTranslationException;
 import ecologylab.serialization.deserializers.parsers.bibtex.entrytypes.AbstractBibTeXEntry;
 import ecologylab.serialization.deserializers.parsers.bibtex.entrytypes.BibTeXInProceedings;
-import ecologylab.serialization.deserializers.pushhandlers.ElementStateBibTeXHandler;
-import ecologylab.serialization.serializers.Format;
 
 /**
  * The BibTeX parser class.
@@ -394,13 +393,13 @@ public class BibTeXParser implements FieldTypes
 		}
 	}
 
-	public static void main(String[] args) throws BibTeXFormatException, SIMPLTranslationException, IOException
-	{
-		BibTeXEvents listener = new ElementStateBibTeXHandler(BibTeXEntryTranslationScope.get());
-		BibTeXParser parser = new BibTeXParser(listener);
-//		parser.testReadValue();
-//		parser.testParser1();
-		parser.testParser2();
-	}
+//	public static void main(String[] args) throws BibTeXFormatException, SIMPLTranslationException, IOException
+//	{
+//		BibTeXEvents listener = new ElementStateBibTeXHandler(BibTeXEntryTranslationScope.get());
+//		BibTeXParser parser = new BibTeXParser(listener);
+////		parser.testReadValue();
+////		parser.testParser1();
+//		parser.testParser2();
+//	}
 
 }

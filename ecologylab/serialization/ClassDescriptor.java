@@ -26,7 +26,6 @@ import ecologylab.serialization.annotations.simpl_nowrap;
 import ecologylab.serialization.annotations.simpl_other_tags;
 import ecologylab.serialization.annotations.simpl_scalar;
 import ecologylab.serialization.annotations.simpl_use_equals_equals;
-import ecologylab.serialization.serializers.Format;
 import ecologylab.serialization.serializers.FormatSerializer;
 import ecologylab.serialization.serializers.SerializerFactory;
 import ecologylab.serialization.types.CollectionType;
@@ -55,7 +54,7 @@ public class ClassDescriptor<FD extends FieldDescriptor> extends DescriptorBase 
 	 * Class object that we are describing.
 	 */
 	@simpl_scalar
-	private Class<?>																																	describedClass;																																													// TODO
+	private Class<?>																																	describedClass;
 
 	@simpl_scalar
 	private String																																		describedClassSimpleName;
