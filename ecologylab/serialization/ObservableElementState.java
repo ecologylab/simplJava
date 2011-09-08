@@ -12,7 +12,7 @@ import java.util.Vector;
  *
  */
 @simpl_inherit
-public class ObservableElementState extends ElementState
+public class ObservableElementState<P extends ElementState> extends ElementState<P>
 {
 	private boolean changed = false;
 	private Vector<ElementObserver> obs;
