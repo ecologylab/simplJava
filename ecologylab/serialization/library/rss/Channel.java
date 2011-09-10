@@ -3,6 +3,7 @@ package ecologylab.serialization.library.rss;
 import java.util.ArrayList;
 
 import ecologylab.net.ParsedURL;
+import ecologylab.serialization.ClassDescriptor;
 import ecologylab.serialization.ElementState;
 import ecologylab.serialization.SIMPLTranslationException;
 import ecologylab.serialization.StringFormat;
@@ -137,11 +138,11 @@ class Channel extends ElementState
 		try
 		{
 			StringBuilder buffy = new StringBuilder();
-			c.serialize(buffy);
+			ClassDescriptor.serialize(c, buffy, StringFormat.XML);
 			System.out.println(buffy);
 			System.out.println('\n');
 			ElementState c2 = (ElementState) RssTranslations.get().deserialize(buffy, StringFormat.XML);
-			c2.serialize(System.out);
+			ClassDescriptor.serialize(c2, System.out, StringFormat.XML);
 			// println(c.translateToXML());
 		}
 		catch (SIMPLTranslationException e)

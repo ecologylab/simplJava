@@ -3,9 +3,11 @@ package ecologylab.serialization.library.yahoo;
 import java.util.ArrayList;
 
 import ecologylab.net.ParsedURL;
+import ecologylab.serialization.ClassDescriptor;
 import ecologylab.serialization.ElementState;
 import ecologylab.serialization.Format;
 import ecologylab.serialization.SIMPLTranslationException;
+import ecologylab.serialization.StringFormat;
 import ecologylab.serialization.TranslationScope;
 import ecologylab.serialization.annotations.simpl_collection;
 import ecologylab.serialization.annotations.simpl_inherit;
@@ -74,7 +76,7 @@ public class ResultSet extends ElementState
 			ResultSet resultSet = (ResultSet) ResultSet.getTranslationScope().deserialize(purl,
 					Format.XML);
 
-			resultSet.serialize(System.out);
+			ClassDescriptor.serialize(resultSet, System.out, StringFormat.XML);
 		}
 		catch (SIMPLTranslationException e)
 		{

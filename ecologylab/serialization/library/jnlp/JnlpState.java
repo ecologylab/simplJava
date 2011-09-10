@@ -10,8 +10,8 @@ import java.util.ArrayList;
 import ecologylab.appframework.types.prefs.PrefSet;
 import ecologylab.appframework.types.prefs.PrefSetBaseClassProvider;
 import ecologylab.generic.Debug;
+import ecologylab.serialization.ClassDescriptor;
 import ecologylab.serialization.ElementState;
-import ecologylab.serialization.Format;
 import ecologylab.serialization.SIMPLTranslationException;
 import ecologylab.serialization.StringFormat;
 import ecologylab.serialization.TranslationScope;
@@ -168,8 +168,8 @@ public class JnlpState extends ElementState implements Cloneable
 			String thisXml;
 			try
 			{
-				thisXml = this.serialize().toString();
-				String thatXml = ((ElementState) obj).serialize().toString();
+				thisXml = ClassDescriptor.serialize(this, StringFormat.XML).toString();
+				String thatXml = ClassDescriptor.serialize(obj, StringFormat.XML).toString();
 
 				return thisXml.equals(thatXml);
 			}
@@ -234,24 +234,24 @@ public class JnlpState extends ElementState implements Cloneable
 			System.out.println("arg: " + a);
 		}
 
-		j.serialize(System.out);
+		ClassDescriptor.serialize(j, System.out, StringFormat.XML);
 
-		String prefSetString = URLDecoder.decode(appDesc.getArguments().get(
-				appDesc.getArguments().size() - 1), "UTF-8");
+		String prefSetString = URLDecoder.decode(
+				appDesc.getArguments().get(appDesc.getArguments().size() - 1), "UTF-8");
 		TranslationScope[] arrayToMakeJavaShutUp = {};
 		PrefSet prefs = (PrefSet) TranslationScope.get(PrefSet.PREFS_TRANSLATION_SCOPE,
 				arrayToMakeJavaShutUp, PrefSetBaseClassProvider.STATIC_INSTANCE.provideClasses())
 				.deserialize(prefSetString, StringFormat.XML);
 
 		Debug.println(prefSetString);
-		Debug.println(prefs.serialize());
+		Debug.println(ClassDescriptor.serialize(prefs, StringFormat.XML));
 
 		JnlpState newState = new JnlpState();
 		newState.setApplicationDesc(new ApplicationDesc());
 
 		newState.getApplicationDesc().setPrefSet(prefs);
 
-		Debug.println(newState.serialize());
+		Debug.println(ClassDescriptor.serialize(newState, StringFormat.XML));
 	}
 
 	/**
@@ -272,7 +272,8 @@ public class JnlpState extends ElementState implements Cloneable
 		// a bit of a hack, but it's easy! :D
 		try
 		{
-			return (JnlpState) JnlpTranslations.get().deserialize(this.serialize(), StringFormat.XML);
+			return (JnlpState) JnlpTranslations.get().deserialize(
+					ClassDescriptor.serialize(this, StringFormat.XML), StringFormat.XML);
 		}
 		catch (SIMPLTranslationException e)
 		{

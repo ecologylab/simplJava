@@ -2,6 +2,7 @@ package ecologylab.serialization.library.rss;
 
 import ecologylab.generic.Debug;
 import ecologylab.net.ParsedURL;
+import ecologylab.serialization.ClassDescriptor;
 import ecologylab.serialization.ElementState;
 import ecologylab.serialization.SIMPLTranslationException;
 import ecologylab.serialization.StringFormat;
@@ -21,7 +22,7 @@ public class RssTranslations extends Debug
 
 																											// Dc.class,
 																											//
-																											//	   
+																											//
 																											// RDFState.class,
 																											};
 
@@ -64,14 +65,16 @@ public class RssTranslations extends Debug
 		try
 		{
 			StringBuilder buffy = new StringBuilder();
-			tScope.serialize(buffy);
+			ClassDescriptor.serialize(tScope, System.out, StringFormat.XML);
+
 			System.out.println('\n');
 
 			ElementState translated = (ElementState) TranslationScope.getBasicTranslations().deserialize(
 					buffy, StringFormat.XML);
 			// ElementState.translateFromXMLCharSequence(OUT, TranslationScope.getBasicTranslations());
 
-			translated.serialize(System.out);
+			ClassDescriptor.serialize(translated, System.out, StringFormat.XML);
+
 			System.out.println('\n');
 		}
 		catch (SIMPLTranslationException e)

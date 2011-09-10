@@ -5,10 +5,11 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import ecologylab.serialization.ClassDescriptor;
 import ecologylab.serialization.ElementState;
 import ecologylab.serialization.FieldTypes;
-import ecologylab.serialization.Format;
 import ecologylab.serialization.SIMPLTranslationException;
+import ecologylab.serialization.StringFormat;
 import ecologylab.serialization.deserializers.parsers.bibtex.entrytypes.AbstractBibTeXEntry;
 import ecologylab.serialization.deserializers.parsers.bibtex.entrytypes.BibTeXInProceedings;
 
@@ -16,7 +17,7 @@ import ecologylab.serialization.deserializers.parsers.bibtex.entrytypes.BibTeXIn
  * The BibTeX parser class.
  * 
  * @author quyin
- *
+ * 
  */
 public class BibTeXParser implements FieldTypes
 {
@@ -26,14 +27,15 @@ public class BibTeXParser implements FieldTypes
 		START, TYPE, BODY_START, KEY_START, KEY, KEY_FINISH, TAG_START, TAG, VALUE_START, VALUE, STOP
 	};
 
-	BibTeXEvents			eventListener;
+	BibTeXEvents	eventListener;
 
-	State							state;
+	State					state;
 
 	/**
 	 * Constructor.
 	 * 
-	 * @param eventListener An event listener to handle parsing events.
+	 * @param eventListener
+	 *          An event listener to handle parsing events.
 	 * 
 	 */
 	public BibTeXParser(BibTeXEvents eventListener)
@@ -43,8 +45,8 @@ public class BibTeXParser implements FieldTypes
 
 	/**
 	 * The entry method to parse BibTeX for deserialization. Accept a char array. Output a list of
-	 * ElementState (which has been annotated with S.IM.PL's bibtex annotations) since one BibTeX
-	 * file can contain multiple entries.
+	 * ElementState (which has been annotated with S.IM.PL's bibtex annotations) since one BibTeX file
+	 * can contain multiple entries.
 	 * <p />
 	 * The parsing process is controlled by a DFA.
 	 * 
@@ -55,7 +57,7 @@ public class BibTeXParser implements FieldTypes
 	public <ES extends ElementState> List<ES> parse(char[] data) throws BibTeXFormatException
 	{
 		List<ES> rst = new ArrayList<ES>();
-		
+
 		if (data.length <= 0)
 			return rst;
 
@@ -252,7 +254,7 @@ public class BibTeXParser implements FieldTypes
 
 		state = State.STOP;
 		eventListener.endBibTeX();
-		
+
 		return rst;
 	}
 
@@ -334,8 +336,8 @@ public class BibTeXParser implements FieldTypes
 			// numbers or proper nouns
 			while (p < data.length && !Character.isWhitespace((int) data[p]) && data[p] != ',')
 			{
-					sb.append(data[p]);
-					++p;
+				sb.append(data[p]);
+				++p;
 			}
 			--p;
 		}
@@ -351,7 +353,7 @@ public class BibTeXParser implements FieldTypes
 	{
 		String[] tests =
 		{ "\"\"", "\"abc\"", "\"ab\\\"c\"", "\"ab\\\\\\\"c\"", "{}", "{abc}", "{ab\\{c}",
-				"{ab\\{abc\\}}", "{ab{abc}}", "1234"};
+				"{ab\\{abc\\}}", "{ab{abc}}", "1234" };
 
 		for (String test : tests)
 		{
@@ -360,17 +362,17 @@ public class BibTeXParser implements FieldTypes
 			System.out.format("%d: %s\n", d, sb.toString());
 		}
 	}
-	
+
 	void testParser1() throws BibTeXFormatException, SIMPLTranslationException
 	{
 		String data = "   @inproceedings   {  article1  ,  author   =   \"Author 1\"   ,   title    =   {TITLE 1}     }    @inproceedings {   article2,  author = \"Somebody\", sometag={some value}}   ";
 		List<BibTeXInProceedings> entities = parse(data.toCharArray());
 		for (BibTeXInProceedings entity : entities)
 		{
-			System.out.println(entity.serialize().toString());
+			ClassDescriptor.serialize(entity, System.out, StringFormat.XML);
 		}
 	}
-	
+
 	void testParser2() throws IOException, BibTeXFormatException, SIMPLTranslationException
 	{
 		FileReader fr = new FileReader("C:/tmp/iis10.bib");
@@ -383,23 +385,24 @@ public class BibTeXParser implements FieldTypes
 				break;
 			sb.append(buf, 0, len);
 		}
-		
+
 		List<AbstractBibTeXEntry> entities = parse(sb.toString().toCharArray());
 		for (AbstractBibTeXEntry entity : entities)
 		{
-			entity.serialize(System.out, Format.XML);
+			ClassDescriptor.serialize(entity, System.out, StringFormat.XML);
 			System.out.println();
-//			entity.serialize(System.out, FORMAT.BIBTEX);
+			// entity.serialize(System.out, FORMAT.BIBTEX);
 		}
 	}
 
-//	public static void main(String[] args) throws BibTeXFormatException, SIMPLTranslationException, IOException
-//	{
-//		BibTeXEvents listener = new ElementStateBibTeXHandler(BibTeXEntryTranslationScope.get());
-//		BibTeXParser parser = new BibTeXParser(listener);
-////		parser.testReadValue();
-////		parser.testParser1();
-//		parser.testParser2();
-//	}
+	// public static void main(String[] args) throws BibTeXFormatException, SIMPLTranslationException,
+	// IOException
+	// {
+	// BibTeXEvents listener = new ElementStateBibTeXHandler(BibTeXEntryTranslationScope.get());
+	// BibTeXParser parser = new BibTeXParser(listener);
+	// // parser.testReadValue();
+	// // parser.testParser1();
+	// parser.testParser2();
+	// }
 
 }

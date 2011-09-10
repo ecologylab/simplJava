@@ -8,8 +8,10 @@ import java.net.URLEncoder;
 import java.util.ArrayList;
 
 import ecologylab.appframework.types.prefs.PrefSet;
+import ecologylab.serialization.ClassDescriptor;
 import ecologylab.serialization.ElementState;
 import ecologylab.serialization.SIMPLTranslationException;
+import ecologylab.serialization.StringFormat;
 import ecologylab.serialization.annotations.simpl_collection;
 import ecologylab.serialization.annotations.simpl_nowrap;
 import ecologylab.serialization.annotations.simpl_scalar;
@@ -89,7 +91,8 @@ public class ApplicationDesc extends ElementState
 		{
 			try
 			{
-				this.add(URLEncoder.encode(prefSet.serialize().toString(), "UTF-8"));
+				
+				this.add(URLEncoder.encode(ClassDescriptor.serialize(prefSet, StringFormat.XML).toString(), "UTF-8"));
 
 				this.prefSetArgumentIndex = this.arguments.size()-1;
 			}

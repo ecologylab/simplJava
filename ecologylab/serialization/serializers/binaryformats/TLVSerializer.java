@@ -15,8 +15,8 @@ import ecologylab.serialization.Format;
 import ecologylab.serialization.SIMPLTranslationException;
 import ecologylab.serialization.TranslationContext;
 import ecologylab.serialization.TranslationScope;
-import ecologylab.serialization.XMLTools;
 import ecologylab.serialization.TranslationScope.GRAPH_SWITCH;
+import ecologylab.serialization.XMLTools;
 
 /**
  * 
@@ -40,7 +40,7 @@ public class TLVSerializer extends BinarySerializer implements FieldTypes
 	 * @throws IOException
 	 */
 	public void serialize(Object object, DataOutputStream dataOutputStream,
-			TranslationContext translationContext) throws SIMPLTranslationException, IOException
+			TranslationContext translationContext) throws SIMPLTranslationException
 	{
 		translationContext.resolveGraph(object);
 
@@ -62,7 +62,7 @@ public class TLVSerializer extends BinarySerializer implements FieldTypes
 	 */
 	private void serialize(Object object, FieldDescriptor rootObjectFieldDescriptor,
 			DataOutputStream dataOutputStream, TranslationContext translationContext)
-			throws SIMPLTranslationException, IOException
+			throws SIMPLTranslationException
 	{
 
 		if (alreadySerialized(object, translationContext))
@@ -94,11 +94,19 @@ public class TLVSerializer extends BinarySerializer implements FieldTypes
 	}
 
 	private void writeHeader(DataOutputStream dataOutputStream, ByteArrayOutputStream buffer,
-			int tlvId) throws IOException
+			int tlvId) throws SIMPLTranslationException
 	{
-		dataOutputStream.writeInt(tlvId);
-		dataOutputStream.writeInt(buffer.size());
-		buffer.writeTo(dataOutputStream);
+		try
+		{
+			dataOutputStream.writeInt(tlvId);
+
+			dataOutputStream.writeInt(buffer.size());
+			buffer.writeTo(dataOutputStream);
+		}
+		catch (IOException e)
+		{
+			throw new SIMPLTranslationException("IOException", e);
+		}
 	}
 
 	/**
@@ -112,10 +120,9 @@ public class TLVSerializer extends BinarySerializer implements FieldTypes
 	 */
 	private void serializeFields(Object object, DataOutputStream outputBuffer,
 			TranslationContext translationContext,
-			ArrayList<? extends FieldDescriptor> allFieldDescriptors) throws SIMPLTranslationException,
-			IOException
+			ArrayList<? extends FieldDescriptor> allFieldDescriptors) throws SIMPLTranslationException
 	{
-		
+
 		if (TranslationScope.graphSwitch == GRAPH_SWITCH.ON)
 		{
 			if (translationContext.needsHashCode(object))
@@ -123,7 +130,7 @@ public class TLVSerializer extends BinarySerializer implements FieldTypes
 				writeSimplIdAttribute(object, outputBuffer);
 			}
 		}
-		
+
 		for (FieldDescriptor childFd : allFieldDescriptors)
 		{
 			ByteArrayOutputStream byteArrayOutputStreamCollection = new ByteArrayOutputStream();
@@ -173,48 +180,62 @@ public class TLVSerializer extends BinarySerializer implements FieldTypes
 	private void writeSimplIdAttribute(Object object, DataOutputStream outputBuffer)
 	{
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	private void writeWrap(FieldDescriptor fd, DataOutputStream outputBuffer,
-			ByteArrayOutputStream collectionBuffy) throws IOException
+			ByteArrayOutputStream collectionBuffy) throws SIMPLTranslationException
 	{
-		if (fd.isWrapped())
+		try
 		{
-			outputBuffer.writeInt(fd.getWrappedTLVId());
-			outputBuffer.writeInt(collectionBuffy.size());
-			collectionBuffy.writeTo(outputBuffer);
+			if (fd.isWrapped())
+			{
+				outputBuffer.writeInt(fd.getWrappedTLVId());
+				outputBuffer.writeInt(collectionBuffy.size());
+				collectionBuffy.writeTo(outputBuffer);
+			}
+			else
+				collectionBuffy.writeTo(outputBuffer);
 		}
-		else
-			collectionBuffy.writeTo(outputBuffer);
+		catch (IOException e)
+		{
+			throw new SIMPLTranslationException("IOException", e);
+		}
 	}
 
 	private void writeValue(Object object, FieldDescriptor fd, DataOutputStream outputBuffer,
-			TranslationContext translationContext) throws SIMPLTranslationException, IOException
+			TranslationContext translationContext) throws SIMPLTranslationException
 	{
-		if (!fd.isDefaultValue(object))
+		try
 		{
-			outputBuffer.writeInt(fd.getTLVId());
-
-			// TODO appendValue in scalar types should be able to append bytes to DataOutputStream.
-			final StringBuilder buffy = new StringBuilder();
-			OutputStream outputStream = new OutputStream()
+			if (!fd.isDefaultValue(object))
 			{
-				@Override
-				public void write(int b) throws IOException
+				outputBuffer.writeInt(fd.getTLVId());
+
+				// TODO appendValue in scalar types should be able to append bytes to DataOutputStream.
+				final StringBuilder buffy = new StringBuilder();
+				OutputStream outputStream = new OutputStream()
 				{
-					buffy.append((char) b);
-				}
-			};
+					@Override
+					public void write(int b) throws IOException
+					{
+						buffy.append((char) b);
+					}
+				};
 
-			fd.appendValue(new PrintStream(outputStream), object, translationContext, Format.TLV);
+				fd.appendValue(new PrintStream(outputStream), object, translationContext, Format.TLV);
 
-			ByteArrayOutputStream temp = new ByteArrayOutputStream();
-			DataOutputStream tempStream = new DataOutputStream(temp);
-			tempStream.writeBytes(buffy.toString());
+				ByteArrayOutputStream temp = new ByteArrayOutputStream();
+				DataOutputStream tempStream = new DataOutputStream(temp);
+				tempStream.writeBytes(buffy.toString());
 
-			outputBuffer.writeInt(tempStream.size());
-			temp.writeTo(outputBuffer);
+				outputBuffer.writeInt(tempStream.size());
+				temp.writeTo(outputBuffer);
+			}
+		}
+		catch (IOException e)
+		{
+			throw new SIMPLTranslationException("IOException", e);
 		}
 	}
 

@@ -9,11 +9,9 @@ import ecologylab.serialization.ElementState;
 import ecologylab.serialization.FieldDescriptor;
 import ecologylab.serialization.Format;
 import ecologylab.serialization.SIMPLTranslationException;
+import ecologylab.serialization.StringFormat;
 import ecologylab.serialization.annotations.simpl_composite;
 import ecologylab.serialization.annotations.simpl_scalar;
-import ecologylab.serialization.library.feedburner.Feedburner;
-import ecologylab.serialization.library.media.Media;
-import ecologylab.serialization.library.media.Thumbnail;
 
 /**
  * {@link ecologylab.serialization.ElementState ElementState} for the root element of the RSS
@@ -206,7 +204,8 @@ public class RssState extends ElementState
 			rss = (ElementState) RssTranslations.get().deserialize(CNN_TOP_FEED, Format.XML);
 
 			System.out.println("");
-			rss.serialize(System.out);
+			ClassDescriptor.serialize(rss, System.out, StringFormat.XML);
+
 			System.out.println("");
 
 			// RssTranslations.get().translateToXML(System.out);
@@ -228,7 +227,8 @@ public class RssState extends ElementState
 
 		try
 		{
-			rss.serialize(System.out);
+
+			ClassDescriptor.serialize(rss, System.out, StringFormat.XML);
 		}
 		catch (SIMPLTranslationException e)
 		{
@@ -255,26 +255,29 @@ public class RssState extends ElementState
 			{
 				println("description:\t" + item.description);
 				// FIXME! -- how do we make sure the prefix gets propagated through this call into F2XOs?!
-				Media media = (Media) item.getNestedNameSpace("media");
-				if (media != null)
-				{
-					Thumbnail thumbnail = media.getThumbnail();
-					if (thumbnail != null)
-						thumbnail.serialize(System.err);
-					// media.translateToXML(System.err);
-					System.err.println('\n');
-				}
-				Feedburner feedburner = (Feedburner) item.getNestedNameSpace("feedburner");
-				if (feedburner != null)
-				{
-					feedburner.serialize(System.err);
-					System.err.println('\n');
-				}
+				// Media media = (Media) item.getNestedNameSpace("media");
+				// if (media != null)
+				// {
+				// Thumbnail thumbnail = media.getThumbnail();
+				// if (thumbnail != null)
+				// thumbnail.serialize(System.err);
+				// // media.translateToXML(System.err);
+				// System.err.println('\n');
+				// }
+				// Feedburner feedburner = (Feedburner) item.getNestedNameSpace("feedburner");
+				// if (feedburner != null)
+				// {
+				// ClassDescriptor.serialize(feedburner, System.err, StringFormat.XML);
+				// feedburner.serialize(System.err);
+				// System.err.println('\n');
+				// }
 			}
 
-			rssState.serialize(System.err);
+			ClassDescriptor.serialize(rssState, System.err, StringFormat.XML);
+
 			println("\n");
-			rssState.serialize(System.err);
+			ClassDescriptor.serialize(rssState, System.err, StringFormat.XML);
+
 			println("\n");
 
 			// RssState rssState2 = (RssState) ElementState.translateFromXMLCharSequence(retranslated,

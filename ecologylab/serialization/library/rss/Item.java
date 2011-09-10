@@ -111,75 +111,75 @@ public class Item extends ElementState
 	   this.title = title;
    }
    
-   /**
-    * Some people put Dublin Core fields into their items. Go figure :-)
-	* <p/>
-    * Lookup a NestedNameSpace element child of this, in case there is one,
-    * declared as xmlns:dc.
-    * (Example: del.icio.us)
-    * 
-    * @return Returns the Dc nested namespace element, or null..
-    */
-   public Dc lookupDc()
-   {
-	   return (Dc) lookupNestedNameSpace("dc");
-   }
-   
-   /**
-    * Lookup a NestedNameSpace element child of this, in case there is one,
-    * declared as xmlns:media.
-    * Yahoo Media metadata declarations.
-    * 
-    * @return Returns the Media nested namespace element, or null..
-    */
-   public Media lookupMedia()
-   {
-	   return (Media) lookupNestedNameSpace("media");
-   }
-   
-   
-   /**
-    * Lookup a NestedNameSpace element child of this, in case there is one,
-    * declared as xmlns:feedburner.
-    * 
-    * @return Returns the Feedburner nested namespace element, or null..
-    */
-   public Feedburner lookupFeedburner()
-   {
-	   return (Feedburner) lookupNestedNameSpace("feedburner");
-   }
+//   /**
+//    * Some people put Dublin Core fields into their items. Go figure :-)
+//	* <p/>
+//    * Lookup a NestedNameSpace element child of this, in case there is one,
+//    * declared as xmlns:dc.
+//    * (Example: del.icio.us)
+//    * 
+//    * @return Returns the Dc nested namespace element, or null..
+//    */
+//   public Dc lookupDc()
+//   {
+//	   return (Dc) lookupNestedNameSpace("dc");
+//   }
+//   
+//   /**
+//    * Lookup a NestedNameSpace element child of this, in case there is one,
+//    * declared as xmlns:media.
+//    * Yahoo Media metadata declarations.
+//    * 
+//    * @return Returns the Media nested namespace element, or null..
+//    */
+//   public Media lookupMedia()
+//   {
+//	   return (Media) lookupNestedNameSpace("media");
+//   }
+//   
+//   
+//   /**
+//    * Lookup a NestedNameSpace element child of this, in case there is one,
+//    * declared as xmlns:feedburner.
+//    * 
+//    * @return Returns the Feedburner nested namespace element, or null..
+//    */
+//   public Feedburner lookupFeedburner()
+//   {
+//	   return (Feedburner) lookupNestedNameSpace("feedburner");
+ //  }
 
-   /**
-    * If there is an embedded object handling the feedburner namespace, get the origLink
-    * leaf_node from it.
-    * 
-    * @return
-    */
-   public ParsedURL getFeedburnerOrigLink()
-   {
-	   Feedburner feedburner	= lookupFeedburner();
-	   return (feedburner == null) ? null : feedburner.getOrigLink();
-   }
+//   /**
+//    * If there is an embedded object handling the feedburner namespace, get the origLink
+//    * leaf_node from it.
+//    * 
+//    * @return
+//    */
+//   public ParsedURL getFeedburnerOrigLink()
+//   {
+//	   Feedburner feedburner	= lookupFeedburner();
+//	   return (feedburner == null) ? null : feedburner.getOrigLink();
+//   }
+//   
+//   public ParsedURL getDcIdentifier()
+//   {
+//	   Dc dc					= lookupDc();
+//	   return (dc == null) ? null : dc.getIdentifier();
+//   }
    
-   public ParsedURL getDcIdentifier()
-   {
-	   Dc dc					= lookupDc();
-	   return (dc == null) ? null : dc.getIdentifier();
-   }
-   
-   /**
-    * Get what looks like the most direct form of the link URL.
-    *  
-    * @return
-    */
-   public ParsedURL getDirectLink()
-   {
-	   ParsedURL result	= guid;
-	   if (result == null)
-		   result		= getFeedburnerOrigLink();
-	   if (result == null)
-		   result		= getDcIdentifier();
-	   
-	   return (result != null) ? result : link;
-   }
+//   /**
+//    * Get what looks like the most direct form of the link URL.
+//    *  
+//    * @return
+//    */
+//   public ParsedURL getDirectLink()
+//   {
+//	   ParsedURL result	= guid;
+//	   if (result == null)
+//		   result		= getFeedburnerOrigLink();
+//	   if (result == null)
+//		   result		= getDcIdentifier();
+//	   
+//	   return (result != null) ? result : link;
+//   }
 }

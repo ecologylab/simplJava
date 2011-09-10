@@ -4,16 +4,22 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.io.OutputStream;
-import java.io.PrintStream;
 
+import ecologylab.serialization.BinaryFormat;
 import ecologylab.serialization.ClassDescriptor;
 import ecologylab.serialization.FieldDescriptor;
+import ecologylab.serialization.Format;
 import ecologylab.serialization.SIMPLTranslationException;
+import ecologylab.serialization.StringFormat;
 import ecologylab.serialization.TranslationContext;
 import ecologylab.serialization.TranslationScope;
-import ecologylab.serialization.XMLTools;
 import ecologylab.serialization.TranslationScope.GRAPH_SWITCH;
+import ecologylab.serialization.XMLTools;
+import ecologylab.serialization.serializers.binaryformats.TLVSerializer;
+import ecologylab.serialization.serializers.stringformats.BibtexSerializer;
+import ecologylab.serialization.serializers.stringformats.JSONSerializer;
+import ecologylab.serialization.serializers.stringformats.StringSerializer;
+import ecologylab.serialization.serializers.stringformats.XMLSerializer;
 
 /**
  * FormatSerializer. an abstract base class from where format-specific serializers derive. Its main
@@ -56,79 +62,13 @@ public abstract class FormatSerializer
 		try
 		{
 			BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(outputFile));
-			serialize(object, bufferedWriter, translationContext);
+			//serialize(object, bufferedWriter, translationContext);
 			bufferedWriter.close();
 		}
 		catch (IOException ex)
 		{
 			throw new SIMPLTranslationException("IO Exception", ex);
 		}
-	}
-
-	/**
-	 * 
-	 * @param object
-	 * @return
-	 * @throws SIMPLTranslationException
-	 * @throws IOException
-	 */
-	public StringBuilder serialize(Object object) throws SIMPLTranslationException
-	{
-		return serialize(object, new TranslationContext());
-	}
-
-	/**
-	 * 
-	 * @param object
-	 * @param translationContext
-	 * @return
-	 * @throws SIMPLTranslationException
-	 * @throws IOException
-	 */
-	public StringBuilder serialize(Object object, TranslationContext translationContext)
-			throws SIMPLTranslationException
-	{
-		final StringBuilder sb = new StringBuilder();
-		serialize(object, sb, translationContext);
-		return sb;
-	}
-
-	/**
-	 * 
-	 * @param object
-	 * @param stringBuilder
-	 * @param translationContext
-	 * @throws SIMPLTranslationException
-	 * @throws IOException
-	 */
-	public void serialize(Object object, final StringBuilder stringBuilder,
-			TranslationContext translationContext) throws SIMPLTranslationException
-	{
-		OutputStream outputStream = new OutputStream()
-		{
-			@Override
-			public void write(int b) throws IOException
-			{
-				stringBuilder.append((char) b);
-			}
-		};
-
-		serialize(object, new PrintStream(outputStream), translationContext);
-	}
-
-	/**
-	 * 
-	 * @param object
-	 * @param appendable
-	 * @param translationContext
-	 * @throws SIMPLTranslationException
-	 * @throws IOException
-	 */
-	public void serialize(Object object, Appendable appendable, TranslationContext translationContext)
-			throws SIMPLTranslationException
-	{
-		// method overriden by derived classes to provide serialization functionally relevant to a
-		// particular format
 	}
 
 	/**
@@ -175,5 +115,71 @@ public abstract class FormatSerializer
 	{
 		return TranslationScope.graphSwitch == GRAPH_SWITCH.ON
 				&& translationContext.alreadyMarshalled(object);
+	}
+
+	/**
+	 * returns the specific type of serializer based on the input format
+	 * 
+	 * @param format
+	 * @return FormatSerializer
+	 * @throws SIMPLTranslationException
+	 */
+	public static FormatSerializer getSerializer(Format format) throws SIMPLTranslationException
+	{
+		switch (format)
+		{
+		case XML:
+			return new XMLSerializer();
+		case JSON:
+			return new JSONSerializer();
+		case TLV:
+			return new TLVSerializer();
+		case BIBTEX:
+			return new BibtexSerializer();
+		default:
+			throw new SIMPLTranslationException(format + " format not supported");
+		}
+	}
+
+	/**
+	 * returns the specific type of serializer based on the input format
+	 * 
+	 * @param format
+	 * @return FormatSerializer
+	 * @throws SIMPLTranslationException
+	 */
+	public static StringSerializer getStringSerializer(StringFormat format)
+			throws SIMPLTranslationException
+	{
+		switch (format)
+		{
+		case XML:
+			return new XMLSerializer();
+		case JSON:
+			return new JSONSerializer();
+		case BIBTEX:
+			return new BibtexSerializer();
+		default:
+			throw new SIMPLTranslationException(format + " format not supported");
+		}
+	}
+
+	/**
+	 * returns the specific type of serializer based on the input format
+	 * 
+	 * @param format
+	 * @return FormatSerializer
+	 * @throws SIMPLTranslationException
+	 */
+	public static FormatSerializer getBinarySerializer(BinaryFormat format)
+			throws SIMPLTranslationException
+	{
+		switch (format)
+		{
+		case TLV:
+			return new TLVSerializer();
+		default:
+			throw new SIMPLTranslationException(format + " format not supported");
+		}
 	}
 }

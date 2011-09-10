@@ -5,8 +5,10 @@ package ecologylab.serialization.library.endnote;
 
 import java.io.File;
 
+import ecologylab.serialization.ClassDescriptor;
 import ecologylab.serialization.Format;
 import ecologylab.serialization.SIMPLTranslationException;
+import ecologylab.serialization.StringFormat;
 
 public class TestEndnoteXML
 {
@@ -21,7 +23,7 @@ public class TestEndnoteXML
 			XmlState fromFile = (XmlState) EndnoteNameSpace.get().deserialize(
 					new File("/Users/toupsz/Desktop/RSBib.xml"), Format.XML);
 
-			System.out.println(fromFile.serialize());
+			ClassDescriptor.serialize(fromFile, System.out, StringFormat.XML);
 		}
 		catch (SIMPLTranslationException e)
 		{
