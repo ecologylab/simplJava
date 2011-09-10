@@ -9,7 +9,9 @@ import ecologylab.oodss.distributed.server.NIOServerProcessor;
 import ecologylab.oodss.messages.RequestMessage;
 import ecologylab.oodss.messages.ResponseMessage;
 import ecologylab.oodss.messages.UpdateMessage;
+import ecologylab.serialization.ClassDescriptor;
 import ecologylab.serialization.SIMPLTranslationException;
+import ecologylab.serialization.StringFormat;
 import ecologylab.serialization.TranslationScope;
 
 /**
@@ -25,7 +27,8 @@ import ecologylab.serialization.TranslationScope;
  * 
  * @author Zachary O. Toups (zach@ecologylab.net)
  */
-public class ClientSessionManager<S extends Scope> extends TCPClientSessionManager<S> implements ServerConstants
+public class ClientSessionManager<S extends Scope> extends TCPClientSessionManager<S> implements
+		ServerConstants
 {
 	/**
 	 * Creates a new ContextManager.
@@ -114,26 +117,25 @@ public class ClientSessionManager<S extends Scope> extends TCPClientSessionManag
 	}
 
 	/**
-	 * Generates the outgoing message header (for updates). This implementation
-	 * assumes that the outgoingMessageHeaderBuf contains "content-length: " and
-	 * will add the content length, based on the contents of msgBufOutgoing,
-	 * however, custom implementations for more specific purposes may be
-	 * constructed.
+	 * Generates the outgoing message header (for updates). This implementation assumes that the
+	 * outgoingMessageHeaderBuf contains "content-length: " and will add the content length, based on
+	 * the contents of msgBufOutgoing, however, custom implementations for more specific purposes may
+	 * be constructed.
 	 * 
 	 * @param messageSize
-	 *           size of outgoing buffer
+	 *          size of outgoing buffer
 	 * @param outgoingMessageHeaderBuf
-	 *           buffer to put header parts in
+	 *          buffer to put header parts in
 	 * @param update
-	 *           update message going out
+	 *          update message going out
 	 */
 	@Override
-	protected void makeUpdateHeader(int messageSize,
-			StringBuilder outgoingMessageHeaderBuf, UpdateMessage<?> update)
+	protected void makeUpdateHeader(int messageSize, StringBuilder outgoingMessageHeaderBuf,
+			UpdateMessage<?> update)
 	{
 		outgoingMessageHeaderBuf.append(messageSize);
 	}
-	
+
 	/**
 	 * Translates response into an XML string and adds an HTTP-like header, then returns the result.
 	 * 
@@ -152,11 +154,14 @@ public class ClientSessionManager<S extends Scope> extends TCPClientSessionManag
 	 */
 	@Override
 	protected void translateResponseMessageToStringBufferContents(RequestMessage requestMessage,
-			ResponseMessage responseMessage, StringBuilder messageBuffer) throws SIMPLTranslationException
+			ResponseMessage responseMessage, StringBuilder messageBuffer)
+			throws SIMPLTranslationException
 	{
-//		debug("serializing response to client...");
-//		long currentTime = System.currentTimeMillis();
-		responseMessage.serialize(messageBuffer);
-//		debug("...done ("+(System.currentTimeMillis()-currentTime)+"ms)");
+		// debug("serializing response to client...");
+		// long currentTime = System.currentTimeMillis();
+
+		ClassDescriptor.serialize(responseMessage, messageBuffer, StringFormat.XML);
+
+		// debug("...done ("+(System.currentTimeMillis()-currentTime)+"ms)");
 	}
 }

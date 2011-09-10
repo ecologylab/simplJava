@@ -19,6 +19,7 @@ import ecologylab.generic.IntSlot;
 import ecologylab.generic.StringTools;
 import ecologylab.io.Files;
 import ecologylab.serialization.ElementState;
+import ecologylab.serialization.Format;
 import ecologylab.serialization.SIMPLTranslationException;
 import ecologylab.serialization.TranslationScope;
 
@@ -324,10 +325,10 @@ public class ParsedURL extends Debug implements MimeType
 	 * @return ElementState object derived from XML at the InputStream of this.
 	 * @throws SIMPLTranslationException
 	 */
-	public ElementState translateFromXML(TranslationScope translationScope)
+	public Object translateFromXML(TranslationScope translationScope)
 			throws SIMPLTranslationException
 	{
-		return translationScope.deserialize(this);
+		return translationScope.deserialize(this, Format.XML);
 	}
 
 	public static URL getURL(URL base, String path, String error)

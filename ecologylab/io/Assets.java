@@ -18,6 +18,8 @@ import ecologylab.appframework.types.AssetsTranslations;
 import ecologylab.generic.Debug;
 import ecologylab.generic.StringBuilderPool;
 import ecologylab.net.ParsedURL;
+import ecologylab.serialization.ClassDescriptor;
+import ecologylab.serialization.Format;
 import ecologylab.serialization.SIMPLTranslationException;
 
 /**
@@ -85,7 +87,7 @@ public class Assets extends Debug implements ApplicationProperties
 		{
 			try
 			{
-				assetsState = (AssetsState) AssetsTranslations.get().deserialize(assetsXmlFile);
+				assetsState = (AssetsState) AssetsTranslations.get().deserialize(assetsXmlFile, Format.XML);
 
 			}
 			catch (SIMPLTranslationException e)
@@ -376,7 +378,9 @@ public class Assets extends Debug implements ApplicationProperties
 			{
 				needToWriteAssetsXml = false;
 				// assetsState.translateToXML(assetsXmlFile);
-				assetsState.serialize(assetsXmlFile);
+				
+				ClassDescriptor.serialize(assetsState, assetsXmlFile, Format.XML);
+				
 				println("Saved Assets XML" + sourceSpot + ": " + assetsXmlFile);
 			}
 			else
@@ -384,11 +388,6 @@ public class Assets extends Debug implements ApplicationProperties
 		}
 		catch (SIMPLTranslationException e)
 		{
-			e.printStackTrace();
-		}
-		catch (IOException e)
-		{
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}

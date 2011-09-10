@@ -33,7 +33,9 @@ import ecologylab.oodss.exceptions.BadClientException;
 import ecologylab.oodss.messages.RequestMessage;
 import ecologylab.oodss.messages.ResponseMessage;
 import ecologylab.oodss.messages.UpdateMessage;
+import ecologylab.serialization.ClassDescriptor;
 import ecologylab.serialization.SIMPLTranslationException;
+import ecologylab.serialization.StringFormat;
 import ecologylab.serialization.TranslationScope;
 
 /**
@@ -612,17 +614,17 @@ public abstract class TCPClientSessionManager<S extends Scope> extends BaseSessi
 			throws SIMPLTranslationException, UnsupportedEncodingException
 	{
 		String startLineString = null;
-		
-//		debug("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
-//		debug(this.startLine);
-		
+
+		// debug("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+		// debug(this.startLine);
+
 		if (this.startLine == null || (startLineString = startLine.toString()).equals(""))
 		{ // normal case
 			return translateOODSSRequest(messageCharSequence, startLineString);
 		}
 		else if (startLineString.startsWith(GET_PREFIX))
 		{ // get case
-//			debug("GET case!");
+		// debug("GET case!");
 			return this.translateGetRequest(messageCharSequence, startLineString);
 		}
 		else if (startLineString.startsWith(POST_PREFIX))
@@ -640,14 +642,15 @@ public abstract class TCPClientSessionManager<S extends Scope> extends BaseSessi
 	 * or POST request).
 	 * 
 	 * @param messageCharSequence
-	 * @param startLineString TODO
+	 * @param startLineString
+	 *          TODO
 	 * @return The request message contained in the message.
 	 * @throws SIMPLTranslationException
 	 */
-	protected RequestMessage translateOODSSRequest(CharSequence messageCharSequence, String startLineString)
-			throws SIMPLTranslationException
+	protected RequestMessage translateOODSSRequest(CharSequence messageCharSequence,
+			String startLineString) throws SIMPLTranslationException
 	{
-		return (RequestMessage) translationScope.deserializeCharSequence(messageCharSequence);
+		return (RequestMessage) translationScope.deserialize(messageCharSequence, StringFormat.XML);
 	}
 
 	/**
@@ -656,11 +659,12 @@ public abstract class TCPClientSessionManager<S extends Scope> extends BaseSessi
 	 * This implementation returns null.
 	 * 
 	 * @param messageCharSequence
-	 * @param startLineString TODO
+	 * @param startLineString
+	 *          TODO
 	 * @return null.
 	 */
-	protected RequestMessage translateGetRequest(CharSequence messageCharSequence, String startLineString)
-			throws SIMPLTranslationException
+	protected RequestMessage translateGetRequest(CharSequence messageCharSequence,
+			String startLineString) throws SIMPLTranslationException
 	{
 		return null;
 	}
@@ -671,12 +675,13 @@ public abstract class TCPClientSessionManager<S extends Scope> extends BaseSessi
 	 * This implementation expects the POST request to contain a nested OODSS request.
 	 * 
 	 * @param messageCharSequence
-	 * @param startLineString TODO
+	 * @param startLineString
+	 *          TODO
 	 * @return
 	 * @throws SIMPLTranslationException
 	 */
-	protected RequestMessage translatePostRequest(CharSequence messageCharSequence, String startLineString)
-			throws SIMPLTranslationException
+	protected RequestMessage translatePostRequest(CharSequence messageCharSequence,
+			String startLineString) throws SIMPLTranslationException
 	{
 		String messageString = messageCharSequence.toString();
 
@@ -691,12 +696,14 @@ public abstract class TCPClientSessionManager<S extends Scope> extends BaseSessi
 	 * of the request is not empty, not GET, and not POST.
 	 * 
 	 * This implementation returns null.
-	 * @param startLineString TODO
+	 * 
+	 * @param startLineString
+	 *          TODO
 	 * 
 	 * @return null.
 	 */
-	protected RequestMessage translateOtherRequest(CharSequence messageCharSequence, String startLineString)
-			throws SIMPLTranslationException
+	protected RequestMessage translateOtherRequest(CharSequence messageCharSequence,
+			String startLineString) throws SIMPLTranslationException
 	{
 		return (RequestMessage) null;
 	}
@@ -767,8 +774,8 @@ public abstract class TCPClientSessionManager<S extends Scope> extends BaseSessi
 	{
 		RequestMessage request = requestWithMetadata.getMessage();
 
-		ResponseMessage response = super.processRequest(request,
-				((SocketChannel) this.socketKey.channel()).socket().getInetAddress());
+		ResponseMessage response = super.processRequest(request, ((SocketChannel) this.socketKey
+				.channel()).socket().getInetAddress());
 
 		if (response != null)
 		{ // if the response is null, then we do
@@ -823,9 +830,8 @@ public abstract class TCPClientSessionManager<S extends Scope> extends BaseSessi
 			this.clearOutgoingMessageHeaderBuffer(headerBufOutgoing);
 
 			// setup outgoingMessageHeaderBuffer
-			this.createHeader(
-					(usingCompression) ? compressedMessageBuffer.limit() : msgBufOutgoing.length(),
-					headerBufOutgoing, request, response, requestWithMetadata.getUid());
+			this.createHeader((usingCompression) ? compressedMessageBuffer.limit() : msgBufOutgoing
+					.length(), headerBufOutgoing, request, response, requestWithMetadata.getUid());
 
 			if (usingCompression)
 			{
@@ -904,7 +910,7 @@ public abstract class TCPClientSessionManager<S extends Scope> extends BaseSessi
 		try
 		{
 			// setup outgoingMessageBuffer
-			update.serialize(msgBufOutgoing);
+			ClassDescriptor.serialize(update, msgBufOutgoing, StringFormat.XML);
 		}
 		catch (SIMPLTranslationException e1)
 		{
@@ -933,9 +939,8 @@ public abstract class TCPClientSessionManager<S extends Scope> extends BaseSessi
 			this.clearOutgoingMessageHeaderBuffer(headerBufOutgoing);
 
 			// setup outgoingMessageHeaderBuffer
-			this.makeUpdateHeader(
-					(usingCompression) ? compressedMessageBuffer.limit() : msgBufOutgoing.length(),
-					headerBufOutgoing, update);
+			this.makeUpdateHeader((usingCompression) ? compressedMessageBuffer.limit() : msgBufOutgoing
+					.length(), headerBufOutgoing, update);
 
 			if (usingCompression)
 			{

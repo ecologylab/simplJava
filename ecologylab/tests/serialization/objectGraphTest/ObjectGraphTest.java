@@ -3,7 +3,9 @@ package ecologylab.tests.serialization.objectGraphTest;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
+import ecologylab.serialization.ClassDescriptor;
 import ecologylab.serialization.SIMPLTranslationException;
+import ecologylab.serialization.StringFormat;
 import ecologylab.serialization.TranslationScope;
 import ecologylab.serialization.TranslationScope.GRAPH_SWITCH;
 
@@ -100,9 +102,9 @@ public class ObjectGraphTest
 		list.points.add(list.points.get(0)); // same reference
 		try
 		{
-			StringBuilder sb = list.serialize();
+			StringBuilder sb = ClassDescriptor.serialize(list, StringFormat.XML);
 			ListEqEq deserialized = (ListEqEq) TranslationScope.get("testEqualsEquals", ListEqEq.class,
-					PointEqEq.class).deserializeCharSequence(sb.toString());
+					PointEqEq.class).deserialize(sb.toString(), StringFormat.XML);
 			PointEqEq first = deserialized.points.get(0);
 			PointEqEq last = deserialized.points.get(deserialized.points.size() - 1);
 			if (first != last)
@@ -137,9 +139,9 @@ public class ObjectGraphTest
 		list.points.add(list.points.get(0)); // same reference
 		try
 		{
-			StringBuilder sb = list.serialize();
+			StringBuilder sb = ClassDescriptor.serialize(list, StringFormat.XML);
 			ListDotEquals deserialized = (ListDotEquals) TranslationScope.get("ListDotEquals",
-					ListDotEquals.class, PointDotEquals.class).deserializeCharSequence(sb.toString());
+					ListDotEquals.class, PointDotEquals.class).deserialize(sb.toString(), StringFormat.XML);
 			PointDotEquals first = deserialized.points.get(0);
 			PointDotEquals secondToLast = deserialized.points.get(deserialized.points.size() - 2);
 			PointDotEquals last = deserialized.points.get(deserialized.points.size() - 1);

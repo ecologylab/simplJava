@@ -20,6 +20,7 @@ import ecologylab.serialization.deserializers.pullhandlers.binaryformats.BinaryP
 import ecologylab.serialization.deserializers.pullhandlers.stringformats.StringPullDeserializer;
 import ecologylab.serialization.types.ScalarType;
 import ecologylab.serialization.types.TypeRegistry;
+import ecologylab.tests.Composed;
 
 /**
  * A set of bindings between XML element names (tags) and associated simple (without package) class
@@ -1142,7 +1143,7 @@ public final class TranslationScope extends ElementState
 	{
 		return deserialize(file, new TranslationContext(), null, format);
 	}
-	
+
 	public Object deserialize(ParsedURL parsedURL, TranslationContext translationContext,
 			DeserializationHookStrategy deserializationHookStrategy, Format format)
 			throws SIMPLTranslationException
@@ -1152,8 +1153,8 @@ public final class TranslationScope extends ElementState
 		return pullDeserializer.parse(parsedURL);
 	}
 
-	public Object deserialize(ParsedURL parsedURL, TranslationContext translationContext, Format format)
-			throws SIMPLTranslationException
+	public Object deserialize(ParsedURL parsedURL, TranslationContext translationContext,
+			Format format) throws SIMPLTranslationException
 	{
 		return deserialize(parsedURL, translationContext, null, format);
 	}
@@ -1192,7 +1193,6 @@ public final class TranslationScope extends ElementState
 				translationContext, deserializationHookStrategy, binaryFormat);
 		return binaryPullDeserializer.parse(byteArray);
 	}
-
 
 	public static TranslationScope getBasicTranslations()
 	{
@@ -1478,7 +1478,7 @@ public final class TranslationScope extends ElementState
 		}
 		return result;
 	}
-	
+
 	/**
 	 * This will switch on the graph serialization
 	 */
@@ -1512,4 +1512,5 @@ public final class TranslationScope extends ElementState
 					+ name);
 		allTranslationScopes.put(name, this);
 	}
+
 }
