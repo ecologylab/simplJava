@@ -58,6 +58,13 @@ public class JSONPullDeserializer extends StringPullDeserializer
 		// TODO Auto-generated method stub
 		return null;
 	}
+	
+	@Override
+	public Object parse(ParsedURL purl)
+	{
+		// TODO Auto-generated method stub
+		return null;
+	}
 
 	/**
 	 * The main parse method accepts a CharSequence and creates a corresponding object model. Sets up

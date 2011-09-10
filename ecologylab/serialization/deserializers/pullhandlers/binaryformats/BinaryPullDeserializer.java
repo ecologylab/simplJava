@@ -12,4 +12,6 @@ public abstract class BinaryPullDeserializer extends PullDeserializer
 	{
 		super(translationScope, translationContext);
 	}
+
+	public abstract Object parse(byte[] byteArray);
 }

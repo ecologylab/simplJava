@@ -19,6 +19,10 @@ import org.xml.sax.Attributes;
 import ecologylab.generic.Debug;
 import ecologylab.serialization.TranslationScope.GRAPH_SWITCH;
 import ecologylab.serialization.annotations.bibtex_key;
+import ecologylab.serialization.deserializers.ISimplDeserializationPre;
+import ecologylab.serialization.deserializers.ISimplDeserializatonPost;
+import ecologylab.serialization.serializers.ISimplSerializationPost;
+import ecologylab.serialization.serializers.ISimplSerializationPre;
 
 /**
  * This class is the heart of the <code>ecologylab.serialization</code> translation framework.
@@ -52,13 +56,15 @@ import ecologylab.serialization.annotations.bibtex_key;
  * 
  * @version 2.9
  */
-public class ElementState extends Debug implements FieldTypes, XMLTranslationExceptionTypes, ISimplSerializable
+public class ElementState extends Debug implements FieldTypes, XMLTranslationExceptionTypes,
+		ISimplSerializationPre, ISimplSerializationPost, ISimplDeserializationPre,
+		ISimplDeserializatonPost
 {
 
-	private boolean	isRoot	= false;
+	private boolean													isRoot										= false;
 
 	/**
-	 * Link for a DOM tree. should be removed. its not a tree!!
+	 * Link for a DOM tree. should be removed
 	 */
 	transient ElementState									parent;
 
@@ -1611,8 +1617,6 @@ public class ElementState extends Debug implements FieldTypes, XMLTranslationExc
 		return parent == null ? this : parent.getRoot();
 	}
 
-	
-
 	/**
 	 * @return Returns the optimizations.
 	 */
@@ -1732,20 +1736,6 @@ public class ElementState extends Debug implements FieldTypes, XMLTranslationExc
 	}
 
 	/**
-	 * Add a NestedNameSpace object to this.
-	 * 
-	 * @param urn
-	 * @param nns
-	 */
-	private void nestNameSpace(String urn, ElementState nns)
-	{
-		if (nestedNameSpaces == null)
-			nestedNameSpaces = new HashMap<String, ElementState>(2);
-
-		nestedNameSpaces.put(urn, nns);
-	}
-
-	/**
 	 * Lookup an ElementState subclass representing the scope of the nested XML Namespace in this.
 	 * 
 	 * @param id
@@ -1756,9 +1746,6 @@ public class ElementState extends Debug implements FieldTypes, XMLTranslationExc
 		return (nestedNameSpaces == null) ? null : nestedNameSpaces.get(id);
 	}
 
-	/*
-	 * Cyclic graph related functions
-	 */
 
 	private void serializeCompositeElements(Appendable appendable, ElementState nestedES,
 			FieldDescriptor nestedF2XO, TranslationContext graphContext) throws IOException,
@@ -1788,40 +1775,6 @@ public class ElementState extends Debug implements FieldTypes, XMLTranslationExc
 		}
 	}
 
-	private void serializeCompositeTLVElements(DataOutputStream appendable, ElementState nestedES,
-			FieldDescriptor nestedF2XO) throws IOException, SIMPLTranslationException
-	{
-		// if (TranslationScope.graphSwitch == GRAPH_SWITCH.ON && alreadyMarshalled(nestedES))
-		// {
-		// appendSimplRefId(appendable, nestedES, nestedF2XO);
-		// }
-		// else
-		{
-
-		}
-	}
-
-	// public static void recycleSerializationMappings()
-	// {
-	// if (TranslationScope.graphSwitch == GRAPH_SWITCH.ON)
-	// {
-	// marshalledObjects.clear();
-	// visitedElements.clear();
-	// needsAttributeHashCode.clear();
-	// }
-	// }
-	//
-	// public static void recycleDeserializationMappings()
-	// {
-	// if (TranslationScope.graphSwitch == GRAPH_SWITCH.ON)
-	// {
-	// marshalledObjects.clear();
-	// visitedElements.clear();
-	// needsAttributeHashCode.clear();
-	// unmarshalledObjects.clear();
-	// }
-	// }
-
 	/**
 	 * method returns whether a strict pbject graph is required
 	 * 
@@ -1832,11 +1785,20 @@ public class ElementState extends Debug implements FieldTypes, XMLTranslationExc
 		return classDescriptor().getStrictObjectGraphRequired();
 	}
 
+	
+
 	@Override
-	public void deserializationPostHook()
+	public void serializationPostHook()
 	{
 		// TODO Auto-generated method stub
-		
+
+	}
+
+	@Override
+	public void serializationPreHook()
+	{
+		// TODO Auto-generated method stub
+
 	}
 
 	@Override
@@ -1847,14 +1809,7 @@ public class ElementState extends Debug implements FieldTypes, XMLTranslationExc
 	}
 
 	@Override
-	public void serializationPostHook()
-	{
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void serializationPreHook()
+	public void deserializationPostHook()
 	{
 		// TODO Auto-generated method stub
 		

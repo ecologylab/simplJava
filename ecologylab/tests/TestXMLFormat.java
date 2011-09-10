@@ -4,7 +4,9 @@
 package ecologylab.tests;
 
 import ecologylab.serialization.ElementState;
+import ecologylab.serialization.Format;
 import ecologylab.serialization.SIMPLTranslationException;
+import ecologylab.serialization.StringFormat;
 import ecologylab.serialization.TranslationScope;
 import ecologylab.serialization.annotations.simpl_format;
 import ecologylab.serialization.annotations.simpl_scalar;
@@ -40,7 +42,7 @@ public class TestXMLFormat extends ElementState
 		System.out.println();
 
 		TranslationScope translationScope = TranslationScope.get("test", TestXMLFormat.class);
-		translationScope.deserializeCharSequence(t.serialize().toString()).serialize(
+		((ElementState) translationScope.deserialize(t.serialize().toString(), StringFormat.XML)).serialize(
 				System.out);
 		System.out.println();
 

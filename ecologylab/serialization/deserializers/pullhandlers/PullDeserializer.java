@@ -4,6 +4,7 @@ import java.io.File;
 
 import ecologylab.generic.Debug;
 import ecologylab.net.ParsedURL;
+import ecologylab.serialization.BinaryFormat;
 import ecologylab.serialization.DeserializationHookStrategy;
 import ecologylab.serialization.FieldTypes;
 import ecologylab.serialization.Format;
@@ -12,6 +13,7 @@ import ecologylab.serialization.ScalarUnmarshallingContext;
 import ecologylab.serialization.StringFormat;
 import ecologylab.serialization.TranslationContext;
 import ecologylab.serialization.TranslationScope;
+import ecologylab.serialization.deserializers.pullhandlers.binaryformats.BinaryPullDeserializer;
 import ecologylab.serialization.deserializers.pullhandlers.stringformats.JSONPullDeserializer;
 import ecologylab.serialization.deserializers.pullhandlers.stringformats.StringPullDeserializer;
 
@@ -66,11 +68,40 @@ public abstract class PullDeserializer extends Debug implements ScalarUnmarshall
 	 * @throws SIMPLTranslationException
 	 */
 	public abstract Object parse(File file);
+	
+	/**
+	 * The main parse method accepts a CharSequence and creates a corresponding object model. Sets up
+	 * the root object and creates instances of the root object before calling a recursive method that
+	 * creates the complete object model
+	 * 
+	 * @param charSequence
+	 * @return
+	 * @throws SIMPLTranslationException
+	 */
+	public abstract Object parse(ParsedURL purl);
 
 	public static PullDeserializer getDeserializer(TranslationScope translationScope,
 			TranslationContext translationContext, Format format) throws SIMPLTranslationException
 	{
 		return getDeserializer(translationScope, translationContext, null, format);
+	}
+
+	public static PullDeserializer getDeserializer(TranslationScope translationScope,
+			TranslationContext translationContext,
+			DeserializationHookStrategy deserializationHookStrategy, Format format)
+			throws SIMPLTranslationException
+	{
+		switch (format)
+		{
+		case XML:
+		case JSON:
+			return new JSONPullDeserializer(translationScope, translationContext,
+					deserializationHookStrategy);
+		case TLV:
+		case BIBTEX:
+		default:
+			throw new SIMPLTranslationException(format + " format not supported");
+		}
 	}
 
 	public static StringPullDeserializer getStringDeserializer(TranslationScope translationScope,
@@ -97,21 +128,23 @@ public abstract class PullDeserializer extends Debug implements ScalarUnmarshall
 		}
 	}
 
-	public static PullDeserializer getDeserializer(TranslationScope translationScope,
-			TranslationContext translationContext,
-			DeserializationHookStrategy deserializationHookStrategy, Format format)
+	public static BinaryPullDeserializer getBinaryDeserializer(TranslationScope translationScope,
+			TranslationContext translationContext, BinaryFormat binaryFormat)
 			throws SIMPLTranslationException
 	{
-		switch (format)
+		return getBinaryDeserializer(translationScope, translationContext, null, binaryFormat);
+	}
+
+	public static BinaryPullDeserializer getBinaryDeserializer(TranslationScope translationScope,
+			TranslationContext translationContext,
+			DeserializationHookStrategy deserializationHookStrategy, BinaryFormat binaryFormat)
+			throws SIMPLTranslationException
+	{
+		switch (binaryFormat)
 		{
-		case XML:
-		case JSON:
-			return new JSONPullDeserializer(translationScope, translationContext,
-					deserializationHookStrategy);
 		case TLV:
-		case BIBTEX:
 		default:
-			throw new SIMPLTranslationException(format + " format not supported");
+			throw new SIMPLTranslationException(binaryFormat + " format not supported");
 		}
 	}
 
