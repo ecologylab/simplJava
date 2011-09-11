@@ -1,5 +1,6 @@
 package ecologylab.serialization.deserializers.pullhandlers.stringformats;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Collection;
@@ -12,6 +13,7 @@ import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
 import ecologylab.generic.Debug;
 import ecologylab.generic.StringInputStream;
+import ecologylab.net.ParsedURL;
 import ecologylab.serialization.ClassDescriptor;
 import ecologylab.serialization.DeserializationHookStrategy;
 import ecologylab.serialization.FieldDescriptor;
@@ -27,31 +29,21 @@ import ecologylab.serialization.types.element.IMappable;
  * 
  * @author nabeel
  */
-public class XMLPullDeserializer extends Debug implements FieldTypes
+public class XMLPullDeserializer extends StringPullDeserializer
 {
-	TranslationScope						translationScope;
 
-	TranslationContext					translationContext;
+	XMLStreamReader	xmlStreamReader	= null;
 
-	DeserializationHookStrategy	deserializationHookStrategy;
+	public XMLPullDeserializer(TranslationScope translationScope,
+			TranslationContext translationContext, DeserializationHookStrategy deserializationHookStrategy)
+	{
+		super(translationScope, translationContext, deserializationHookStrategy);
+	}
 
-	XMLStreamReader							xmlStreamReader	= null;
-
-	/**
-	 * Constructs that creates a XML deserialization handler
-	 * 
-	 * 
-	 * @param translationScope
-	 *          translation scope to use for de/serializing subsequent char sequences
-	 * @param translationContext
-	 *          used for graph handling and other context information.
-	 */
 	public XMLPullDeserializer(TranslationScope translationScope,
 			TranslationContext translationContext)
 	{
-		this.translationScope = translationScope;
-		this.translationContext = translationContext;
-		this.deserializationHookStrategy = null;
+		super(translationScope, translationContext);
 	}
 
 	/**
@@ -59,43 +51,50 @@ public class XMLPullDeserializer extends Debug implements FieldTypes
 	 * 
 	 * @param charSequence
 	 * @return
+	 * @throws SIMPLTranslationException
 	 * @throws XMLStreamException
 	 * @throws FactoryConfigurationError
 	 * @throws SIMPLTranslationException
 	 * @throws IOException
 	 */
-	public Object parse(CharSequence charSequence) throws XMLStreamException,
-			FactoryConfigurationError, SIMPLTranslationException, IOException
+	public Object parse(CharSequence charSequence) throws SIMPLTranslationException
 	{
-		InputStream xmlStream = new StringInputStream(charSequence, StringInputStream.UTF8);
-		xmlStreamReader = XMLInputFactory.newInstance().createXMLStreamReader(xmlStream, "UTF-8");
-
-		Object root = null;
-
-		xmlStreamReader.next();
-
-		if (xmlStreamReader.getEventType() != XMLStreamConstants.START_ELEMENT)
+		try
 		{
-			throw new SIMPLTranslationException("start of and element expected");
+			InputStream xmlStream = new StringInputStream(charSequence, StringInputStream.UTF8);
+			xmlStreamReader = XMLInputFactory.newInstance().createXMLStreamReader(xmlStream, "UTF-8");
+
+			Object root = null;
+
+			xmlStreamReader.next();
+
+			if (xmlStreamReader.getEventType() != XMLStreamConstants.START_ELEMENT)
+			{
+				throw new SIMPLTranslationException("start of and element expected");
+			}
+
+			String rootTag = xmlStreamReader.getLocalName();
+
+			ClassDescriptor<? extends FieldDescriptor> rootClassDescriptor = translationScope
+					.getClassDescriptorByTag(rootTag);
+
+			if (rootClassDescriptor == null)
+			{
+				throw new SIMPLTranslationException("cannot find the class descriptor for root element <"
+						+ rootTag + ">; make sure if translation scope is correct.");
+			}
+
+			root = rootClassDescriptor.getInstance();
+			deserializeAttributes(root, rootClassDescriptor);
+
+			createObjectModel(root, rootClassDescriptor);
+
+			return root;
 		}
-
-		String rootTag = xmlStreamReader.getLocalName();
-
-		ClassDescriptor<? extends FieldDescriptor> rootClassDescriptor = translationScope
-				.getClassDescriptorByTag(rootTag);
-
-		if (rootClassDescriptor == null)
+		catch (Exception ex)
 		{
-			throw new SIMPLTranslationException("cannot find the class descriptor for root element <"
-					+ rootTag + ">; make sure if translation scope is correct.");
+			throw new SIMPLTranslationException("exception occurred in deserialzation ", ex);
 		}
-
-		root = rootClassDescriptor.getInstance();
-		deserializeAttributes(root, rootClassDescriptor);
-
-		createObjectModel(root, rootClassDescriptor);
-
-		return root;
 	}
 
 	/**
@@ -341,5 +340,19 @@ public class XMLPullDeserializer extends Debug implements FieldTypes
 			} // end switch
 			xmlStreamReader.next();
 		} // end while
+	}
+
+	@Override
+	public Object parse(File file)
+	{
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Object parse(ParsedURL purl)
+	{
+		// TODO Auto-generated method stub
+		return null;
 	}
 }

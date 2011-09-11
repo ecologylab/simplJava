@@ -35,9 +35,8 @@ public class JSONPullDeserializer extends StringPullDeserializer
 	/**
 	 * JsonParser object from the Jackson JSON parsing library. Implements a pull API for parsing JSON
 	 */
-	JsonParser									jp	= null;
-	
-	
+	JsonParser	jp	= null;
+
 	public JSONPullDeserializer(TranslationScope translationScope,
 			TranslationContext translationContext, DeserializationHookStrategy deserializationHookStrategy)
 	{
@@ -49,8 +48,6 @@ public class JSONPullDeserializer extends StringPullDeserializer
 	{
 		super(translationScope, translationContext);
 	}
-	
-
 
 	@Override
 	public Object parse(File file)
@@ -58,7 +55,7 @@ public class JSONPullDeserializer extends StringPullDeserializer
 		// TODO Auto-generated method stub
 		return null;
 	}
-	
+
 	@Override
 	public Object parse(ParsedURL purl)
 	{
@@ -73,11 +70,12 @@ public class JSONPullDeserializer extends StringPullDeserializer
 	 * 
 	 * @param charSequence
 	 * @return
+	 * @throws SIMPLTranslationException
 	 * @throws JsonParseException
 	 * @throws IOException
 	 * @throws SIMPLTranslationException
 	 */
-	public Object parse(CharSequence charSequence)
+	public Object parse(CharSequence charSequence) throws SIMPLTranslationException
 	{
 
 		try
@@ -119,14 +117,10 @@ public class JSONPullDeserializer extends StringPullDeserializer
 		}
 		catch (Exception ex)
 		{
-			ex.printStackTrace();
+			throw new SIMPLTranslationException("exception occurred in deserialzation ", ex);
 		}
-
-		return null;
 	}
 
-
-	
 	/**
 	 * Recursive method that moves forward in the CharSequence through JsonParser to create a
 	 * corresponding object model

@@ -16,6 +16,7 @@ import ecologylab.serialization.TranslationScope;
 import ecologylab.serialization.deserializers.pullhandlers.binaryformats.BinaryPullDeserializer;
 import ecologylab.serialization.deserializers.pullhandlers.stringformats.JSONPullDeserializer;
 import ecologylab.serialization.deserializers.pullhandlers.stringformats.StringPullDeserializer;
+import ecologylab.serialization.deserializers.pullhandlers.stringformats.XMLPullDeserializer;
 
 public abstract class PullDeserializer extends Debug implements ScalarUnmarshallingContext,
 		FieldTypes
@@ -68,7 +69,7 @@ public abstract class PullDeserializer extends Debug implements ScalarUnmarshall
 	 * @throws SIMPLTranslationException
 	 */
 	public abstract Object parse(File file);
-	
+
 	/**
 	 * The main parse method accepts a CharSequence and creates a corresponding object model. Sets up
 	 * the root object and creates instances of the root object before calling a recursive method that
@@ -119,6 +120,8 @@ public abstract class PullDeserializer extends Debug implements ScalarUnmarshall
 		switch (stringFormat)
 		{
 		case XML:
+			return new XMLPullDeserializer(translationScope, translationContext,
+					deserializationHookStrategy);
 		case JSON:
 			return new JSONPullDeserializer(translationScope, translationContext,
 					deserializationHookStrategy);

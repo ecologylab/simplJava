@@ -189,27 +189,34 @@ public class XMLSerializer extends StringSerializer implements FieldTypes
 			case COLLECTION_SCALAR:
 			case MAP_SCALAR:
 				Collection<?> scalarCollection = XMLTools.getCollection(object);
-				writeWrap(childFd, appendable, false);
-				for (Object collectionObject : scalarCollection)
+				if (scalarCollection != null)
 				{
-					writeValueAsLeaf(collectionObject, childFd, appendable, translationContext);
+					writeWrap(childFd, appendable, false);
+
+					for (Object collectionObject : scalarCollection)
+					{
+						writeValueAsLeaf(collectionObject, childFd, appendable, translationContext);
+					}
+					writeWrap(childFd, appendable, true);
 				}
-				writeWrap(childFd, appendable, true);
 				break;
 			case COLLECTION_ELEMENT:
 			case MAP_ELEMENT:
 				Object collectionObject = childFd.getObject(object);
 				Collection<?> compositeCollection = XMLTools.getCollection(collectionObject);
-				writeWrap(childFd, appendable, false);
-				for (Object collectionComposite : compositeCollection)
+				if (compositeCollection != null)
 				{
-					FieldDescriptor collectionObjectFieldDescriptor = childFd.isPolymorphic() ? getClassDescriptor(
-							collectionComposite).pseudoFieldDescriptor()
-							: childFd;
-					serialize(collectionComposite, collectionObjectFieldDescriptor, appendable,
-							translationContext);
+					writeWrap(childFd, appendable, false);
+					for (Object collectionComposite : compositeCollection)
+					{
+						FieldDescriptor collectionObjectFieldDescriptor = childFd.isPolymorphic() ? getClassDescriptor(
+								collectionComposite).pseudoFieldDescriptor()
+								: childFd;
+						serialize(collectionComposite, collectionObjectFieldDescriptor, appendable,
+								translationContext);
+					}
+					writeWrap(childFd, appendable, true);
 				}
-				writeWrap(childFd, appendable, true);
 				break;
 			}
 		}
@@ -293,11 +300,12 @@ public class XMLSerializer extends StringSerializer implements FieldTypes
 	private void writeValueAsLeaf(Object object, FieldDescriptor fd, Appendable appendable,
 			TranslationContext translationContext) throws SIMPLTranslationException, IOException
 	{
-		appendable.append('<').append(fd.elementStart()).append('>');
-
-		fd.appendValue(appendable, object, translationContext, Format.XML);
-
-		appendable.append('<').append('/').append(fd.elementStart()).append('>');
+		if (!fd.isDefaultValue(object))
+		{
+			appendable.append('<').append(fd.elementStart()).append('>');
+			fd.appendValue(appendable, object, translationContext, Format.XML);
+			appendable.append('<').append('/').append(fd.elementStart()).append('>');
+		}
 	}
 
 	/**
