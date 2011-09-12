@@ -7,7 +7,7 @@ import javax.swing.JOptionPane;
 
 /**
  * A set of generic convenience methods for doing things like getting
- * typed parameters from the envionment, getting other stuff from
+ * typed parameters from the environment, getting other stuff from
  * the environment, building HashMaps from arrays, manipulating threads,
  * ... While some of these functionalities constitute a nice set of static
  * covers for facilities provided by {@link Environment Environment},

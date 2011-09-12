@@ -17,12 +17,12 @@ import ecologylab.oodss.distributed.server.clientsessionmanager.SessionHandle;
 import ecologylab.serialization.annotations.simpl_inherit;
 
 /**
- * A request that indicates that the client wishes to be permanently
- * disconnected from the server.
+ * A request that indicates that the client wishes to be permanently disconnected from the server.
  * 
- * @author Zachary O. Toups (toupsz@cs.tamu.edu)
+ * @author Zachary O. Toups (zach@ecologylab.net)
  */
-@simpl_inherit public class DisconnectRequest extends RequestMessage
+@simpl_inherit
+public class DisconnectRequest<SCOPE extends Scope> extends RequestMessage<SCOPE>
 {
 	public static final DisconnectRequest	REUSABLE_INSTANCE	= new DisconnectRequest();
 
@@ -37,38 +37,45 @@ import ecologylab.serialization.annotations.simpl_inherit;
 	/**
 	 * @see ecologylab.oodss.messages.RequestMessage#performService(ecologylab.collections.Scope)
 	 */
-	@Override public ResponseMessage performService(Scope localScope)
+	@Override
+	public ResponseMessage performService(SCOPE localScope)
 	{
 		debug("**** running disconnect request ****");
-		
-		SessionHandle handle = (SessionHandle) localScope
-				.get(SessionObjects.SESSION_HANDLE);
 
-		if(handle != null)
+		SessionHandle handle = (SessionHandle) localScope.get(SessionObjects.SESSION_HANDLE);
+
+		if (handle != null)
 			handle.invalidate();
 
 		return OkResponse.reusableInstance;
 	}
 
-	public static void main(String[] args) throws BindException,
-			UnknownHostException, IOException, MessageTooLargeException
+	public static void main(String[] args) throws BindException, UnknownHostException, IOException,
+			MessageTooLargeException
 	{
-		DoubleThreadedNIOServer server = DoubleThreadedNIOServer.getInstance(
-				10000, InetAddress.getLocalHost(), DefaultServicesTranslations
-						.get(), new Scope(), 9999, 99999);
+		DoubleThreadedNIOServer server = DoubleThreadedNIOServer.getInstance(	10000,
+																																					InetAddress.getLocalHost(),
+																																					DefaultServicesTranslations.get(),
+																																					new Scope(),
+																																					9999,
+																																					99999);
 
 		server.start();
 
 		System.err.println("c1 instantiate");
-		NIOClient c1 = new NIOClient("128.194.147.181", 10000,
-				DefaultServicesTranslations.get(), new Scope());
+		NIOClient c1 = new NIOClient(	"128.194.147.181",
+																	10000,
+																	DefaultServicesTranslations.get(),
+																	new Scope());
 
 		System.err.println("c1 connect");
 		c1.connect();
 
 		System.err.println("c2 instantiate");
-		NIOClient c2 = new NIOClient("128.194.147.181", 10000,
-				DefaultServicesTranslations.get(), new Scope());
+		NIOClient c2 = new NIOClient(	"128.194.147.181",
+																	10000,
+																	DefaultServicesTranslations.get(),
+																	new Scope());
 
 		System.err.println("c2 connect");
 		c2.connect();

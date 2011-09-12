@@ -653,6 +653,9 @@ public class XMLTools extends Debug implements CharacterConstants, SpecialCharac
 		{
 			File outputDir = new File(outputDirName);
 			outputDir.mkdirs();
+			if (!outputDir.exists())
+				throw new SIMPLTranslationException(
+						"Can't make directories due to permissions problems: " + outputDirName);
 		}
 
 	}

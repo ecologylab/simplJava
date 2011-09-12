@@ -9,7 +9,7 @@ import ecologylab.serialization.deserializers.ISimplDeserializatonPost;
 import ecologylab.serialization.serializers.ISimplSerializationPost;
 import ecologylab.serialization.serializers.ISimplSerializationPre;
 
-public class ElementState extends Debug implements FieldTypes, XMLTranslationExceptionTypes,
+public class ElementState<PES extends ElementState> extends Debug implements FieldTypes, XMLTranslationExceptionTypes,
 		ISimplSerializationPre, ISimplSerializationPost, ISimplDeserializationPre,
 		ISimplDeserializatonPost
 {
@@ -19,13 +19,13 @@ public class ElementState extends Debug implements FieldTypes, XMLTranslationExc
 	/**
 	 * Link for a DOM tree. should be removed
 	 */
-	transient ElementState									parent;
+	transient PES									parent;
 
 	/**
 	 * to handle objects with multiple parents this variable helps keep track of parents in
 	 * deserializing graph
 	 */
-	Stack<ElementState>											parents										= null;
+	Stack<PES>											parents										= null;
 
 	/**
 	 * Use for resolving getElementById()
@@ -65,7 +65,7 @@ public class ElementState extends Debug implements FieldTypes, XMLTranslationExc
 	/**
 	 * @return the parent
 	 */
-	public ElementState parent()
+	public PES parent()
 	{
 		// return (parent != null) ? parent :
 		// (parents != null && !parents.empty()) ? parents.firstElement() : null;
@@ -77,7 +77,7 @@ public class ElementState extends Debug implements FieldTypes, XMLTranslationExc
 	 * 
 	 * @param parent
 	 */
-	public void setParent(ElementState parent)
+	public void setParent(PES parent)
 	{
 		this.parent = parent;
 	}
@@ -145,23 +145,24 @@ public class ElementState extends Debug implements FieldTypes, XMLTranslationExc
 		this.manageParents(newParent);
 	}
 
-	private void manageParents(ElementState newParent)
+	private void manageParents(ElementState parentES)
 	{
+		PES parentPES 	=  (PES) parentES;
 		if (this.parent == null)
 		{
-			this.parent = newParent;
+			this.parent = parentPES;
 		}
 		else
 		{
 			if (this.parents == null)
 			{
-				this.parents = new Stack<ElementState>();
+				this.parents = new Stack<PES>();
 				this.parents.push(this.parent);
-				this.parents.push(newParent);
+				this.parents.push(parentPES);
 			}
 			else
 			{
-				this.parents.push(newParent);
+				this.parents.push(parentPES);
 			}
 		}
 	}

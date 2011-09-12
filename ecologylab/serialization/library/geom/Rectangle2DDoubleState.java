@@ -20,103 +20,107 @@ import ecologylab.serialization.annotations.simpl_inherit;
  * 
  * Accessor methods (such as contains()) on the result of getRect() are fine.
  * 
- * @author Zachary O. Toups (toupsz@cs.tamu.edu)
+ * @author Zachary O. Toups (zach@ecologylab.net)
  */
-public @simpl_inherit class Rectangle2DDoubleState extends RectangularShape
+@simpl_inherit
+public class Rectangle2DDoubleState extends RectangularShape
 {
-    private Rectangle2D.Double shape = null;
-    private static final Vector2d[] normals = { new Vector2d(0, -1), new Vector2d(1, 0), new Vector2d(0, 1),
-        new Vector2d(-1, 0) };
+	private Rectangle2D.Double			shape		= null;
 
-    public Rectangle2DDoubleState()
-    {
-        super();
-    }
+	private static final Vector2d[]	normals	=
+																					{ new Vector2d(0, -1), new Vector2d(1, 0),
+			new Vector2d(0, 1), new Vector2d(-1, 0) };
 
-    public Rectangle2DDoubleState(double x, double y, double width, double height)
-    {
-        super(x, y, width, height);
-    }
-    
-    /**
-     * Returns an Rectangle2D object represented by this.
-     */
-    public Rectangle2D.Double shape()
-    {
-        if (shape == null)
-        {
-            shape = new Rectangle2D.Double(x, y, w, h);
-        }
-        else if (shape.x != x || shape.y != y || shape.height != h || shape.width != w)
-        {
-            shape.setFrame(x, y, w, h);
-        }
+	public Rectangle2DDoubleState()
+	{
+		super();
+	}
 
-        return shape;
-    }
-    
-    public boolean contains(Point2D p)
-    {
-        return shape().contains(p);
-    }
+	public Rectangle2DDoubleState(double x, double y, double width, double height)
+	{
+		super(x, y, width, height);
+	}
 
-    public boolean contains(Rectangle2D r)
-    {
-        return shape().contains(r);
-    }
+	/**
+	 * Returns an Rectangle2D object represented by this.
+	 */
+	@Override
+	public Rectangle2D.Double shape()
+	{
+		if (shape == null)
+		{
+			shape = new Rectangle2D.Double(x, y, w, h);
+		}
+		else if (shape.x != x || shape.y != y || shape.height != h || shape.width != w)
+		{
+			shape.setFrame(x, y, w, h);
+		}
 
-    public boolean contains(double x, double y)
-    {
-        return shape().contains(x, y);
-    }
+		return shape;
+	}
 
-    public boolean contains(double x, double y, double w, double h)
-    {
-        return shape().contains(x, y, w, h);
-    }
+	public boolean contains(Point2D p)
+	{
+		return shape().contains(p);
+	}
 
-    public Rectangle getBounds()
-    {
-        return shape().getBounds();
-    }
+	public boolean contains(Rectangle2D r)
+	{
+		return shape().contains(r);
+	}
 
-    public Rectangle2D getBounds2D()
-    {
-        return shape().getBounds2D();
-    }
+	public boolean contains(double x, double y)
+	{
+		return shape().contains(x, y);
+	}
 
-    public PathIterator getPathIterator(AffineTransform at)
-    {
-        return shape().getPathIterator(at);
-    }
+	public boolean contains(double x, double y, double w, double h)
+	{
+		return shape().contains(x, y, w, h);
+	}
 
-    public PathIterator getPathIterator(AffineTransform at, double flatness)
-    {
-        return shape().getPathIterator(at, flatness);
-    }
+	public Rectangle getBounds()
+	{
+		return shape().getBounds();
+	}
 
-    public boolean intersects(Rectangle2D r)
-    {
-        return shape().intersects(r);
-    }
+	public Rectangle2D getBounds2D()
+	{
+		return shape().getBounds2D();
+	}
 
-    public boolean intersects(double x, double y, double w, double h)
-    {
-        return shape().intersects(x, y, w, h);
-    }
-    
-    /**
-     * Determines the surface normals for each of the sides of the rectangular
-     * object. These are stored in an array, with entry 0 indicating the top
-     * (-y) normal, and the others progressing clockwise from there.
-     * 
-     * The normals are assumed to lie in the X-Y plane.
-     * 
-     * @return a Vector2d array with each entry corresponding to the surface
-     *         normal of one of the sides.
-     */
-    public static Vector2d[] getSurfaceNormals()
-    {
-        return normals;
-    }
+	public PathIterator getPathIterator(AffineTransform at)
+	{
+		return shape().getPathIterator(at);
+	}
+
+	public PathIterator getPathIterator(AffineTransform at, double flatness)
+	{
+		return shape().getPathIterator(at, flatness);
+	}
+
+	public boolean intersects(Rectangle2D r)
+	{
+		return shape().intersects(r);
+	}
+
+	public boolean intersects(double x, double y, double w, double h)
+	{
+		return shape().intersects(x, y, w, h);
+	}
+
+	/**
+	 * Determines the surface normals for each of the sides of the rectangular object. These are
+	 * stored in an array, with entry 0 indicating the top (-y) normal, and the others progressing
+	 * clockwise from there.
+	 * 
+	 * The normals are assumed to lie in the X-Y plane.
+	 * 
+	 * @return a Vector2d array with each entry corresponding to the surface normal of one of the
+	 *         sides.
+	 */
+	public static Vector2d[] getSurfaceNormals()
+	{
+		return normals;
+	}
 }

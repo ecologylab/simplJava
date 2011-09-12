@@ -36,7 +36,6 @@ public class PrefSet extends ElementState implements ApplicationPropertyNames, C
 
 	@simpl_map
 	@simpl_nowrap
-	// @xml_classes({PrefInt.class})
 	@simpl_scope(PREFS_TRANSLATION_SCOPE)
 	HashMap<String, Pref<?>>		preferences;
 

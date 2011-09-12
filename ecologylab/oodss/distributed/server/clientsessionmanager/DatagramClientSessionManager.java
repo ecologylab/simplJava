@@ -17,7 +17,7 @@ import ecologylab.oodss.messages.UpdateMessage;
  * @author Zachary O. Toups (zach@ecologylab.net)
  * 
  */
-public class DatagramClientSessionManager extends BaseSessionManager
+public class DatagramClientSessionManager<S extends Scope, PARENT extends Scope> extends BaseSessionManager<S, PARENT>
 {
 	InetSocketAddress	address;
 	
@@ -31,7 +31,7 @@ public class DatagramClientSessionManager extends BaseSessionManager
 	 * @param baseScope
 	 */
 	public DatagramClientSessionManager(String sessionId, NIODatagramServer server,
-			SelectionKey socket, Scope<?> baseScope, InetSocketAddress	address)
+			SelectionKey socket, PARENT baseScope, InetSocketAddress	address)
 	{
 		super(sessionId, server, socket, baseScope);
 		

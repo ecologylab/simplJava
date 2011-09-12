@@ -22,7 +22,7 @@ import ecologylab.serialization.TranslationScope;
  * @author Zachary O. Toups (zach@ecologylab.net)
  * 
  */
-public class HTTPGetClientSessionManager<S extends Scope> extends HTTPClientSessionManager<S>
+public class HTTPGetClientSessionManager<S extends Scope, PARENT extends Scope> extends HTTPClientSessionManager<S, PARENT>
 {
 	public static final String	HTTP_PREPEND				= "GET /";
 
@@ -37,7 +37,7 @@ public class HTTPGetClientSessionManager<S extends Scope> extends HTTPClientSess
 	 */
 	public HTTPGetClientSessionManager(String token, int maxPacketSize, NIOServerIOThread server,
 			NIOServerProcessor frontend, SelectionKey socketKey, TranslationScope translationScope,
-			Scope<?> registry)
+			PARENT registry)
 	{
 		super(token, maxPacketSize, server, frontend, socketKey, translationScope, registry);
 

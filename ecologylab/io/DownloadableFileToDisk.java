@@ -8,8 +8,10 @@ import java.io.InputStream;
 import java.io.OutputStream;
 
 import ecologylab.appframework.StatusReporter;
-import ecologylab.generic.Continuation;
+import ecologylab.concurrent.BasicSite;
+import ecologylab.concurrent.Downloadable;
 import ecologylab.generic.Debug;
+import ecologylab.generic.Continuation;
 import ecologylab.net.ParsedURL;
 
 public class DownloadableFileToDisk 
@@ -183,6 +185,15 @@ implements Downloadable, Continuation<Object>
 
 	public void recycle()
 	{
+	}
+
+	/**
+	 * Default empty implementation; will be ignored for this type.
+	 */
+	@Override
+	public boolean isImage()
+	{
+		return false;
 	}
 
 }

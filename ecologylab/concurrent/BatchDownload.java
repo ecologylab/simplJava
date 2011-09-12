@@ -6,7 +6,6 @@ import java.util.Iterator;
 import java.util.Observable;
 
 import ecologylab.generic.Continuation;
-import ecologylab.io.Downloadable;
 
 public class BatchDownload extends Observable implements Continuation<Object>
 {

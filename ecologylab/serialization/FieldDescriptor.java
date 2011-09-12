@@ -58,6 +58,7 @@ import ecologylab.serialization.types.element.IMappable;
  * 
  * @author andruid
  */
+@SuppressWarnings("rawtypes")
 @simpl_inherit
 public class FieldDescriptor extends DescriptorBase implements FieldTypes, IMappable<String>
 {
@@ -1142,10 +1143,10 @@ public class FieldDescriptor extends DescriptorBase implements FieldTypes, IMapp
 	{
 		if (context != null)
 		{
+			Object value = this.getValue(context);
+			String valueString = value == null ? NULL : value.toString();
 			ScalarType scalarType = this.scalarType;
-			Field field = this.field;
-
-			if (!scalarType.isDefaultValue(field, context))
+			if (value != null && !scalarType.isDefaultValue(valueString))
 			{
 				// for this field, generate tags and attach name value pair
 
@@ -1163,6 +1164,36 @@ public class FieldDescriptor extends DescriptorBase implements FieldTypes, IMapp
 		}
 	}
 
+	public Object getValue(Object context)
+	{
+		Object value = null;
+		try
+		{
+			if (context != null)
+				value = this.field.get(context);
+		}
+		catch (IllegalArgumentException e)
+		{
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		catch (IllegalAccessException e)
+		{
+			debugA("WARNING re-trying access! " + e.getStackTrace()[0]);
+			this.field.setAccessible(true);
+			try
+			{
+				value = this.field.get(this);
+			}
+			catch (IllegalAccessException e1)
+			{
+				error("Can't access " + this.field.getName());
+				e1.printStackTrace();
+			}
+		}
+		return value;
+	}
+	
 	/**
 	 * Appends the label and value of a metadata field to HTML elements, including anchors where
 	 * appropriate
@@ -1541,8 +1572,10 @@ public class FieldDescriptor extends DescriptorBase implements FieldTypes, IMapp
 		if (context != null)
 		{
 			ScalarType scalarType = this.scalarType;
-			Field field = this.field;
-			if (!scalarType.isDefaultValue(field, context))
+//			Field field = this.field;
+//			if (!scalarType.isDefaultValue(field, context)) // this line fails with proxy classes
+			Object value = this.getValue(context);
+			if (value != null && !scalarType.isDefaultValue(value.toString()))
 			{
 				// for this field, generate <tag>value</tag>
 
@@ -1811,7 +1844,21 @@ public class FieldDescriptor extends DescriptorBase implements FieldTypes, IMapp
 		if (filterRegex != null)
 		{
 			Matcher matcher = filterRegex.matcher(value);
-			value = matcher.replaceAll(filterReplace);
+			if (filterReplace == null)
+			{
+				if (matcher.find())
+				{
+					value = matcher.group();
+				}
+				else
+				{
+					value = "";
+				}
+			}
+			else
+			{
+				value = matcher.replaceAll(filterReplace);
+			}
 		}
 		return value;
 	}

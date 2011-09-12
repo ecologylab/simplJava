@@ -62,7 +62,7 @@ import ecologylab.serialization.TranslationScope;
  * @author Zachary O. Toups (zach@ecologylab.net)
  * 
  */
-public abstract class TCPClientSessionManager<S extends Scope> extends BaseSessionManager<S>
+public abstract class TCPClientSessionManager<S extends Scope, PARENT extends Scope> extends BaseSessionManager<S, PARENT>
 		implements ServerConstants
 {
 	/**
@@ -179,7 +179,7 @@ public abstract class TCPClientSessionManager<S extends Scope> extends BaseSessi
 	 */
 	public TCPClientSessionManager(String sessionId, int maxMessageSizeIn, NIOServerIOThread server,
 			NIOServerProcessor frontend, SelectionKey socket, TranslationScope translationScope,
-			Scope<?> baseScope)
+			PARENT baseScope)
 	{
 		super(sessionId, frontend, socket, baseScope);
 

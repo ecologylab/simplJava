@@ -31,7 +31,7 @@ public class PrefSetBaseClassProvider extends TranslationsClassProvider
 
 				Pref.class, PrefSet.class, PrefBoolean.class, PrefDouble.class, PrefFloat.class,
 				PrefInt.class, PrefLong.class, PrefString.class, PrefElementState.class, PrefColor.class,
-				PrefFile.class, PrefOp.class, PrefDelayedOp.class, };
+				PrefFile.class, PrefOp.class, PrefDelayedOp.class};
 		
 		return prefSetClasses;
 	}

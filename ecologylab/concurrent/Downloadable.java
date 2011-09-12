@@ -1,7 +1,8 @@
-package ecologylab.io;
+package ecologylab.concurrent;
 
 import java.io.IOException;
 
+import ecologylab.io.DownloadProcessor;
 import ecologylab.net.ParsedURL;
 
 /**
@@ -34,6 +35,14 @@ public interface Downloadable
    
    public BasicSite getSite();
    public ParsedURL location();
+   
+   /**
+    * Can be used to reduce image download waits, in conjunction with BasicSite;
+    * otherwise ignored.
+    * 
+    * @return
+    */
+   public boolean isImage();
    
    /**
     * 

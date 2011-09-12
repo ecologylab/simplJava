@@ -8,7 +8,8 @@ import ecologylab.serialization.annotations.simpl_scalar;
  * 
  * @author andruid
  */
-abstract public @simpl_inherit class MixedInitiativeOp extends BasicOp
+@simpl_inherit
+abstract public class MixedInitiativeOp extends BasicOp
 {	
 	@simpl_scalar protected short	intensity;
 	
@@ -64,6 +65,7 @@ abstract public @simpl_inherit class MixedInitiativeOp extends BasicOp
 	}
 	
 	/** Free resources associated with this. */
+	@Override
 	public void recycle(boolean invert){}
 	
 	public String action()

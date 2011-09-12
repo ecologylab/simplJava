@@ -17,9 +17,7 @@ import ecologylab.generic.Debug;
 import ecologylab.generic.Generic;
 import ecologylab.generic.MathTools;
 import ecologylab.generic.NewPorterStemmer;
-import ecologylab.io.BasicSite;
 import ecologylab.io.DownloadProcessor;
-import ecologylab.io.Downloadable;
 
 /**
  * Non-linear flow multiplexer. Tracks downloads of <code>Downloadable</code> objects. Dispatches
@@ -31,8 +29,6 @@ import ecologylab.io.Downloadable;
 public class DownloadMonitor<T extends Downloadable> extends Monitor implements
 		DownloadProcessor<T>
 {
-	private static final int	TWELVE_HOURS_IN_MILLIS	= 1000*60*60*12;
-
 	static HashMap<Thread, NewPorterStemmer>	stemmersHash					= new HashMap<Thread, NewPorterStemmer>();
 
 	// ////////////////// queues for media that gets downloaded /////////////////
@@ -309,7 +305,8 @@ public class DownloadMonitor<T extends Downloadable> extends Monitor implements
 	/**
 	 * Keep track of system millis that this site can be hit at.
 	 */
-	public static Hashtable<BasicSite, Long> siteTimeTable = new Hashtable<BasicSite, Long>();
+	// this state moved into BasicSite! andruid 8/23/11
+//	public static Hashtable<BasicSite, Long> siteTimeTable = new Hashtable<BasicSite, Long>();
 	/**
 	 * The heart of the workhorse Threads. It loops, pulling a DownloadClosure off the toDownload
 	 * queue, calling its performDownload() method, and then calling dispatch() if there is a
@@ -358,9 +355,9 @@ public class DownloadMonitor<T extends Downloadable> extends Monitor implements
 							break;
 						}
 						
-						if (site != null && site.constrainDownloadInterval())
+						if (site != null && site.constrainDownloadInterval() && !downloadable.isImage())
 						{
-							Long nextDownloadableAt 	= siteTimeTable.get(site);
+							Long nextDownloadableAt 	= site.getNextAvailableTime(); // siteTimeTable.get(site);
 							if(nextDownloadableAt != null)
 							{
 								long timeRemaining 			= nextDownloadableAt - currentTimeMillis;
@@ -372,7 +369,8 @@ public class DownloadMonitor<T extends Downloadable> extends Monitor implements
 										break;
 									}
 									debug("\t\t-- Downloading: " + downloadable + " at\t" + new Date(currentTimeMillis) + " --");
-									setNextAvailableTimeForSite(site);
+									site.advanceNextAvailableTime();
+//									setNextAvailableTimeForSite(site);
 									break;
 								}
 								else // Its not time yet, so skip this downloadable.
@@ -386,7 +384,7 @@ public class DownloadMonitor<T extends Downloadable> extends Monitor implements
 							{ 
 								// No nextDownloadableAt time found for this site, 
 								//put in a new value, and accept this downloadClosure
-								setNextAvailableTimeForSite(site);
+								site.advanceNextAvailableTime();
 								break;
 							}
 						}
@@ -518,24 +516,6 @@ public class DownloadMonitor<T extends Downloadable> extends Monitor implements
 				break;
 		} // while (!finished)
 		debug("exiting -- " + Thread.currentThread());
-	}
-
-	/**
-	 * 
-	 * @param site
-	 */
-	private void setNextAvailableTimeForSite(BasicSite site)
-	{
-		synchronized(siteTimeTable)
-		{
-		//The next time we encounter the site, get a different interval.
-			siteTimeTable.put(site, System.currentTimeMillis() + site.getDecentDownloadInterval()); 
-		}
-	}
-	
-	public void setAbnormallyLongNextAvailableTimeForSite(BasicSite site)
-	{
-		siteTimeTable.put(site, System.currentTimeMillis() + TWELVE_HOURS_IN_MILLIS);
 	}
 
 	public String toString()

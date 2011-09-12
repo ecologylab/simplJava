@@ -18,7 +18,6 @@ import ecologylab.serialization.annotations.simpl_inherit;
  * 
  * @author Zachary O. Toups (zach@ecologylab.net)
  */
-@simpl_inherit
 public class SaverState extends ElementState
 {
 	protected static final String	XML_FILE_SUFFIX	= ".xml";

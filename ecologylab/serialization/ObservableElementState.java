@@ -5,12 +5,15 @@ package ecologylab.serialization;
 
 import java.util.Vector;
 
+import ecologylab.serialization.annotations.simpl_inherit;
+
 
 /**
  * @author andrew
  *
  */
-public class ObservableElementState extends ElementState
+@simpl_inherit
+public class ObservableElementState<P extends ElementState> extends ElementState<P>
 {
 	private boolean changed = false;
 	private Vector<ElementObserver> obs;

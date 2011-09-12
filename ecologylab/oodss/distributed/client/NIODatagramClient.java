@@ -285,23 +285,18 @@ public class NIODatagramClient<S extends Scope> extends NIODatagramCore<S>
 						pendingThreadsByUID.remove(myUid);
 						return responsesByUID.remove(myUid);
 					}
-					else
+					
+					if (message.isDisposable())
 					{
-						if (message.isDisposable())
-						{
-							pendingThreadsByUID.remove(myUid);
-							return null;
-						}
-						else
-						{
-							// retransmitting
-							this.sendMessage(message, key, myUid, null);
-						}
+						pendingThreadsByUID.remove(myUid);
+						return null;
 					}
+					
+					// retransmitting
+					this.sendMessage(message, key, myUid, null);
 				}
 				catch (InterruptedException e)
 				{
-					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
 			}
