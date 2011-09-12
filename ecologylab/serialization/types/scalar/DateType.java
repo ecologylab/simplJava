@@ -29,6 +29,7 @@ public class DateType extends ReferenceType<Date> implements CrossLanguageTypeCo
 		"yyyy-MM-dd HH:mm:ss",
 		"yyyy-MM-dd HH:mm",
 		"MMM dd, yyyy",
+		"dd MMMMM yyyy"
 	};
 	static final DateFormat	dateFormats[]			= new DateFormat[datePatterns.length + 1];
 
