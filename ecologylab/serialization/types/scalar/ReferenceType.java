@@ -63,7 +63,9 @@ abstract public class ReferenceType<T> extends ScalarType<T>
 	public void appendValue(T instance, Appendable buffy, boolean needsEscaping,
 			TranslationContext serializationContext, FORMAT format) throws IOException
 	{
-		String instanceString = marshall(instance, serializationContext); // andruid 1/4/10
+		String instanceString = "";
+		if (instance != null && serializationContext != null)
+			instanceString = marshall(instance, serializationContext); // andruid 1/4/10
 																																			// instance.toString();
 		if (needsEscaping)
 		{

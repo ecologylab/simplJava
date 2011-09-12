@@ -820,8 +820,7 @@ public class SingletonApplicationEnvironment extends ApplicationEnvironment impl
 			{
 				String decodedPrefsXML = URLDecoder.decode(prefSpec, "UTF-8");
 				debugA("Loading prefs from JNLP: " + decodedPrefsXML);
-
-				debugA("TranslationScope: \n");
+				
 				for (ClassDescriptor c : translationScope.getClassDescriptors())
 				{
 					debugA(c.toString());
