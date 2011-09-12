@@ -13,20 +13,25 @@ import ecologylab.collections.MultiMap;
 import ecologylab.generic.Debug;
 import ecologylab.net.ParsedURL;
 import ecologylab.serialization.TranslationScope.GRAPH_SWITCH;
-import ecologylab.serialization.serializers.Format;
 
 public class TranslationContext extends Debug implements ScalarUnmarshallingContext, FieldTypes
 {
 
-	public static final String							SIMPL_NAMESPACE					= " xmlns:simpl=\"http://ecologylab.net/research/simplGuide/serialization/index.html\"";
+	public static final String				SIMPL_NAMESPACE					= " xmlns:simpl=\"http://ecologylab.net/research/simplGuide/serialization/index.html\"";
 
-	public static final String							SIMPL_ID								= "simpl:id";
+	public static final String				SIMPL										= "simpl";
 
-	public static final String							SIMPL_REF								= "simpl:ref";
+	public static final String				REF											= "ref";
 
-	public static final String							JSON_SIMPL_ID						= "simpl.id";
+	public static final String				ID											= "id";
 
-	public static final String							JSON_SIMPL_REF					= "simpl.ref";
+	public static final String				SIMPL_ID								= "simpl:id";
+
+	public static final String				SIMPL_REF								= "simpl:ref";
+
+	public static final String				JSON_SIMPL_ID						= "simpl.id";
+
+	public static final String				JSON_SIMPL_REF					= "simpl.ref";
 
 	private MultiMap<Integer, Object>	marshalledObjects				= new MultiMap<Integer, Object>();
 
@@ -36,28 +41,36 @@ public class TranslationContext extends Debug implements ScalarUnmarshallingCont
 
 	private HashMap<String, Object>		unmarshalledObjects			= new HashMap<String, Object>();
 
-	protected ParsedURL											purlContext;
+	protected ParsedURL								purlContext;
+	protected ParsedURL											baseDirPurl;
 
-	protected File													fileContext;
+	protected File										fileContext;
+	protected File													baseDirFile;
 
-	protected String												delimiter								= ",";
+	protected String									delimiter								= ",";
 
 	public TranslationContext()
 	{
 
 	}
 
-	public TranslationContext(File fileContext)
+	public TranslationContext(File fileDirContext)
 	{
-		this.fileContext = fileContext;
-		this.purlContext = new ParsedURL(fileContext);
+		if (fileDirContext != null)
+			setBaseDirFile(fileDirContext);
+	}
+
+	public void setBaseDirFile(File fileDirContext)
+	{
+		this.baseDirFile = fileDirContext;
+		this.baseDirPurl = new ParsedURL(fileDirContext);
 	}
 
 	public TranslationContext(ParsedURL purlContext)
 	{
-		this.purlContext = purlContext;
+		this.baseDirPurl = purlContext;
 		if (purlContext.isFile())
-			this.fileContext = purlContext.file();
+			this.baseDirFile = purlContext.file();
 	}
 
 	public boolean handleSimplIds(final String tag, final String value, Object elementState)
@@ -80,7 +93,7 @@ public class TranslationContext extends Debug implements ScalarUnmarshallingCont
 
 		return false;
 	}
-	
+
 	public void markAsUnmarshalled(String value, Object elementState)
 	{
 		this.unmarshalledObjects.put(value, elementState);
@@ -92,11 +105,11 @@ public class TranslationContext extends Debug implements ScalarUnmarshallingCont
 		{
 			// this.visitedElements.put(System.identityHashCode(elementState), elementState);
 			this.visitedElements.put(elementState.hashCode(), elementState);
-			
+
 			ClassDescriptor.getClassDescriptor(elementState);
 
-			ArrayList<? extends FieldDescriptor> elementFieldDescriptors = ClassDescriptor.getClassDescriptor(elementState)
-					.elementFieldDescriptors();
+			ArrayList<? extends FieldDescriptor> elementFieldDescriptors = ClassDescriptor
+					.getClassDescriptor(elementState).elementFieldDescriptors();
 
 			for (FieldDescriptor elementFieldDescriptor : elementFieldDescriptors)
 			{
@@ -190,17 +203,17 @@ public class TranslationContext extends Debug implements ScalarUnmarshallingCont
 		return this.visitedElements.contains(elementState.hashCode(), elementState);
 	}
 
-	public void mapObject(Object elementState)
+	public void mapObject(Object object)
 	{
 		if (TranslationScope.graphSwitch == GRAPH_SWITCH.ON)
 		{
-			// this.marshalledObjects.put(System.identityHashCode(elementState), elementState);
-			this.marshalledObjects.put(elementState.hashCode(), elementState);
+			if (object != null)
+				this.marshalledObjects.put(object.hashCode(), object);
 		}
 	}
 
-	public void appendSimplIdIfRequired(Appendable appendable, Object elementState,
-			Format format) throws IOException
+	public void appendSimplIdIfRequired(Appendable appendable, Object elementState, Format format)
+			throws IOException
 	{
 		if (TranslationScope.graphSwitch == GRAPH_SWITCH.ON && this.needsHashCode(elementState))
 		{
@@ -212,6 +225,9 @@ public class TranslationContext extends Debug implements ScalarUnmarshallingCont
 	{
 		// return this.marshalledObjects.contains(System.identityHashCode(compositeObject),
 		// compositeObject);
+		if (compositeObject == null)
+			return false;
+
 		return this.marshalledObjects.contains(compositeObject.hashCode(), compositeObject);
 	}
 
@@ -245,7 +261,7 @@ public class TranslationContext extends Debug implements ScalarUnmarshallingCont
 	private void appendJSONSimplRefId(Appendable appendable, Object elementState,
 			FieldDescriptor compositeElementFD, boolean withTag) throws IOException
 	{
-		
+
 		compositeElementFD.writeJSONElementStart(appendable, withTag);
 		appendJSONSimplIdAttributeWithTagName(appendable, JSON_SIMPL_REF, elementState, false);
 		compositeElementFD.writeJSONCloseTag(appendable);
@@ -271,7 +287,7 @@ public class TranslationContext extends Debug implements ScalarUnmarshallingCont
 			appendable.append(',');
 			appendable.append(' ');
 		}
-		
+
 		appendable.append('"');
 		appendable.append(tagName);
 		appendable.append('"');
@@ -281,8 +297,8 @@ public class TranslationContext extends Debug implements ScalarUnmarshallingCont
 		appendable.append('"');
 	}
 
-	private void appendSimplIdAttribute(Appendable appendable, Object elementState,
-			Format format) throws IOException
+	private void appendSimplIdAttribute(Appendable appendable, Object elementState, Format format)
+			throws IOException
 	{
 		switch (format)
 		{
@@ -325,7 +341,7 @@ public class TranslationContext extends Debug implements ScalarUnmarshallingCont
 
 		return unMarshalledObject;
 	}
-	
+
 	public Object getFromMap(String value)
 	{
 		return this.unmarshalledObjects.get(value);
@@ -334,14 +350,14 @@ public class TranslationContext extends Debug implements ScalarUnmarshallingCont
 	@Override
 	public ParsedURL purlContext()
 	{
-		return (purlContext != null) ? purlContext : (fileContext != null) ? new ParsedURL(fileContext)
+		return (baseDirPurl != null) ? baseDirPurl : (baseDirFile != null) ? new ParsedURL(baseDirFile)
 				: null;
 	}
 
 	@Override
 	public File fileContext()
 	{
-		return (fileContext != null) ? fileContext : (purlContext != null) ? purlContext.file() : null;
+		return (baseDirFile != null) ? baseDirFile : (baseDirPurl != null) ? baseDirPurl.file() : null;
 	}
 
 	public String getDelimiter()

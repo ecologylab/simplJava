@@ -16,10 +16,10 @@ import ecologylab.serialization.SIMPLTranslationException;
 public interface SendableRequest
 {
 
-	/**
-	 * @param requestBuffer
-	 */
-	StringBuilder serialize(StringBuilder requestBuffer)	throws SIMPLTranslationException;
+//	/**
+//	 * @param requestBuffer
+//	 */
+//	StringBuilder serialize(StringBuilder requestBuffer)	throws SIMPLTranslationException;
 
 	/**
 	 * @return

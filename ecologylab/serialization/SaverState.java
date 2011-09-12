@@ -4,7 +4,6 @@
 package ecologylab.serialization;
 
 import java.io.File;
-import java.io.IOException;
 
 import ecologylab.oodss.exceptions.SaveFailedException;
 import ecologylab.serialization.annotations.simpl_inherit;
@@ -19,7 +18,6 @@ import ecologylab.serialization.annotations.simpl_inherit;
  * 
  * @author Zachary O. Toups (zach@ecologylab.net)
  */
-@simpl_inherit
 public class SaverState extends ElementState
 {
 	protected static final String	XML_FILE_SUFFIX	= ".xml";
@@ -40,7 +38,7 @@ public class SaverState extends ElementState
 	public static SaverState translateFromXML(File xmlFile, TranslationScope translationScope)
 			throws SIMPLTranslationException
 	{
-		SaverState saverState = (SaverState) translationScope.deserialize(xmlFile);
+		SaverState saverState = (SaverState) translationScope.deserialize(xmlFile, Format.XML);
 		saverState.setBackingFilePath(xmlFile.getAbsolutePath());
 
 		return saverState;
@@ -62,7 +60,8 @@ public class SaverState extends ElementState
 	public static ElementState translateFromXML(String fileName, TranslationScope translationScope)
 			throws SIMPLTranslationException
 	{
-		SaverState saverState = (SaverState) translationScope.deserialize(fileName);
+		SaverState saverState = (SaverState) translationScope.deserialize(new File(fileName),
+				Format.XML);
 		saverState.setBackingFilePath(fileName);
 
 		return saverState;
@@ -98,19 +97,13 @@ public class SaverState extends ElementState
 
 		try
 		{
-			this.serialize(this.backingFile());
+			ClassDescriptor.serialize(this, this.backingFile(), Format.XML);
 		}
 		catch (SIMPLTranslationException e)
 		{
 			e.printStackTrace();
 			throw new SaveFailedException("Could not write SaverState to file system.", e);
 		}
-		catch (IOException e)
-		{
-			e.printStackTrace();
-			throw new SaveFailedException("Could not write SaverState to file system.", e);
-		}
-
 	}
 
 	/**

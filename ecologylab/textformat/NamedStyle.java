@@ -2,42 +2,53 @@ package ecologylab.textformat;
 
 import ecologylab.appframework.types.prefs.Pref;
 import ecologylab.serialization.ElementState;
+import ecologylab.serialization.annotations.simpl_inherit;
 import ecologylab.serialization.annotations.simpl_scalar;
-import ecologylab.serialization.types.element.Mappable;
+import ecologylab.serialization.types.element.IMappable;
 
 /**
  * Set of variables that control the font style. May contain a name.
  * A Map State of named stles is stored in AWTBridge.
  * @author alexgrau
  */
+@simpl_inherit
 public class NamedStyle extends ElementState
-implements Mappable<String>
+implements IMappable<String>
 {
-	public static final						int				STROKE_RECTANGLE_FIT 	= 0;
-	public static final						int				STROKE_SMOOTH_FIT 		= 1;
-	public static final						int				STROKE_RECTANGLE 			= 2;
-	public static final						int				STROKE_NONE 					= 3;
-	
-	/**Name for this given style */
-	@simpl_scalar protected			String		name;
-	
-	/**Boolean indicating whether to underline the entire chunk or not*/
-	@simpl_scalar protected 			boolean		underline;
-	
-	/**Integer indicating the size of the chunk font*/
-	@simpl_scalar protected			int				fontSize;
-	
-	/**Integer indicating the alignment*/
-	@simpl_scalar protected			int				alignment;
-	
-	/** Integer indicating the faceIndex of the chunk*/
-	@simpl_scalar protected			int				faceIndex;
-	
-	/** Integer indicating the fontStyle of the chunk. Follows Font constants.*/
-	@simpl_scalar protected			int				fontStyle;
-	
-	/** Integer that indicates the stroke style for this chunk*/
-	@simpl_scalar protected			int				strokeStyle = Pref.lookupInt("stroke_style", STROKE_RECTANGLE_FIT);
+	public static final int	STROKE_RECTANGLE_FIT	= 0;
+	public static final int	STROKE_SMOOTH_FIT			= 1;
+	public static final int	STROKE_RECTANGLE			= 2;
+	public static final int	STROKE_NONE						= 3;
+
+	/** Name for this given style */
+	@simpl_scalar
+	protected String				name;
+
+	/** Boolean indicating whether to underline the entire chunk or not */
+	@simpl_scalar
+	protected boolean				underline;
+
+	/** Integer indicating the size of the chunk font */
+	@simpl_scalar
+	protected int						fontSize;
+
+	/** Integer indicating the alignment */
+	@simpl_scalar
+	protected int						alignment;
+
+	/** Integer indicating the faceIndex of the chunk */
+	@simpl_scalar
+	protected int						faceIndex;
+
+	/** Integer indicating the fontStyle of the chunk. Follows Font constants. */
+	@simpl_scalar
+	protected int						fontStyle;
+
+	/** Integer that indicates the stroke style for this chunk */
+	@simpl_scalar
+	protected int						strokeStyle						= Pref.lookupInt("stroke_style", STROKE_RECTANGLE_FIT);
+
+	private long						ormId;
 
 	/**
 	 * Set of variables that control the font style. May contain a name.
@@ -82,7 +93,7 @@ implements Mappable<String>
 	}
 
 
-	public String name()
+	public String getName()
 	{
 		return name;
 	}
@@ -92,7 +103,7 @@ implements Mappable<String>
 		this.name = name;
 	}
 
-	public boolean underline() 
+	public boolean getUnderline() 
 	{
 		return underline;
 	}
@@ -102,7 +113,7 @@ implements Mappable<String>
 		this.underline = underline;
 	}
 
-	public int fontSize() 
+	public int getFontSize() 
 	{
 		return fontSize;
 	}
@@ -122,7 +133,7 @@ implements Mappable<String>
 		this.alignment = alignment;
 	}
 
-	public int faceIndex() 
+	public int getFaceIndex() 
 	{
 		return faceIndex;
 	}
@@ -132,7 +143,7 @@ implements Mappable<String>
 		this.faceIndex = faceIndex;
 	}
 
-	public int fontStyle() 
+	public int getFontStyle() 
 	{
 		return fontStyle;
 	}
@@ -142,7 +153,7 @@ implements Mappable<String>
 		this.fontStyle = fontStyle;
 	}
 
-	public int strokeStyle() 
+	public int getStrokeStyle() 
 	{
 		return strokeStyle;
 	}
@@ -161,5 +172,17 @@ implements Mappable<String>
 	public String key()
 	{
 		return name;
+	}
+
+
+	public long getOrmId()
+	{
+		return ormId;
+	}
+
+
+	public void setOrmId(long ormId)
+	{
+		this.ormId = ormId;
 	}
 }

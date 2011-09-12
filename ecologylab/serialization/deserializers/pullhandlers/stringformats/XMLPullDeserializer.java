@@ -1,5 +1,6 @@
-package ecologylab.serialization.deserializers;
+package ecologylab.serialization.deserializers.pullhandlers.stringformats;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Collection;
@@ -10,11 +11,9 @@ import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamConstants;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
-
-import org.codehaus.jackson.JsonParseException;
-
 import ecologylab.generic.Debug;
 import ecologylab.generic.StringInputStream;
+import ecologylab.net.ParsedURL;
 import ecologylab.serialization.ClassDescriptor;
 import ecologylab.serialization.DeserializationHookStrategy;
 import ecologylab.serialization.FieldDescriptor;
@@ -22,53 +21,80 @@ import ecologylab.serialization.FieldTypes;
 import ecologylab.serialization.SIMPLTranslationException;
 import ecologylab.serialization.TranslationContext;
 import ecologylab.serialization.TranslationScope;
-import ecologylab.serialization.types.element.Mappable;
+import ecologylab.serialization.types.element.IMappable;
 
-public class XMLPullDeserializer extends Debug implements FieldTypes
+/**
+ * Pull API implementation to transform XML documets to corresponding object models. Utilizes
+ * XMLStreamReader to get sequential access to tags in XML.
+ * 
+ * @author nabeel
+ */
+public class XMLPullDeserializer extends StringPullDeserializer
 {
-	TranslationScope						translationScope;
 
-	TranslationContext					translationContext;
+	XMLStreamReader	xmlStreamReader	= null;
 
-	DeserializationHookStrategy	deserializationHookStrategy;
+	public XMLPullDeserializer(TranslationScope translationScope,
+			TranslationContext translationContext, DeserializationHookStrategy deserializationHookStrategy)
+	{
+		super(translationScope, translationContext, deserializationHookStrategy);
+	}
 
-	XMLStreamReader							xmlStreamReader	= null;
-
-	/**
-	 * Constructs that creates a XML deserialization handler
-	 * 
-	 * @param translationScope
-	 *          translation scope to use for de/serializing subsequent char sequences
-	 * @param translationContext
-	 *          used for graph handling
-	 */
 	public XMLPullDeserializer(TranslationScope translationScope,
 			TranslationContext translationContext)
 	{
-		this.translationScope = translationScope;
-		this.translationContext = translationContext;
-		this.deserializationHookStrategy = null;
+		super(translationScope, translationContext);
 	}
 
-	public Object parse(CharSequence charSequence) throws XMLStreamException,
-			FactoryConfigurationError, SIMPLTranslationException, IOException
+	/**
+	 * Parses a charsequence of the XML document and returns the corresponding object model.
+	 * 
+	 * @param charSequence
+	 * @return
+	 * @throws SIMPLTranslationException
+	 * @throws XMLStreamException
+	 * @throws FactoryConfigurationError
+	 * @throws SIMPLTranslationException
+	 * @throws IOException
+	 */
+	public Object parse(CharSequence charSequence) throws SIMPLTranslationException
 	{
-		InputStream xmlStream = new StringInputStream(charSequence, StringInputStream.UTF8);
-		xmlStreamReader = XMLInputFactory.newInstance().createXMLStreamReader(xmlStream, "UTF-8");
+		try
+		{
+			InputStream xmlStream = new StringInputStream(charSequence, StringInputStream.UTF8);
+			xmlStreamReader = XMLInputFactory.newInstance().createXMLStreamReader(xmlStream, "UTF-8");
 
-		Object root = null;
+			Object root = null;
 
-		xmlStreamReader.next();
+			xmlStreamReader.next();
 
-		ClassDescriptor<? extends FieldDescriptor> rootClassDescriptor = translationScope
-				.getClassDescriptorByTag(xmlStreamReader.getLocalName());
+			if (xmlStreamReader.getEventType() != XMLStreamConstants.START_ELEMENT)
+			{
+				throw new SIMPLTranslationException("start of and element expected");
+			}
 
-		root = rootClassDescriptor.getInstance();
-		deserializeAttributes(root, rootClassDescriptor);
+			String rootTag = xmlStreamReader.getLocalName();
 
-		createObjectModel(root, rootClassDescriptor);
+			ClassDescriptor<? extends FieldDescriptor> rootClassDescriptor = translationScope
+					.getClassDescriptorByTag(rootTag);
 
-		return root;
+			if (rootClassDescriptor == null)
+			{
+				throw new SIMPLTranslationException("cannot find the class descriptor for root element <"
+						+ rootTag + ">; make sure if translation scope is correct.");
+			}
+
+			root = rootClassDescriptor.getInstance();
+			deserializeAttributes(root, rootClassDescriptor);
+
+			createObjectModel(root, rootClassDescriptor);
+
+			return root;
+		}
+		catch (Exception ex)
+		{
+			throw new SIMPLTranslationException("exception occurred in deserialzation ", ex);
+		}
 	}
 
 	/**
@@ -85,12 +111,12 @@ public class XMLPullDeserializer extends Debug implements FieldTypes
 	 * @throws XMLStreamException
 	 */
 	private void createObjectModel(Object root,
-			ClassDescriptor<? extends FieldDescriptor> rootClassDescriptor) throws JsonParseException,
-			IOException, SIMPLTranslationException, XMLStreamException
+			ClassDescriptor<? extends FieldDescriptor> rootClassDescriptor) throws IOException,
+			SIMPLTranslationException, XMLStreamException
 	{
 		FieldDescriptor currentFieldDescriptor = null;
 		Object subRoot = null;
-		int event;
+		int event = 0;
 
 		while (xmlStreamReader.hasNext() && (event = nextEvent()) != XMLStreamConstants.END_ELEMENT)
 		{
@@ -140,9 +166,9 @@ public class XMLPullDeserializer extends Debug implements FieldTypes
 						{
 							String compositeTagName = xmlStreamReader.getLocalName();
 							subRoot = getSubRoot(currentFieldDescriptor, compositeTagName);
-							if (subRoot instanceof Mappable)
+							if (subRoot instanceof IMappable)
 							{
-								final Object key = ((Mappable) subRoot).key();
+								final Object key = ((IMappable) subRoot).key();
 								Map map = (Map) currentFieldDescriptor.automaticLazyGetCollectionOrMap(root);
 								map.put(key, subRoot);
 							}
@@ -159,8 +185,8 @@ public class XMLPullDeserializer extends Debug implements FieldTypes
 	}
 
 	/**
-	 * Gets the sub root of the object model if its a composite object. Does graph handling Handles
-	 * simpl.ref tag to assign an already created instance of the composite object instead of creating
+	 * Gets the sub root of the object model if its a composite object. Does graph handling/ Handles
+	 * simpl:ref tag to assign an already created instance of the composite object instead of creating
 	 * a new one
 	 * 
 	 * @param currentFieldDescriptor
@@ -171,38 +197,105 @@ public class XMLPullDeserializer extends Debug implements FieldTypes
 	 * @throws XMLStreamException
 	 */
 	private Object getSubRoot(FieldDescriptor currentFieldDescriptor, String tagName)
-			throws SIMPLTranslationException, JsonParseException, IOException, XMLStreamException
+			throws SIMPLTranslationException, IOException, XMLStreamException
 	{
-
 		Object subRoot = null;
 		ClassDescriptor<? extends FieldDescriptor> subRootClassDescriptor = currentFieldDescriptor
 				.getChildClassDescriptor(tagName);
-		subRoot = subRootClassDescriptor.getInstance();
-		deserializeAttributes(subRoot, subRootClassDescriptor);
-		createObjectModel(subRoot, subRootClassDescriptor);
+
+		String simplReference = null;
+
+		if ((simplReference = getSimpleReference()) != null)
+		{
+			subRoot = translationContext.getFromMap(simplReference);
+			xmlStreamReader.next();
+		}
+		else
+		{
+			subRoot = subRootClassDescriptor.getInstance();
+			deserializeAttributes(subRoot, subRootClassDescriptor);
+			createObjectModel(subRoot, subRootClassDescriptor);
+		}
+
 		return subRoot;
 	}
 
-	private void deserializeAttributes(Object root,
+	/**
+	 * 
+	 * @return
+	 */
+	private String getSimpleReference()
+	{
+		String simplReference = null;
+
+		for (int i = 0; i < xmlStreamReader.getAttributeCount(); i++)
+		{
+			String attributePrefix = xmlStreamReader.getAttributePrefix(i);
+			String tag = xmlStreamReader.getAttributeLocalName(i);
+			String value = xmlStreamReader.getAttributeValue(i);
+
+			if (TranslationContext.SIMPL.equals(attributePrefix))
+			{
+				if (tag.equals(TranslationContext.REF))
+				{
+					simplReference = value;
+				}
+			}
+		}
+
+		return simplReference;
+	}
+
+	/**
+	 * 
+	 * @param root
+	 * @param rootClassDescriptor
+	 * @return
+	 */
+	private boolean deserializeAttributes(Object root,
 			ClassDescriptor<? extends FieldDescriptor> rootClassDescriptor)
 	{
 		for (int i = 0; i < xmlStreamReader.getAttributeCount(); i++)
 		{
+			String attributePrefix = xmlStreamReader.getAttributePrefix(i);
 			String tag = xmlStreamReader.getAttributeLocalName(i);
 			String value = xmlStreamReader.getAttributeValue(i);
 
-			FieldDescriptor attributeFieldDescriptor = rootClassDescriptor.getFieldDescriptorByTag(tag,
-					translationScope);
+			if (TranslationContext.SIMPL.equals(attributePrefix))
+			{
+				if (tag.equals(TranslationContext.ID))
+				{
+					translationContext.markAsUnmarshalled(value, root);
+				}
+			}
+			else
+			{
+				FieldDescriptor attributeFieldDescriptor = rootClassDescriptor.getFieldDescriptorByTag(tag,
+						translationScope);
 
-			if (attributeFieldDescriptor != null)
-				attributeFieldDescriptor.setFieldToScalar(root, value, translationContext);
+				if (attributeFieldDescriptor != null)
+				{
+					attributeFieldDescriptor.setFieldToScalar(root, value, translationContext);
+				}
+				else
+				{
+					debug("ignoring attribute: " + tag);
+				}
+			}
 		}
+
+		return true;
 	}
 
+	/**
+	 * 
+	 * @return
+	 * @throws XMLStreamException
+	 */
 	private int nextEvent() throws XMLStreamException
 	{
 		int eventType = 0;
-		
+
 		// skip events that we don't handle.
 		while (xmlStreamReader.hasNext())
 		{
@@ -220,7 +313,11 @@ public class XMLPullDeserializer extends Debug implements FieldTypes
 		return eventType;
 	}
 
-	private void printParse() throws XMLStreamException
+	/**
+	 * 
+	 * @throws XMLStreamException
+	 */
+	protected void printParse() throws XMLStreamException
 	{
 		int event;
 		while (xmlStreamReader.hasNext())
@@ -243,5 +340,19 @@ public class XMLPullDeserializer extends Debug implements FieldTypes
 			} // end switch
 			xmlStreamReader.next();
 		} // end while
+	}
+
+	@Override
+	public Object parse(File file)
+	{
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Object parse(ParsedURL purl)
+	{
+		// TODO Auto-generated method stub
+		return null;
 	}
 }

@@ -10,7 +10,7 @@ import ecologylab.generic.ResourcePool;
 
 /**
  * @author toupsz
- *
+ * 
  */
 public class XMLReaderPool extends ResourcePool<XMLReader>
 {
@@ -20,8 +20,7 @@ public class XMLReaderPool extends ResourcePool<XMLReader>
 	 * @param initialPoolSize
 	 * @param minimumPoolSize
 	 */
-	public XMLReaderPool(boolean instantiateResourcesInPool,
-			int initialPoolSize, int minimumPoolSize)
+	public XMLReaderPool(boolean instantiateResourcesInPool, int initialPoolSize, int minimumPoolSize)
 	{
 		super(instantiateResourcesInPool, initialPoolSize, minimumPoolSize, false);
 	}
@@ -40,24 +39,32 @@ public class XMLReaderPool extends ResourcePool<XMLReader>
 	 * 
 	 * @see ecologylab.generic.ResourcePool#clean(java.lang.Object)
 	 */
-	@Override protected void clean(XMLReader objectToClean)
+	@Override
+	protected void clean(XMLReader objectToClean)
 	{
 	}
 
-	/**
-	 * @see ecologylab.generic.ResourcePool#generateNewResource()
-	 */
-	@Override protected XMLReader generateNewResource()
+	@Override
+	protected XMLReader generateNewResource()
 	{
-		try
-		{
-			return ElementStateSAXHandler.createXMLReader();
-		}
-		catch (SAXException e)
-		{
-			e.printStackTrace();
-		}
-		
+		// TODO Auto-generated method stub
 		return null;
 	}
+
+	// /**
+	// * @see ecologylab.generic.ResourcePool#generateNewResource()
+	// */
+	// @Override protected XMLReader generateNewResource()
+	// {
+	// try
+	// {
+	// return ElementStateSAXHandler.createXMLReader();
+	// }
+	// catch (SAXException e)
+	// {
+	// e.printStackTrace();
+	// }
+	//		
+	// return null;
+	// }
 }

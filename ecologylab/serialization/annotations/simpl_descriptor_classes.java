@@ -20,5 +20,5 @@ import java.lang.annotation.Target;
 
 public @interface simpl_descriptor_classes
 {
-  Class[] value();
+  Class<?>[] value();
 }

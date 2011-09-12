@@ -7,11 +7,11 @@ import java.io.IOException;
 
 import org.json.simple.JSONObject;
 
+import ecologylab.serialization.Format;
 import ecologylab.serialization.ScalarUnmarshallingContext;
 import ecologylab.serialization.TranslationContext;
 import ecologylab.serialization.XMLTools;
 import ecologylab.serialization.annotations.simpl_inherit;
-import ecologylab.serialization.serializers.Format;
 import ecologylab.serialization.types.CrossLanguageTypeConstants;
 
 /**

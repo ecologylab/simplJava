@@ -26,7 +26,9 @@ import ecologylab.generic.ResourcePool;
 import ecologylab.oodss.distributed.common.NetworkingConstants;
 import ecologylab.oodss.distributed.exception.MessageTooLargeException;
 import ecologylab.oodss.messages.ServiceMessage;
+import ecologylab.serialization.ClassDescriptor;
 import ecologylab.serialization.SIMPLTranslationException;
+import ecologylab.serialization.StringFormat;
 import ecologylab.serialization.TranslationScope;
 
 /**
@@ -44,9 +46,8 @@ public abstract class NIODatagramCore<S extends Scope> extends Debug implements 
 {
 	protected long																																		currentUIDIndex				= 1;
 
-	private MessageWithMetadataPool<ServiceMessage<S>, MessageMetaData>								messagePool						= new MessageWithMetadataPool<ServiceMessage<S>, MessageMetaData>(
-																																																							4,
-																																																							4);
+	private MessageWithMetadataPool<ServiceMessage<S>, MessageMetaData>								messagePool						= new MessageWithMetadataPool<ServiceMessage<S>, MessageMetaData>(4,
+																																																																																						4);
 
 	private MessageMetaDataPool																												metaDataPool					= new MessageMetaDataPool();
 
@@ -76,16 +77,13 @@ public abstract class NIODatagramCore<S extends Scope> extends Debug implements 
 
 	protected boolean																																	doCompress						= false;
 
-	protected Deflater																																deflater							= new Deflater(
-																																																							Deflater.BEST_COMPRESSION);
+	protected Deflater																																deflater							= new Deflater(Deflater.BEST_COMPRESSION);
 
 	protected Inflater																																inflater							= new Inflater();
 
-	private CharsetDecoder																														decoder								= CHARSET
-																																																							.newDecoder();
+	private CharsetDecoder																														decoder								= CHARSET.newDecoder();
 
-	private CharsetEncoder																														encoder								= CHARSET
-																																																							.newEncoder();
+	private CharsetEncoder																														encoder								= CHARSET.newEncoder();
 
 	/**
 	 * Base constructor. Opens the socket and sets up the state objects.
@@ -118,8 +116,9 @@ public abstract class NIODatagramCore<S extends Scope> extends Debug implements 
 
 	/**
 	 * Resource pool of MessageMetaData objects for messages in queue.
+	 * 
 	 * @author bilhamil
-	 *
+	 * 
 	 */
 	protected class MessageMetaDataPool extends ResourcePool<MessageMetaData>
 	{
@@ -144,25 +143,37 @@ public abstract class NIODatagramCore<S extends Scope> extends Debug implements 
 
 	protected class MessageMetaData
 	{
-		public SelectionKey		key;
+		public SelectionKey				key;
 
 		public InetSocketAddress	addr;
 
 	}
 
 	/**
-	 * Pool of threads for handling the call backs of request messages.
-	 * Benefit of being able to have more computationally intensive callbacks
-	 * without holding up the system.
+	 * Pool of threads for handling the call backs of request messages. Benefit of being able to have
+	 * more computationally intensive callbacks without holding up the system.
 	 * 
 	 * @author bilhamil
-	 *
+	 * 
 	 */
 	protected class PacketHandlerPool extends CappedResourcePool<PacketHandler>
 	{
+		private boolean	shuttingDown	= false;
+
 		public PacketHandlerPool()
 		{
-			super(true, 4, 4, 32, true);
+			super(true, 1, 1, 32, true);
+		}
+
+		/**
+		 * Causes this pool to shut down by removing all its threads (causing them to stop()). Any
+		 * further releases of PacketHandlers to this will result in them stop()'ing.
+		 */
+		@Override
+		public synchronized void shutdown()
+		{
+			this.shuttingDown = true;
+			super.shutdown();
 		}
 
 		@Override
@@ -186,13 +197,27 @@ public abstract class NIODatagramCore<S extends Scope> extends Debug implements 
 		{
 			handler.stop();
 		}
+
+		/**
+		 * @see ecologylab.generic.CappedResourcePool#onRelease(java.lang.Object)
+		 */
+		@Override
+		protected synchronized void onRelease(PacketHandler resourceToRelease)
+		{
+			super.onRelease(resourceToRelease);
+
+			if (shuttingDown)
+			{
+				this.onRemoval(resourceToRelease);
+			}
+		}
 	}
 
 	/**
-	 * Packet handling class. Is basically a handle for a thread
-	 * that processes message handling.
+	 * Packet handling class. Is basically a handle for a thread that processes message handling.
+	 * 
 	 * @author bilhamil
-	 *
+	 * 
 	 */
 	protected class PacketHandler implements Runnable
 	{
@@ -280,11 +305,11 @@ public abstract class NIODatagramCore<S extends Scope> extends Debug implements 
 	}
 
 	/**
-	 * Packet Sending Class. Pulls messages that are queued to be sent out,
-	 * serializes them, and puts them on the socket.
+	 * Packet Sending Class. Pulls messages that are queued to be sent out, serializes them, and puts
+	 * them on the socket.
 	 * 
 	 * @author bilhamil
-	 *
+	 * 
 	 */
 	protected class PacketSender implements Runnable
 	{
@@ -317,7 +342,6 @@ public abstract class NIODatagramCore<S extends Scope> extends Debug implements 
 					}
 					catch (InterruptedException e)
 					{
-						// TODO Auto-generated catch block
 						e.printStackTrace();
 					}
 				}
@@ -344,19 +368,23 @@ public abstract class NIODatagramCore<S extends Scope> extends Debug implements 
 				MessageWithMetadata<ServiceMessage<S>, MessageMetaData> mdataMessage = null;
 				try
 				{
+					// debug("1");
 					mdataMessage = outgoingMessageQueue.take();
 
 					buffer.putLong(mdataMessage.getUid());
 
-					mdataMessage.getMessage().serialize(builder);
+					ClassDescriptor.serialize(mdataMessage.getMessage(), builder, StringFormat.XML);
+					
 
 					builder.flip();
 
+					// debug("2");
 					encoder.encode(builder, buffer, true);
 					buffer.flip();
 
 					if (doCompress)
 					{
+						// debug("3");
 						/* Compress message */
 						byte[] array = inBuffer;
 						buffer.get(inBuffer, 0, buffer.limit());
@@ -376,6 +404,7 @@ public abstract class NIODatagramCore<S extends Scope> extends Debug implements 
 						}
 						else
 						{
+							// debug("4");
 							compressedSize = deflater.deflate(outBuffer, 0, outBuffer.length);
 							buffer.clear();
 							buffer.put(outBuffer, 0, compressedSize);
@@ -388,6 +417,7 @@ public abstract class NIODatagramCore<S extends Scope> extends Debug implements 
 						/* debug("Input size: " + uncompressedSize + " and output size: " + compressedSize); */
 					}
 
+					// debug("5");
 					DatagramChannel channel = (DatagramChannel) mdataMessage.getAttachment().key.channel();
 					if (channel.isConnected())
 					{
@@ -434,10 +464,14 @@ public abstract class NIODatagramCore<S extends Scope> extends Debug implements 
 				}
 				finally
 				{
+					// debug("6");
 					buffer.clear();
+					// debug("7");
 					builder.clear();
+					// debug("8");
 					if (mdataMessage != null)
 					{
+						// debug("9");
 						metaDataPool.release(mdataMessage.getAttachment());
 						messagePool.release(mdataMessage);
 					}
@@ -447,11 +481,11 @@ public abstract class NIODatagramCore<S extends Scope> extends Debug implements 
 	}
 
 	/**
-	 * Packet recieving thread. Deserializes incoming messages and passes them
-	 * onto the packet handler threads.
+	 * Packet receiving thread. Deserializes incoming messages and passes them onto the packet handler
+	 * threads.
 	 * 
 	 * @author bilhamil
-	 *
+	 * 
 	 */
 	protected class PacketReciever implements Runnable
 	{
@@ -538,8 +572,9 @@ public abstract class NIODatagramCore<S extends Scope> extends Debug implements 
 										int decompressedSize;
 										if (recieveBuffer.hasArray())
 										{
-											decompressedSize = inflater.inflate(recieveBuffer.array(), 0, recieveBuffer
-													.capacity());
+											decompressedSize = inflater.inflate(recieveBuffer.array(),
+																													0,
+																													recieveBuffer.capacity());
 
 											if (decompressedSize == 0)
 											{
@@ -570,8 +605,7 @@ public abstract class NIODatagramCore<S extends Scope> extends Debug implements 
 
 									messageBuffer.flip();
 
-									ServiceMessage<S> message = (ServiceMessage<S>) translationScope
-											.deserializeCharSequence(messageBuffer);
+									ServiceMessage<S> message = (ServiceMessage<S>) translationScope.deserialize(messageBuffer, StringFormat.XML);
 									message.setSender(address.getAddress());
 
 									PacketHandler handler = handlerPool.acquire();
@@ -604,22 +638,27 @@ public abstract class NIODatagramCore<S extends Scope> extends Debug implements 
 							}
 						}
 					}
-
 				}
 				catch (IOException e)
 				{
 					e.printStackTrace();
 				}
 			}
+			
+			handlerPool.shutdown();
 		}
 	}
 
 	/**
 	 * Queue up out going message
-	 * @param m message being sent
+	 * 
+	 * @param m
+	 *          message being sent
 	 * @param key
-	 * @param uid message uid
-	 * @param addr socket address to send the message to.
+	 * @param uid
+	 *          message uid
+	 * @param addr
+	 *          socket address to send the message to.
 	 */
 	public void sendMessage(ServiceMessage<S> m, SelectionKey key, Long uid, InetSocketAddress addr)
 	{
@@ -657,6 +696,15 @@ public abstract class NIODatagramCore<S extends Scope> extends Debug implements 
 	{
 		sender.stop();
 		reciever.stop();
+
+		try
+		{
+			this.selector.close();
+		}
+		catch (IOException e)
+		{
+			e.printStackTrace();
+		}
 	}
 
 	protected boolean isRunning()
@@ -667,8 +715,8 @@ public abstract class NIODatagramCore<S extends Scope> extends Debug implements 
 	abstract protected void waitForReconnect();
 
 	/**
-	 * Abstract message to be overriden to specify how to handle incomeing messages.
-	 * Gets called from with a Packet Handler.
+	 * Abstract message to be overriden to specify how to handle incomeing messages. Gets called from
+	 * with a Packet Handler.
 	 * 
 	 * @param uid
 	 * @param message

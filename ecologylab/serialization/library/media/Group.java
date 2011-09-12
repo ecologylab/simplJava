@@ -25,7 +25,8 @@ public class Group extends ElementState
 	 */
 	public Media lookupMedia()
 	{
-		return (Media) lookupNestedNameSpace("media");
+		return null;
+		//return (Media) lookupNestedNameSpace("media");
 	}
 	   
 	

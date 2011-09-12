@@ -1,4 +1,4 @@
-package ecologylab.serialization.serializers;
+package ecologylab.serialization.serializers.stringformats;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -7,6 +7,7 @@ import java.util.Collection;
 import ecologylab.serialization.ClassDescriptor;
 import ecologylab.serialization.FieldDescriptor;
 import ecologylab.serialization.FieldTypes;
+import ecologylab.serialization.Format;
 import ecologylab.serialization.SIMPLTranslationException;
 import ecologylab.serialization.TranslationContext;
 import ecologylab.serialization.TranslationScope;
@@ -20,13 +21,8 @@ import ecologylab.serialization.TranslationScope.GRAPH_SWITCH;
  * @author nabeel
  * 
  */
-public class JSONSerializer extends FormatSerializer implements FieldTypes
+public class JSONSerializer extends StringSerializer implements FieldTypes
 {
-
-	private static final String	JSON_SIMPL_ID		= "simpl.id";
-
-	private static final String	JSON_SIMPL_REF	= "simpl.ref";
-
 	public JSONSerializer()
 	{
 
@@ -34,19 +30,26 @@ public class JSONSerializer extends FormatSerializer implements FieldTypes
 
 	@Override
 	public void serialize(Object object, Appendable appendable, TranslationContext translationContext)
-			throws SIMPLTranslationException, IOException
+			throws SIMPLTranslationException
 	{
 		translationContext.resolveGraph(object);
 
 		ClassDescriptor<? extends FieldDescriptor> rootObjectClassDescriptor = ClassDescriptor
 				.getClassDescriptor(object.getClass());
 
-		writeStart(appendable);
+		try
+		{
+			writeStart(appendable);
 
-		serialize(object, rootObjectClassDescriptor.pseudoFieldDescriptor(), appendable,
-				translationContext, true);
+			serialize(object, rootObjectClassDescriptor.pseudoFieldDescriptor(), appendable,
+					translationContext, true);
 
-		writeClose(appendable);
+			writeClose(appendable);
+		}
+		catch (IOException e)
+		{
+			throw new SIMPLTranslationException("IO Exception occurred", e);
+		}
 	}
 
 	/**
@@ -391,7 +394,7 @@ public class JSONSerializer extends FormatSerializer implements FieldTypes
 	private void writeSimplRefAttribute(Object object, Appendable appendable) throws IOException
 	{
 		appendable.append('"');
-		appendable.append(JSON_SIMPL_REF);
+		appendable.append(TranslationContext.JSON_SIMPL_REF);
 		appendable.append('"');
 		appendable.append(':');
 		appendable.append('"');
@@ -403,7 +406,7 @@ public class JSONSerializer extends FormatSerializer implements FieldTypes
 			throws IOException
 	{
 		appendable.append('"');
-		appendable.append(JSON_SIMPL_ID);
+		appendable.append(TranslationContext.JSON_SIMPL_ID);
 		appendable.append('"');
 		appendable.append(':');
 		appendable.append('"');

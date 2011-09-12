@@ -18,8 +18,10 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
 import ecologylab.appframework.StatusReporter;
-import ecologylab.generic.Continuation;
+import ecologylab.concurrent.BasicSite;
+import ecologylab.concurrent.Downloadable;
 import ecologylab.generic.Debug;
+import ecologylab.generic.Continuation;
 import ecologylab.net.NetTools;
 import ecologylab.net.ParsedURL;
 
@@ -453,5 +455,14 @@ public class ZipDownload extends Debug implements Downloadable, Continuation
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
+	}
+
+	/**
+	 * Default empty implementation; will be ignored for this type.
+	 */
+	@Override
+	public boolean isImage()
+	{
+		return false;
 	}
 }

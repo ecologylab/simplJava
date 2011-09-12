@@ -5,15 +5,17 @@ import java.net.URL;
 import java.util.ArrayList;
 
 import ecologylab.net.ParsedURL;
+import ecologylab.serialization.ClassDescriptor;
 import ecologylab.serialization.ElementState;
+import ecologylab.serialization.Format;
 import ecologylab.serialization.SIMPLTranslationException;
+import ecologylab.serialization.StringFormat;
 import ecologylab.serialization.annotations.bibtex_key;
 import ecologylab.serialization.annotations.bibtex_tag;
 import ecologylab.serialization.annotations.bibtex_type;
 import ecologylab.serialization.annotations.simpl_collection;
 import ecologylab.serialization.annotations.simpl_nowrap;
 import ecologylab.serialization.annotations.simpl_scalar;
-import ecologylab.serialization.serializers.Format;
 
 @bibtex_type("article")
 public class Entry extends ElementState
@@ -301,8 +303,8 @@ public class Entry extends ElementState
 		e.setPublisher("IEEE Educational Activities Department");
 		e.setAddress("Piscataway, NJ, USA");
 		e.setKeywords(keywords);
-
-		e.serialize(System.out, Format.BIBTEX);
+		
+		ClassDescriptor.serialize(e, System.out, StringFormat.BIBTEX);
 	}
 
 

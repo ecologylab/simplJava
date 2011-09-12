@@ -3,7 +3,7 @@
  */
 package ecologylab.standalone;
 
-import ecologylab.appframework.ApplicationEnvironment;
+import ecologylab.appframework.SingletonApplicationEnvironment;
 import ecologylab.appframework.types.prefs.PrefsTranslationsProvider;
 import ecologylab.appframework.types.prefs.gui.PrefsEditor;
 import ecologylab.serialization.SIMPLTranslationException;
@@ -15,7 +15,7 @@ import ecologylab.serialization.TranslationScope;
  * @author Cae
  * @author andruid
  */
-public class PrefsEditorAp extends ApplicationEnvironment 
+public class PrefsEditorAp extends SingletonApplicationEnvironment 
 {
 	
 	public PrefsEditorAp(String[] args) throws SIMPLTranslationException 

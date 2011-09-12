@@ -1,4 +1,4 @@
-package ecologylab.serialization.serializers;
+package ecologylab.serialization.serializers.stringformats;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -7,15 +7,16 @@ import java.util.Collection;
 import ecologylab.serialization.ClassDescriptor;
 import ecologylab.serialization.FieldDescriptor;
 import ecologylab.serialization.FieldTypes;
+import ecologylab.serialization.Format;
 import ecologylab.serialization.SIMPLTranslationException;
 import ecologylab.serialization.TranslationContext;
 import ecologylab.serialization.XMLTools;
 
 /**
  * 
- * @author nabeelshahzad 
+ * @author nabeel
  */
-public class BibtexSerializer extends FormatSerializer implements FieldTypes
+public class BibtexSerializer extends StringSerializer implements FieldTypes
 {
 
 	public BibtexSerializer()
@@ -24,15 +25,22 @@ public class BibtexSerializer extends FormatSerializer implements FieldTypes
 
 	@Override
 	public void serialize(Object object, Appendable appendable, TranslationContext translationContext)
-			throws SIMPLTranslationException, IOException
+			throws SIMPLTranslationException
 	{
 		translationContext.resolveGraph(object);
 
 		ClassDescriptor<? extends FieldDescriptor> rootObjectClassDescriptor = ClassDescriptor
 				.getClassDescriptor(object.getClass());
 
-		serialize(object, rootObjectClassDescriptor.pseudoFieldDescriptor(), appendable,
-				translationContext);
+		try
+		{
+			serialize(object, rootObjectClassDescriptor.pseudoFieldDescriptor(), appendable,
+					translationContext);
+		}
+		catch (IOException e)
+		{
+			throw new SIMPLTranslationException("IO Exception occurred", e);
+		}
 	}
 
 	/**

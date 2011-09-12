@@ -1,10 +1,7 @@
 package ecologylab.serialization;
 
 import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
 import java.lang.annotation.Annotation;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -18,11 +15,12 @@ import ecologylab.serialization.annotations.simpl_map;
 import ecologylab.serialization.annotations.simpl_nowrap;
 import ecologylab.serialization.annotations.simpl_scalar;
 import ecologylab.serialization.annotations.simpl_tag;
-import ecologylab.serialization.deserializers.JSONPullDeserializer;
-import ecologylab.serialization.deserializers.XMLPullDeserializer;
-import ecologylab.serialization.serializers.Format;
+import ecologylab.serialization.deserializers.pullhandlers.PullDeserializer;
+import ecologylab.serialization.deserializers.pullhandlers.binaryformats.BinaryPullDeserializer;
+import ecologylab.serialization.deserializers.pullhandlers.stringformats.StringPullDeserializer;
 import ecologylab.serialization.types.ScalarType;
 import ecologylab.serialization.types.TypeRegistry;
+import ecologylab.tests.Composed;
 
 /**
  * A set of bindings between XML element names (tags) and associated simple (without package) class
@@ -1119,11 +1117,6 @@ public final class TranslationScope extends ElementState
 		return name;
 	}
 
-	public static void main(String[] s)
-	{
-
-	}
-
 	public static final String	BASIC_TRANSLATIONS	= "basic_translations";
 
 	private void addTranslationScope(String name)
@@ -1131,271 +1124,74 @@ public final class TranslationScope extends ElementState
 		allTranslationScopes.put(name, this);
 	}
 
-	/**
-	 * Translate a file XML to a strongly typed tree of XML objects.
-	 * 
-	 * Use SAX or DOM parsing depending on the value of useDOMForTranslateTo.
-	 * 
-	 * @param fileName
-	 *          the name of the XML file that needs to be translated.
-	 * @return Strongly typed tree of ElementState objects.
-	 * @throws SIMPLTranslationException
-	 */
-	public ElementState deserialize(String fileName) throws SIMPLTranslationException
-	{
-		return deserialize(fileName, new TranslationContext());
-	}
-
-	public ElementState deserialize(String fileName, TranslationContext translationContext)
+	public Object deserialize(File file, TranslationContext translationContext,
+			DeserializationHookStrategy deserializationHookStrategy, Format format)
 			throws SIMPLTranslationException
 	{
-		File xmlFile = new File(fileName);
-		if (!xmlFile.exists() && !xmlFile.canRead())
-			throw new SIMPLTranslationException("Can't access " + xmlFile.getAbsolutePath(),
-					FILE_NOT_FOUND);
-
-		return deserialize(xmlFile, translationContext);
+		PullDeserializer pullDeserializer = PullDeserializer.getDeserializer(this, translationContext,
+				deserializationHookStrategy, format);
+		return pullDeserializer.parse(file);
 	}
 
-	public ElementState deserializeByteArray(byte[] byteArray, Format format)
+	public Object deserialize(File file, TranslationContext translationContext, Format format)
 			throws SIMPLTranslationException
 	{
-		return deserializeByteArray(byteArray, format, new TranslationContext());
+		return deserialize(file, translationContext, null, format);
 	}
 
-	public ElementState deserializeByteArray(byte[] byteArray, Format format,
-			TranslationContext translationContext) throws SIMPLTranslationException
+	public Object deserialize(File file, Format format) throws SIMPLTranslationException
 	{
-		ElementState result = null;
-		switch (format)
-		{
-		case XML:
-			ElementStateSAXHandler saxHandler = new ElementStateSAXHandler(this, translationContext);
-			result = saxHandler.parse(new String(byteArray));
-			break;
-		case JSON:
-			// ElementStateJSONHandler jsonHandler = new ElementStateJSONHandler(this);
-			ElementStateJSONPushHandler jsonHandler = new ElementStateJSONPushHandler(this,
-					new TranslationContext());
-			result = jsonHandler.parse(new String(byteArray));
-			break;
-		case TLV:
-			ElementStateTLVHandler tlvHandler = new ElementStateTLVHandler(this);
-			result = tlvHandler.parse(byteArray);
-			break;
-		}
-		return result;
+		return deserialize(file, new TranslationContext(), null, format);
 	}
 
-	public Object deserializeCharSequence(CharSequence charSequence, Format format)
+	public Object deserialize(ParsedURL parsedURL, TranslationContext translationContext,
+			DeserializationHookStrategy deserializationHookStrategy, Format format)
 			throws SIMPLTranslationException
 	{
-		return deserializeCharSequence(charSequence, format, new TranslationContext());
+		PullDeserializer pullDeserializer = PullDeserializer.getDeserializer(this, translationContext,
+				deserializationHookStrategy, format);
+		return pullDeserializer.parse(parsedURL);
 	}
 
-	public Object deserializeCharSequence(CharSequence charSequence, Format format,
-			TranslationContext translationContext) throws SIMPLTranslationException
+	public Object deserialize(ParsedURL parsedURL, TranslationContext translationContext,
+			Format format) throws SIMPLTranslationException
 	{
-		Object result = null;
-		try
-		{
-
-			switch (format)
-			{
-			case XML:
-				XMLPullDeserializer xmlDeserializer = new XMLPullDeserializer(this, translationContext);
-				result = xmlDeserializer.parse(charSequence);
-				break;
-			case JSON:
-				// ElementStateJSONHandler jsonHandler = new ElementStateJSONHandler(this);
-				JSONPullDeserializer jsonHandler = new JSONPullDeserializer(this, new TranslationContext());
-				result = jsonHandler.parse(charSequence);
-				break;
-			case TLV:
-				ElementStateTLVHandler tlvHandler = new ElementStateTLVHandler(this);
-				result = tlvHandler.parse(charSequence);
-			}
-		}
-		catch (Exception ex)
-		{
-			System.out.println(ex.toString());
-		}
-		return result;
+		return deserialize(parsedURL, translationContext, null, format);
 	}
 
-	public ElementState deserializeCharSequence(CharSequence charSequence)
+	public Object deserialize(ParsedURL parsedURL, Format format) throws SIMPLTranslationException
+	{
+		return deserialize(parsedURL, new TranslationContext(), null, format);
+	}
+
+	public Object deserialize(CharSequence charSequence, TranslationContext translationContext,
+			DeserializationHookStrategy deserializationHookStrategy, StringFormat stringFormat)
 			throws SIMPLTranslationException
 	{
-		return deserializeCharSequence(charSequence, new TranslationContext());
+		StringPullDeserializer pullDeserializer = PullDeserializer.getStringDeserializer(this,
+				translationContext, deserializationHookStrategy, stringFormat);
+		return pullDeserializer.parse(charSequence);
 	}
 
-	/**
-	 * Use the (faster!) SAX parser to form a strongly typed tree of ElementState objects from XML.
-	 * 
-	 * @param charSequence
-	 * @return
-	 * @throws SIMPLTranslationException
-	 */
-	public ElementState deserializeCharSequence(CharSequence charSequence,
-			TranslationContext translationContext) throws SIMPLTranslationException
+	public Object deserialize(CharSequence charSequence, TranslationContext translationContext,
+			StringFormat stringFormat) throws SIMPLTranslationException
 	{
-		ElementStateSAXHandler saxHandler = new ElementStateSAXHandler(this, translationContext);
-		return saxHandler.parse(charSequence);
+		return deserialize(charSequence, translationContext, null, stringFormat);
 	}
 
-	public ElementState deserialize(ParsedURL purl) throws SIMPLTranslationException
-	{
-		return deserialize(purl, new TranslationContext(), null);
-	}
-
-	public ElementState deserialize(ParsedURL purl,
-			DeserializationHookStrategy deserializationHookStrategy) throws SIMPLTranslationException
-	{
-		return deserialize(purl, new TranslationContext(), deserializationHookStrategy);
-	}
-
-	/**
-	 * Use the (faster!) SAX parser to form a strongly typed tree of ElementState objects from XML.
-	 * 
-	 * @param purl
-	 * @return
-	 * @throws SIMPLTranslationException
-	 */
-	public ElementState deserialize(ParsedURL purl, TranslationContext translationContext,
-			DeserializationHookStrategy deserializationHookStrategy) throws SIMPLTranslationException
-	{
-		if (purl == null)
-			throw new SIMPLTranslationException("Null PURL", NULL_PURL);
-
-		if (!purl.isNotFileOrExists())
-			throw new SIMPLTranslationException("Can't find " + purl.toString(), FILE_NOT_FOUND);
-
-		ElementStateSAXHandler saxHandler = new ElementStateSAXHandler(this, translationContext);
-		return saxHandler.parse(purl, deserializationHookStrategy);
-	}
-
-	public ElementState deserialize(InputStream inputStream) throws SIMPLTranslationException
-	{
-		return deserialize(inputStream, new TranslationContext());
-	}
-
-	/**
-	 * Use the (faster!) SAX parser to form a strongly typed tree of ElementState objects from XML.
-	 * 
-	 * @param inputStream
-	 *          An InputStream to the XML that needs to be translated.
-	 * @return
-	 * @throws SIMPLTranslationException
-	 */
-	public ElementState deserialize(InputStream inputStream, TranslationContext translationContext)
+	public Object deserialize(CharSequence charSequence, StringFormat stringFormat)
 			throws SIMPLTranslationException
 	{
-		return deserialize(inputStream, translationContext, null);
-		// ElementStateSAXHandler saxHandler = new ElementStateSAXHandler(this);
-		// return saxHandler.parse(inputStream);
+		return deserialize(charSequence, new TranslationContext(), null, stringFormat);
 	}
 
-	/**
-	 * Use the (faster!) SAX parser to form a strongly typed tree of ElementState objects from XML.
-	 * 
-	 * @param inputStream
-	 *          An InputStream to the XML that needs to be translated.
-	 * @param deserializationHookStrategy
-	 *          TODO
-	 * @return
-	 * @throws SIMPLTranslationException
-	 */
-	public ElementState deserialize(InputStream inputStream,
-			DeserializationHookStrategy deserializationHookStrategy) throws SIMPLTranslationException
-	{
-		return deserialize(inputStream, new TranslationContext(), deserializationHookStrategy);
-	}
-
-	public ElementState deserialize(InputStream inputStream, TranslationContext translationContext,
-			DeserializationHookStrategy deserializationHookStrategy) throws SIMPLTranslationException
-	{
-		ElementStateSAXHandler saxHandler = new ElementStateSAXHandler(this, translationContext);
-		return saxHandler.parse(inputStream, deserializationHookStrategy);
-	}
-
-	public ElementState deserialize(ecologylab.net.PURLConnection purlConnection,
-			DeserializationHookStrategy deserializationHookStrategy) throws SIMPLTranslationException,
-			IOException
-	{
-		return deserialize(purlConnection, new TranslationContext(), deserializationHookStrategy);
-
-	}
-
-	public ElementState deserialize(ecologylab.net.PURLConnection purlConnection,
-			TranslationContext translationContext, DeserializationHookStrategy deserializationHookStrategy)
-			throws SIMPLTranslationException, IOException
-	{
-		ElementStateSAXHandler saxHandler = new ElementStateSAXHandler(this, translationContext);
-		return saxHandler.parse(purlConnection, deserializationHookStrategy);
-	}
-
-	public ElementState deserialize(File file, DeserializationHookStrategy deserializationHookStrategy)
+	public Object deserialize(byte[] byteArray, TranslationContext translationContext,
+			DeserializationHookStrategy deserializationHookStrategy, BinaryFormat binaryFormat)
 			throws SIMPLTranslationException
 	{
-		return deserialize(file, new TranslationContext(), deserializationHookStrategy);
-	}
-
-	public ElementState deserialize(File file, TranslationContext translationContext,
-			DeserializationHookStrategy deserializationHookStrategy) throws SIMPLTranslationException
-	{
-		ElementStateSAXHandler saxHandler = new ElementStateSAXHandler(this, translationContext);
-		return saxHandler.parse(file, deserializationHookStrategy);
-	}
-
-	public ElementState deserialize(CharSequence charSequence,
-			DeserializationHookStrategy deserializationHookStrategy) throws SIMPLTranslationException
-	{
-		return deserialize(charSequence, new TranslationContext(), deserializationHookStrategy);
-	}
-
-	public ElementState deserialize(CharSequence charSequence, TranslationContext translationContext,
-			DeserializationHookStrategy deserializationHookStrategy) throws SIMPLTranslationException
-	{
-		ElementStateSAXHandler saxHandler = new ElementStateSAXHandler(this, translationContext);
-		return saxHandler.parse(charSequence, deserializationHookStrategy);
-	}
-
-	/**
-	 * Use the (faster!) SAX parser to form a strongly typed tree of ElementState objects from XML.
-	 * 
-	 * @param url
-	 * @return
-	 * @throws SIMPLTranslationException
-	 */
-	public ElementState deserialize(URL url) throws SIMPLTranslationException
-	{
-		return deserialize(url, new TranslationContext());
-	}
-
-	public ElementState deserialize(URL url, TranslationContext translationContext)
-			throws SIMPLTranslationException
-	{
-		ElementStateSAXHandler saxHandler = new ElementStateSAXHandler(this, translationContext);
-		return saxHandler.parse(url);
-	}
-
-	/**
-	 * Use the (faster!) SAX parser to form a strongly typed tree of ElementState objects from XML.
-	 * 
-	 * @param file
-	 * @return
-	 * @throws SIMPLTranslationException
-	 */
-	public ElementState deserialize(File file) throws SIMPLTranslationException
-	{
-		return deserialize(file, new TranslationContext());
-	}
-
-	public ElementState deserialize(File file, TranslationContext translationContext)
-			throws SIMPLTranslationException
-	{
-		ElementStateSAXHandler saxHandler = new ElementStateSAXHandler(this, translationContext);
-		return saxHandler.parse(file);
+		BinaryPullDeserializer binaryPullDeserializer = PullDeserializer.getBinaryDeserializer(this,
+				translationContext, deserializationHookStrategy, binaryFormat);
+		return binaryPullDeserializer.parse(byteArray);
 	}
 
 	public static TranslationScope getBasicTranslations()
@@ -1684,24 +1480,19 @@ public final class TranslationScope extends ElementState
 	}
 
 	/**
-	 * A method to clear the exisitng translationScopes and add the given one
-	 * 
-	 * @param name
-	 * @param translationScope
+	 * This will switch on the graph serialization
 	 */
-	public static void AddTranslationScope(String name, TranslationScope translationScope)
+	public static void enableGraphSerialization()
 	{
-		// not needed due to deserializationPostHook() below.
-		// allTranslationScopes.clear();
-		// allTranslationScopes.put(name, translationScope);
+		graphSwitch = GRAPH_SWITCH.ON;
 	}
 
 	/**
 	 * This will switch on the graph serialization
 	 */
-	public static void setGraphSwitch()
+	public static void disableGraphSerialization()
 	{
-		graphSwitch = GRAPH_SWITCH.ON;
+		graphSwitch = GRAPH_SWITCH.OFF;
 	}
 
 	/**
@@ -1721,4 +1512,5 @@ public final class TranslationScope extends ElementState
 					+ name);
 		allTranslationScopes.put(name, this);
 	}
+
 }

@@ -143,7 +143,7 @@ class PolygonState extends ElementState implements Shape
 	}
 
 	/**
-	 * Returns the list of polygon verticies. Modify it at your own risk.
+	 * Returns the list of polygon vertices. Modify it at your own risk.
 	 * 
 	 * @return polygonVerticies
 	 */

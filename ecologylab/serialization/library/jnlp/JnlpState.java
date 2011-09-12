@@ -10,8 +10,10 @@ import java.util.ArrayList;
 import ecologylab.appframework.types.prefs.PrefSet;
 import ecologylab.appframework.types.prefs.PrefSetBaseClassProvider;
 import ecologylab.generic.Debug;
+import ecologylab.serialization.ClassDescriptor;
 import ecologylab.serialization.ElementState;
 import ecologylab.serialization.SIMPLTranslationException;
+import ecologylab.serialization.StringFormat;
 import ecologylab.serialization.TranslationScope;
 import ecologylab.serialization.annotations.simpl_collection;
 import ecologylab.serialization.annotations.simpl_composite;
@@ -75,7 +77,7 @@ public class JnlpState extends ElementState implements Cloneable
 	@simpl_nowrap
 	@simpl_collection("applet-desc")
 	ArrayList<AppletDesc>							appletDesc		= new ArrayList<AppletDesc>();
-	
+
 	@simpl_nowrap
 	@simpl_collection("property")
 	ArrayList<Property>								properties;
@@ -166,8 +168,8 @@ public class JnlpState extends ElementState implements Cloneable
 			String thisXml;
 			try
 			{
-				thisXml = this.serialize().toString();
-				String thatXml = ((ElementState) obj).serialize().toString();
+				thisXml = ClassDescriptor.serialize(this, StringFormat.XML).toString();
+				String thatXml = ClassDescriptor.serialize(obj, StringFormat.XML).toString();
 
 				return thisXml.equals(thatXml);
 			}
@@ -215,7 +217,7 @@ public class JnlpState extends ElementState implements Cloneable
 				+ "    <argument>%3Cpref_set%3E%3Cpref_float+name%3D%22WALL_REPULSION%22+value%3D%221000.0%22%2F%3E%3Cpref_float+name%3D%22VALUE_IN%22+value%3D%220.1%22%2F%3E%3Cpref_int+name%3D%22INTERFACE_MODE%22+value%3D%222%22%2F%3E%3Cpref_int+name%3D%22MAX_GOALS%22+value%3D%2212%22%2F%3E%3Cpref_string+name%3D%22TUTORIAL_FILE%22+value%3D%22%2Ftutorial%2Ftutorial.xml%22%2F%3E%3Cpref_boolean+name%3D%22IS_TUTORIAL%22+value%3D%22true%22%2F%3E%3Cpref_color_mapping+name%3D%22SEEKER_COLORS%22%3E%3Cseeker_color+user_id%3D%22tests036%22%2F%3E%3C%2Fpref_color_mapping%3E%3Cpref_boolean+name%3D%22SHOW_WAP_FIELDS%22+value%3D%22true%22%2F%3E%3Cpref_string+name%3D%22APP_ID%22+value%3D%22tteclogTutorialLaunch%22%2F%3E%3Cpref_string+name%3D%22QUESTION_NAME%22+value%3D%22tutorial%22%2F%3E%3Cpref_float+name%3D%22GOAL_REPULSION%22+value%3D%2220.0%22%2F%3E%3Cpref_float+name%3D%22THREAT_KC%22+value%3D%222.5%22%2F%3E%3Cpref_int+name%3D%22debug_global_level%22+value%3D%225%22%2F%3E%3Cpref_int+name%3D%22MAX_3_GOALS%22+value%3D%223%22%2F%3E%3Cpref_int+name%3D%22log_mode%22+value%3D%224%22%2F%3E%3Cpref_int+name%3D%22MAX_CYCLES%22+value%3D%229000%22%2F%3E%3Cpref_int+name%3D%22VALUE_4_GOALS%22+value%3D%221600%22%2F%3E%3Cpref_float+name%3D%22KF%22+value%3D%220.45%22%2F%3E%3Cpref_auth_list+name%3D%22AUTH_LIST_FROM_SERVER%22%3E%3Cvalue+last_u_i_d%3D%222%22%3E%3Cauth_list%3E%3Cuser+user_key%3D%22tests036%22+password%3D%22p9RTXTHTop60vG1x5Ky5omJIoTEYMGzda7l3qSq%2BB5Q%3D%22%2F%3E%3Cuser+user_key%3D%22_coord%22+password%3D%22LPjU%2FOMOf92odzLmTRWqMpCxEE44v8xLjozoWLtTVQA%3D%22+uid%3D%221%22%2F%3E%3C%2Fauth_list%3E%3C%2Fvalue%3E%3C%2Fpref_auth_list%3E%3Cpref_int+name%3D%22logging_port%22+value%3D%2210201%22%2F%3E%3Cpref_boolean+name%3D%22SHOW_RESTORATION_ZONES%22+value%3D%22true%22%2F%3E%3Cpref_float+name%3D%22KC%22+value%3D%220.15%22%2F%3E%3Cpref_int+name%3D%22MAX_2_GOALS%22+value%3D%224%22%2F%3E%3Cpref_float+name%3D%22AVAILABLE_ACCEL%22+value%3D%221.1%22%2F%3E%3Cpref_boolean+name%3D%22SHOW_GPS_FIELDS%22+value%3D%22true%22%2F%3E%3Cpref_float+name%3D%22VIRTUAL_VISCOSITY%22+value%3D%22-0.1%22%2F%3E%3Cpref_boolean+name%3D%22SHOW_GUI%22+value%3D%22true%22%2F%3E%3Cpref_int+name%3D%22MAX_SEEKERS%22+value%3D%221%22%2F%3E%3Cpref_int+name%3D%22MAX_THREATS%22+value%3D%2220%22%2F%3E%3Cpref_int+name%3D%22PENALTY_OUT%22+value%3D%2225%22%2F%3E%3Cpref_float+name%3D%22BASE_REPULSION%22+value%3D%22100.0%22%2F%3E%3Cpref_string+name%3D%22MAP%22+value%3D%22%2Fmaps%2Ftutorial.xml%22%2F%3E%3Cpref_string+name%3D%22STUDY_PASSWORD%22+value%3D%22asdffdsa%22%2F%3E%3Cpref_int+name%3D%22MAX_COLLECT_CYCLES%22+value%3D%2215%22%2F%3E%3Cpref_float+name%3D%22THREAT_KF%22+value%3D%220.02%22%2F%3E%3Cpref_float+name%3D%22KV%22+value%3D%220.45%22%2F%3E%3Cpref_string+name%3D%22STUDY_URL%22+value%3D%22http%3A%2F%2F128.194.128.234%3A8080%2FsampleStudy%22%2F%3E%3Cpref_int+name%3D%22VALUE_1_GOALS%22+value%3D%22100%22%2F%3E%3Cpref_int+name%3D%22VALUE_2_GOALS%22+value%3D%22400%22%2F%3E%3Cpref_float+name%3D%22WORLD_VISCOSITY%22+value%3D%22-0.39999998%22%2F%3E%3Cpref_float+name%3D%22GOAL_ATTRACTION%22+value%3D%2240.0%22%2F%3E%3Cpref_int+name%3D%22VALUE_3_GOALS%22+value%3D%22900%22%2F%3E%3Cpref_boolean+name%3D%22IS_LOCATION_AWARE%22+value%3D%22true%22%2F%3E%3Cpref_float+name%3D%22THREAT_BIAS%22+value%3D%220.90000004%22%2F%3E%3Cpref_long+name%3D%22RANDOM_SEED%22+value%3D%223000%22%2F%3E%3Cpref_boolean+name%3D%22PAUSE_ON_PANIC%22%2F%3E%3Cpref_float+name%3D%22THREAT_KV%22+value%3D%220.1%22%2F%3E%3Cpref_boolean+name%3D%22SHOW_WALLS%22+value%3D%22true%22%2F%3E%3C%2Fpref_set%3E</argument>"
 				+ "  </application-desc>\n" + "</jnlp> \n" + "";
 
-		JnlpState j = (JnlpState) JnlpTranslations.get().deserializeCharSequence(jnlpContents);
+		JnlpState j = (JnlpState) JnlpTranslations.get().deserialize(jnlpContents, StringFormat.XML);
 
 		ArrayList<InformationElement> infos = j.getInformations();
 		for (InformationElement i : infos)
@@ -232,24 +234,24 @@ public class JnlpState extends ElementState implements Cloneable
 			System.out.println("arg: " + a);
 		}
 
-		j.serialize(System.out);
+		ClassDescriptor.serialize(j, System.out, StringFormat.XML);
 
 		String prefSetString = URLDecoder.decode(
 				appDesc.getArguments().get(appDesc.getArguments().size() - 1), "UTF-8");
 		TranslationScope[] arrayToMakeJavaShutUp = {};
 		PrefSet prefs = (PrefSet) TranslationScope.get(PrefSet.PREFS_TRANSLATION_SCOPE,
 				arrayToMakeJavaShutUp, PrefSetBaseClassProvider.STATIC_INSTANCE.provideClasses())
-				.deserializeCharSequence(prefSetString);
+				.deserialize(prefSetString, StringFormat.XML);
 
 		Debug.println(prefSetString);
-		Debug.println(prefs.serialize());
+		Debug.println(ClassDescriptor.serialize(prefs, StringFormat.XML));
 
 		JnlpState newState = new JnlpState();
 		newState.setApplicationDesc(new ApplicationDesc());
 
 		newState.getApplicationDesc().setPrefSet(prefs);
 
-		Debug.println(newState.serialize());
+		Debug.println(ClassDescriptor.serialize(newState, StringFormat.XML));
 	}
 
 	/**
@@ -270,7 +272,8 @@ public class JnlpState extends ElementState implements Cloneable
 		// a bit of a hack, but it's easy! :D
 		try
 		{
-			return (JnlpState) JnlpTranslations.get().deserializeCharSequence(this.serialize());
+			return (JnlpState) JnlpTranslations.get().deserialize(
+					ClassDescriptor.serialize(this, StringFormat.XML), StringFormat.XML);
 		}
 		catch (SIMPLTranslationException e)
 		{

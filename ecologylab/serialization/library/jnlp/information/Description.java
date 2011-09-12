@@ -7,7 +7,7 @@ import ecologylab.serialization.ElementState;
 import ecologylab.serialization.annotations.Hint;
 import ecologylab.serialization.annotations.simpl_hints;
 import ecologylab.serialization.annotations.simpl_scalar;
-import ecologylab.serialization.types.element.Mappable;
+import ecologylab.serialization.types.element.IMappable;
 
 /**
  * A short statement about the application. Description elements are optional. The kind attribute defines how the
@@ -29,7 +29,7 @@ import ecologylab.serialization.types.element.Mappable;
  * 
  * @author Zachary O. Toups (toupsz@cs.tamu.edu)
  */
-public class Description extends ElementState implements Mappable<String>
+public class Description extends ElementState implements IMappable<String>
 {
     @simpl_scalar private String kind;
 
@@ -44,7 +44,7 @@ public class Description extends ElementState implements Mappable<String>
     }
 
     /**
-     * @see ecologylab.serialization.types.element.Mappable#key()
+     * @see ecologylab.serialization.types.element.IMappable#key()
      */
     public String key()
     {

@@ -2,6 +2,7 @@ package ecologylab.standalone;
 
 import java.io.File;
 
+import ecologylab.serialization.Format;
 import ecologylab.serialization.SIMPLTranslationException;
 import ecologylab.serialization.TranslationScope;
 import ecologylab.serialization.library.rest.Fields;
@@ -27,7 +28,7 @@ public class TestNameSpace
 						= RESTTranslationSpace.get(); 
 		try 
 		{
-			Fields fields= (Fields) tSpace.deserialize(xmlFile);
+			Fields fields= (Fields) tSpace.deserialize(xmlFile, Format.XML);
 			System.out.println("Fields: \n" + fields.toString());
 		} catch (SIMPLTranslationException e) 
 		{

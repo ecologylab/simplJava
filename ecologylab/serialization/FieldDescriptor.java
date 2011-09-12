@@ -46,12 +46,11 @@ import ecologylab.serialization.library.html.Div;
 import ecologylab.serialization.library.html.Input;
 import ecologylab.serialization.library.html.Td;
 import ecologylab.serialization.library.html.Tr;
-import ecologylab.serialization.serializers.Format;
 import ecologylab.serialization.types.CollectionType;
 import ecologylab.serialization.types.FundamentalTypes;
 import ecologylab.serialization.types.ScalarType;
 import ecologylab.serialization.types.TypeRegistry;
-import ecologylab.serialization.types.element.Mappable;
+import ecologylab.serialization.types.element.IMappable;
 
 /**
  * Used to provide convenient access for setting and getting values, using the
@@ -59,8 +58,9 @@ import ecologylab.serialization.types.element.Mappable;
  * 
  * @author andruid
  */
+@SuppressWarnings("rawtypes")
 @simpl_inherit
-public class FieldDescriptor extends DescriptorBase implements FieldTypes, Mappable<String>
+public class FieldDescriptor extends DescriptorBase implements FieldTypes, IMappable<String>
 {
 
 	public static final String												NULL											= ScalarType.DEFAULT_VALUE_STRING;
@@ -1143,10 +1143,10 @@ public class FieldDescriptor extends DescriptorBase implements FieldTypes, Mappa
 	{
 		if (context != null)
 		{
+			Object value = this.getValue(context);
+			String valueString = value == null ? NULL : value.toString();
 			ScalarType scalarType = this.scalarType;
-			Field field = this.field;
-
-			if (!scalarType.isDefaultValue(field, context))
+			if (value != null && !scalarType.isDefaultValue(valueString))
 			{
 				// for this field, generate tags and attach name value pair
 
@@ -1164,6 +1164,36 @@ public class FieldDescriptor extends DescriptorBase implements FieldTypes, Mappa
 		}
 	}
 
+	public Object getValue(Object context)
+	{
+		Object value = null;
+		try
+		{
+			if (context != null)
+				value = this.field.get(context);
+		}
+		catch (IllegalArgumentException e)
+		{
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		catch (IllegalAccessException e)
+		{
+			debugA("WARNING re-trying access! " + e.getStackTrace()[0]);
+			this.field.setAccessible(true);
+			try
+			{
+				value = this.field.get(this);
+			}
+			catch (IllegalAccessException e1)
+			{
+				error("Can't access " + this.field.getName());
+				e1.printStackTrace();
+			}
+		}
+		return value;
+	}
+	
 	/**
 	 * Appends the label and value of a metadata field to HTML elements, including anchors where
 	 * appropriate
@@ -1542,8 +1572,10 @@ public class FieldDescriptor extends DescriptorBase implements FieldTypes, Mappa
 		if (context != null)
 		{
 			ScalarType scalarType = this.scalarType;
-			Field field = this.field;
-			if (!scalarType.isDefaultValue(field, context))
+//			Field field = this.field;
+//			if (!scalarType.isDefaultValue(field, context)) // this line fails with proxy classes
+			Object value = this.getValue(context);
+			if (value != null && !scalarType.isDefaultValue(value.toString()))
 			{
 				// for this field, generate <tag>value</tag>
 
@@ -1812,7 +1844,21 @@ public class FieldDescriptor extends DescriptorBase implements FieldTypes, Mappa
 		if (filterRegex != null)
 		{
 			Matcher matcher = filterRegex.matcher(value);
-			value = matcher.replaceAll(filterReplace);
+			if (filterReplace == null)
+			{
+				if (matcher.find())
+				{
+					value = matcher.group();
+				}
+				else
+				{
+					value = "";
+				}
+			}
+			else
+			{
+				value = matcher.replaceAll(filterReplace);
+			}
 		}
 		return value;
 	}

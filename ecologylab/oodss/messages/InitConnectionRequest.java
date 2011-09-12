@@ -4,7 +4,9 @@
 package ecologylab.oodss.messages;
 
 import ecologylab.collections.Scope;
+import ecologylab.serialization.ClassDescriptor;
 import ecologylab.serialization.SIMPLTranslationException;
+import ecologylab.serialization.StringFormat;
 import ecologylab.serialization.TranslationScope;
 import ecologylab.serialization.annotations.simpl_scalar;
 
@@ -59,8 +61,8 @@ public class InitConnectionRequest extends RequestMessage
 	{
 		try
 		{
-			TranslationScope.get("init_connection_request", InitConnectionRequest.class,
-					RequestMessage.class).serialize(System.out);
+			ClassDescriptor.serialize(TranslationScope.get("init_connection_request", InitConnectionRequest.class,
+					RequestMessage.class), System.out, StringFormat.XML);
 		}
 		catch (SIMPLTranslationException e)
 		{

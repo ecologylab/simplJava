@@ -2,10 +2,8 @@ package ecologylab.concurrent;
 
 import java.io.IOException;
 
-import ecologylab.generic.Continuation;
 import ecologylab.generic.Debug;
-import ecologylab.io.BasicSite;
-import ecologylab.io.Downloadable;
+import ecologylab.generic.Continuation;
 
 /**
  * Closure that keeps state about a download, as it progresses.

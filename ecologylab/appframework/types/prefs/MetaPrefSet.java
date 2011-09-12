@@ -10,6 +10,7 @@ import java.util.Set;
 
 import ecologylab.net.ParsedURL;
 import ecologylab.serialization.ElementState;
+import ecologylab.serialization.Format;
 import ecologylab.serialization.SIMPLTranslationException;
 import ecologylab.serialization.TranslationScope;
 import ecologylab.serialization.annotations.simpl_collection;
@@ -174,7 +175,7 @@ public class MetaPrefSet extends ElementState
     public static MetaPrefSet load(ParsedURL purl, TranslationScope translationScope) 
     throws SIMPLTranslationException
     {
-		 return (MetaPrefSet) translationScope.deserialize(purl);
+		 return (MetaPrefSet) translationScope.deserialize(purl, Format.XML);
     	
     }
 

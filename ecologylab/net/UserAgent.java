@@ -6,13 +6,13 @@ package ecologylab.net;
 import ecologylab.serialization.ElementState;
 import ecologylab.serialization.annotations.simpl_scalar;
 import ecologylab.serialization.annotations.simpl_tag;
-import ecologylab.serialization.types.element.Mappable;
+import ecologylab.serialization.types.element.IMappable;
 
 /**
  * @author awebb
  * 
  */
-public class UserAgent extends ElementState implements Mappable<String>
+public class UserAgent extends ElementState implements IMappable<String>
 {
 	@simpl_scalar
 	String	name;

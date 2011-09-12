@@ -7,12 +7,12 @@ import java.awt.Color;
 import java.io.File;
 import java.util.LinkedList;
 
-import ecologylab.appframework.ApplicationEnvironment;
+import ecologylab.appframework.SingletonApplicationEnvironment;
 import ecologylab.collections.Scope;
 import ecologylab.serialization.ElementState;
 import ecologylab.serialization.annotations.simpl_inherit;
 import ecologylab.serialization.annotations.simpl_scalar;
-import ecologylab.serialization.types.element.Mappable;
+import ecologylab.serialization.types.element.IMappable;
 
 /**
  * Generic base class for application Preference objects.
@@ -21,13 +21,13 @@ import ecologylab.serialization.types.element.Mappable;
  */
 
 @simpl_inherit
-public abstract class Pref<T> extends ElementState implements Mappable<String>, Cloneable
+public abstract class Pref<T> extends ElementState implements IMappable<String>, Cloneable
 {
 	/** The global registry of Pref objects. Used for providing lookup services. */
 	static final Scope<Pref<?>>							allPrefsMap	= new Scope<Pref<?>>();
 
 	/** The ApplicationEnvironment associated with this JVM. */
-	static final ApplicationEnvironment			aE					= null;
+	static final SingletonApplicationEnvironment			aE					= null;
 
 	/** Name of a Pref; provides index into the preferences map. */
 	@simpl_scalar
@@ -641,7 +641,7 @@ public abstract class Pref<T> extends ElementState implements Mappable<String>, 
 	}
 
 	/**
-	 * @see ecologylab.serialization.types.element.Mappable#key()
+	 * @see ecologylab.serialization.types.element.IMappable#key()
 	 */
 	public String key()
 	{

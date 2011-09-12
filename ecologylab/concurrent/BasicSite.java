@@ -1,7 +1,7 @@
 /**
  * 
  */
-package ecologylab.io;
+package ecologylab.concurrent;
 
 import java.util.Random;
 
@@ -9,7 +9,7 @@ import ecologylab.net.ParsedURL;
 import ecologylab.serialization.ElementState;
 import ecologylab.serialization.annotations.simpl_scalar;
 import ecologylab.serialization.annotations.simpl_tag;
-import ecologylab.serialization.types.element.Mappable;
+import ecologylab.serialization.types.element.IMappable;
 
 /**
  * 
@@ -19,7 +19,7 @@ import ecologylab.serialization.types.element.Mappable;
 
 @simpl_tag("site")
 public 
-class BasicSite extends ElementState implements Mappable<String>
+class BasicSite extends ElementState implements IMappable<String>
 {
 	
 	static Random random = new Random(System.currentTimeMillis());
@@ -42,7 +42,9 @@ class BasicSite extends ElementState implements Mappable<String>
 
   boolean													ignore;
   
-  static final int							MAX_TIMEOUTS	= 6;
+  long														nextAvailableTime;
+  
+	static final int							MAX_TIMEOUTS	= 6;
 
   /**
    * Minimum time to wait between downloads for this domain
@@ -50,6 +52,7 @@ class BasicSite extends ElementState implements Mappable<String>
    */
   @simpl_scalar protected float							minDownloadInterval;
   
+    
   /**
    * Timestamp of last download from this site;
    */
@@ -216,4 +219,22 @@ class BasicSite extends ElementState implements Mappable<String>
 	{
 		this.ignore = ignore;
 	}
+	
+  public long getNextAvailableTime()
+	{
+		return nextAvailableTime;
+	}
+
+	void advanceNextAvailableTime()
+	{
+		this.nextAvailableTime = System.currentTimeMillis() + getDecentDownloadInterval();
+	}
+
+	private static final int	TWELVE_HOURS_IN_MILLIS	= 1000*60*60*12;
+
+	public void setAbnormallyLongNextAvailableTime()
+	{
+		this.nextAvailableTime	= System.currentTimeMillis() + TWELVE_HOURS_IN_MILLIS;
+	}
+
 }

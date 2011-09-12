@@ -67,8 +67,10 @@ public abstract class ResourcePool<T> extends Debug
 	 *          the size of the pool will never contract below this value. If NEVER_CONTRACT is
 	 *          passed, the pool will never contract.
 	 */
-	protected ResourcePool(boolean instantiateResourcesInPool, int initialPoolSize,
-			int minimumPoolSize, boolean checkMultiRelease)
+	protected ResourcePool(	boolean instantiateResourcesInPool,
+													int initialPoolSize,
+													int minimumPoolSize,
+													boolean checkMultiRelease)
 	{
 		this.capacity = Math.max(initialPoolSize, minimumPoolSize);
 
@@ -104,6 +106,19 @@ public abstract class ResourcePool<T> extends Debug
 	protected ResourcePool(int initialPoolSize, int minimumPoolSize)
 	{
 		this(true, initialPoolSize, minimumPoolSize, false);
+	}
+
+	/**
+	 * Releases all objects owned by this pool.
+	 */
+	protected synchronized void shutdown()
+	{
+		int size = this.pool.size();
+
+		for (int i = size - 1; i >= 0; i--)
+		{
+			onRemoval(this.remove(i));
+		}
 	}
 
 	protected void onAcquire()
@@ -171,8 +186,7 @@ public abstract class ResourcePool<T> extends Debug
 
 				int poolSize = pool.size();
 
-				if (minCapacity != NEVER_CONTRACT
-						&& capacity > minCapacity
+				if (minCapacity != NEVER_CONTRACT && capacity > minCapacity
 						&& poolSize > loadFactor * capacity)
 				{
 					this.contractPool();
@@ -245,9 +259,7 @@ public abstract class ResourcePool<T> extends Debug
 		capacity /= 2;
 
 		for (int i = 0; (i < capacity && pool.size() > minCapacity); i++)
-		{
 			onRemoval(this.remove(pool.size() - 1));
-		}
 
 		if (capacity < minCapacity)
 		{
@@ -264,7 +276,7 @@ public abstract class ResourcePool<T> extends Debug
 	}
 
 	/**
-	 * Let's a subclass control what happens to the object when it is thrown away, letting the
+	 * Lets a subclass control what happens to the object when it is thrown away, letting the
 	 * developer release any resources they may have allocated.
 	 * 
 	 * onRemoval(T) is called when the object is about to removed during a contraction

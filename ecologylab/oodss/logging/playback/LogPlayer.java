@@ -16,8 +16,8 @@ import javax.swing.Timer;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 
-import ecologylab.appframework.ApplicationEnvironment;
 import ecologylab.appframework.PropertiesAndDirectories;
+import ecologylab.appframework.SingletonApplicationEnvironment;
 import ecologylab.oodss.logging.Logging;
 import ecologylab.oodss.logging.MixedInitiativeOp;
 import ecologylab.oodss.logging.translationScope.MixedInitiativeOpClassesProvider;
@@ -30,7 +30,7 @@ import ecologylab.serialization.TranslationScope;
  * @author Zachary O. Toups (zach@ecologylab.net)
  */
 public abstract class LogPlayer<OP extends MixedInitiativeOp, LOG extends Logging<OP>> extends
-		ApplicationEnvironment implements ActionListener, WindowListener, PlaybackControlCommands,
+		SingletonApplicationEnvironment implements ActionListener, WindowListener, PlaybackControlCommands,
 		Runnable
 {
 	private static final int										LOG_LOADED									= 2;
