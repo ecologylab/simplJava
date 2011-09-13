@@ -1,6 +1,5 @@
 package ecologylab.serialization.deserializers.pullhandlers.stringformats;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Collection;
@@ -15,7 +14,6 @@ import javax.xml.stream.XMLStreamReader;
 import org.codehaus.jackson.JsonParseException;
 
 import ecologylab.generic.StringInputStream;
-import ecologylab.net.ParsedURL;
 import ecologylab.serialization.ClassDescriptor;
 import ecologylab.serialization.DeserializationHookStrategy;
 import ecologylab.serialization.FieldDescriptor;
@@ -35,16 +33,43 @@ public class XMLPullDeserializer extends StringPullDeserializer
 
 	XMLStreamReader	xmlStreamReader	= null;
 
-	public XMLPullDeserializer(TranslationScope translationScope,
-			TranslationContext translationContext, DeserializationHookStrategy deserializationHookStrategy)
+	/**
+	 * 
+	 * @param translationScope
+	 * @param translationContext
+	 * @param deserializationHookStrategy
+	 */
+	public XMLPullDeserializer(
+			TranslationScope translationScope,
+			TranslationContext translationContext,
+			DeserializationHookStrategy<? extends Object, ? extends FieldDescriptor> deserializationHookStrategy)
 	{
 		super(translationScope, translationContext, deserializationHookStrategy);
 	}
 
+	/**
+	 * 
+	 * @param translationScope
+	 * @param translationContext
+	 */
 	public XMLPullDeserializer(TranslationScope translationScope,
 			TranslationContext translationContext)
 	{
 		super(translationScope, translationContext);
+	}
+
+	@Override
+	public Object parse(InputStream inputStream) throws SIMPLTranslationException
+	{
+		try
+		{
+			configure(inputStream);
+			return parse();
+		}
+		catch (Exception ex)
+		{
+			throw new SIMPLTranslationException("exception occurred in deserialzation ", ex);
+		}
 	}
 
 	/**
@@ -62,40 +87,75 @@ public class XMLPullDeserializer extends StringPullDeserializer
 	{
 		try
 		{
-			InputStream xmlStream = new StringInputStream(charSequence, StringInputStream.UTF8);
-			xmlStreamReader = XMLInputFactory.newInstance().createXMLStreamReader(xmlStream, "UTF-8");
-
-			Object root = null;
-
-			xmlStreamReader.next();
-
-			if (xmlStreamReader.getEventType() != XMLStreamConstants.START_ELEMENT)
-			{
-				throw new SIMPLTranslationException("start of an element expected");
-			}
-
-			String rootTag = xmlStreamReader.getLocalName();
-
-			ClassDescriptor<? extends FieldDescriptor> rootClassDescriptor = translationScope
-					.getClassDescriptorByTag(rootTag);
-
-			if (rootClassDescriptor == null)
-			{
-				throw new SIMPLTranslationException("cannot find the class descriptor for root element <"
-						+ rootTag + ">; make sure if translation scope is correct.");
-			}
-
-			root = rootClassDescriptor.getInstance();
-			deserializeAttributes(root, rootClassDescriptor);
-
-			createObjectModel(root, rootClassDescriptor);
-
-			return root;
+			configure(charSequence);
+			return parse();
 		}
 		catch (Exception ex)
 		{
 			throw new SIMPLTranslationException("exception occurred in deserialzation ", ex);
 		}
+	}
+
+	/**
+	 * 
+	 * @param inputStream
+	 * @throws XMLStreamException
+	 * @throws FactoryConfigurationError
+	 */
+	private void configure(InputStream inputStream) throws XMLStreamException,
+			FactoryConfigurationError
+	{
+		xmlStreamReader = XMLInputFactory.newInstance().createXMLStreamReader(inputStream);
+	}
+
+	/**
+	 * 
+	 * @param charSequence
+	 * @throws XMLStreamException
+	 * @throws FactoryConfigurationError
+	 */
+	private void configure(CharSequence charSequence) throws XMLStreamException,
+			FactoryConfigurationError
+	{
+		InputStream xmlStream = new StringInputStream(charSequence, StringInputStream.UTF8);
+		xmlStreamReader = XMLInputFactory.newInstance().createXMLStreamReader(xmlStream, "UTF-8");
+	}
+
+	/**
+	 * 
+	 * @return
+	 * @throws XMLStreamException
+	 * @throws SIMPLTranslationException
+	 * @throws IOException
+	 */
+	private Object parse() throws XMLStreamException, SIMPLTranslationException, IOException
+	{
+		Object root = null;
+
+		nextEvent();
+
+		if (xmlStreamReader.getEventType() != XMLStreamConstants.START_ELEMENT)
+		{
+			throw new SIMPLTranslationException("start of an element expected");
+		}
+
+		String rootTag = xmlStreamReader.getLocalName();
+
+		ClassDescriptor<? extends FieldDescriptor> rootClassDescriptor = translationScope
+				.getClassDescriptorByTag(rootTag);
+
+		if (rootClassDescriptor == null)
+		{
+			throw new SIMPLTranslationException("cannot find the class descriptor for root element <"
+					+ rootTag + ">; make sure if translation scope is correct.");
+		}
+
+		root = rootClassDescriptor.getInstance();
+		deserializeAttributes(root, rootClassDescriptor);
+
+		createObjectModel(root, rootClassDescriptor);
+
+		return root;
 	}
 
 	/**
@@ -115,84 +175,197 @@ public class XMLPullDeserializer extends StringPullDeserializer
 			ClassDescriptor<? extends FieldDescriptor> rootClassDescriptor) throws IOException,
 			SIMPLTranslationException, XMLStreamException
 	{
-		FieldDescriptor currentFieldDescriptor = null;
-		Object subRoot = null;
 		int event = 0;
 		event = nextEvent();
-		while (xmlStreamReader.hasNext() && (event) != XMLStreamConstants.END_ELEMENT)
+
+		FieldDescriptor currentFieldDescriptor = new FieldDescriptor();
+
+		while (event != XMLStreamConstants.END_ELEMENT)
 		{
-			// debug();
-			if (event == XMLStreamConstants.START_ELEMENT)
+			if (event != XMLStreamConstants.START_ELEMENT)
 			{
-				currentFieldDescriptor = (currentFieldDescriptor != null)
-						&& (currentFieldDescriptor.getType() == IGNORED_ELEMENT) ? FieldDescriptor.IGNORED_ELEMENT_FIELD_DESCRIPTOR
-						: (currentFieldDescriptor != null && currentFieldDescriptor.getType() == WRAPPER) ? currentFieldDescriptor
-								.getWrappedFD()
-								: rootClassDescriptor.getFieldDescriptorByTag(xmlStreamReader.getLocalName(),
-										translationScope, null);
-
-				int fieldType = currentFieldDescriptor.getType();
-
-				switch (fieldType)
-				{
-				case SCALAR:
-					xmlStreamReader.next();
-					String value = xmlStreamReader.getText();
-					currentFieldDescriptor.setFieldToScalar(root, value, translationContext);
-					xmlStreamReader.next();
-					event = nextEvent();
-					break;
-				case COMPOSITE_ELEMENT:
-					String tagName = xmlStreamReader.getLocalName();
-					subRoot = getSubRoot(currentFieldDescriptor, tagName);
-					currentFieldDescriptor.setFieldToComposite(root, subRoot);
-					event = nextEvent();
-					break;
-				case COLLECTION_ELEMENT:
-					while (currentFieldDescriptor.isCollectionTag(xmlStreamReader.getLocalName()))
-					{
-						if (event == XMLStreamConstants.START_ELEMENT)
-						{
-							String compositeTagName = xmlStreamReader.getLocalName();
-							subRoot = getSubRoot(currentFieldDescriptor, compositeTagName);
-							Collection collection = (Collection) currentFieldDescriptor
-									.automaticLazyGetCollectionOrMap(root);
-							collection.add(subRoot);
-
-							event = xmlStreamReader.nextTag();							
-						}
-					}
-					break;
-				case MAP_ELEMENT:
-					while (currentFieldDescriptor.isCollectionTag(xmlStreamReader.getLocalName()))
-					{
-						if (event == XMLStreamConstants.START_ELEMENT)
-						{
-							String compositeTagName = xmlStreamReader.getLocalName();
-							subRoot = getSubRoot(currentFieldDescriptor, compositeTagName);
-							if (subRoot instanceof IMappable)
-							{
-								final Object key = ((IMappable) subRoot).key();
-								Map map = (Map) currentFieldDescriptor.automaticLazyGetCollectionOrMap(root);
-								map.put(key, subRoot);
-							}
-
-							event = xmlStreamReader.nextTag();
-						}
-					}
-					break;
-				case WRAPPER:
-					event = nextEvent();
-					break;
-				default:
-					event = nextEvent();
-				}
-			}
-			else
-			{
+				// ignoring any white space or formatting characters.
 				event = nextEvent();
+				continue;
+			}
+
+			String tag = xmlStreamReader.getName().toString();
+
+			currentFieldDescriptor = currentFieldDescriptor.getType() == WRAPPER ? currentFieldDescriptor
+					.getWrappedFD() : rootClassDescriptor
+					.getFieldDescriptorByTag(tag, translationScope, null);
+
+			if (currentFieldDescriptor == null)
+			{
+				currentFieldDescriptor = FieldDescriptor.makeIgnoredFieldDescriptor(tag);
+			}
+
+			int fieldType = currentFieldDescriptor.getType();
+
+			switch (fieldType)
+			{
+			case SCALAR:
+				event = deserializeScalar(root, currentFieldDescriptor);
+				break;
+			case COMPOSITE_ELEMENT:
+				event = deserializeComposite(root, currentFieldDescriptor);
+				break;
+			case COLLECTION_ELEMENT:
+				event = deserializeCompositeCollection(root, currentFieldDescriptor);
+				break;
+			case MAP_ELEMENT:
+				event = deserializeCompositeMap(root, currentFieldDescriptor);
+				break;
+			case WRAPPER:
+				event = nextEvent();
+				break;
+			case IGNORED_ELEMENT:
+				event = ignoreTag(tag);
+				break;
+			}
+
+			if (event == XMLStreamConstants.END_DOCUMENT)
+			{
+				throw new SIMPLTranslationException("premature end of file: check XML file for consistency");
 			}
 		}
+	}
+
+	/**
+	 * 
+	 * @param root
+	 * @param currentFieldDescriptor
+	 * @return
+	 * @throws SIMPLTranslationException
+	 * @throws IOException
+	 * @throws XMLStreamException
+	 */
+	private int deserializeComposite(Object root, FieldDescriptor currentFieldDescriptor)
+			throws SIMPLTranslationException, IOException, XMLStreamException
+	{
+		Object subRoot;
+		int event;
+		String tagName = xmlStreamReader.getLocalName();
+		subRoot = getSubRoot(currentFieldDescriptor, tagName);
+		currentFieldDescriptor.setFieldToComposite(root, subRoot);
+		event = nextEvent();
+		return event;
+	}
+
+	/**
+	 * 
+	 * @param root
+	 * @param currentFieldDescriptor
+	 * @return
+	 * @throws SIMPLTranslationException
+	 * @throws IOException
+	 * @throws XMLStreamException
+	 */
+	private int deserializeCompositeMap(Object root, FieldDescriptor currentFieldDescriptor)
+			throws SIMPLTranslationException, IOException, XMLStreamException
+	{
+		Object subRoot;
+		int event = xmlStreamReader.getEventType();
+
+		while (currentFieldDescriptor.isCollectionTag(xmlStreamReader.getLocalName()))
+		{
+			if (event != XMLStreamConstants.START_ELEMENT)
+			{
+				throw new SIMPLTranslationException("Invalid state of parser:: expecting start tag <"
+						+ xmlStreamReader.getLocalName() + ">");
+			}
+
+			String compositeTagName = xmlStreamReader.getLocalName();
+			subRoot = getSubRoot(currentFieldDescriptor, compositeTagName);
+			if (subRoot instanceof IMappable<?>)
+			{
+				final Object key = ((IMappable<?>) subRoot).key();
+				Map map = (Map) currentFieldDescriptor.automaticLazyGetCollectionOrMap(root);
+				map.put(key, subRoot);
+			}
+
+			event = xmlStreamReader.nextTag();
+
+		}
+		return event;
+	}
+
+	/**
+	 * 
+	 * @param root
+	 * @param currentFieldDescriptor
+	 * @return
+	 * @throws SIMPLTranslationException
+	 * @throws IOException
+	 * @throws XMLStreamException
+	 */
+	private int deserializeCompositeCollection(Object root, FieldDescriptor currentFieldDescriptor)
+			throws SIMPLTranslationException, IOException, XMLStreamException
+	{
+		Object subRoot;
+		int event = xmlStreamReader.getEventType();
+		while (currentFieldDescriptor.isCollectionTag(xmlStreamReader.getLocalName()))
+		{
+			if (event != XMLStreamConstants.START_ELEMENT)
+			{
+				throw new SIMPLTranslationException("Invalid state of parser:: expecting start tag <"
+						+ xmlStreamReader.getLocalName() + ">");
+			}
+
+			String compositeTagName = xmlStreamReader.getLocalName();
+			subRoot = getSubRoot(currentFieldDescriptor, compositeTagName);
+			Collection collection = (Collection) currentFieldDescriptor
+					.automaticLazyGetCollectionOrMap(root);
+			collection.add(subRoot);
+
+			event = xmlStreamReader.nextTag();
+		}
+		return event;
+	}
+
+	/**
+	 * 
+	 * @param root
+	 * @param currentFieldDescriptor
+	 * @return
+	 * @throws XMLStreamException
+	 */
+	private int deserializeScalar(Object root, FieldDescriptor currentFieldDescriptor)
+			throws XMLStreamException
+	{
+		xmlStreamReader.next();
+
+		StringBuilder text = new StringBuilder();
+		text.append(xmlStreamReader.getText());
+
+		while (xmlStreamReader.next() != XMLStreamConstants.END_ELEMENT)
+		{
+			if (xmlStreamReader.getEventType() == XMLStreamConstants.CHARACTERS)
+				text.append(xmlStreamReader.getText());
+		}
+
+		String value = text.toString();
+		currentFieldDescriptor.setFieldToScalar(root, value, translationContext);
+
+		return nextEvent();
+	}
+
+	/**
+	 * 
+	 * @param tag
+	 * @return
+	 * @throws XMLStreamException
+	 */
+	private int ignoreTag(String tag) throws XMLStreamException
+	{
+		int event = -1;
+		println("ignoring tag: " + tag);
+
+		while (event != XMLStreamConstants.END_ELEMENT
+				|| !xmlStreamReader.getName().toString().equals(tag))
+			event = nextEvent();
+
+		return nextEvent();
 	}
 
 	/**
@@ -357,20 +530,33 @@ public class XMLPullDeserializer extends StringPullDeserializer
 			switch (event)
 			{
 			case XMLStreamConstants.START_ELEMENT:
-				System.out.println(xmlStreamReader.getLocalName());
+				System.out.print("start element: ");
+				System.out.print(xmlStreamReader.getEventType());
+				System.out.print(" : ");
+				System.out.print(xmlStreamReader.getName().toString());
+				System.out.println();
 				break;
 			case XMLStreamConstants.END_ELEMENT:
-				System.out.println(xmlStreamReader.getLocalName());
+				System.out.print("end element: ");
+				System.out.print(xmlStreamReader.getEventType());
+				System.out.print(" : ");
+				System.out.print(xmlStreamReader.getName().toString());
+				System.out.println();
 				break;
 			case XMLStreamConstants.CHARACTERS:
-				System.out.println(xmlStreamReader.getText());
+				System.out.print("characters: ");
+				System.out.print(xmlStreamReader.getEventType());
+				System.out.print(" : ");
+				System.out.print(xmlStreamReader.getText());
+				System.out.println();
 				break;
 			case XMLStreamConstants.CDATA:
 				System.out.println("cdata " + xmlStreamReader.getText());
 				break;
+			default:
+				System.out.println(xmlStreamReader.getEventType());
 			} // end switch
 			xmlStreamReader.next();
 		} // end while
 	}
-
 }

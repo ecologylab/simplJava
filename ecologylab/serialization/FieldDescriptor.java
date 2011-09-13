@@ -22,6 +22,8 @@ import java.util.regex.Pattern;
 import org.w3c.dom.Node;
 import org.xml.sax.Attributes;
 
+import com.sun.corba.se.spi.ior.MakeImmutable;
+
 import sun.reflect.generics.reflectiveObjects.ParameterizedTypeImpl;
 import sun.reflect.generics.reflectiveObjects.TypeVariableImpl;
 import ecologylab.generic.HashMapArrayList;
@@ -98,10 +100,10 @@ public class FieldDescriptor extends DescriptorBase implements FieldTypes, IMapp
 	 * <p/>
 	 * However, for polymorphic fields, such as those declared using @xml_class, @xml_classes, or
 	 * 
-	 * @xml_scope, the tag is derived from the class declaration (using class name or @simpl_tag). This
-	 *             is, for example, required for polymorphic nested and collection fields. For these
-	 *             fields, this slot contains an array of the legal classes, which will be bound to
-	 *             this field during translateFromXML().
+	 * @xml_scope, the tag is derived from the class declaration (using class name or @simpl_tag).
+	 *             This is, for example, required for polymorphic nested and collection fields. For
+	 *             these fields, this slot contains an array of the legal classes, which will be bound
+	 *             to this field during translateFromXML().
 	 */
 	@simpl_map("polymorph_class_descriptor")
 	@simpl_map_key_field("tagName")
@@ -1193,7 +1195,7 @@ public class FieldDescriptor extends DescriptorBase implements FieldTypes, IMapp
 		}
 		return value;
 	}
-	
+
 	/**
 	 * Appends the label and value of a metadata field to HTML elements, including anchors where
 	 * appropriate
@@ -1572,8 +1574,8 @@ public class FieldDescriptor extends DescriptorBase implements FieldTypes, IMapp
 		if (context != null)
 		{
 			ScalarType scalarType = this.scalarType;
-//			Field field = this.field;
-//			if (!scalarType.isDefaultValue(field, context)) // this line fails with proxy classes
+			// Field field = this.field;
+			// if (!scalarType.isDefaultValue(field, context)) // this line fails with proxy classes
 			Object value = this.getValue(context);
 			if (value != null && !scalarType.isDefaultValue(value.toString()))
 			{
@@ -1759,22 +1761,23 @@ public class FieldDescriptor extends DescriptorBase implements FieldTypes, IMapp
 		tr.cells.add(fieldName);
 	}
 
-	public void writeCompositeHtmlWrap(boolean close, String displayLabel, String schemaItemType, Tr tr) throws IOException
-	{		
-//			Td td = new Td();
-			Td fieldName = new Td();
-			Div text = new Div();
-			if (schemaItemType != null)
-			{
-				text.setSchemaOrgItemType(schemaItemType);
-			}
-			text.setCssClass("metadata_text");
-			fieldName.setCssClass("metadata_field_name");
-//			td.setCssClass("nested_field_value");
+	public void writeCompositeHtmlWrap(boolean close, String displayLabel, String schemaItemType,
+			Tr tr) throws IOException
+	{
+		// Td td = new Td();
+		Td fieldName = new Td();
+		Div text = new Div();
+		if (schemaItemType != null)
+		{
+			text.setSchemaOrgItemType(schemaItemType);
+		}
+		text.setCssClass("metadata_text");
+		fieldName.setCssClass("metadata_field_name");
+		// td.setCssClass("nested_field_value");
 
-			text.setText(displayLabel);
-			fieldName.items.add(text);
-			tr.cells.add(fieldName);
+		text.setText(displayLabel);
+		fieldName.items.add(text);
+		tr.cells.add(fieldName);
 	}
 
 	// ----------------------------- methods from TagDescriptor
@@ -2121,6 +2124,11 @@ public class FieldDescriptor extends DescriptorBase implements FieldTypes, IMapp
 	}
 
 	// ----------------------------- constant instances ---------------------------------------//
+	public static FieldDescriptor makeIgnoredFieldDescriptor(String tag)
+	{
+		return new FieldDescriptor(tag);
+	}
+
 	FieldDescriptor(String tag)
 	{
 		this.tagName = tag;
@@ -2619,6 +2627,7 @@ public class FieldDescriptor extends DescriptorBase implements FieldTypes, IMapp
 
 	public boolean isCollectionTag(String tagName)
 	{
-		return isPolymorphic() ? polymorphClassDescriptors.containsKey(tagName) : collectionOrMapTagName.equals(tagName);
+		return isPolymorphic() ? polymorphClassDescriptors.containsKey(tagName)
+				: collectionOrMapTagName.equals(tagName);
 	}
 }

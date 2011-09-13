@@ -2,6 +2,7 @@ package ecologylab.serialization.deserializers.pullhandlers.stringformats;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.Collection;
 import java.util.Map;
 
@@ -48,19 +49,19 @@ public class JSONPullDeserializer extends StringPullDeserializer
 	{
 		super(translationScope, translationContext);
 	}
-
+	
 	@Override
-	public Object parse(File file)
+	public Object parse(InputStream inputStream) throws SIMPLTranslationException
 	{
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public Object parse(ParsedURL purl)
-	{
-		// TODO Auto-generated method stub
-		return null;
+		try
+		{
+			configure(inputStream);				
+			return parse();
+		}
+		catch (Exception ex)
+		{
+			throw new SIMPLTranslationException("exception occurred in deserialzation ", ex);
+		}
 	}
 
 	/**
@@ -77,49 +78,63 @@ public class JSONPullDeserializer extends StringPullDeserializer
 	 */
 	public Object parse(CharSequence charSequence) throws SIMPLTranslationException
 	{
-
 		try
 		{
-			// configure the json parser
-			JsonFactory f = new JsonFactory();
-			jp = f.createJsonParser(charSequence.toString());			
-			
-
-			// all JSON documents start with an opening brace.
-			if (jp.nextToken() != JsonToken.START_OBJECT)
-			{
-				println("JSON Translation ERROR: not a valid JSON object. It should start with {");
-			}
-
-			// move the first field in the document. typically it is the root element.
-			jp.nextToken();
-
-			Object root = null;
-
-			// find the classdescriptor for the root element.
-			ClassDescriptor rootClassDescriptor = translationScope.getClassDescriptorByTag(jp
-					.getCurrentName());
-
-			root = rootClassDescriptor.getInstance();
-
-			// root.setupRoot();
-			// root.deserializationPreHook();
-			// if (deserializationHookStrategy != null)
-			// deserializationHookStrategy.deserializationPreHook(root, null);
-
-			// move to the first field of the root element.
-			jp.nextToken();
-			jp.nextToken();
-
-			// complete the object model from root and recursively of the fields it is composed of
-			createObjectModel(root, rootClassDescriptor);
-
-			return root;
+			configure(charSequence);				
+			return parse();
 		}
 		catch (Exception ex)
 		{
 			throw new SIMPLTranslationException("exception occurred in deserialzation ", ex);
 		}
+	}
+	
+	private void configure(InputStream inputStream) throws IOException, JsonParseException
+	{
+		// configure the json parser
+		JsonFactory f = new JsonFactory();
+		jp = f.createJsonParser(inputStream);
+	}
+
+	private void configure(CharSequence charSequence) throws IOException, JsonParseException
+	{
+		// configure the json parser
+		JsonFactory f = new JsonFactory();
+		jp = f.createJsonParser(charSequence.toString());
+	}
+
+	private Object parse() throws IOException, JsonParseException, SIMPLTranslationException
+	{
+		// all JSON documents start with an opening brace.
+		if (jp.nextToken() != JsonToken.START_OBJECT)
+		{
+			println("JSON Translation ERROR: not a valid JSON object. It should start with {");
+		}
+
+		// move the first field in the document. typically it is the root element.
+		jp.nextToken();
+
+		Object root = null;
+
+		// find the classdescriptor for the root element.
+		ClassDescriptor rootClassDescriptor = translationScope.getClassDescriptorByTag(jp
+				.getCurrentName());
+
+		root = rootClassDescriptor.getInstance();
+
+		// root.setupRoot();
+		// root.deserializationPreHook();
+		// if (deserializationHookStrategy != null)
+		// deserializationHookStrategy.deserializationPreHook(root, null);
+
+		// move to the first field of the root element.
+		jp.nextToken();
+		jp.nextToken();
+
+		// complete the object model from root and recursively of the fields it is composed of
+		createObjectModel(root, rootClassDescriptor);
+
+		return root;
 	}
 
 	/**
@@ -157,7 +172,7 @@ public class JSONPullDeserializer extends StringPullDeserializer
 				{
 				case SCALAR:
 					jp.nextToken();
-					currentFieldDescriptor.setFieldToScalar(root, jp.getText(), this);
+					currentFieldDescriptor.setFieldToScalar(root, jp.getText(), translationContext);
 					break;
 				case COMPOSITE_ELEMENT:
 					jp.nextToken();
@@ -250,7 +265,7 @@ public class JSONPullDeserializer extends StringPullDeserializer
 					jp.nextToken();
 					while (jp.nextToken() != JsonToken.END_ARRAY)
 					{
-						currentFieldDescriptor.addLeafNodeToCollection(root, jp.getText(), this);
+						currentFieldDescriptor.addLeafNodeToCollection(root, jp.getText(), translationContext);
 					}
 					break;
 				case WRAPPER:
@@ -330,4 +345,6 @@ public class JSONPullDeserializer extends StringPullDeserializer
 		}
 		return false;
 	}
+
+	
 }

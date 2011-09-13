@@ -91,7 +91,7 @@ implements CrossLanguageTypeConstants
 		this.dbTypeName					= dbTypeName;
 
 		TypeRegistry.registerSimplType(this);
-		System.out.println("simpl type registered: "  + this);
+		//System.out.println("simpl type registered: "  + this);
 	}
 	
 	/**

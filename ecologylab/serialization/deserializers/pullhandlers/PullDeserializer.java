@@ -1,9 +1,16 @@
 package ecologylab.serialization.deserializers.pullhandlers;
 
+import java.io.BufferedInputStream;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URL;
 
 import ecologylab.generic.Debug;
 import ecologylab.net.ConnectionAdapter;
+import ecologylab.net.PURLConnection;
 import ecologylab.net.ParsedURL;
 import ecologylab.serialization.BinaryFormat;
 import ecologylab.serialization.DeserializationHookStrategy;
@@ -20,8 +27,7 @@ import ecologylab.serialization.deserializers.pullhandlers.stringformats.JSONPul
 import ecologylab.serialization.deserializers.pullhandlers.stringformats.StringPullDeserializer;
 import ecologylab.serialization.deserializers.pullhandlers.stringformats.XMLPullDeserializer;
 
-public abstract class PullDeserializer extends Debug implements ScalarUnmarshallingContext,
-		FieldTypes
+public abstract class PullDeserializer extends Debug implements FieldTypes
 {
 
 	protected TranslationScope																													translationScope;
@@ -65,27 +71,45 @@ public abstract class PullDeserializer extends Debug implements ScalarUnmarshall
 		this.deserializationHookStrategy = deserializationHookStrategy;
 	}
 
-	/**
-	 * The main parse method accepts a CharSequence and creates a corresponding object model. Sets up
-	 * the root object and creates instances of the root object before calling a recursive method that
-	 * creates the complete object model
-	 * 
-	 * @param charSequence
-	 * @return
-	 * @throws SIMPLTranslationException
-	 */
-	public abstract Object parse(File file);
+	public Object parse(File file) throws SIMPLTranslationException
+	{
+		try
+		{
+			FileInputStream fileInputStream = new FileInputStream(file);
+			BufferedInputStream bufferedStream = new BufferedInputStream(fileInputStream);
 
-	/**
-	 * The main parse method accepts a CharSequence and creates a corresponding object model. Sets up
-	 * the root object and creates instances of the root object before calling a recursive method that
-	 * creates the complete object model
-	 * 
-	 * @param charSequence
-	 * @return
-	 * @throws SIMPLTranslationException
-	 */
-	public abstract Object parse(ParsedURL purl);
+			Object object = parse(bufferedStream);
+			bufferedStream.close();
+			return object;
+		}
+		catch (FileNotFoundException e)
+		{
+			throw new SIMPLTranslationException("Can't open file " + file.getAbsolutePath(), e);
+		}
+		catch (IOException e)
+		{
+			throw new SIMPLTranslationException("Can't close file " + file.getAbsolutePath(), e);
+		}
+
+	}
+
+	public Object parse(ParsedURL purl) throws SIMPLTranslationException
+	{
+		if (purl.isFile())
+			return parse(purl.file());
+
+		PURLConnection purlConnection = purl.connect(connectionAdapter);
+		Object result = parse(purlConnection.inputStream());
+		purlConnection.recycle();
+		return result;
+	}
+
+	public Object parse(URL url) throws SIMPLTranslationException
+	{
+		return parse(new ParsedURL(url));
+	}
+
+	public abstract Object parse(InputStream inputStream) throws SIMPLTranslationException;
 
 	public static PullDeserializer getDeserializer(TranslationScope translationScope,
 			TranslationContext translationContext, Format format) throws SIMPLTranslationException
@@ -102,6 +126,8 @@ public abstract class PullDeserializer extends Debug implements ScalarUnmarshall
 		switch (format)
 		{
 		case XML:
+			return new XMLPullDeserializer(translationScope, translationContext,
+					deserializationHookStrategy);
 		case JSON:
 			return new JSONPullDeserializer(translationScope, translationContext,
 					deserializationHookStrategy);
@@ -158,20 +184,6 @@ public abstract class PullDeserializer extends Debug implements ScalarUnmarshall
 		default:
 			throw new SIMPLTranslationException(binaryFormat + " format not supported");
 		}
-	}
-
-	@Override
-	public File fileContext()
-	{
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public ParsedURL purlContext()
-	{
-		// TODO Auto-generated method stub
-		return null;
 	}
 
 }
