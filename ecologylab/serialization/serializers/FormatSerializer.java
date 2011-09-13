@@ -1,9 +1,8 @@
 package ecologylab.serialization.serializers;
 
-import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileWriter;
 import java.io.IOException;
+import java.io.OutputStream;
 
 import ecologylab.serialization.BinaryFormat;
 import ecologylab.serialization.ClassDescriptor;
@@ -13,8 +12,8 @@ import ecologylab.serialization.SIMPLTranslationException;
 import ecologylab.serialization.StringFormat;
 import ecologylab.serialization.TranslationContext;
 import ecologylab.serialization.TranslationScope;
-import ecologylab.serialization.TranslationScope.GRAPH_SWITCH;
 import ecologylab.serialization.XMLTools;
+import ecologylab.serialization.TranslationScope.GRAPH_SWITCH;
 import ecologylab.serialization.serializers.binaryformats.TLVSerializer;
 import ecologylab.serialization.serializers.stringformats.BibtexSerializer;
 import ecologylab.serialization.serializers.stringformats.JSONSerializer;
@@ -36,40 +35,31 @@ public abstract class FormatSerializer
 	/**
 	 * 
 	 * @param object
-	 * @param outputFile
+	 * @param outputStream
 	 * @throws SIMPLTranslationException
-	 * @throws IOException
 	 */
-	public void serialize(Object object, File outputFile) throws SIMPLTranslationException
+	public void serialize(Object object, OutputStream outputStream) throws SIMPLTranslationException
 	{
-		XMLTools.createParentDirs(outputFile);
-		serialize(object, outputFile, new TranslationContext());
+		serialize(object, outputStream, new TranslationContext());
 	}
+
+	public abstract void serialize(Object object, OutputStream outputStream,
+			TranslationContext translationContext) throws SIMPLTranslationException;
 
 	/**
 	 * 
 	 * @param object
 	 * @param outputFile
-	 * @param translationContext
 	 * @throws SIMPLTranslationException
 	 * @throws IOException
 	 */
-	public void serialize(Object object, File outputFile, TranslationContext translationContext)
-			throws SIMPLTranslationException
-	{
-		XMLTools.createParentDirs(outputFile);
-
-		try
-		{
-			BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(outputFile));
-			//serialize(object, bufferedWriter, translationContext);
-			bufferedWriter.close();
-		}
-		catch (IOException ex)
-		{
-			throw new SIMPLTranslationException("IO Exception", ex);
-		}
+	public void serialize(Object object, File outputFile) throws SIMPLTranslationException
+	{		
+		serialize(object, outputFile, new TranslationContext());
 	}
+
+	public abstract void serialize(Object object, File outputFile,
+			TranslationContext translationContext) throws SIMPLTranslationException;
 
 	/**
 	 * 

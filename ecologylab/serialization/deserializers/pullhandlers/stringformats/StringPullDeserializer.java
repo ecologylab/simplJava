@@ -1,5 +1,8 @@
 package ecologylab.serialization.deserializers.pullhandlers.stringformats;
 
+import java.io.File;
+
+import ecologylab.net.ParsedURL;
 import ecologylab.serialization.DeserializationHookStrategy;
 import ecologylab.serialization.SIMPLTranslationException;
 import ecologylab.serialization.TranslationContext;
@@ -27,6 +30,21 @@ public abstract class StringPullDeserializer extends PullDeserializer
 			TranslationContext translationContext, DeserializationHookStrategy deserializationHookStrategy)
 	{
 		super(translationScope, translationContext, deserializationHookStrategy);
+	}
+	
+
+	@Override
+	public Object parse(File file)
+	{
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Object parse(ParsedURL purl)
+	{
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 	public abstract Object parse(CharSequence charSequence) throws SIMPLTranslationException;

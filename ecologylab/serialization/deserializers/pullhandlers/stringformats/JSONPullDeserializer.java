@@ -82,7 +82,8 @@ public class JSONPullDeserializer extends StringPullDeserializer
 		{
 			// configure the json parser
 			JsonFactory f = new JsonFactory();
-			jp = f.createJsonParser(charSequence.toString());
+			jp = f.createJsonParser(charSequence.toString());			
+			
 
 			// all JSON documents start with an opening brace.
 			if (jp.nextToken() != JsonToken.START_OBJECT)

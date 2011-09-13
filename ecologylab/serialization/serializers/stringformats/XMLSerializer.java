@@ -29,8 +29,8 @@ public class XMLSerializer extends StringSerializer implements FieldTypes
 
 	public XMLSerializer()
 	{
-	}
-
+	}	
+	
 	@Override
 	public void serialize(Object object, Appendable appendable, TranslationContext translationContext)
 			throws SIMPLTranslationException
@@ -408,4 +408,7 @@ public class XMLSerializer extends StringSerializer implements FieldTypes
 		appendable.append(((Integer) object.hashCode()).toString());
 		appendable.append('"');
 	}
+
+
+	
 }

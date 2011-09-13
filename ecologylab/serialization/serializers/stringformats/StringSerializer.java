@@ -1,15 +1,49 @@
 package ecologylab.serialization.serializers.stringformats;
 
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintStream;
 
 import ecologylab.serialization.SIMPLTranslationException;
 import ecologylab.serialization.TranslationContext;
+import ecologylab.serialization.XMLTools;
 import ecologylab.serialization.serializers.FormatSerializer;
 
 public abstract class StringSerializer extends FormatSerializer
 {
+
+	@Override
+	public void serialize(Object object, OutputStream outputStream,
+			TranslationContext translationContext) throws SIMPLTranslationException
+	{
+		serialize(object, (Appendable) new PrintStream(outputStream), translationContext);
+	}
+
+	@Override
+	public void serialize(Object object, File outputFile, TranslationContext translationContext)
+			throws SIMPLTranslationException
+	{
+		try
+		{
+			XMLTools.createParentDirs(outputFile);
+
+			if (outputFile.getParentFile() != null)
+				translationContext.setBaseDirFile(outputFile.getParentFile());
+
+			BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(outputFile));
+			serialize(object, (Appendable) bufferedWriter, translationContext);
+
+			bufferedWriter.close();
+		}
+		catch (IOException e)
+		{
+			throw new SIMPLTranslationException("IO Exception: ", e);
+		}
+	}
+
 	/**
 	 * 
 	 * @param object
@@ -58,10 +92,11 @@ public abstract class StringSerializer extends FormatSerializer
 			}
 		};
 
-		serialize(object, new PrintStream(outputStream), translationContext);
+		serialize(object, (Appendable) new PrintStream(outputStream), translationContext);
 	}
 
 	/**
+	 * All methods will eventually call this method which is overridden by derived classes
 	 * 
 	 * @param object
 	 * @param appendable

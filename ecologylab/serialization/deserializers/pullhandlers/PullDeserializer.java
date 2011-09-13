@@ -3,9 +3,11 @@ package ecologylab.serialization.deserializers.pullhandlers;
 import java.io.File;
 
 import ecologylab.generic.Debug;
+import ecologylab.net.ConnectionAdapter;
 import ecologylab.net.ParsedURL;
 import ecologylab.serialization.BinaryFormat;
 import ecologylab.serialization.DeserializationHookStrategy;
+import ecologylab.serialization.FieldDescriptor;
 import ecologylab.serialization.FieldTypes;
 import ecologylab.serialization.Format;
 import ecologylab.serialization.SIMPLTranslationException;
@@ -22,11 +24,13 @@ public abstract class PullDeserializer extends Debug implements ScalarUnmarshall
 		FieldTypes
 {
 
-	protected TranslationScope						translationScope;
+	protected TranslationScope																													translationScope;
 
-	protected TranslationContext					translationContext;
+	protected TranslationContext																												translationContext;
 
-	protected DeserializationHookStrategy	deserializationHookStrategy;
+	protected DeserializationHookStrategy<? extends Object, ? extends FieldDescriptor>	deserializationHookStrategy;
+
+	static final ConnectionAdapter																											connectionAdapter	= new ConnectionAdapter();
 
 	/**
 	 * Constructs that creates a JSON deserialization handler
@@ -51,8 +55,10 @@ public abstract class PullDeserializer extends Debug implements ScalarUnmarshall
 	 * @param translationContext
 	 *          used for graph handling
 	 */
-	public PullDeserializer(TranslationScope translationScope, TranslationContext translationContext,
-			DeserializationHookStrategy deserializationHookStrategy)
+	public PullDeserializer(
+			TranslationScope translationScope,
+			TranslationContext translationContext,
+			DeserializationHookStrategy<? extends Object, ? extends FieldDescriptor> deserializationHookStrategy)
 	{
 		this.translationScope = translationScope;
 		this.translationContext = translationContext;
@@ -87,10 +93,11 @@ public abstract class PullDeserializer extends Debug implements ScalarUnmarshall
 		return getDeserializer(translationScope, translationContext, null, format);
 	}
 
-	public static PullDeserializer getDeserializer(TranslationScope translationScope,
+	public static PullDeserializer getDeserializer(
+			TranslationScope translationScope,
 			TranslationContext translationContext,
-			DeserializationHookStrategy deserializationHookStrategy, Format format)
-			throws SIMPLTranslationException
+			DeserializationHookStrategy<? extends Object, ? extends FieldDescriptor> deserializationHookStrategy,
+			Format format) throws SIMPLTranslationException
 	{
 		switch (format)
 		{
@@ -112,10 +119,11 @@ public abstract class PullDeserializer extends Debug implements ScalarUnmarshall
 		return getStringDeserializer(translationScope, translationContext, null, stringFormat);
 	}
 
-	public static StringPullDeserializer getStringDeserializer(TranslationScope translationScope,
+	public static StringPullDeserializer getStringDeserializer(
+			TranslationScope translationScope,
 			TranslationContext translationContext,
-			DeserializationHookStrategy deserializationHookStrategy, StringFormat stringFormat)
-			throws SIMPLTranslationException
+			DeserializationHookStrategy<? extends Object, ? extends FieldDescriptor> deserializationHookStrategy,
+			StringFormat stringFormat) throws SIMPLTranslationException
 	{
 		switch (stringFormat)
 		{
@@ -138,10 +146,11 @@ public abstract class PullDeserializer extends Debug implements ScalarUnmarshall
 		return getBinaryDeserializer(translationScope, translationContext, null, binaryFormat);
 	}
 
-	public static BinaryPullDeserializer getBinaryDeserializer(TranslationScope translationScope,
+	public static BinaryPullDeserializer getBinaryDeserializer(
+			TranslationScope translationScope,
 			TranslationContext translationContext,
-			DeserializationHookStrategy deserializationHookStrategy, BinaryFormat binaryFormat)
-			throws SIMPLTranslationException
+			DeserializationHookStrategy<? extends Object, ? extends FieldDescriptor> deserializationHookStrategy,
+			BinaryFormat binaryFormat) throws SIMPLTranslationException
 	{
 		switch (binaryFormat)
 		{

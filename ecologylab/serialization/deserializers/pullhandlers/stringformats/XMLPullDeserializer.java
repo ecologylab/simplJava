@@ -373,17 +373,4 @@ public class XMLPullDeserializer extends StringPullDeserializer
 		} // end while
 	}
 
-	@Override
-	public Object parse(File file)
-	{
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public Object parse(ParsedURL purl)
-	{
-		// TODO Auto-generated method stub
-		return null;
-	}
 }
