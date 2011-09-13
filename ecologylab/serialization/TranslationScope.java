@@ -2,6 +2,7 @@ package ecologylab.serialization;
 
 import java.io.File;
 import java.lang.annotation.Annotation;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -20,7 +21,6 @@ import ecologylab.serialization.deserializers.pullhandlers.binaryformats.BinaryP
 import ecologylab.serialization.deserializers.pullhandlers.stringformats.StringPullDeserializer;
 import ecologylab.serialization.types.ScalarType;
 import ecologylab.serialization.types.TypeRegistry;
-import ecologylab.tests.Composed;
 
 /**
  * A set of bindings between XML element names (tags) and associated simple (without package) class
@@ -724,7 +724,7 @@ public final class TranslationScope extends ElementState
 	}
 
 	/**
-	 * Derive the XML tag from the Class object, using camel case conversion, or the @xml_tag
+	 * Derive the XML tag from the Class object, using camel case conversion, or the @simpl_tag
 	 * annotation that may be present in a class declaration.
 	 * 
 	 * @param thatClass
@@ -1144,11 +1144,28 @@ public final class TranslationScope extends ElementState
 		return deserialize(file, new TranslationContext(), null, format);
 	}
 
+	public Object deserialize(File file, DeserializationHookStrategy deserializationHookStrategy,
+			Format format) throws SIMPLTranslationException
+	{
+		PullDeserializer pullDeserializer = PullDeserializer.getDeserializer(this,
+				new TranslationContext(), deserializationHookStrategy, format);
+		return pullDeserializer.parse(file);
+	}
+
 	public Object deserialize(ParsedURL parsedURL, TranslationContext translationContext,
 			DeserializationHookStrategy deserializationHookStrategy, Format format)
 			throws SIMPLTranslationException
 	{
 		PullDeserializer pullDeserializer = PullDeserializer.getDeserializer(this, translationContext,
+				deserializationHookStrategy, format);
+		return pullDeserializer.parse(parsedURL);
+	}
+	
+	public Object deserialize(ParsedURL parsedURL, 
+			DeserializationHookStrategy deserializationHookStrategy, Format format)
+			throws SIMPLTranslationException
+	{
+		PullDeserializer pullDeserializer = PullDeserializer.getDeserializer(this, new TranslationContext(),
 				deserializationHookStrategy, format);
 		return pullDeserializer.parse(parsedURL);
 	}
@@ -1164,12 +1181,26 @@ public final class TranslationScope extends ElementState
 		return deserialize(parsedURL, new TranslationContext(), null, format);
 	}
 
+	public Object deserialize(URL url, Format format) throws SIMPLTranslationException
+	{
+		return deserialize(new ParsedURL(url), new TranslationContext(), null, format);
+	}
+
 	public Object deserialize(CharSequence charSequence, TranslationContext translationContext,
 			DeserializationHookStrategy deserializationHookStrategy, StringFormat stringFormat)
 			throws SIMPLTranslationException
 	{
 		StringPullDeserializer pullDeserializer = PullDeserializer.getStringDeserializer(this,
 				translationContext, deserializationHookStrategy, stringFormat);
+		return pullDeserializer.parse(charSequence);
+	}
+
+	public Object deserialize(CharSequence charSequence,
+			DeserializationHookStrategy deserializationHookStrategy, StringFormat stringFormat)
+			throws SIMPLTranslationException
+	{
+		StringPullDeserializer pullDeserializer = PullDeserializer.getStringDeserializer(this,
+				new TranslationContext(), deserializationHookStrategy, stringFormat);
 		return pullDeserializer.parse(charSequence);
 	}
 
@@ -1499,7 +1530,7 @@ public final class TranslationScope extends ElementState
 	 * Rebuild structures after serializing only some fields.
 	 */
 	@Override
-	public void deserializationPostHook()
+	public void deserializationPostHook(TranslationContext translationContext)
 	{
 		for (ClassDescriptor classDescriptor : entriesByTag.values())
 		{
@@ -1512,5 +1543,4 @@ public final class TranslationScope extends ElementState
 					+ name);
 		allTranslationScopes.put(name, this);
 	}
-
 }

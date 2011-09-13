@@ -10,7 +10,7 @@ import java.lang.annotation.Target;
  * Metalanguage declaration that tells simpl serialization that each Field it is applied to as an
  * annotation is a scalar-value.
  * <p/>
- * The attribute name will be derived from the field name, using camel case conversion, unless @xml_tag
+ * The attribute name will be derived from the field name, using camel case conversion, unless @simpl_tag
  * is used.
  * 
  * @author andruid

@@ -114,31 +114,69 @@ public class JSONSerializer extends StringSerializer implements FieldTypes
 
 		for (FieldDescriptor childFd : allFieldDescriptors)
 		{
-			switch (childFd.getType())
-			{
-			case SCALAR:
-				serializeScalar(object, childFd, appendable, translationContext);
-				break;
-			case COMPOSITE_ELEMENT:
-				serializeComposite(object, appendable, translationContext, childFd);
-				break;
-			case COLLECTION_SCALAR:
-			case MAP_SCALAR:
-				serializeScalarCollection(object, appendable, translationContext, childFd);
-				break;
-			case COLLECTION_ELEMENT:
-			case MAP_ELEMENT:
-				if (childFd.isPolymorphic())
-					serializePolymorphicCollection(object, appendable, translationContext, childFd);
-				else
-					serializeCompositeCollection(object, appendable, translationContext, childFd);
-				break;
-			}
 
-			if (++numOfFields < allFieldDescriptors.size())
-				appendable.append(',');
+			if (isSerializable(childFd, object))
+			{
+				if (numOfFields++ > 0)
+					appendable.append(',');
+
+				switch (childFd.getType())
+				{
+				case SCALAR:
+					serializeScalar(object, childFd, appendable, translationContext);
+					break;
+				case COMPOSITE_ELEMENT:
+					serializeComposite(object, appendable, translationContext, childFd);
+					break;
+				case COLLECTION_SCALAR:
+				case MAP_SCALAR:
+					serializeScalarCollection(object, appendable, translationContext, childFd);
+					break;
+				case COLLECTION_ELEMENT:
+				case MAP_ELEMENT:
+					if (childFd.isPolymorphic())
+						serializePolymorphicCollection(object, appendable, translationContext, childFd);
+					else
+						serializeCompositeCollection(object, appendable, translationContext, childFd);
+					break;
+				}
+			}
+		}
+	}
+
+	/**
+	 * check if the fild is of default value or null. we don't have to serialize that field
+	 * 
+	 * @param childFd
+	 * @param object
+	 * @return
+	 * @throws SIMPLTranslationException
+	 */
+	private boolean isSerializable(FieldDescriptor childFd, Object object)
+			throws SIMPLTranslationException
+	{
+		switch (childFd.getType())
+		{
+		case SCALAR:
+			if (childFd.isDefaultValue(object))
+				return false;
+			break;
+		case COMPOSITE_ELEMENT:
+		case COLLECTION_ELEMENT:
+		case MAP_ELEMENT:
+			Object obj = childFd.getObject(object);
+			if (obj == null)
+				return false;
+			break;
+		case COLLECTION_SCALAR:
+		case MAP_SCALAR:
+			Collection<?> scalarCollection = XMLTools.getCollection(object);
+			if (scalarCollection == null || scalarCollection.size() <= 0)
+				return false;
+			break;
 		}
 
+		return true;
 	}
 
 	/**
@@ -271,16 +309,13 @@ public class JSONSerializer extends StringSerializer implements FieldTypes
 	private void serializeScalar(Object object, FieldDescriptor fd, Appendable appendable,
 			TranslationContext translationContext) throws IOException, SIMPLTranslationException
 	{
-		if (!fd.isDefaultValue(object))
-		{
-			appendable.append('"');
-			appendable.append(fd.getTagName());
-			appendable.append('"');
-			appendable.append(':');
-			appendable.append('"');
-			fd.appendValue(appendable, object, translationContext, Format.JSON);
-			appendable.append('"');
-		}
+		appendable.append('"');
+		appendable.append(fd.getTagName());
+		appendable.append('"');
+		appendable.append(':');
+		appendable.append('"');
+		fd.appendValue(appendable, object, translationContext, Format.JSON);
+		appendable.append('"');
 	}
 
 	/**

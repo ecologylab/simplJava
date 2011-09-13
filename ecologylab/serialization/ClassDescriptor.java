@@ -2,6 +2,7 @@ package ecologylab.serialization;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.TypeVariable;
@@ -98,7 +99,7 @@ public class ClassDescriptor<FD extends FieldDescriptor> extends DescriptorBase 
 
 	/**
 	 * This data structure is handy for translateFromXML(). There can be multiple tags (keys in this
-	 * map) for a single FieldDescriptor if @xml_other_tags is used.
+	 * map) for a single FieldDescriptor if @simpl_other_tags is used.
 	 */
 	private HashMap<String, FD>																												allFieldDescriptorsByTagNames				= new HashMap<String, FD>();
 
@@ -835,9 +836,10 @@ public class ClassDescriptor<FD extends FieldDescriptor> extends DescriptorBase 
 	}
 
 	/**
-	 * Use the @xml_other_tags annotation to obtain an array of alternative (old) tags for this class.
+	 * Use the @simpl_other_tags annotation to obtain an array of alternative (old) tags for this
+	 * class.
 	 * 
-	 * @return The array of old tags, or null, if there is no @xml_other_tags annotation.
+	 * @return The array of old tags, or null, if there is no @simpl_other_tags annotation.
 	 */
 	public ArrayList<String> otherTags()
 	{
@@ -964,7 +966,7 @@ public class ClassDescriptor<FD extends FieldDescriptor> extends DescriptorBase 
 	}
 
 	@Override
-	public void deserializationPreHook()
+	public void deserializationPreHook(TranslationContext translationContext)
 	{
 		synchronized (globalClassDescriptorsMap)
 		{
@@ -1067,6 +1069,21 @@ public class ClassDescriptor<FD extends FieldDescriptor> extends DescriptorBase 
 		serialize(object, appendable, stringFormat, translationContext);
 	}
 
+	public static void serializeOut(Object object, String message, StringFormat stringFormat)
+	{
+		System.out.print(message);
+		System.out.print(':');
+		try
+		{
+			serialize(object, System.out, stringFormat);
+		}
+		catch (SIMPLTranslationException e)
+		{
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+
 	/**
 	 * Static method for serializing an object. accepts translation context which a user can supply to
 	 * pass in additional information for the serialization method to use
@@ -1120,5 +1137,17 @@ public class ClassDescriptor<FD extends FieldDescriptor> extends DescriptorBase 
 	{
 		StringSerializer stringSerializer = FormatSerializer.getStringSerializer(stringFormat);
 		return stringSerializer.serialize(object, translationContext);
+	}
+
+	/**
+	 * 
+	 * @param object
+	 * @param outputStream
+	 * @param bibtex
+	 */
+	public static void serialize(Object object, OutputStream outputStream, Format format)
+	{
+		// TODO Auto-generated method stub
+
 	}
 }

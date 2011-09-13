@@ -94,11 +94,11 @@ public class FieldDescriptor extends DescriptorBase implements FieldTypes, IMapp
 	// ////////////////////////////////////////
 	/**
 	 * Null if the tag for this field is derived from its field declaration. For most fields, tag is
-	 * derived from the field declaration (using field name or @xml_tag).
+	 * derived from the field declaration (using field name or @simpl_tag).
 	 * <p/>
 	 * However, for polymorphic fields, such as those declared using @xml_class, @xml_classes, or
 	 * 
-	 * @xml_scope, the tag is derived from the class declaration (using class name or @xml_tag). This
+	 * @xml_scope, the tag is derived from the class declaration (using class name or @simpl_tag). This
 	 *             is, for example, required for polymorphic nested and collection fields. For these
 	 *             fields, this slot contains an array of the legal classes, which will be bound to
 	 *             this field during translateFromXML().
@@ -245,7 +245,7 @@ public class FieldDescriptor extends DescriptorBase implements FieldTypes, IMapp
 	public FieldDescriptor(ClassDescriptor declaringClassDescriptor, Field field, int annotationType) // String
 	// nameSpacePrefix
 	{
-		super(XMLTools.getXmlTagName(field), field.getName()); // uses field name or @xml_tag
+		super(XMLTools.getXmlTagName(field), field.getName()); // uses field name or @simpl_tag
 		// declaration
 		this.declaringClassDescriptor = declaringClassDescriptor;
 		this.field = field;
@@ -524,7 +524,7 @@ public class FieldDescriptor extends DescriptorBase implements FieldTypes, IMapp
 
 	/**
 	 * Figure out the type of field. Build associated data structures, such as collection or element
-	 * class & tag. Process @xml_other_tags.
+	 * class & tag. Process @simpl_other_tags.
 	 * 
 	 * @param field
 	 * @param annotationType
@@ -1636,7 +1636,7 @@ public class FieldDescriptor extends DescriptorBase implements FieldTypes, IMapp
 	/**
 	 * If this field is polymorphic, a Collection of Strings of all possible tags for the
 	 * polymorphically associated classes. This is usually the tagName field of each ClassDescriptor.
-	 * But it may be more, specifically if any of the classes are defined with @xml_other_tags.
+	 * But it may be more, specifically if any of the classes are defined with @simpl_other_tags.
 	 * 
 	 * @return Collection, or null, if the field is not polymorphic
 	 */
@@ -1759,18 +1759,22 @@ public class FieldDescriptor extends DescriptorBase implements FieldTypes, IMapp
 		tr.cells.add(fieldName);
 	}
 
-	public void writeCompositeHtmlWrap(boolean close, String displayLabel, Tr tr) throws IOException
-	{
-		// Td td = new Td();
-		Td fieldName = new Td();
-		Div text = new Div();
-		text.setCssClass("metadata_text");
-		fieldName.setCssClass("metadata_field_name");
-		// td.setCssClass("nested_field_value");
+	public void writeCompositeHtmlWrap(boolean close, String displayLabel, String schemaItemType, Tr tr) throws IOException
+	{		
+//			Td td = new Td();
+			Td fieldName = new Td();
+			Div text = new Div();
+			if (schemaItemType != null)
+			{
+				text.setSchemaOrgItemType(schemaItemType);
+			}
+			text.setCssClass("metadata_text");
+			fieldName.setCssClass("metadata_field_name");
+//			td.setCssClass("nested_field_value");
 
-		text.setText(displayLabel);
-		fieldName.items.add(text);
-		tr.cells.add(fieldName);
+			text.setText(displayLabel);
+			fieldName.items.add(text);
+			tr.cells.add(fieldName);
 	}
 
 	// ----------------------------- methods from TagDescriptor

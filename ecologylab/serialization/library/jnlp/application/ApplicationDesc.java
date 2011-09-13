@@ -12,6 +12,7 @@ import ecologylab.serialization.ClassDescriptor;
 import ecologylab.serialization.ElementState;
 import ecologylab.serialization.SIMPLTranslationException;
 import ecologylab.serialization.StringFormat;
+import ecologylab.serialization.TranslationContext;
 import ecologylab.serialization.annotations.simpl_collection;
 import ecologylab.serialization.annotations.simpl_nowrap;
 import ecologylab.serialization.annotations.simpl_scalar;
@@ -85,16 +86,17 @@ public class ApplicationDesc extends ElementState
 	 * @see ecologylab.serialization.ElementState#serializationPreHook()
 	 */
 	@Override
-	public void serializationPreHook()
+	public void serializationPreHook(TranslationContext translationContext)
 	{
 		if (prefSet != null)
 		{
 			try
 			{
-				
-				this.add(URLEncoder.encode(ClassDescriptor.serialize(prefSet, StringFormat.XML).toString(), "UTF-8"));
 
-				this.prefSetArgumentIndex = this.arguments.size()-1;
+				this.add(URLEncoder.encode(ClassDescriptor.serialize(prefSet, StringFormat.XML).toString(),
+						"UTF-8"));
+
+				this.prefSetArgumentIndex = this.arguments.size() - 1;
 			}
 			catch (UnsupportedEncodingException e)
 			{
@@ -106,14 +108,14 @@ public class ApplicationDesc extends ElementState
 			}
 		}
 
-		super.serializationPreHook();
+		super.serializationPreHook(translationContext);
 	}
 
 	/**
 	 * @see ecologylab.serialization.ElementState#serializationPostHook()
 	 */
 	@Override
-	public void serializationPostHook()
+	public void serializationPostHook(TranslationContext translationContext)
 	{
 		if (this.prefSetArgumentIndex > -1)
 		{ // we need to remove it from the arguments list
@@ -122,6 +124,6 @@ public class ApplicationDesc extends ElementState
 			this.prefSetArgumentIndex = -1;
 		}
 
-		super.serializationPostHook();
+		super.serializationPostHook(translationContext);
 	}
 }

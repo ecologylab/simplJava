@@ -21,7 +21,7 @@ import java.lang.annotation.RetentionPolicy;
  * <p/>
  * You cannot use XML-forbidden characters or constructs in an xml_tag!
  * 
- * When using @xml_tag, you MUST create your corresponding TranslationSpace entry using a Class
+ * When using @simpl_tag, you MUST create your corresponding TranslationSpace entry using a Class
  * object, instead of using a default package name.
  * 
  * @author Zachary O. Toups (toupsz@cs.tamu.edu)

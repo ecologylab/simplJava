@@ -12,7 +12,7 @@ import java.lang.annotation.Target;
  * field must be a subclass of ElementState.
  * <p/>
  * The nested child element name will be derived from the field name, using camel case conversion,
- * unless @xml_tag is used.
+ * unless @simpl_tag is used.
  * 
  * @author andruid
  */

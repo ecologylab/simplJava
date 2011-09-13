@@ -11,13 +11,14 @@ import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamConstants;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
-import ecologylab.generic.Debug;
+
+import org.codehaus.jackson.JsonParseException;
+
 import ecologylab.generic.StringInputStream;
 import ecologylab.net.ParsedURL;
 import ecologylab.serialization.ClassDescriptor;
 import ecologylab.serialization.DeserializationHookStrategy;
 import ecologylab.serialization.FieldDescriptor;
-import ecologylab.serialization.FieldTypes;
 import ecologylab.serialization.SIMPLTranslationException;
 import ecologylab.serialization.TranslationContext;
 import ecologylab.serialization.TranslationScope;
@@ -70,7 +71,7 @@ public class XMLPullDeserializer extends StringPullDeserializer
 
 			if (xmlStreamReader.getEventType() != XMLStreamConstants.START_ELEMENT)
 			{
-				throw new SIMPLTranslationException("start of and element expected");
+				throw new SIMPLTranslationException("start of an element expected");
 			}
 
 			String rootTag = xmlStreamReader.getLocalName();
@@ -117,9 +118,10 @@ public class XMLPullDeserializer extends StringPullDeserializer
 		FieldDescriptor currentFieldDescriptor = null;
 		Object subRoot = null;
 		int event = 0;
-
-		while (xmlStreamReader.hasNext() && (event = nextEvent()) != XMLStreamConstants.END_ELEMENT)
+		event = nextEvent();
+		while (xmlStreamReader.hasNext() && (event) != XMLStreamConstants.END_ELEMENT)
 		{
+			// debug();
 			if (event == XMLStreamConstants.START_ELEMENT)
 			{
 				currentFieldDescriptor = (currentFieldDescriptor != null)
@@ -138,11 +140,13 @@ public class XMLPullDeserializer extends StringPullDeserializer
 					String value = xmlStreamReader.getText();
 					currentFieldDescriptor.setFieldToScalar(root, value, translationContext);
 					xmlStreamReader.next();
+					event = nextEvent();
 					break;
 				case COMPOSITE_ELEMENT:
 					String tagName = xmlStreamReader.getLocalName();
 					subRoot = getSubRoot(currentFieldDescriptor, tagName);
 					currentFieldDescriptor.setFieldToComposite(root, subRoot);
+					event = nextEvent();
 					break;
 				case COLLECTION_ELEMENT:
 					while (currentFieldDescriptor.isCollectionTag(xmlStreamReader.getLocalName()))
@@ -155,7 +159,7 @@ public class XMLPullDeserializer extends StringPullDeserializer
 									.automaticLazyGetCollectionOrMap(root);
 							collection.add(subRoot);
 
-							event = nextEvent();
+							event = xmlStreamReader.nextTag();							
 						}
 					}
 					break;
@@ -173,13 +177,20 @@ public class XMLPullDeserializer extends StringPullDeserializer
 								map.put(key, subRoot);
 							}
 
-							event = nextEvent();
+							event = xmlStreamReader.nextTag();
 						}
 					}
 					break;
 				case WRAPPER:
+					event = nextEvent();
 					break;
+				default:
+					event = nextEvent();
 				}
+			}
+			else
+			{
+				event = nextEvent();
 			}
 		}
 	}
@@ -311,6 +322,26 @@ public class XMLPullDeserializer extends StringPullDeserializer
 		}
 
 		return eventType;
+	}
+
+	protected void debug()
+	{
+		int event = xmlStreamReader.getEventType();
+		switch (event)
+		{
+		case XMLStreamConstants.START_ELEMENT:
+			System.out.println(xmlStreamReader.getLocalName());
+			break;
+		case XMLStreamConstants.END_ELEMENT:
+			System.out.println(xmlStreamReader.getLocalName());
+			break;
+		case XMLStreamConstants.CHARACTERS:
+			System.out.println(xmlStreamReader.getText());
+			break;
+		case XMLStreamConstants.CDATA:
+			System.out.println("cdata " + xmlStreamReader.getText());
+			break;
+		} // end switch
 	}
 
 	/**

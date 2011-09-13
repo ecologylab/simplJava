@@ -9,9 +9,9 @@ import ecologylab.serialization.deserializers.ISimplDeserializatonPost;
 import ecologylab.serialization.serializers.ISimplSerializationPost;
 import ecologylab.serialization.serializers.ISimplSerializationPre;
 
-public class ElementState<PES extends ElementState> extends Debug implements FieldTypes, XMLTranslationExceptionTypes,
-		ISimplSerializationPre, ISimplSerializationPost, ISimplDeserializationPre,
-		ISimplDeserializatonPost
+public class ElementState<PES extends ElementState> extends Debug implements FieldTypes,
+		XMLTranslationExceptionTypes, ISimplSerializationPre, ISimplSerializationPost,
+		ISimplDeserializationPre, ISimplDeserializatonPost
 {
 
 	private boolean													isRoot										= false;
@@ -19,13 +19,13 @@ public class ElementState<PES extends ElementState> extends Debug implements Fie
 	/**
 	 * Link for a DOM tree. should be removed
 	 */
-	transient PES									parent;
+	transient PES														parent;
 
 	/**
 	 * to handle objects with multiple parents this variable helps keep track of parents in
 	 * deserializing graph
 	 */
-	Stack<PES>											parents										= null;
+	Stack<PES>															parents										= null;
 
 	/**
 	 * Use for resolving getElementById()
@@ -36,6 +36,11 @@ public class ElementState<PES extends ElementState> extends Debug implements Fie
 
 	static protected final int							ESTIMATE_CHARS_PER_FIELD	= 80;
 
+	/**
+	 * Just-in time look-up tables to make translation be efficient. Allocated on a per class basis.
+	 */
+	transient private ClassDescriptor				classDescriptor;
+	
 	/**
 	 * Construct. Create a link to a root optimizations object.
 	 */
@@ -68,7 +73,8 @@ public class ElementState<PES extends ElementState> extends Debug implements Fie
 	public PES parent()
 	{
 		// return (parent != null) ? parent :
-		// (parents != null && !parents.empty()) ? parents.firstElement() : null;
+		// (parents != null && !parents.empty()) ? parents.firstElement() :
+		// null;
 		return parent;
 	}
 
@@ -147,7 +153,7 @@ public class ElementState<PES extends ElementState> extends Debug implements Fie
 
 	private void manageParents(ElementState parentES)
 	{
-		PES parentPES 	=  (PES) parentES;
+		PES parentPES = (PES) parentES;
 		if (this.parent == null)
 		{
 			this.parent = parentPES;
@@ -166,30 +172,45 @@ public class ElementState<PES extends ElementState> extends Debug implements Fie
 			}
 		}
 	}
+	
+	/**
+	 * @return Returns the optimizations.
+	 */
+
+	public ClassDescriptor classDescriptor()
+	{
+		ClassDescriptor result = classDescriptor;
+		if (result == null)
+		{
+			result = ClassDescriptor.getClassDescriptor(this);
+			this.classDescriptor = result;
+		}
+		return result;
+	}
 
 	@Override
-	public void serializationPostHook()
+	public void serializationPostHook(TranslationContext translationContext)
 	{
 		// TODO Auto-generated method stub
 
 	}
 
 	@Override
-	public void serializationPreHook()
+	public void serializationPreHook(TranslationContext translationContext)
 	{
 		// TODO Auto-generated method stub
 
 	}
 
 	@Override
-	public void deserializationPreHook()
+	public void deserializationPreHook(TranslationContext translationContext)
 	{
 		// TODO Auto-generated method stub
 
 	}
 
 	@Override
-	public void deserializationPostHook()
+	public void deserializationPostHook(TranslationContext translationContext)
 	{
 		// TODO Auto-generated method stub
 

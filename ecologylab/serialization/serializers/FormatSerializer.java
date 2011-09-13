@@ -89,7 +89,7 @@ public abstract class FormatSerializer
 	{
 		if (object instanceof ISimplSerializationPost)
 		{
-			((ISimplSerializationPost) object).serializationPostHook();
+			((ISimplSerializationPost) object).serializationPostHook(null);
 		}
 	}
 
@@ -101,7 +101,7 @@ public abstract class FormatSerializer
 	{
 		if (object instanceof ISimplSerializationPre)
 		{
-			((ISimplSerializationPre) object).serializationPreHook();
+			((ISimplSerializationPre) object).serializationPreHook(null);
 		}
 	}
 

@@ -1,5 +1,7 @@
 package ecologylab.serialization.serializers;
 
+import ecologylab.serialization.TranslationContext;
+
 /**
  * Interface for applications to plugin functionality after serialization of an object.
  *  
@@ -7,5 +9,5 @@ package ecologylab.serialization.serializers;
  */
 public interface ISimplSerializationPost
 {
-	public void serializationPostHook();
+	void serializationPostHook(TranslationContext translationContext);
 }

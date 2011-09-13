@@ -29,7 +29,7 @@ class Result extends ElementState
 	@simpl_scalar @simpl_hints(Hint.XML_LEAF)	@simpl_tag("Url")		ParsedURL			url;
 
 	// this is a mess double-stuffed url from yahoo. nice to ignore.
-//	@simpl_scalar @simpl_hints(Hint.XML_LEAF)	@xml_tag("ClickUrl")		ParsedURL	clickUrl;
+//	@simpl_scalar @simpl_hints(Hint.XML_LEAF)	@simpl_tag("ClickUrl")		ParsedURL	clickUrl;
 	
 	// there is also a field called ClickUrl. for image search, it duplicates Url.
 	// for web search ClickUrl is that nasty url that takes you through yahoo, and includes
