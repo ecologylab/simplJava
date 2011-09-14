@@ -42,10 +42,12 @@ public class TranslationContext extends Debug implements ScalarUnmarshallingCont
 	private HashMap<String, Object>		unmarshalledObjects			= new HashMap<String, Object>();
 
 	protected ParsedURL								purlContext;
-	protected ParsedURL											baseDirPurl;
+
+	protected ParsedURL								baseDirPurl;
 
 	protected File										fileContext;
-	protected File													baseDirFile;
+
+	protected File										baseDirFile;
 
 	protected String									delimiter								= ",";
 

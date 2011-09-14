@@ -74,24 +74,26 @@ public abstract class FormatSerializer
 	/**
 	 * 
 	 * @param object
+	 * @param translationContext TODO
 	 */
-	protected void serializationPostHook(Object object)
+	protected void serializationPostHook(Object object, TranslationContext translationContext)
 	{
 		if (object instanceof ISimplSerializationPost)
 		{
-			((ISimplSerializationPost) object).serializationPostHook(null);
+			((ISimplSerializationPost) object).serializationPostHook(translationContext);
 		}
 	}
 
 	/**
 	 * 
 	 * @param object
+	 * @param translationContext TODO
 	 */
-	protected void serializationPreHook(Object object)
+	protected void serializationPreHook(Object object, TranslationContext translationContext)
 	{
 		if (object instanceof ISimplSerializationPre)
 		{
-			((ISimplSerializationPre) object).serializationPreHook(null);
+			((ISimplSerializationPre) object).serializationPreHook(translationContext);
 		}
 	}
 

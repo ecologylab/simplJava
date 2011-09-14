@@ -18,14 +18,17 @@ import ecologylab.serialization.FieldDescriptor;
 import ecologylab.serialization.FieldTypes;
 import ecologylab.serialization.Format;
 import ecologylab.serialization.SIMPLTranslationException;
-import ecologylab.serialization.ScalarUnmarshallingContext;
 import ecologylab.serialization.StringFormat;
 import ecologylab.serialization.TranslationContext;
 import ecologylab.serialization.TranslationScope;
+import ecologylab.serialization.deserializers.ISimplDeserializationPre;
+import ecologylab.serialization.deserializers.ISimplDeserializatonPost;
 import ecologylab.serialization.deserializers.pullhandlers.binaryformats.BinaryPullDeserializer;
 import ecologylab.serialization.deserializers.pullhandlers.stringformats.JSONPullDeserializer;
 import ecologylab.serialization.deserializers.pullhandlers.stringformats.StringPullDeserializer;
 import ecologylab.serialization.deserializers.pullhandlers.stringformats.XMLPullDeserializer;
+import ecologylab.serialization.serializers.ISimplSerializationPost;
+import ecologylab.serialization.serializers.ISimplSerializationPre;
 
 public abstract class PullDeserializer extends Debug implements FieldTypes
 {
@@ -34,7 +37,7 @@ public abstract class PullDeserializer extends Debug implements FieldTypes
 
 	protected TranslationContext																												translationContext;
 
-	protected DeserializationHookStrategy<? extends Object, ? extends FieldDescriptor>	deserializationHookStrategy;
+	protected DeserializationHookStrategy	deserializationHookStrategy;
 
 	static final ConnectionAdapter																											connectionAdapter	= new ConnectionAdapter();
 
@@ -64,13 +67,19 @@ public abstract class PullDeserializer extends Debug implements FieldTypes
 	public PullDeserializer(
 			TranslationScope translationScope,
 			TranslationContext translationContext,
-			DeserializationHookStrategy<? extends Object, ? extends FieldDescriptor> deserializationHookStrategy)
+			DeserializationHookStrategy deserializationHookStrategy)
 	{
 		this.translationScope = translationScope;
 		this.translationContext = translationContext;
 		this.deserializationHookStrategy = deserializationHookStrategy;
 	}
 
+	/**
+	 * 
+	 * @param file
+	 * @return
+	 * @throws SIMPLTranslationException
+	 */
 	public Object parse(File file) throws SIMPLTranslationException
 	{
 		try
@@ -93,6 +102,12 @@ public abstract class PullDeserializer extends Debug implements FieldTypes
 
 	}
 
+	/**
+	 * 
+	 * @param purl
+	 * @return
+	 * @throws SIMPLTranslationException
+	 */
 	public Object parse(ParsedURL purl) throws SIMPLTranslationException
 	{
 		if (purl.isFile())
@@ -104,23 +119,80 @@ public abstract class PullDeserializer extends Debug implements FieldTypes
 		return result;
 	}
 
+	/**
+	 * 
+	 * @param url
+	 * @return
+	 * @throws SIMPLTranslationException
+	 */
 	public Object parse(URL url) throws SIMPLTranslationException
 	{
 		return parse(new ParsedURL(url));
 	}
 
+	/**
+	 * 
+	 * @param inputStream
+	 * @return
+	 * @throws SIMPLTranslationException
+	 */
 	public abstract Object parse(InputStream inputStream) throws SIMPLTranslationException;
 
+	/**
+	 * 
+	 * @param object
+	 * @param translationContext
+	 *          TODO
+	 */
+	protected void deserializationPostHook(Object object, TranslationContext translationContext)
+	{
+		if (object instanceof ISimplSerializationPost)
+		{
+			((ISimplDeserializationPre) object).deserializationPreHook(translationContext);
+		}
+	}
+
+	/**
+	 * 
+	 * @param object
+	 * @param translationContext
+	 *          TODO
+	 */
+	protected void deserializationPreHook(Object object, TranslationContext translationContext)
+	{
+		if (object instanceof ISimplSerializationPre)
+		{
+			((ISimplDeserializatonPost) object).deserializationPostHook(translationContext);
+		}
+	}
+
+	/**
+	 * 
+	 * @param translationScope
+	 * @param translationContext
+	 * @param format
+	 * @return
+	 * @throws SIMPLTranslationException
+	 */
 	public static PullDeserializer getDeserializer(TranslationScope translationScope,
 			TranslationContext translationContext, Format format) throws SIMPLTranslationException
 	{
 		return getDeserializer(translationScope, translationContext, null, format);
 	}
 
+	/**
+	 * 
+	 * @param translationScope
+	 * @param translationContext
+	 * @param deserializationHookStrategy
+	 * @param format
+	 * @return
+	 * @throws SIMPLTranslationException
+	 */
 	public static PullDeserializer getDeserializer(
 			TranslationScope translationScope,
 			TranslationContext translationContext,
-			DeserializationHookStrategy<? extends Object, ? extends FieldDescriptor> deserializationHookStrategy,
+			DeserializationHookStrategy deserializationHookStrategy,
 			Format format) throws SIMPLTranslationException
 	{
 		switch (format)
@@ -138,6 +210,14 @@ public abstract class PullDeserializer extends Debug implements FieldTypes
 		}
 	}
 
+	/**
+	 * 
+	 * @param translationScope
+	 * @param translationContext
+	 * @param stringFormat
+	 * @return
+	 * @throws SIMPLTranslationException
+	 */
 	public static StringPullDeserializer getStringDeserializer(TranslationScope translationScope,
 			TranslationContext translationContext, StringFormat stringFormat)
 			throws SIMPLTranslationException
@@ -145,10 +225,19 @@ public abstract class PullDeserializer extends Debug implements FieldTypes
 		return getStringDeserializer(translationScope, translationContext, null, stringFormat);
 	}
 
+	/**
+	 * 
+	 * @param translationScope
+	 * @param translationContext
+	 * @param deserializationHookStrategy
+	 * @param stringFormat
+	 * @return
+	 * @throws SIMPLTranslationException
+	 */
 	public static StringPullDeserializer getStringDeserializer(
 			TranslationScope translationScope,
 			TranslationContext translationContext,
-			DeserializationHookStrategy<? extends Object, ? extends FieldDescriptor> deserializationHookStrategy,
+			DeserializationHookStrategy deserializationHookStrategy,
 			StringFormat stringFormat) throws SIMPLTranslationException
 	{
 		switch (stringFormat)
@@ -165,6 +254,14 @@ public abstract class PullDeserializer extends Debug implements FieldTypes
 		}
 	}
 
+	/**
+	 * 
+	 * @param translationScope
+	 * @param translationContext
+	 * @param binaryFormat
+	 * @return
+	 * @throws SIMPLTranslationException
+	 */
 	public static BinaryPullDeserializer getBinaryDeserializer(TranslationScope translationScope,
 			TranslationContext translationContext, BinaryFormat binaryFormat)
 			throws SIMPLTranslationException
@@ -172,10 +269,19 @@ public abstract class PullDeserializer extends Debug implements FieldTypes
 		return getBinaryDeserializer(translationScope, translationContext, null, binaryFormat);
 	}
 
+	/**
+	 * 
+	 * @param translationScope
+	 * @param translationContext
+	 * @param deserializationHookStrategy
+	 * @param binaryFormat
+	 * @return
+	 * @throws SIMPLTranslationException
+	 */
 	public static BinaryPullDeserializer getBinaryDeserializer(
 			TranslationScope translationScope,
 			TranslationContext translationContext,
-			DeserializationHookStrategy<? extends Object, ? extends FieldDescriptor> deserializationHookStrategy,
+			DeserializationHookStrategy deserializationHookStrategy,
 			BinaryFormat binaryFormat) throws SIMPLTranslationException
 	{
 		switch (binaryFormat)

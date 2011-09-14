@@ -145,7 +145,7 @@ public class ElementState<PES extends ElementState> extends Debug implements Fie
 	 * @param ourClassDescriptor
 	 *          TODO
 	 */
-	void setupInParent(ElementState newParent)
+	public void setupInParent(ElementState newParent)
 	{
 		this.elementByIdMap = newParent.elementByIdMap;
 		this.manageParents(newParent);

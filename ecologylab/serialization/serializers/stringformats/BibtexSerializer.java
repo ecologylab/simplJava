@@ -56,7 +56,7 @@ public class BibtexSerializer extends StringSerializer implements FieldTypes
 			Appendable appendable, TranslationContext translationContext)
 			throws SIMPLTranslationException, IOException
 	{
-		serializationPreHook(object);
+		serializationPreHook(object, translationContext);
 
 		writeObjectStart(rootObjectFieldDescriptor, appendable);
 
@@ -67,7 +67,7 @@ public class BibtexSerializer extends StringSerializer implements FieldTypes
 
 		writeClose(appendable);
 
-		serializationPostHook(object);
+		serializationPostHook(object, translationContext);
 	}
 
 	/**

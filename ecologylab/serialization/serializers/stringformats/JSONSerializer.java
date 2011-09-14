@@ -74,7 +74,7 @@ public class JSONSerializer extends StringSerializer implements FieldTypes
 
 		translationContext.mapObject(object);
 
-		serializationPreHook(object);
+		serializationPreHook(object, translationContext);
 
 		writeObjectStart(rootObjectFieldDescriptor, appendable, withTag);
 
@@ -85,7 +85,7 @@ public class JSONSerializer extends StringSerializer implements FieldTypes
 
 		writeClose(appendable);
 
-		serializationPostHook(object);
+		serializationPostHook(object, translationContext);
 	}
 
 	/**

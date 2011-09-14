@@ -16,6 +16,7 @@ import org.codehaus.jackson.JsonParseException;
 import ecologylab.generic.StringInputStream;
 import ecologylab.serialization.ClassDescriptor;
 import ecologylab.serialization.DeserializationHookStrategy;
+import ecologylab.serialization.ElementState;
 import ecologylab.serialization.FieldDescriptor;
 import ecologylab.serialization.SIMPLTranslationException;
 import ecologylab.serialization.TranslationContext;
@@ -151,6 +152,11 @@ public class XMLPullDeserializer extends StringPullDeserializer
 		}
 
 		root = rootClassDescriptor.getInstance();
+
+		deserializationPreHook(root, translationContext);
+		if (deserializationHookStrategy != null)
+			deserializationHookStrategy.deserializationPreHook(root, null);
+
 		deserializeAttributes(root, rootClassDescriptor);
 
 		createObjectModel(root, rootClassDescriptor);
@@ -232,6 +238,10 @@ public class XMLPullDeserializer extends StringPullDeserializer
 				// no more data? but we are expecting so its not correct
 				throw new SIMPLTranslationException("premature end of file: check XML file for consistency");
 			}
+
+			deserializationPostHook(root, translationContext);
+			if (deserializationHookStrategy != null)
+				deserializationHookStrategy.deserializationPostHook(root, null);
 		}
 	}
 
@@ -290,7 +300,7 @@ public class XMLPullDeserializer extends StringPullDeserializer
 		Object subRoot;
 		int event;
 		String tagName = xmlStreamReader.getLocalName();
-		subRoot = getSubRoot(currentFieldDescriptor, tagName);
+		subRoot = getSubRoot(currentFieldDescriptor, tagName, root);		
 		currentFieldDescriptor.setFieldToComposite(root, subRoot);
 		event = nextEvent();
 		return event;
@@ -320,7 +330,7 @@ public class XMLPullDeserializer extends StringPullDeserializer
 			}
 
 			String compositeTagName = xmlStreamReader.getLocalName();
-			subRoot = getSubRoot(currentFieldDescriptor, compositeTagName);
+			subRoot = getSubRoot(currentFieldDescriptor, compositeTagName, root);
 			if (subRoot instanceof IMappable<?>)
 			{
 				final Object key = ((IMappable<?>) subRoot).key();
@@ -357,7 +367,7 @@ public class XMLPullDeserializer extends StringPullDeserializer
 			}
 
 			String compositeTagName = xmlStreamReader.getLocalName();
-			subRoot = getSubRoot(currentFieldDescriptor, compositeTagName);
+			subRoot = getSubRoot(currentFieldDescriptor, compositeTagName, root);
 			Collection collection = (Collection) currentFieldDescriptor
 					.automaticLazyGetCollectionOrMap(root);
 			collection.add(subRoot);
@@ -418,13 +428,14 @@ public class XMLPullDeserializer extends StringPullDeserializer
 	 * a new one
 	 * 
 	 * @param currentFieldDescriptor
+	 * @param root TODO
 	 * @return
 	 * @throws SIMPLTranslationException
 	 * @throws JsonParseException
 	 * @throws IOException
 	 * @throws XMLStreamException
 	 */
-	private Object getSubRoot(FieldDescriptor currentFieldDescriptor, String tagName)
+	private Object getSubRoot(FieldDescriptor currentFieldDescriptor, String tagName, Object root)
 			throws SIMPLTranslationException, IOException, XMLStreamException
 	{
 		Object subRoot = null;
@@ -441,6 +452,20 @@ public class XMLPullDeserializer extends StringPullDeserializer
 		else
 		{
 			subRoot = subRootClassDescriptor.getInstance();
+
+			deserializationPreHook(subRoot, translationContext);
+			if (deserializationHookStrategy != null)
+				deserializationHookStrategy.deserializationPreHook(subRoot, currentFieldDescriptor);
+			
+			if (subRoot != null)
+			{
+				if (subRoot instanceof ElementState && root instanceof ElementState)
+				{
+					((ElementState) subRoot).setupInParent((ElementState) root);
+				}
+			}
+
+
 			deserializeAttributes(subRoot, subRootClassDescriptor);
 			createObjectModel(subRoot, subRootClassDescriptor);
 		}

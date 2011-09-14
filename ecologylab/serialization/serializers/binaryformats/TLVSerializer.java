@@ -73,7 +73,7 @@ public class TLVSerializer extends BinarySerializer implements FieldTypes
 
 		translationContext.mapObject(object);
 
-		serializationPreHook(object);
+		serializationPreHook(object, translationContext);
 
 		ClassDescriptor<? extends FieldDescriptor> rootObjectClassDescriptor = getClassDescriptor(object);
 
@@ -89,7 +89,7 @@ public class TLVSerializer extends BinarySerializer implements FieldTypes
 
 		writeHeader(dataOutputStream, byteArrayOutputStream, id);
 
-		serializationPostHook(object);
+		serializationPostHook(object, translationContext);
 
 	}
 

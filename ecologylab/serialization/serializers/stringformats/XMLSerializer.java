@@ -76,7 +76,7 @@ public class XMLSerializer extends StringSerializer implements FieldTypes
 
 		translationContext.mapObject(object);
 
-		serializationPreHook(object);
+		serializationPreHook(object, translationContext);
 
 		ClassDescriptor<? extends FieldDescriptor> rootObjectClassDescriptor = getClassDescriptor(object);
 
@@ -109,7 +109,7 @@ public class XMLSerializer extends StringSerializer implements FieldTypes
 			writeObjectClose(rootObjectFieldDescriptor, appendable);
 		}
 
-		serializationPostHook(object);
+		serializationPostHook(object, translationContext);
 	}
 
 	/**
