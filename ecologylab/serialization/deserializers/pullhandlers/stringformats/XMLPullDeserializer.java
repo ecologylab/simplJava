@@ -207,6 +207,9 @@ public class XMLPullDeserializer extends StringPullDeserializer
 			case SCALAR:
 				event = deserializeScalar(root, currentFieldDescriptor);
 				break;
+			case COLLECTION_SCALAR:
+				event = deserializeScalarCollection(root, currentFieldDescriptor);
+				break;
 			case COMPOSITE_ELEMENT:
 				event = deserializeComposite(root, currentFieldDescriptor);
 				break;
@@ -224,11 +227,52 @@ public class XMLPullDeserializer extends StringPullDeserializer
 				break;
 			}
 
-			if (event == XMLStreamConstants.END_DOCUMENT)
+			if (event == XMLStreamConstants.END_DOCUMENT || !xmlStreamReader.hasNext())
 			{
+				// no more data? but we are expecting so its not correct
 				throw new SIMPLTranslationException("premature end of file: check XML file for consistency");
 			}
 		}
+	}
+
+	private int deserializeScalarCollection(Object root, FieldDescriptor fd)
+			throws SIMPLTranslationException, XMLStreamException
+	{
+		int event = xmlStreamReader.getEventType();
+
+		while (fd.isCollectionTag(xmlStreamReader.getLocalName()))
+		{
+			String tag = xmlStreamReader.getLocalName();
+			if (event != XMLStreamConstants.START_ELEMENT)
+			{
+				throw new SIMPLTranslationException("Invalid state of parser:: expecting start tag <" + tag
+						+ ">");
+			}
+
+			event = xmlStreamReader.next();
+
+			if (event != XMLStreamConstants.CHARACTERS)
+			{
+				throw new SIMPLTranslationException("Invalid state of parser:: expecting value for tag <"
+						+ tag + ">");
+			}
+
+			StringBuilder text = new StringBuilder();
+			text.append(xmlStreamReader.getText());
+
+			while (xmlStreamReader.next() != XMLStreamConstants.END_ELEMENT)
+			{
+				if (xmlStreamReader.getEventType() == XMLStreamConstants.CHARACTERS)
+					text.append(xmlStreamReader.getText());
+			}
+
+			String value = text.toString();
+			fd.addLeafNodeToCollection(root, value, translationContext);
+
+			event = xmlStreamReader.nextTag();
+
+		}
+		return event;
 	}
 
 	/**

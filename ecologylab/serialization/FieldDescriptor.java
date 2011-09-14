@@ -1023,12 +1023,19 @@ public class FieldDescriptor extends DescriptorBase implements FieldTypes, IMapp
 		}
 	}
 
+	public boolean isDefaultValue(String value)
+	{
+		return scalarType.isDefaultValue(value);
+	}
+
 	public boolean isDefaultValue(Object context) throws SIMPLTranslationException
 	{
 		try
 		{
 			if (context != null)
+			{
 				return scalarType.isDefaultValue(this.field, context);
+			}
 			return false;
 		}
 		catch (Exception ex)
@@ -2613,6 +2620,20 @@ public class FieldDescriptor extends DescriptorBase implements FieldTypes, IMapp
 		try
 		{
 			scalarType.appendValue(appendable, this, object, translationContext, format);
+		}
+		catch (Exception ex)
+		{
+			throw new SIMPLTranslationException("appendValue exception. ", ex);
+		}
+	}
+
+	public void appendCollectionScalarValue(Appendable appendable, Object object,
+			TranslationContext translationContext, Format format) throws SIMPLTranslationException
+	{
+		try
+		{
+			ScalarType scalarType = this.scalarType;
+			scalarType.appendValue(object, appendable, !isCDATA, null, format);
 		}
 		catch (Exception ex)
 		{

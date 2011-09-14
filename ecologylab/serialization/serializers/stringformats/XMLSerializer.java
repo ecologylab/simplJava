@@ -29,8 +29,8 @@ public class XMLSerializer extends StringSerializer implements FieldTypes
 
 	public XMLSerializer()
 	{
-	}	
-	
+	}
+
 	@Override
 	public void serialize(Object object, Appendable appendable, TranslationContext translationContext)
 			throws SIMPLTranslationException
@@ -188,22 +188,23 @@ public class XMLSerializer extends StringSerializer implements FieldTypes
 				break;
 			case COLLECTION_SCALAR:
 			case MAP_SCALAR:
-				Collection<?> scalarCollection = XMLTools.getCollection(object);
+				Object scalarCollectionObject = childFd.getObject(object);
+				Collection<?> scalarCollection = XMLTools.getCollection(scalarCollectionObject);
 				if (scalarCollection != null)
 				{
 					writeWrap(childFd, appendable, false);
 
-					for (Object collectionObject : scalarCollection)
+					for (Object collectionScalar : scalarCollection)
 					{
-						writeValueAsLeaf(collectionObject, childFd, appendable, translationContext);
+						writeScalarCollectionLeaf(collectionScalar, childFd, appendable, translationContext);
 					}
 					writeWrap(childFd, appendable, true);
 				}
 				break;
 			case COLLECTION_ELEMENT:
 			case MAP_ELEMENT:
-				Object collectionObject = childFd.getObject(object);
-				Collection<?> compositeCollection = XMLTools.getCollection(collectionObject);
+				Object compositeCollectionObject = childFd.getObject(object);
+				Collection<?> compositeCollection = XMLTools.getCollection(compositeCollectionObject);
 				if (compositeCollection != null)
 				{
 					writeWrap(childFd, appendable, false);
@@ -313,6 +314,26 @@ public class XMLSerializer extends StringSerializer implements FieldTypes
 	 * @param object
 	 * @param fd
 	 * @param appendable
+	 * @param translationContext
+	 * @throws SIMPLTranslationException
+	 * @throws IOException
+	 */
+	private void writeScalarCollectionLeaf(Object object, FieldDescriptor fd, Appendable appendable,
+			TranslationContext translationContext) throws SIMPLTranslationException, IOException
+	{
+		if (!fd.isDefaultValue(object.toString()))
+		{
+			appendable.append('<').append(fd.elementStart()).append('>');
+			fd.appendCollectionScalarValue(appendable, object, translationContext, Format.XML);
+			appendable.append('<').append('/').append(fd.elementStart()).append('>');
+		}
+	}
+
+	/**
+	 * 
+	 * @param object
+	 * @param fd
+	 * @param appendable
 	 * @throws SIMPLTranslationException
 	 * @throws IOException
 	 */
@@ -409,6 +430,4 @@ public class XMLSerializer extends StringSerializer implements FieldTypes
 		appendable.append('"');
 	}
 
-
-	
 }
