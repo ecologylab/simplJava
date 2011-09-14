@@ -1738,7 +1738,7 @@ public class FieldDescriptor extends DescriptorBase implements FieldTypes, Mappa
 		fieldName.setCssClass("metadata_field_name");
 //		td.setCssClass("nested_field_value");
 		
-			if (size > 1)
+			if (size >= 1)
 				text.members.add(button);
 			String s = displayLabel;
 			if (size > 1)
