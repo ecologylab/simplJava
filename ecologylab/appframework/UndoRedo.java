@@ -66,6 +66,7 @@ public class UndoRedo<O extends MixedInitiativeOp> extends Debug
 			MixedInitiativeOp op = popUndo();
 			if (op == null)
 				return null;
+			op.debug("undo()");
 			op.performAction(true);
 			pushRedo(op);
 			return op;
