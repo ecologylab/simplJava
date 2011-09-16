@@ -24,31 +24,30 @@ import ecologylab.translators.java.JavaTranslationUtilities;
 public class NewMetaMetadataCompiler extends Debug
 {
 
-	private static final String	REPOSITORY_METADATA_TRANSLATION_SCOPE_PACKAGE_NAME	= "ecologylab.semantics.generated.library";
+	private static final String					REPOSITORY_METADATA_TRANSLATION_SCOPE_PACKAGE_NAME	= "ecologylab.semantics.generated.library";
 
-	private static final String	REPOSITORY_METADATA_TRANSLATION_SCOPE_CLASS_NAME		= "RepositoryMetadataTranslationScope";
+	private static final String					REPOSITORY_METADATA_TRANSLATION_SCOPE_CLASS_NAME		= "RepositoryMetadataTranslationScope";
 
-	private static final String	META_METADATA_COMPILER_TSCOPE_NAME									= "meta-metadata-compiler-tscope";
+	private static final String					META_METADATA_COMPILER_TSCOPE_NAME									= "meta-metadata-compiler-tscope";
 
-	public void compile(CompilerConfig config) throws IOException, SIMPLTranslationException,
-			JavaTranslationException
+	private MetaMetadataJavaTranslator	javaTranslator;
+
+	public void compile(CompilerConfig config) throws IOException, SIMPLTranslationException, JavaTranslationException
 	{
 		debug("\n\nloading repository ...\n\n");
 		TranslationScope.enableGraphSerialization();
 		MetaMetadataRepository repository = config.loadRepository();
-		TranslationScope tscope = repository
-				.traverseAndGenerateTranslationScope(META_METADATA_COMPILER_TSCOPE_NAME);
+		TranslationScope tscope = repository.traverseAndGenerateTranslationScope(META_METADATA_COMPILER_TSCOPE_NAME);
 		TranslationScope metadataBuiltInTScope = MetadataBuiltinsTranslationScope.get();
 		
-		MetaMetadataJavaTranslator jt = config.createJavaTranslator();
+		javaTranslator = config.createJavaTranslator();
 		for (ClassDescriptor cd : metadataBuiltInTScope.getClassDescriptors())
-			jt.excludeClassFromTranslation(cd);
+			javaTranslator.excludeClassFromTranslation(cd);
 
 		String generatedSemanticsLocation = config.getGeneratedSemanticsLocation();
 		debug("\n\ncompiling to " + generatedSemanticsLocation + " ...\n\n");
-		jt.translateToJava(new File(generatedSemanticsLocation), tscope);
-		createTranslationScopeClass(generatedSemanticsLocation,
-				REPOSITORY_METADATA_TRANSLATION_SCOPE_PACKAGE_NAME, repository);
+		javaTranslator.translateToJava(new File(generatedSemanticsLocation), tscope);
+		createTranslationScopeClass(generatedSemanticsLocation, REPOSITORY_METADATA_TRANSLATION_SCOPE_PACKAGE_NAME, repository);
 		
 		compilerHook(repository);
 	}
@@ -62,8 +61,7 @@ public class NewMetaMetadataCompiler extends Debug
 			MetaMetadataRepository repository) throws IOException
 	{
 		File rootDir = PropertiesAndDirectories.createDirsAsNeeded(new File(generatedSemanticsRootDir));
-		File packageDir = PropertiesAndDirectories.createDirsAsNeeded(new File(rootDir, packageName
-				.replace('.', Files.sep)));
+		File packageDir = PropertiesAndDirectories.createDirsAsNeeded(new File(rootDir, packageName.replace('.', Files.sep)));
 		File file = new File(packageDir, REPOSITORY_METADATA_TRANSLATION_SCOPE_CLASS_NAME + ".java");
 		PrintWriter printWriter = new PrintWriter(new FileWriter(file));
 
@@ -71,8 +69,7 @@ public class NewMetaMetadataCompiler extends Debug
 		printWriter.println("package " + packageName + ";\n");
 
 		// write java doc comment
-		printWriter.println(JavaTranslationUtilities
-				.getJavaClassComments(REPOSITORY_METADATA_TRANSLATION_SCOPE_CLASS_NAME));
+		printWriter.println(JavaTranslationUtilities.getJavaClassComments(REPOSITORY_METADATA_TRANSLATION_SCOPE_CLASS_NAME));
 		printWriter.println("\n");
 
 		// Write the import statements
@@ -98,8 +95,7 @@ public class NewMetaMetadataCompiler extends Debug
 				if (mmd.isNewMetadataClass())
 				{
 					ClassDescriptor cd = mmd.getMetadataClassDescriptor();
-					classes.add("\t\t" + cd.getDescribedClassPackageName() + "."
-							+ cd.getDescribedClassSimpleName() + ".class,\n");
+					classes.add("\t\t" + cd.getDescribedClassPackageName() + "." + cd.getDescribedClassSimpleName() + ".class,\n");
 				}
 		Collections.sort(classes);
 		for (String classDef : classes)
@@ -108,8 +104,7 @@ public class NewMetaMetadataCompiler extends Debug
 
 		// Write get() method
 		printWriter.println("\tpublic static TranslationScope get()\n\t{");
-		printWriter
-				.println("\t\treturn TranslationScope.get(SemanticsNames.REPOSITORY_METADATA_TRANSLATIONS, MetadataBuiltinsTranslationScope.get(), TRANSLATIONS);");
+		printWriter.println("\t\treturn TranslationScope.get(SemanticsNames.REPOSITORY_METADATA_TRANSLATIONS, MetadataBuiltinsTranslationScope.get(), TRANSLATIONS);");
 		printWriter.println("\t}\n");
 
 		// End the class

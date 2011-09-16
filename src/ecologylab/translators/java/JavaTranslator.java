@@ -15,6 +15,8 @@ import java.util.Set;
 
 import ecologylab.generic.Debug;
 import ecologylab.generic.HashMapArrayList;
+import ecologylab.semantics.html.utils.StringBuilderUtils;
+import ecologylab.semantics.metametadata.MmdCompilerService;
 import ecologylab.serialization.ClassDescriptor;
 import ecologylab.serialization.FieldDescriptor;
 import ecologylab.serialization.FieldTypes;
@@ -23,11 +25,16 @@ import ecologylab.serialization.SIMPLTranslationException;
 import ecologylab.serialization.TranslationScope;
 import ecologylab.serialization.XMLTools;
 import ecologylab.serialization.annotations.Hint;
+import ecologylab.serialization.annotations.simpl_classes;
+import ecologylab.serialization.annotations.simpl_collection;
 import ecologylab.serialization.annotations.simpl_composite;
+import ecologylab.serialization.annotations.simpl_hints;
 import ecologylab.serialization.annotations.simpl_inherit;
+import ecologylab.serialization.annotations.simpl_map;
 import ecologylab.serialization.annotations.simpl_nowrap;
 import ecologylab.serialization.annotations.simpl_other_tags;
 import ecologylab.serialization.annotations.simpl_scalar;
+import ecologylab.serialization.annotations.simpl_scope;
 import ecologylab.serialization.annotations.simpl_tag;
 import ecologylab.serialization.library.rss.Channel;
 import ecologylab.serialization.library.rss.Item;
@@ -49,8 +56,9 @@ import ecologylab.translators.net.DotNetTranslationException;
  * @version 1.0
  */
 
-public class JavaTranslator implements JavaTranslationConstants
+public class JavaTranslator implements JavaTranslationConstants, MmdCompilerService
 {
+	
 	/**
 	 * Constructor method
 	 * <p>
@@ -64,23 +72,23 @@ public class JavaTranslator implements JavaTranslationConstants
 	/**
 	 * These are import dependencies for the current source file.
 	 */
-	private HashMap<String, String>	currentImportDependencies		= new HashMap<String, String>();
+	private HashMap<String, String>			currentImportDependencies			= new HashMap<String, String>();
 
 	/**
 	 * This is the global set of import dependencies for the whole TranslationScope.
 	 */
-	private HashMap<String, String>	allImportDependencies								= new HashMap<String, String>();
-	
+	private HashMap<String, String>			allImportDependencies					= new HashMap<String, String>();
+
 	/**
 	 * These will be used for generating imports, but not cleared after each source file.
 	 */
-	private HashSet<String>					globalImportDependencies			= new HashSet<String>();
+	private HashSet<String>							globalImportDependencies			= new HashSet<String>();
 
-	private String									currentNamespace;
+	private String											currentNamespace;
 
-	private boolean									implementMappableInterface	= false;
+	private boolean											implementMappableInterface		= false;
 
-	private ArrayList<ClassDescriptor> 				excludeClassesFromTranslation = new ArrayList<ClassDescriptor>();
+	private ArrayList<ClassDescriptor>	excludeClassesFromTranslation	= new ArrayList<ClassDescriptor>();
 
 	/**
 	 * A method to convert the given class descriptor into the java code
@@ -95,8 +103,7 @@ public class JavaTranslator implements JavaTranslationConstants
 	{
 		ClassDescriptor classDescriptor = inputClass;
 
-		HashMapArrayList<String, ? extends FieldDescriptor> fieldDescriptors = classDescriptor
-				.getDeclaredFieldDescriptorsByFieldName();
+		HashMapArrayList<String, ? extends FieldDescriptor> fieldDescriptors = classDescriptor.getDeclaredFieldDescriptorsByFieldName();
 
 		StringBuilder classFile = new StringBuilder();
 		StringBuilder header = new StringBuilder();
@@ -610,7 +617,7 @@ public class JavaTranslator implements JavaTranslationConstants
 		if(type == FieldTypes.COMPOSITE_ELEMENT)
 		{
 			// @simpl_composite
-			appendAnnotation(appendable,simpl_composite.class.getSimpleName(),TAB);			
+			appendAnnotation(appendable, TAB, simpl_composite.class);
 		}
 		else if(type == FieldTypes.COLLECTION_ELEMENT || type == FieldTypes.COLLECTION_SCALAR)
 		{
@@ -618,23 +625,23 @@ public class JavaTranslator implements JavaTranslationConstants
 			if(!fieldDescriptor.isWrapped())
 			{
 				// @simpl_nowrap
-				appendAnnotation(appendable,simpl_nowrap.class.getSimpleName(),TAB);
+				appendAnnotation(appendable,TAB, simpl_nowrap.class);
 			}
 			// @simpl_collection
 			if (fieldDescriptor.isPolymorphic())
-				appendAnnotation(appendable, JavaTranslationUtilities.getJavaCollectionAnnotation(null),TAB);			
+				appendAnnotation(appendable, TAB, simpl_collection.class);			
 			else
-				appendAnnotation(appendable, JavaTranslationUtilities.getJavaCollectionAnnotation(collectionMapTagValue),TAB);			
+				appendAnnotation(appendable, TAB, simpl_collection.class, true, collectionMapTagValue);			
 		}
 		else if(type == FieldTypes.MAP_ELEMENT)
 		{
 			// @simpl_map
-			appendAnnotation(appendable, JavaTranslationUtilities.getJavaMapAnnotation(collectionMapTagValue),TAB);			
+			appendAnnotation(appendable, TAB, simpl_map.class, true, collectionMapTagValue);			
 		}
 		else
 		{
 			// @simpl_scalar
-			appendAnnotation(appendable, simpl_scalar.class.getSimpleName(),TAB);
+			appendAnnotation(appendable, TAB, simpl_scalar.class);
 		}
 		
 		// @simpl_tag
@@ -642,14 +649,14 @@ public class JavaTranslator implements JavaTranslationConstants
 		String autoTagName = XMLTools.getXmlTagName(fieldDescriptor.getName(), null);
 		if(tagName != null && !tagName.equals("") && !tagName.equals(autoTagName))
 		{
-			appendAnnotation(appendable, JavaTranslationUtilities.getJavaTagAnnotation(tagName), TAB);			
+			appendAnnotation(appendable, TAB, simpl_tag.class, true, tagName);			
 		}		
 		
 		// @simpl_other_tags
 		ArrayList<String> otherTags = fieldDescriptor.otherTags();
 		if (otherTags != null && otherTags.size() > 0)
 		{
-			appendAnnotation(appendable, JavaTranslationUtilities.getJavaOtherTagsAnnotation(otherTags), TAB);
+			appendAnnotation(appendable, TAB, simpl_other_tags.class, true, otherTags);
 		}
 		
 		if(!((type == FieldTypes.COMPOSITE_ELEMENT) || (type == FieldTypes.COLLECTION_ELEMENT) || (type == FieldTypes.COLLECTION_SCALAR)))
@@ -658,7 +665,7 @@ public class JavaTranslator implements JavaTranslationConstants
 			if(hint != null)
 			{
 				// @simpl_hints
-				appendAnnotation(appendable, JavaTranslationUtilities.getJavaHintsAnnotation(hint.name()),TAB);
+				appendAnnotation(appendable, TAB, simpl_hints.class, false, Hint.class.getSimpleName() + "." + hint.name());
 				addDependency(Hint.class.getName());
 			}
 		}		
@@ -668,14 +675,14 @@ public class JavaTranslator implements JavaTranslationConstants
 		if (polyClassDescriptors != null)
 		{
 			HashSet<ClassDescriptor> classDescriptors = new HashSet<ClassDescriptor>(polyClassDescriptors);
-			appendAnnotation(appendable, JavaTranslationUtilities.getJavaClassesAnnotation(classDescriptors), TAB);
+			appendAnnotation(appendable, TAB, simpl_classes.class, false, JavaTranslationUtilities.getJavaClassesAnnotation(classDescriptors));
 		}
 		
 		// @simpl_scope
 		String polyScope = fieldDescriptor.getUnresolvedScopeAnnotation();
 		if (polyScope != null && polyScope.length() > 0)
 		{
-			appendAnnotation(appendable, JavaTranslationUtilities.getJavaScopeAnnotation(polyScope), TAB);
+			appendAnnotation(appendable, TAB, simpl_scope.class, true, polyScope);
 		}
 		
 		appendFieldAnnotationsHook(appendable, contextCd, fieldDescriptor, TAB);
@@ -703,33 +710,28 @@ public class JavaTranslator implements JavaTranslationConstants
 	 * @param tabSpacing
 	 * @throws IOException
 	 */
-	private void appendClassAnnotations(Appendable appendable, ClassDescriptor classDesc, String tabSpacing)
-			throws IOException
+	private void appendClassAnnotations(Appendable appendable, ClassDescriptor classDesc, String tabSpacing) throws IOException
 	{
 		ClassDescriptor superClass = classDesc.getSuperClass();
 		if(superClass != null && !superClass.getDescribedClassSimpleName().equals("ElementState"))
-		{
-			appendAnnotation(appendable,simpl_inherit.class.getSimpleName(),"");
-			addAnnotationDependency(simpl_inherit.class);
-		}
+			appendAnnotation(appendable, "", simpl_inherit.class);
 		
 		String tagName = classDesc.getTagName();
 		String autoTagName = XMLTools.getXmlTagName(classDesc.getDescribedClassSimpleName(), null);
 		if(tagName != null && !tagName.equals("") && !tagName.equals(autoTagName))
 		{
-			appendAnnotation(appendable, JavaTranslationUtilities.getJavaTagAnnotation(tagName),"\n");
-			addAnnotationDependency(simpl_tag.class);
+			appendAnnotation(appendable, SINGLE_LINE_BREAK, simpl_tag.class, true, tagName);
 		}		
 		
 		// TODO @simpl_other_tags
 		ArrayList<String> otherTags = classDesc.otherTags();
 		if (otherTags != null && otherTags.size() > 0)
 		{
-			appendAnnotation(appendable, JavaTranslationUtilities.getJavaOtherTagsAnnotation(otherTags), "\n");
-			addAnnotationDependency(simpl_other_tags.class);
+			appendAnnotation(appendable, SINGLE_LINE_BREAK, simpl_other_tags.class, true, otherTags);
 		}
 		
-		appendable.append(SINGLE_LINE_BREAK);
+		appendable.append(SINGLE_LINE_BREAK); 
+		
 		appendClassAnnotationsHook(appendable, classDesc, tabSpacing);
 	}
 	
@@ -751,19 +753,41 @@ public class JavaTranslator implements JavaTranslationConstants
 	}
 	
 	/**
-	 * Generate the code for annotation
+	 * Generate annotations, with a list of parameters. Add annotation class to dependencies.
 	 * 
 	 * @param appendable
-	 * @param annotation
+	 * @param indent
+	 * @param annotationClass
+	 * @param params
+	 *          ignore if null; if not null, will be appended with parentheses.
 	 * @throws IOException
 	 */
-	protected void appendAnnotation(Appendable appendable,String annotation, String tab) throws IOException
+	public void appendAnnotation(Appendable appendable, String indent, Class annotationClass, boolean quoted, String params) throws IOException
 	{
-		appendable.append(tab);
+		appendable.append(indent);
 		appendable.append(AT_SIGN);
-		appendable.append(annotation);
+		appendable.append(annotationClass.getSimpleName());
+		if (params != null && params.length() > 0)
+			appendable.append("(").append(quoted ? "\"" : "").append(params).append(quoted ? "\"" : "").append(")");
+		
+		addAnnotationDependency(annotationClass);
 	}
 
+	public void appendAnnotation(Appendable appendable, String indent, Class annotationClass) throws IOException
+	{
+		appendAnnotation(appendable, indent, annotationClass, false, "");
+	}
+	
+	public void appendAnnotation(Appendable appendable, String indent, Class annotationClass, boolean quoted, List<String> params) throws IOException
+	{
+		StringBuilder sb = StringBuilderUtils.acquire();
+		if (params != null && params.size() > 0)
+			for (int i = 0; i < params.size(); ++i)
+				sb.append(i == 0 ? "{" : ", ").append(quoted ? "\"" : "").append(params.get(i)).append(quoted ? "\"" : "").append(i == params.size() - 1 ? "}" : "");
+		appendAnnotation(appendable, indent, annotationClass, false, sb.toString());
+		StringBuilderUtils.release(sb);
+	}
+	
 	/**
 	 * A method to generate get method for the given field Descriptor
 	 * 

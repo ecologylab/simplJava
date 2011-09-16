@@ -35,7 +35,7 @@ public class MetaMetadataJavaTranslator extends JavaTranslator
 		
 		MetadataFieldDescriptor fd = (MetadataFieldDescriptor) fieldDesc;
 		MetaMetadataField f = fd.getDefiningMmdField();
-		String annotations = f.getAdditionalAnnotationsInJava();
+		String annotations = f.getAdditionalAnnotationsInJava(this);
 		appendable.append(spacing).append(annotations).append(SINGLE_LINE_BREAK);
 	}
 

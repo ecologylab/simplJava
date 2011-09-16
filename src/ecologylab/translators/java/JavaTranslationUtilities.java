@@ -428,16 +428,14 @@ public class JavaTranslationUtilities {
 		if (classDescriptors != null && classDescriptors.size() > 0)
 		{
 			StringBuilder sb = StringBuilderUtils.acquire();
-			sb.append(simpl_classes.class.getSimpleName()).append("({");
-			boolean notFirst = false;
+			sb.append("{");
+			boolean first = false;
 			for (ClassDescriptor cd : classDescriptors)
 			{
-				if (notFirst)
-					sb.append(", ");
-				sb.append(cd.getDescribedClassSimpleName()).append(".class");
-				notFirst = true;
+				sb.append(first ? "" : ", ").append(cd.getDescribedClassSimpleName()).append(".class");
+				first = false;
 			}
-			sb.append("})");
+			sb.append("}");
 			String rst = sb.toString();
 			StringBuilderUtils.release(sb);
 			return rst;
