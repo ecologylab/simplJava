@@ -7,8 +7,10 @@ import java.awt.Color;
 import java.util.ArrayList;
 
 import ecologylab.serialization.ElementState;
-import ecologylab.serialization.ElementState.xml_tag;
-import ecologylab.serialization.simpl_inherit;
+import ecologylab.serialization.annotations.simpl_collection;
+import ecologylab.serialization.annotations.simpl_inherit;
+import ecologylab.serialization.annotations.simpl_scalar;
+import ecologylab.serialization.annotations.simpl_tag;
 
 /**
  * ecologylab.serialization representation of the Microsoft WPF FrameworkElement object. FrameworkElement
@@ -18,25 +20,25 @@ import ecologylab.serialization.simpl_inherit;
  *
  */
 @simpl_inherit
-@xml_tag("FrameworkElement")
+@simpl_tag("FrameworkElement")
 public class FrameworkElementState extends ElementState
 {
-	@simpl_scalar @xml_tag("Name") String name;
-	@simpl_scalar @xml_tag("Background") Color background;
-	@simpl_scalar @xml_tag("Foreground") Color foreground;
+	@simpl_scalar @simpl_tag("Name") String name;
+	@simpl_scalar @simpl_tag("Background") Color background;
+	@simpl_scalar @simpl_tag("Foreground") Color foreground;
 	
-	@simpl_scalar @xml_tag("Height") double height;
-	@simpl_scalar @xml_tag("Width") double width;
-	@simpl_scalar @xml_tag("Opacity") double opacity;
+	@simpl_scalar @simpl_tag("Height") double height;
+	@simpl_scalar @simpl_tag("Width") double width;
+	@simpl_scalar @simpl_tag("Opacity") double opacity;
 	
-	@simpl_scalar @xml_tag("Mouse.MouseEnter") String mouseEnterEventHandler;
-	@simpl_scalar @xml_tag("Mouse.MouseLeave") String mouseExitEventHandler;
-	@simpl_scalar @xml_tag("Mouse.MouseMove") 	String mouseMoveEventHandler;
-	@simpl_scalar @xml_tag("Mouse.MouseUp") 	String mouseUpEventHandler;
-	@simpl_scalar @xml_tag("Mouse.MouseDown") 	String mouseDownEventHandler;
-	@simpl_scalar @xml_tag("Mouse.MouseWheel") String mouseWheelEventHandler;	
+	@simpl_scalar @simpl_tag("Mouse.MouseEnter") String mouseEnterEventHandler;
+	@simpl_scalar @simpl_tag("Mouse.MouseLeave") String mouseExitEventHandler;
+	@simpl_scalar @simpl_tag("Mouse.MouseMove") 	String mouseMoveEventHandler;
+	@simpl_scalar @simpl_tag("Mouse.MouseUp") 	String mouseUpEventHandler;
+	@simpl_scalar @simpl_tag("Mouse.MouseDown") 	String mouseDownEventHandler;
+	@simpl_scalar @simpl_tag("Mouse.MouseWheel") String mouseWheelEventHandler;	
 	
-	@simpl_scalar @xml_tag("x:Class") 			String wpfClass;
+	@simpl_scalar @simpl_tag("x:Class") 			String wpfClass;
 	
 	@simpl_collection("Element") 
 	ArrayList<ElementState>   frameWorkElements;

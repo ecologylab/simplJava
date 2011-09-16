@@ -3,44 +3,55 @@
  */
 package ecologylab.tests.serialization;
 
-import java.util.ArrayList;
-
 import ecologylab.net.ParsedURL;
+import ecologylab.serialization.ClassDescriptor;
 import ecologylab.serialization.ElementState;
+import ecologylab.serialization.Format;
 import ecologylab.serialization.SIMPLTranslationException;
+import ecologylab.serialization.StringFormat;
 import ecologylab.serialization.TranslationScope;
-import ecologylab.serialization.ElementState.xml_tag;
+import ecologylab.serialization.annotations.simpl_composite;
+import ecologylab.serialization.annotations.simpl_tag;
 
 /**
  * @author andruid
- *
+ * 
  */
-@xml_tag("rss")
+@simpl_tag("rss")
 public class RssPolyWrapTest extends Base
 {
-	@simpl_composite		ChannelTest		channel;
-	
-	public static final String	POLY_WRAP_TEST_TRANSLATIONS_NAME	= "poly_wrap_test_translations";
-	
-	public static final TranslationScope POLY_WRAP_TEST_TRANSLATIONS	= 
-		TranslationScope.get(POLY_WRAP_TEST_TRANSLATIONS_NAME, Base.BASE_TRANSLATIONS, RssPolyWrapTest.class, ChannelTest.class, ItemTest.class);
+	@simpl_composite
+	ChannelTest														channel;
 
-	public static final ParsedURL BUZZ_SPORTS	= ParsedURL.getAbsolute("http://buzzlog.yahoo.com/feeds/buzzsportm.xml");
+	public static final String						POLY_WRAP_TEST_TRANSLATIONS_NAME	= "poly_wrap_test_translations";
+
+	public static final TranslationScope	POLY_WRAP_TEST_TRANSLATIONS				= TranslationScope
+																																							.get(
+																																									POLY_WRAP_TEST_TRANSLATIONS_NAME,
+																																									Base.BASE_TRANSLATIONS,
+																																									RssPolyWrapTest.class,
+																																									ChannelTest.class,
+																																									ItemTest.class);
+
+	public static final ParsedURL					BUZZ_SPORTS												= ParsedURL
+																																							.getAbsolute("http://buzzlog.yahoo.com/feeds/buzzsportm.xml");
+
 	/**
 	 * 
 	 */
 	public RssPolyWrapTest()
 	{
-		
+
 	}
-	
+
 	public static void main(String[] args)
 	{
 		try
 		{
-			ElementState result	= POLY_WRAP_TEST_TRANSLATIONS.deserialize(BUZZ_SPORTS);
+			Object result = POLY_WRAP_TEST_TRANSLATIONS.deserialize(BUZZ_SPORTS, Format.XML);
 			System.out.println('\n');
-			result.serialize(System.out);
+			ClassDescriptor.serialize(result, System.out, StringFormat.XML);
+
 			System.out.println('\n');
 		}
 		catch (SIMPLTranslationException e)
@@ -50,6 +61,5 @@ public class RssPolyWrapTest extends Base
 		}
 		System.out.println("\n");
 	}
-
 
 }

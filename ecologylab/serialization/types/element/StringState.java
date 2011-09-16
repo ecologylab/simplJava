@@ -1,6 +1,7 @@
 package ecologylab.serialization.types.element;
 
 import ecologylab.serialization.ElementState;
+import ecologylab.serialization.annotations.simpl_scalar;
 
 public class StringState extends ElementState
 {

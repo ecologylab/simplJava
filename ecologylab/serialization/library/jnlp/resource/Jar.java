@@ -3,7 +3,8 @@
  */
 package ecologylab.serialization.library.jnlp.resource;
 
-import ecologylab.serialization.simpl_inherit;
+import ecologylab.serialization.annotations.simpl_inherit;
+import ecologylab.serialization.annotations.simpl_scalar;
 
 /**
  * A jar element specifies a JAR file that is part of the application's classpath. For example:

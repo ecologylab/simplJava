@@ -2,7 +2,11 @@ package ecologylab.serialization.library.html;
 
 import java.util.ArrayList;
 
-import ecologylab.serialization.simpl_inherit;
+import ecologylab.serialization.annotations.simpl_classes;
+import ecologylab.serialization.annotations.simpl_collection;
+import ecologylab.serialization.annotations.simpl_inherit;
+import ecologylab.serialization.annotations.simpl_nowrap;
+import ecologylab.serialization.annotations.simpl_scalar;
 
 @simpl_inherit
 public class Td extends HtmlElement

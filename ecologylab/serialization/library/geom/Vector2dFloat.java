@@ -5,12 +5,13 @@ package ecologylab.serialization.library.geom;
 
 import java.awt.geom.Point2D;
 
-import ecologylab.serialization.ElementState.xml_tag;
+import ecologylab.serialization.annotations.simpl_scalar;
+import ecologylab.serialization.annotations.simpl_tag;
 
 /**
  * @author Zachary O. Toups (toupsz@cs.tamu.edu)
  */
-public @xml_tag("vect2df") class Vector2dFloat extends SpatialVector implements
+public @simpl_tag("vect2df") class Vector2dFloat extends SpatialVector implements
 		Cloneable
 {
 	/**

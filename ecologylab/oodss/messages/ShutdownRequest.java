@@ -6,7 +6,7 @@ package ecologylab.oodss.messages;
 import ecologylab.collections.Scope;
 import ecologylab.oodss.distributed.common.SessionObjects;
 import ecologylab.oodss.distributed.impl.Shutdownable;
-import ecologylab.serialization.simpl_inherit;
+import ecologylab.serialization.annotations.simpl_inherit;
 
 /**
  * A message indicating that the server should shut down it's associated

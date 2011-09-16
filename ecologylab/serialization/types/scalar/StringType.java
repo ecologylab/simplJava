@@ -5,13 +5,13 @@ package ecologylab.serialization.types.scalar;
 
 import java.io.IOException;
 
-import org.codehaus.jackson.JsonGenerator;
 import org.json.simple.JSONObject;
 
+import ecologylab.serialization.Format;
 import ecologylab.serialization.ScalarUnmarshallingContext;
 import ecologylab.serialization.TranslationContext;
 import ecologylab.serialization.XMLTools;
-import ecologylab.serialization.simpl_inherit;
+import ecologylab.serialization.annotations.simpl_inherit;
 import ecologylab.serialization.types.CrossLanguageTypeConstants;
 
 /**
@@ -88,7 +88,7 @@ public class StringType extends ReferenceType<String> implements CrossLanguageTy
 	 */
 	@Override
 	public void appendValue(String instance, Appendable appendable, boolean needsEscaping,
-			TranslationContext serializationContext, FORMAT format) throws IOException
+			TranslationContext serializationContext, Format format) throws IOException
 	{
 		if (needsEscaping)
 		{

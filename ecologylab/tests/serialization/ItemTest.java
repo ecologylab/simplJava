@@ -4,14 +4,16 @@
 package ecologylab.tests.serialization;
 
 import ecologylab.net.ParsedURL;
-import ecologylab.serialization.Hint;
-import ecologylab.serialization.ElementState.xml_tag;
+import ecologylab.serialization.annotations.Hint;
+import ecologylab.serialization.annotations.simpl_hints;
+import ecologylab.serialization.annotations.simpl_scalar;
+import ecologylab.serialization.annotations.simpl_tag;
 
 /**
  * @author andruid
  *
  */
-@xml_tag("item")
+@simpl_tag("item")
 public class ItemTest extends Base
 {
   @simpl_scalar @simpl_hints(Hint.XML_LEAF)	String			title;

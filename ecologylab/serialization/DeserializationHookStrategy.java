@@ -10,9 +10,9 @@ package ecologylab.serialization;
  * @author andruid
  *
  */
-public interface DeserializationHookStrategy<E extends ElementState, FD extends FieldDescriptor>
+public interface DeserializationHookStrategy<O extends Object, FD extends FieldDescriptor>
 {
-	public void deserializationPreHook(E e, FD fd);
+	public void deserializationPreHook(O o, FD fd);
 	
-	public void deserializationPostHook(E e, FD fd);
+	public void deserializationPostHook(O o, FD fd);
 }

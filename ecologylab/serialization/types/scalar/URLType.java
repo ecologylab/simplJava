@@ -8,7 +8,7 @@ import java.net.URL;
 import java.util.regex.Pattern;
 
 import ecologylab.serialization.ScalarUnmarshallingContext;
-import ecologylab.serialization.simpl_inherit;
+import ecologylab.serialization.annotations.simpl_inherit;
 import ecologylab.serialization.types.CrossLanguageTypeConstants;
 
 /**

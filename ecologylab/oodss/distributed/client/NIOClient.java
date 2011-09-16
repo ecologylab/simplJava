@@ -47,7 +47,9 @@ import ecologylab.oodss.messages.ResponseMessage;
 import ecologylab.oodss.messages.SendableRequest;
 import ecologylab.oodss.messages.ServiceMessage;
 import ecologylab.oodss.messages.UpdateMessage;
+import ecologylab.serialization.ClassDescriptor;
 import ecologylab.serialization.SIMPLTranslationException;
+import ecologylab.serialization.StringFormat;
 import ecologylab.serialization.TranslationScope;
 
 /**
@@ -327,7 +329,7 @@ public class NIOClient<S extends Scope> extends NIONetworking<S> implements Runn
 		synchronized (requestBuffer)
 		{
 			// fill requestBuffer
-			request.serialize(requestBuffer);
+			ClassDescriptor.serialize(requestBuffer, requestBuffer, StringFormat.XML);			
 
 			// TODO not convinced this is the most efficient workflow. Why do we need requestBuffer at all??? -ZODT
 			// drain requestBuffer and fill a prepped request
@@ -1363,7 +1365,7 @@ public class NIOClient<S extends Scope> extends NIONetworking<S> implements Runn
 			String messageString, int incomingUid) throws SIMPLTranslationException
 	{
 		ServiceMessage resp = (ServiceMessage) this.translationScope
-				.deserializeCharSequence(messageString);
+				.deserialize(messageString, StringFormat.XML);
 
 		if (resp == null)
 		{

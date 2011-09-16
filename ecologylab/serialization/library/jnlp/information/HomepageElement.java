@@ -4,6 +4,7 @@
 package ecologylab.serialization.library.jnlp.information;
 
 import ecologylab.serialization.ElementState;
+import ecologylab.serialization.annotations.simpl_scalar;
 
 /**
  * Contains a single attribute, href, which is a URL locating the home page for the Application. It is used by the Java

@@ -3,9 +3,10 @@ package ecologylab.collections;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import ecologylab.serialization.ElementState;
+import ecologylab.serialization.ClassDescriptor;
+import ecologylab.serialization.FieldDescriptor;
 
-public class MultiMap<T,S extends ElementState> {
+public class MultiMap<T,S extends Object> {
 
 	private HashMap<T,ArrayList<S>> map;
 	
@@ -94,7 +95,9 @@ public class MultiMap<T,S extends ElementState> {
 	 */
 	private boolean containsValue(ArrayList<S> collection, S value)
 	{
-		if(value.getStrictObjectGraphRequired())
+		ClassDescriptor<? extends FieldDescriptor> classDescriptor = ClassDescriptor.getClassDescriptor(value.getClass());
+		
+		if(classDescriptor.getStrictObjectGraphRequired())
 		{
 			for(S item : collection)
 			{

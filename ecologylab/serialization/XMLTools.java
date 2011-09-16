@@ -38,9 +38,17 @@ import ecologylab.generic.Debug;
 import ecologylab.generic.HashMapArrayList;
 import ecologylab.generic.StringInputStream;
 import ecologylab.net.ParsedURL;
-import ecologylab.serialization.ElementState.bibtex_key;
-import ecologylab.serialization.ElementState.bibtex_tag;
-import ecologylab.serialization.ElementState.xml_tag;
+import ecologylab.serialization.annotations.Hint;
+import ecologylab.serialization.annotations.bibtex_key;
+import ecologylab.serialization.annotations.bibtex_tag;
+import ecologylab.serialization.annotations.simpl_collection;
+import ecologylab.serialization.annotations.simpl_composite;
+import ecologylab.serialization.annotations.simpl_composite_as_scalar;
+import ecologylab.serialization.annotations.simpl_format;
+import ecologylab.serialization.annotations.simpl_hints;
+import ecologylab.serialization.annotations.simpl_map;
+import ecologylab.serialization.annotations.simpl_scalar;
+import ecologylab.serialization.annotations.simpl_tag;
 import ecologylab.serialization.types.CrossLanguageTypeConstants;
 import ecologylab.serialization.types.ScalarType;
 import ecologylab.serialization.types.TypeRegistry;
@@ -271,7 +279,7 @@ public class XMLTools extends Debug implements CharacterConstants, SpecialCharac
 	 */
 	public static String getXmlTagName(Class<?> thatClass, String suffix)
 	{
-		final ElementState.xml_tag tagAnnotation = thatClass.getAnnotation(xml_tag.class);
+		final simpl_tag tagAnnotation = thatClass.getAnnotation(simpl_tag.class);
 
 		String result = getXmlTagAnnotationIfPresent(tagAnnotation);
 		if (result == null)
@@ -294,7 +302,7 @@ public class XMLTools extends Debug implements CharacterConstants, SpecialCharac
 	 */
 	public static String getXmlTagName(Field thatField)
 	{
-		final ElementState.xml_tag tagAnnotation = thatField.getAnnotation(xml_tag.class);
+		final simpl_tag tagAnnotation = thatField.getAnnotation(simpl_tag.class);
 
 		String result = getXmlTagAnnotationIfPresent(tagAnnotation);
 		if (result == null)
@@ -306,17 +314,18 @@ public class XMLTools extends Debug implements CharacterConstants, SpecialCharac
 
 	public static String getBibtexTagName(Field thatField)
 	{
-		final ElementState.bibtex_tag tagAnnotation = thatField.getAnnotation(bibtex_tag.class);
+		final bibtex_tag tagAnnotation = thatField.getAnnotation(bibtex_tag.class);
 
 		String result = getBibtexTagAnnotationIfPresent(tagAnnotation);
 		if (result == null)
 		{
-			result = getXmlTagName(thatField.getName(), null);
+			result = getXmlTagName(thatField.getName(), null).replace('_', ' ');
 		}
+		
 		return result;
 	}
 
-	public static String getBibtexTagAnnotationIfPresent(final ElementState.bibtex_tag tagAnnotation)
+	public static String getBibtexTagAnnotationIfPresent(final bibtex_tag tagAnnotation)
 	{
 		String result = null;
 		if (tagAnnotation != null)
@@ -328,7 +337,7 @@ public class XMLTools extends Debug implements CharacterConstants, SpecialCharac
 		return result;
 	}
 
-	public static String getXmlTagAnnotationIfPresent(final ElementState.xml_tag tagAnnotation)
+	public static String getXmlTagAnnotationIfPresent(final simpl_tag tagAnnotation)
 	{
 		String result = null;
 		if (tagAnnotation != null)
@@ -904,8 +913,8 @@ public class XMLTools extends Debug implements CharacterConstants, SpecialCharac
 	public static String[] getFormatAnnotation(Field field)
 	{
 		String format[] = null;
-		ElementState.simpl_format formatAnnotation = field
-				.getAnnotation(ElementState.simpl_format.class);
+		simpl_format formatAnnotation = field
+				.getAnnotation(simpl_format.class);
 		if (formatAnnotation != null)
 		{
 			String[] formatStrings = formatAnnotation.value();
@@ -1510,24 +1519,24 @@ public class XMLTools extends Debug implements CharacterConstants, SpecialCharac
 
 	static boolean isScalar(Field field)
 	{
-		return field.isAnnotationPresent(ElementState.simpl_scalar.class);
+		return field.isAnnotationPresent(simpl_scalar.class);
 	}
 	
 	static boolean isCompositeAsScalarvalue(Field field)
 	{
-		return field.isAnnotationPresent(ElementState.simpl_composite_as_scalar.class);
+		return field.isAnnotationPresent(simpl_composite_as_scalar.class);
 	}
 	
 
 	static Hint simplHint(Field field)
 	{
-		ElementState.simpl_hints hintsAnnotation = field.getAnnotation(ElementState.simpl_hints.class);
+		simpl_hints hintsAnnotation = field.getAnnotation(simpl_hints.class);
 		return (hintsAnnotation == null) ? Hint.XML_ATTRIBUTE : hintsAnnotation.value()[0];
 	}
 
 	public static boolean representAsComposite(Field field)
 	{
-		return field.isAnnotationPresent(ElementState.simpl_composite.class);
+		return field.isAnnotationPresent(simpl_composite.class);
 	}
 
 	public static boolean representAsCollectionOrMap(Field field)
@@ -1537,12 +1546,12 @@ public class XMLTools extends Debug implements CharacterConstants, SpecialCharac
 
 	public static boolean representAsMap(Field field)
 	{
-		return field.isAnnotationPresent(ElementState.simpl_map.class);
+		return field.isAnnotationPresent(simpl_map.class);
 	}
 
 	public static boolean representAsCollection(Field field)
 	{
-		return field.isAnnotationPresent(ElementState.simpl_collection.class);
+		return field.isAnnotationPresent(simpl_collection.class);
 	}
 
 	/**
@@ -2049,7 +2058,7 @@ public class XMLTools extends Debug implements CharacterConstants, SpecialCharac
 
 	public static boolean getBibtexKey(Field thatField)
 	{
-		final ElementState.bibtex_key keyAnnotation = thatField.getAnnotation(bibtex_key.class);
+		final bibtex_key keyAnnotation = thatField.getAnnotation(bibtex_key.class);
 
 		if (keyAnnotation == null)
 			return false;

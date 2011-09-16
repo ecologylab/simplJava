@@ -6,6 +6,10 @@ package ecologylab.serialization.library.jnlp.applet;
 import java.util.ArrayList;
 
 import ecologylab.serialization.ElementState;
+import ecologylab.serialization.annotations.simpl_collection;
+import ecologylab.serialization.annotations.simpl_nowrap;
+import ecologylab.serialization.annotations.simpl_scalar;
+import ecologylab.serialization.annotations.simpl_tag;
 
 /**
  * @author Zachary O. Toups (zach@ecologylab.net)
@@ -20,7 +24,7 @@ public class AppletDesc extends ElementState
 	private String		name;
 
 	@simpl_scalar
-	@xml_tag("main-class")
+	@simpl_tag("main-class")
 	private String		mainClass;
 
 	@simpl_scalar

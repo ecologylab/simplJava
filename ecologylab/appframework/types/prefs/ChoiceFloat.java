@@ -1,6 +1,7 @@
 package ecologylab.appframework.types.prefs;
 
-import ecologylab.serialization.simpl_inherit;
+import ecologylab.serialization.annotations.simpl_inherit;
+import ecologylab.serialization.annotations.simpl_scalar;
 
 /**
  * A Float Choice object, for a multi-choice preference.

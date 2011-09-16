@@ -6,15 +6,20 @@ package ecologylab.serialization.library.jnlp.information;
 import java.util.ArrayList;
 
 import ecologylab.serialization.ElementState;
-import ecologylab.serialization.ElementState.xml_tag;
-import ecologylab.serialization.Hint;
-import ecologylab.serialization.simpl_inherit;
+import ecologylab.serialization.annotations.Hint;
+import ecologylab.serialization.annotations.simpl_collection;
+import ecologylab.serialization.annotations.simpl_composite;
+import ecologylab.serialization.annotations.simpl_hints;
+import ecologylab.serialization.annotations.simpl_inherit;
+import ecologylab.serialization.annotations.simpl_nowrap;
+import ecologylab.serialization.annotations.simpl_scalar;
+import ecologylab.serialization.annotations.simpl_tag;
 
 /**
  * @author Zachary O. Toups (toupsz@cs.tamu.edu)
  * 
  */
-public @simpl_inherit @xml_tag("information") class InformationElement extends ElementState
+public @simpl_inherit @simpl_tag("information") class InformationElement extends ElementState
 {
     @simpl_scalar protected String                                               os;
 
@@ -132,7 +137,7 @@ public @simpl_inherit @xml_tag("information") class InformationElement extends E
      * description element: A short description of the related content. icon element: The icon can be used by the JNLP
      * Client to identify the related content to the user.
      */
-    @simpl_composite @xml_tag("related-content") RelatedContentElement               relatedContent;
+    @simpl_composite @simpl_tag("related-content") RelatedContentElement               relatedContent;
     
     /** No-argument constructor for XML translation. */
     public InformationElement()

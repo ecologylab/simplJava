@@ -1,7 +1,8 @@
 package ecologylab.oodss.logging;
 
 import ecologylab.serialization.XMLTools;
-import ecologylab.serialization.simpl_inherit;
+import ecologylab.serialization.annotations.simpl_inherit;
+import ecologylab.serialization.annotations.simpl_scalar;
 
 /**
  * Base class for SendPrologue and SendEpilogue. Probably should not be used for anything else. Enables passing of the

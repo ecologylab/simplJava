@@ -3,7 +3,8 @@
  */
 package ecologylab.oodss.messages;
 
-import ecologylab.serialization.simpl_inherit;
+import ecologylab.serialization.annotations.simpl_inherit;
+import ecologylab.serialization.annotations.simpl_scalar;
 
 /**
  * Response to a request to connect to a server. On a successful connection, sessionId will contain

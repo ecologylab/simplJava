@@ -6,8 +6,8 @@ package ecologylab.serialization.types;
 import java.util.Collection;
 import java.util.Map;
 
-import ecologylab.generic.Describable;
-import ecologylab.serialization.simpl_inherit;
+import ecologylab.serialization.annotations.simpl_inherit;
+import ecologylab.serialization.annotations.simpl_scalar;
 
 /**
  * Basic cross-platform unit for managing Collection and Map types in S.IM.PL Serialization.

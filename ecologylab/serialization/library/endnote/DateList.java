@@ -4,6 +4,7 @@
 package ecologylab.serialization.library.endnote;
 
 import ecologylab.serialization.ElementState;
+import ecologylab.serialization.annotations.simpl_composite;
 import ecologylab.serialization.types.element.StringState;
 
 /**

@@ -4,13 +4,13 @@
 package ecologylab.serialization.library.jnlp;
 
 import ecologylab.serialization.ElementState;
-import ecologylab.serialization.ElementState.xml_tag;
+import ecologylab.serialization.annotations.simpl_tag;
 
 /**
  * @author Zachary O. Toups (zach@ecologylab.net)
  *
  */
-public @xml_tag("all-permissions") class AllPermissionsElement extends ElementState
+public @simpl_tag("all-permissions") class AllPermissionsElement extends ElementState
 {
 
     /**

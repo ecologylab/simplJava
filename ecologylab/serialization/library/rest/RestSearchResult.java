@@ -3,7 +3,11 @@ package ecologylab.serialization.library.rest;
 import java.net.URL;
 
 import ecologylab.serialization.ElementState;
-import ecologylab.serialization.Hint;
+import ecologylab.serialization.annotations.Hint;
+import ecologylab.serialization.annotations.simpl_composite;
+import ecologylab.serialization.annotations.simpl_hints;
+import ecologylab.serialization.annotations.simpl_scalar;
+import ecologylab.serialization.annotations.simpl_tag;
 
 /**
  * Rest Search Results
@@ -14,16 +18,16 @@ public class RestSearchResult extends ElementState
 {
 	@simpl_scalar protected String 		schemaVersion;
 	@simpl_scalar protected String 		xmlns;
-	@simpl_scalar @xml_tag("xmlns:xsi")	
+	@simpl_scalar @simpl_tag("xmlns:xsi")	
 					protected String			xsi = "http://www.w3.org/2001/XMLSchema-instance";
-	@simpl_scalar @xml_tag("xmlns:dc")	
+	@simpl_scalar @simpl_tag("xmlns:dc")	
 					protected String			dc = "http://purl.org/dc/elements/1.1/";
-	@simpl_scalar @xml_tag("xsi:schemaLocation")
+	@simpl_scalar @simpl_tag("xsi:schemaLocation")
 					protected String		schemaLocation;
 	
 	@simpl_scalar @simpl_hints(Hint.XML_LEAF) 	protected 	 String 		responseTime;
 	@simpl_scalar @simpl_hints(Hint.XML_LEAF)   protected 	 URL			request;
-	@simpl_composite @xml_tag("SearchResults") 
+	@simpl_composite @simpl_tag("SearchResults") 
 				protected 	 SearchResults 	SearchResults;
 	
 	public RestSearchResult() {}

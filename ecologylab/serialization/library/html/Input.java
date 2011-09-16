@@ -1,6 +1,7 @@
 package ecologylab.serialization.library.html;
 
-import ecologylab.serialization.simpl_inherit;
+import ecologylab.serialization.annotations.simpl_inherit;
+import ecologylab.serialization.annotations.simpl_scalar;
 
 @simpl_inherit
 public class Input extends HtmlElement

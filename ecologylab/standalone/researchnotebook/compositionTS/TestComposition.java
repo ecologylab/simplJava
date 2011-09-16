@@ -8,8 +8,11 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 
+import ecologylab.serialization.ClassDescriptor;
 import ecologylab.serialization.ElementState;
+import ecologylab.serialization.Format;
 import ecologylab.serialization.SIMPLTranslationException;
+import ecologylab.serialization.StringFormat;
 import ecologylab.serialization.TranslationScope;
 import ecologylab.standalone.researchnotebook.testxml.Image;
 import ecologylab.standalone.researchnotebook.testxml.SiteSet;
@@ -49,8 +52,9 @@ public class TestComposition {
 			StringBuffer sb = readFile("ecologylab//standalone//researchnotebook//collageData//composition1.xml");
 			System.out.println(sb.toString());
 			
-			CompositionState r = (CompositionState)TS.deserializeCharSequence(sb.toString());
-			r.serialize(System.out);
+			CompositionState r = (CompositionState)TS.deserialize(sb.toString(), StringFormat.XML);
+			ClassDescriptor.serialize(r, System.out, StringFormat.XML);
+			
 			System.out.println();
 			System.out.println(r.save_agent_state);
 			System.out.println(r.cool_space_size);
@@ -70,7 +74,8 @@ public class TestComposition {
 			SimpleDateFormat thisDateFormat = new SimpleDateFormat("MM-dd-yy_'at'_HH_mm_ss");
 			String out = thisDateFormat.format(Calendar.getInstance().getTime());
 			r.setDate(out); 
-			r.serialize(System.out); 
+			ClassDescriptor.serialize(r, System.out, StringFormat.XML);
+			
 		}	
 	}
 	public static void main(String[] args) throws IOException, SIMPLTranslationException {

@@ -7,6 +7,8 @@ import java.util.ArrayList;
 
 import ecologylab.serialization.ElementState;
 import ecologylab.serialization.TranslationScope;
+import ecologylab.serialization.annotations.simpl_collection;
+import ecologylab.serialization.annotations.simpl_scope;
 
 /**
  * @author andruid

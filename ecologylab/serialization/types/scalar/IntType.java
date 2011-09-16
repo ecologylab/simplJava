@@ -7,10 +7,10 @@ import java.io.IOException;
 import java.lang.reflect.Field;
 
 import ecologylab.serialization.FieldDescriptor;
+import ecologylab.serialization.Format;
 import ecologylab.serialization.ScalarUnmarshallingContext;
 import ecologylab.serialization.TranslationContext;
-import ecologylab.serialization.simpl_inherit;
-import ecologylab.serialization.ElementState.FORMAT;
+import ecologylab.serialization.annotations.simpl_inherit;
 import ecologylab.serialization.types.CrossLanguageTypeConstants;
 import ecologylab.serialization.types.ScalarType;
 
@@ -166,7 +166,7 @@ public class IntType extends ScalarType<Integer> implements CrossLanguageTypeCon
 	 */
 	@Override
 	public void appendValue(Appendable buffy, FieldDescriptor fieldDescriptor, Object context,
-			TranslationContext serializationContext, FORMAT format) throws IllegalArgumentException,
+			TranslationContext serializationContext, Format format) throws IllegalArgumentException,
 			IllegalAccessException, IOException
 	{
 		buffy.append(getValueToAppend(fieldDescriptor, context));

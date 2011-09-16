@@ -4,7 +4,7 @@ import java.util.Collection;
 
 import ecologylab.collections.Scope;
 import ecologylab.net.ParsedURL;
-import ecologylab.serialization.simpl_inherit;
+import ecologylab.serialization.annotations.simpl_inherit;
 
 /**
  * Abstract base class for ecologylab.oodss DCF request messages.

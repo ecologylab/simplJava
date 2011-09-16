@@ -1,8 +1,6 @@
 package ecologylab.serialization;
 
 import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
 import java.lang.annotation.Annotation;
 import java.net.URL;
 import java.util.ArrayList;
@@ -14,8 +12,13 @@ import java.util.Map;
 import ecologylab.collections.Scope;
 import ecologylab.generic.HashMapArrayList;
 import ecologylab.net.ParsedURL;
-import ecologylab.serialization.types.CollectionType;
-import ecologylab.serialization.types.FundamentalTypes;
+import ecologylab.serialization.annotations.simpl_map;
+import ecologylab.serialization.annotations.simpl_nowrap;
+import ecologylab.serialization.annotations.simpl_scalar;
+import ecologylab.serialization.annotations.simpl_tag;
+import ecologylab.serialization.deserializers.pullhandlers.PullDeserializer;
+import ecologylab.serialization.deserializers.pullhandlers.binaryformats.BinaryPullDeserializer;
+import ecologylab.serialization.deserializers.pullhandlers.stringformats.StringPullDeserializer;
 import ecologylab.serialization.types.ScalarType;
 import ecologylab.serialization.types.TypeRegistry;
 
@@ -33,14 +36,14 @@ public final class TranslationScope extends ElementState
 		ON, OFF
 	}
 
-	public static GRAPH_SWITCH													graphSwitch								= GRAPH_SWITCH.OFF;
+	public static GRAPH_SWITCH																						graphSwitch								= GRAPH_SWITCH.OFF;
 
-	private static final int														GUESS_CLASSES_PER_TSCOPE	= 5;
+	private static final int																							GUESS_CLASSES_PER_TSCOPE	= 5;
 
 	@simpl_scalar
-	private/* final */String														name;
+	private/* final */String																							name;
 
-	private TranslationScope[]													inheritedTranslationScopes;
+	private TranslationScope[]																						inheritedTranslationScopes;
 
 	/**
 	 * Fundamentally, a TranslationScope consists of a set of class simple names. These are mapped to
@@ -51,30 +54,31 @@ public final class TranslationScope extends ElementState
 	 * there are multiple possibilities. This is the case when internal and external versions of a
 	 * message and its constituents are defined for a messaging API.
 	 */
-	private Scope<ClassDescriptor>											entriesByClassSimpleName	= new Scope<ClassDescriptor>();
+	private Scope<ClassDescriptor<? extends FieldDescriptor>>							entriesByClassSimpleName	= new Scope<ClassDescriptor<? extends FieldDescriptor>>();
 
-	private Scope<ClassDescriptor>											entriesByClassName				= new Scope<ClassDescriptor>();
+	private Scope<ClassDescriptor<? extends FieldDescriptor>>							entriesByClassName				= new Scope<ClassDescriptor<? extends FieldDescriptor>>();
 
 	@simpl_nowrap
 	@simpl_map("class_descriptor")
-	private Scope<ClassDescriptor>											entriesByTag							= new Scope<ClassDescriptor>();
+	private Scope<ClassDescriptor<? extends FieldDescriptor>>							entriesByTag							= new Scope<ClassDescriptor<? extends FieldDescriptor>>();
 
-	private HashMap<Integer, ClassDescriptor>						entriesByTLVId						= new HashMap<Integer, ClassDescriptor>();
+	private HashMap<Integer, ClassDescriptor<? extends FieldDescriptor>>	entriesByTLVId						= new HashMap<Integer, ClassDescriptor<? extends FieldDescriptor>>();
 
-	private Scope<ClassDescriptor>											entriesByBibTeXType				= new Scope<ClassDescriptor>();
+	private Scope<ClassDescriptor<? extends FieldDescriptor>>							entriesByBibTeXType				= new Scope<ClassDescriptor<? extends FieldDescriptor>>();
 
-	private final Scope<Class<? extends ElementState>>	nameSpaceClassesByURN			= new Scope<Class<? extends ElementState>>();
+	private final Scope<Class<?>>																					nameSpaceClassesByURN			= new Scope<Class<?>>();
 
-	private static HashMap<String, TranslationScope>		allTranslationScopes			= new HashMap<String, TranslationScope>();
+	private static HashMap<String, TranslationScope>											allTranslationScopes			= new HashMap<String, TranslationScope>();
 
-	public static final String													STATE											= "State";
+	public static final String																						STATE											= "State";
 
-	private boolean																			performFilters;
+	private boolean																												performFilters;
 
 	static
 	{
 		TypeRegistry.init();
 	}
+
 	/**
 	 * Default constructor only for use by translateFromXML().
 	 */
@@ -111,17 +115,17 @@ public final class TranslationScope extends ElementState
 	}
 
 	private TranslationScope(String name, TranslationScope inheritedTranslationScope,
-			Class<? extends ElementState> translation)
+			Class<?> translation)
 	{
 		this(name, inheritedTranslationScope);
 		addTranslation(translation);
 		addTranslationScope(name);
 	}
-	
+
 	/**
 	 * Create a new TranslationScope that defines how to translate xml tag names into class names of
-	 * subclasses of ElementState. Begin by creating the inherited TranslationScope ad then adding 
-	 * the new ClassDescriptor intothat
+	 * subclasses of ElementState. Begin by creating the inherited TranslationScope ad then adding the
+	 * new ClassDescriptor intothat
 	 * 
 	 * @param name
 	 * @param inheritedTranslationScope
@@ -184,12 +188,12 @@ public final class TranslationScope extends ElementState
 	 *          Set of initially defined translations for this.
 	 * @param defaultPackgeName
 	 */
-	private TranslationScope(String name, Class<? extends ElementState>... translations)
+	private TranslationScope(String name, Class<?>... translations)
 	{
 		this(name, (TranslationScope[]) null, translations);
 		addTranslationScope(name);
 	}
-	
+
 	/**
 	 * Create a new TranslationScope that defines how to translate xml tag names into class names of
 	 * subclasses of ElementState.
@@ -216,12 +220,12 @@ public final class TranslationScope extends ElementState
 	 * @param translations
 	 */
 	private TranslationScope(String name, TranslationScope[] inheritedTranslationScopes,
-			Class<? extends ElementState>[]... translations)
+			Class<?>[]... translations)
 	{
 		this(name, inheritedTranslationScopes);
 		addTranslations(translations);
 	}
-	
+
 	/**
 	 * Construct a new TranslationScope, with this name, using the baseTranslations first. Then, add
 	 * the array of translations, then, make the defaultPackageName available.
@@ -246,14 +250,14 @@ public final class TranslationScope extends ElementState
 	 * @param baseTranslations
 	 */
 	private TranslationScope(String name, Collection<TranslationScope> inheritedTranslationsSet,
-			Class<? extends ElementState>[] translations)
+			Class<?>[] translations)
 	{
 		this(name, inheritedTranslationsSet);
 		addTranslations(translations);
 
 		addTranslationScope(name);
 	}
-	
+
 	/**
 	 * Construct a new TranslationScope, with this name, using the baseTranslations first. Then, add
 	 * the array of translations, then, make the defaultPackageName available.
@@ -280,14 +284,14 @@ public final class TranslationScope extends ElementState
 	 * @param translations
 	 */
 	private TranslationScope(String name, TranslationScope inheritedTranslationScope,
-			Class<? extends ElementState>[]... translations)
+			Class<?>[]... translations)
 	{
 		this(name, inheritedTranslationScope);
 		addTranslations(translations);
 
 		addTranslationScope(name);
 	}
-	
+
 	/**
 	 * Construct a new TranslationScope, with this name, using the baseTranslations first. Then, add
 	 * the array of translations, then, make the defaultPackageName available.
@@ -317,14 +321,14 @@ public final class TranslationScope extends ElementState
 	 * @param defaultPackgeName
 	 */
 	private TranslationScope(String name, NameSpaceDecl[] nameSpaceDecls,
-			TranslationScope[] inheritedTranslationScopes, Class<? extends ElementState>[] translations)
+			TranslationScope[] inheritedTranslationScopes, Class<?>[] translations)
 	{
 		this(name, inheritedTranslationScopes, translations);
 		addNameSpaceDecls(nameSpaceDecls);
 
 		addTranslationScope(name);
 	}
-	
+
 	/**
 	 * Construct a new TranslationScope, with this name, using the baseTranslations first. Then, add
 	 * the array of translations, then, make the defaultPackageName available. Map XML Namespace
@@ -374,7 +378,7 @@ public final class TranslationScope extends ElementState
 	 * 
 	 * @param classes
 	 */
-	private void addTranslations(Class<? extends ElementState>[]... arrayOfClasses)
+	private void addTranslations(Class<?>[]... arrayOfClasses)
 	{
 		if (arrayOfClasses != null)
 		{
@@ -384,7 +388,7 @@ public final class TranslationScope extends ElementState
 			{
 				if (arrayOfClasses[i] != null)
 				{
-					for (Class<? extends ElementState> thatClass : arrayOfClasses[i])
+					for (Class<?> thatClass : arrayOfClasses[i])
 					{
 						addTranslation(thatClass);
 					}
@@ -421,7 +425,7 @@ public final class TranslationScope extends ElementState
 
 		allTranslationScopes.put(name, this);
 	}
-	
+
 	/**
 	 * Utility for composing <code>TranslationScope</code>s. Performs composition by value. That is,
 	 * the entries are copied.
@@ -441,7 +445,7 @@ public final class TranslationScope extends ElementState
 					"className");
 			updateMapWithValues(inheritedTranslationScope.entriesByTag, entriesByTag, "tagName");
 
-			HashMap<String, Class<? extends ElementState>> inheritedNameSpaceClassesByURN = inheritedTranslationScope.nameSpaceClassesByURN;
+			HashMap<String, Class<?>> inheritedNameSpaceClassesByURN = inheritedTranslationScope.nameSpaceClassesByURN;
 			if (inheritedNameSpaceClassesByURN != null)
 			{
 				for (String urn : inheritedNameSpaceClassesByURN.keySet())
@@ -458,14 +462,15 @@ public final class TranslationScope extends ElementState
 	 * @param inheritedMap
 	 * @param warn
 	 */
-	private void updateMapWithValues(Map<String, ClassDescriptor> inheritedMap,
-			Map<String, ClassDescriptor> newMap, String warn)
+	private void updateMapWithValues(
+			Map<String, ClassDescriptor<? extends FieldDescriptor>> inheritedMap,
+			Map<String, ClassDescriptor<? extends FieldDescriptor>> newMap, String warn)
 	{
 		// XXX ANDRUID + ZACH -> concurrent modification exception can occur here (for loop) if
 		// inheritedMap is modified elsewhere
 		for (String key : inheritedMap.keySet())
 		{
-			ClassDescriptor translationEntry = inheritedMap.get(key);
+			ClassDescriptor<? extends FieldDescriptor> translationEntry = inheritedMap.get(key);
 			updateMapWithEntry(newMap, key, translationEntry, warn);
 		}
 	}
@@ -479,10 +484,10 @@ public final class TranslationScope extends ElementState
 	 *          Must be non-null.
 	 * @param warn
 	 */
-	private void updateMapWithEntry(Map<String, ClassDescriptor> newMap, String key,
-			ClassDescriptor translationEntry, String warn)
+	private void updateMapWithEntry(Map<String, ClassDescriptor<? extends FieldDescriptor>> newMap,
+			String key, ClassDescriptor<? extends FieldDescriptor> translationEntry, String warn)
 	{
-		ClassDescriptor existingEntry = newMap.get(key);
+		ClassDescriptor<? extends FieldDescriptor> existingEntry = newMap.get(key);
 
 		// final boolean entryExists = existingEntry != null;
 		// final boolean newEntry = existingEntry != translationEntry;
@@ -513,7 +518,7 @@ public final class TranslationScope extends ElementState
 	 * @param classObj
 	 *          The object for the class.
 	 */
-	public void addTranslation(Class<? extends ElementState> classObj)
+	public void addTranslation(Class<?> classObj)
 	{
 		ClassDescriptor entry = ClassDescriptor.getClassDescriptor(classObj);
 		String tagName = entry.getTagName();
@@ -536,7 +541,7 @@ public final class TranslationScope extends ElementState
 				}
 			}
 	}
-	
+
 	/**
 	 * Add a translation table entry for an ElementState derived sub-class. Assumes that the xmlTag
 	 * can be derived automatically from the className, by translating case-based separators to
@@ -579,7 +584,7 @@ public final class TranslationScope extends ElementState
 	 *          XML node name that we're seeking a Class for.
 	 * @return Class object, or null if there is no associated translation.
 	 */
-	public Class<? extends ElementState> xmlTagToClass(String xmlTag)
+	public Class<?> xmlTagToClass(String xmlTag)
 	{
 		ClassDescriptor entry = xmlTagToTranslationEntry(xmlTag);
 		return entry.isEmpty() ? null : entry.getDescribedClass();
@@ -617,14 +622,14 @@ public final class TranslationScope extends ElementState
 	 * @param tag
 	 * @return
 	 */
-	public Class<? extends ElementState> getClassByTag(String tag)
+	public Class<?> getClassByTag(String tag)
 	{
 		ClassDescriptor entry = getClassDescriptorByTag(tag);
 
 		return (entry == null) ? null : entry.getDescribedClass();
 	}
 
-	public ClassDescriptor getClassDescriptorByTag(String tag)
+	public ClassDescriptor<? extends FieldDescriptor> getClassDescriptorByTag(String tag)
 	{
 		return entriesByTag.get(tag);
 	}
@@ -647,18 +652,18 @@ public final class TranslationScope extends ElementState
 	 *          Simple name of the class (no package).
 	 * @return
 	 */
-	public Class<? extends ElementState> getClassBySimpleName(String classSimpleName)
+	public Class<?> getClassBySimpleName(String classSimpleName)
 	{
 		ClassDescriptor entry = getClassDescriptorBySimpleName(classSimpleName);
 		return (entry == null) ? null : entry.getDescribedClass();
 	}
-	
+
 	public ClassDescriptor getClassDescriptorBySimpleName(String classSimpleName)
 	{
 		return entriesByClassSimpleName.get(classSimpleName);
 	}
 
-	public Class<? extends ElementState> getClassByName(String className)
+	public Class<?> getClassByName(String className)
 	{
 		ClassDescriptor entry = entriesByClassName.get(className);
 
@@ -670,14 +675,15 @@ public final class TranslationScope extends ElementState
 		return entriesByClassName.get(className);
 	}
 
-	public ArrayList<Class<? extends ElementState>> getAllClasses()
+	public ArrayList<Class<?>> getAllClasses()
 	{
-		ArrayList<Class<? extends ElementState>> classes = new ArrayList<Class<? extends ElementState>>();
-		Collection<ClassDescriptor> classDescriptors = this.getClassDescriptors();
+		ArrayList<Class<?>> classes = new ArrayList<Class<?>>();
+		Collection<ClassDescriptor<? extends FieldDescriptor>> classDescriptors = this
+				.getClassDescriptors();
 
 		for (TranslationScope translationScope : allTranslationScopes.values())
 		{
-			for (ClassDescriptor<?, ?> classDescriptor : translationScope.entriesByClassSimpleName
+			for (ClassDescriptor<? extends FieldDescriptor> classDescriptor : translationScope.entriesByClassSimpleName
 					.values())
 			{
 				classes.add(classDescriptor.getDescribedClass());
@@ -694,8 +700,7 @@ public final class TranslationScope extends ElementState
 	 * @param thatClass
 	 * @return
 	 */
-	public Class<? extends ElementState> getClassBySimpleNameOfClass(
-			Class<? extends ElementState> thatClass)
+	public Class<?> getClassBySimpleNameOfClass(Class<?> thatClass)
 	{
 		return getClassBySimpleName(classSimpleName(thatClass));
 	}
@@ -706,7 +711,7 @@ public final class TranslationScope extends ElementState
 	 * @param thatClass
 	 * @return
 	 */
-	public String getTag(Class<? extends ElementState> thatClass)
+	public String getTag(Class<?> thatClass)
 	{
 		return getTagBySimpleName(classSimpleName(thatClass));
 	}
@@ -719,20 +724,20 @@ public final class TranslationScope extends ElementState
 	}
 
 	/**
-	 * Derive the XML tag from the Class object, using camel case conversion, or the @xml_tag
+	 * Derive the XML tag from the Class object, using camel case conversion, or the @simpl_tag
 	 * annotation that may be present in a class declaration.
 	 * 
 	 * @param thatClass
 	 * @return
 	 */
-	private static String determineXMLTag(Class<? extends ElementState> thatClass)
+	private static String determineXMLTag(Class<?> thatClass)
 	{
 		Annotation[] annotations = thatClass.getDeclaredAnnotations();
 		for (Annotation annotation : annotations)
 		{
-			if (annotation.annotationType().equals(xml_tag.class))
+			if (annotation.annotationType().equals(simpl_tag.class))
 			{
-				return xml_tag.class.cast(annotation).value();
+				return simpl_tag.class.cast(annotation).value();
 			}
 		}
 		return XMLTools.getXmlTagName(thatClass.getSimpleName(), "State");
@@ -759,9 +764,10 @@ public final class TranslationScope extends ElementState
 	{
 		return (TranslationScope) allTranslationScopes.get(name);
 	}
+
 	/**
-	 * Unlike other get() methods in this class, this one is not a factory, but a simple accessor.
-	 * It performs a lookup, but does not construct.
+	 * Unlike other get() methods in this class, this one is not a factory, but a simple accessor. It
+	 * performs a lookup, but does not construct.
 	 * 
 	 * @param name
 	 * @return
@@ -864,7 +870,7 @@ public final class TranslationScope extends ElementState
 	 * @return
 	 */
 	public static TranslationScope get(String name, TranslationScope inheritedTranslations,
-			Class<? extends ElementState> translation)
+			Class<?> translation)
 	{
 		TranslationScope result = lookup(name);
 		if (result == null)
@@ -887,7 +893,7 @@ public final class TranslationScope extends ElementState
 	 * @param translation
 	 * @return
 	 */
-	public static TranslationScope get(String name, Class<? extends ElementState> translation)
+	public static TranslationScope get(String name, Class<?> translation)
 	{
 		return get(name, null, translation);
 	}
@@ -1034,12 +1040,12 @@ public final class TranslationScope extends ElementState
 		return result;
 	}
 
-	protected HashMap<String, ClassDescriptor> entriesByClassSimpleName()
+	protected HashMap<String, ClassDescriptor<? extends FieldDescriptor>> entriesByClassSimpleName()
 	{
 		return entriesByClassSimpleName;
 	}
 
-	public HashMap<String, ClassDescriptor> entriesByClassName()
+	public HashMap<String, ClassDescriptor<? extends FieldDescriptor>> entriesByClassName()
 	{
 		return entriesByClassName;
 	}
@@ -1065,12 +1071,12 @@ public final class TranslationScope extends ElementState
 		}
 	}
 
-	private Collection<ClassDescriptor>	classDescriptors;
+	private Collection<ClassDescriptor<? extends FieldDescriptor>>	classDescriptors;
 
 	// FIXME -- implement this!
-	public Collection<ClassDescriptor> getClassDescriptors()
+	public Collection<ClassDescriptor<? extends FieldDescriptor>> getClassDescriptors()
 	{
-		Collection<ClassDescriptor> result = classDescriptors;
+		Collection<ClassDescriptor<? extends FieldDescriptor>> result = classDescriptors;
 		if (result == null)
 		{
 			// result = entriesByClassSimpleName.values();
@@ -1097,7 +1103,7 @@ public final class TranslationScope extends ElementState
 	 * @param urn
 	 * @return
 	 */
-	public Class<? extends ElementState> lookupNameSpaceByURN(String urn)
+	public Class<?> lookupNameSpaceByURN(String urn)
 	{
 		return nameSpaceClassesByURN.get(urn);
 	}
@@ -1111,11 +1117,6 @@ public final class TranslationScope extends ElementState
 		return name;
 	}
 
-	public static void main(String[] s)
-	{
-
-	}
-
 	public static final String	BASIC_TRANSLATIONS	= "basic_translations";
 
 	private void addTranslationScope(String name)
@@ -1123,260 +1124,105 @@ public final class TranslationScope extends ElementState
 		allTranslationScopes.put(name, this);
 	}
 
-	/**
-	 * Translate a file XML to a strongly typed tree of XML objects.
-	 * 
-	 * Use SAX or DOM parsing depending on the value of useDOMForTranslateTo.
-	 * 
-	 * @param fileName
-	 *          the name of the XML file that needs to be translated.
-	 * @return Strongly typed tree of ElementState objects.
-	 * @throws SIMPLTranslationException
-	 */
-	public ElementState deserialize(String fileName) throws SIMPLTranslationException
+	public Object deserialize(File file, TranslationContext translationContext,
+			DeserializationHookStrategy deserializationHookStrategy, Format format)
+			throws SIMPLTranslationException
 	{
-		return deserialize(fileName, new TranslationContext());
+		PullDeserializer pullDeserializer = PullDeserializer.getDeserializer(this, translationContext,
+				deserializationHookStrategy, format);
+		return pullDeserializer.parse(file);
+	}
+
+	public Object deserialize(File file, TranslationContext translationContext, Format format)
+			throws SIMPLTranslationException
+	{
+		return deserialize(file, translationContext, null, format);
+	}
+
+	public Object deserialize(File file, Format format) throws SIMPLTranslationException
+	{
+		return deserialize(file, new TranslationContext(), null, format);
+	}
+
+	public Object deserialize(File file, DeserializationHookStrategy deserializationHookStrategy,
+			Format format) throws SIMPLTranslationException
+	{
+		PullDeserializer pullDeserializer = PullDeserializer.getDeserializer(this,
+				new TranslationContext(), deserializationHookStrategy, format);
+		return pullDeserializer.parse(file);
+	}
+
+	public Object deserialize(ParsedURL parsedURL, TranslationContext translationContext,
+			DeserializationHookStrategy deserializationHookStrategy, Format format)
+			throws SIMPLTranslationException
+	{
+		PullDeserializer pullDeserializer = PullDeserializer.getDeserializer(this, translationContext,
+				deserializationHookStrategy, format);
+		return pullDeserializer.parse(parsedURL);
 	}
 	
-	public ElementState deserialize(String fileName, TranslationContext translationContext) throws SIMPLTranslationException
-	{
-		File xmlFile = new File(fileName);
-		if (!xmlFile.exists() && !xmlFile.canRead())
-			throw new SIMPLTranslationException("Can't access " + xmlFile.getAbsolutePath(),
-					FILE_NOT_FOUND);
-
-		return deserialize(xmlFile, translationContext);
-	}
-
-	
-	public ElementState deserializeByteArray(byte[] byteArray, FORMAT format)
+	public Object deserialize(ParsedURL parsedURL, 
+			DeserializationHookStrategy deserializationHookStrategy, Format format)
 			throws SIMPLTranslationException
 	{
-		return deserializeByteArray(byteArray, format, new TranslationContext());
+		PullDeserializer pullDeserializer = PullDeserializer.getDeserializer(this, new TranslationContext(),
+				deserializationHookStrategy, format);
+		return pullDeserializer.parse(parsedURL);
 	}
 
-	public ElementState deserializeByteArray(byte[] byteArray, FORMAT format,
-			TranslationContext translationContext) throws SIMPLTranslationException
+	public Object deserialize(ParsedURL parsedURL, TranslationContext translationContext,
+			Format format) throws SIMPLTranslationException
 	{
-		ElementState result = null;
-		switch (format)
-		{
-		case XML:
-			ElementStateSAXHandler saxHandler = new ElementStateSAXHandler(this, translationContext);
-			result = saxHandler.parse(new String(byteArray));
-			break;
-		case JSON:
-			//ElementStateJSONHandler jsonHandler = new ElementStateJSONHandler(this);
-			ElementStateJSONPushHandler jsonHandler = new ElementStateJSONPushHandler(this, new TranslationContext());
-			result = jsonHandler.parse(new String(byteArray));
-			break;
-		case TLV:
-			ElementStateTLVHandler tlvHandler = new ElementStateTLVHandler(this, translationContext);
-			result = tlvHandler.parse(byteArray);
-			break;
-		}
-		return result;
+		return deserialize(parsedURL, translationContext, null, format);
 	}
 
-	public ElementState deserializeCharSequence(CharSequence charSequence, FORMAT format)
+	public Object deserialize(ParsedURL parsedURL, Format format) throws SIMPLTranslationException
+	{
+		return deserialize(parsedURL, new TranslationContext(), null, format);
+	}
+
+	public Object deserialize(URL url, Format format) throws SIMPLTranslationException
+	{
+		return deserialize(new ParsedURL(url), new TranslationContext(), null, format);
+	}
+
+	public Object deserialize(CharSequence charSequence, TranslationContext translationContext,
+			DeserializationHookStrategy deserializationHookStrategy, StringFormat stringFormat)
 			throws SIMPLTranslationException
 	{
-		return deserializeCharSequence(charSequence, format, new TranslationContext());
+		StringPullDeserializer pullDeserializer = PullDeserializer.getStringDeserializer(this,
+				translationContext, deserializationHookStrategy, stringFormat);
+		return pullDeserializer.parse(charSequence);
 	}
 
-	public ElementState deserializeCharSequence(CharSequence charSequence, FORMAT format,
-			TranslationContext translationContext) throws SIMPLTranslationException
-	{
-		ElementState result = null;
-		switch (format)
-		{
-		case XML:
-			ElementStateSAXHandler saxHandler = new ElementStateSAXHandler(this, translationContext);
-			result = saxHandler.parse(charSequence);
-			break;
-		case JSON:
-			//ElementStateJSONHandler jsonHandler = new ElementStateJSONHandler(this);
-			ElementStateJSONPushHandler jsonHandler = new ElementStateJSONPushHandler(this, new TranslationContext());
-			result = jsonHandler.parse(charSequence);
-			break;
-		case TLV:
-			ElementStateTLVHandler tlvHandler = new ElementStateTLVHandler(this, translationContext);
-			result = tlvHandler.parse(charSequence);
-		}
-		return result;
-	}
-
-	public ElementState deserializeCharSequence(CharSequence charSequence)
+	public Object deserialize(CharSequence charSequence,
+			DeserializationHookStrategy deserializationHookStrategy, StringFormat stringFormat)
 			throws SIMPLTranslationException
 	{
-		return deserializeCharSequence(charSequence, new TranslationContext());
+		StringPullDeserializer pullDeserializer = PullDeserializer.getStringDeserializer(this,
+				new TranslationContext(), deserializationHookStrategy, stringFormat);
+		return pullDeserializer.parse(charSequence);
 	}
 
-	/**
-	 * Use the (faster!) SAX parser to form a strongly typed tree of ElementState objects from XML.
-	 * 
-	 * @param charSequence
-	 * @return
-	 * @throws SIMPLTranslationException
-	 */
-	public ElementState deserializeCharSequence(CharSequence charSequence,
-			TranslationContext translationContext) throws SIMPLTranslationException
+	public Object deserialize(CharSequence charSequence, TranslationContext translationContext,
+			StringFormat stringFormat) throws SIMPLTranslationException
 	{
-		ElementStateSAXHandler saxHandler = new ElementStateSAXHandler(this, translationContext);
-		return saxHandler.parse(charSequence);
+		return deserialize(charSequence, translationContext, null, stringFormat);
 	}
 
-	public ElementState deserialize(ParsedURL purl) throws SIMPLTranslationException
-	{
-		return deserialize(purl, new TranslationContext(), null);
-	}
-	
-	public ElementState deserialize(ParsedURL purl, DeserializationHookStrategy deserializationHookStrategy) throws SIMPLTranslationException
-	{
-		return deserialize(purl, new TranslationContext(), deserializationHookStrategy);
-	}
-
-	/**
-	 * Use the (faster!) SAX parser to form a strongly typed tree of ElementState objects from XML.
-	 * 
-	 * @param purl
-	 * @return
-	 * @throws SIMPLTranslationException
-	 */
-	public ElementState deserialize(ParsedURL purl, TranslationContext translationContext, DeserializationHookStrategy deserializationHookStrategy)
+	public Object deserialize(CharSequence charSequence, StringFormat stringFormat)
 			throws SIMPLTranslationException
 	{
-		if (purl == null)
-			throw new SIMPLTranslationException("Null PURL", NULL_PURL);
-
-		if (!purl.isNotFileOrExists())
-			throw new SIMPLTranslationException("Can't find " + purl.toString(), FILE_NOT_FOUND);
-
-		ElementStateSAXHandler saxHandler = new ElementStateSAXHandler(this, translationContext);
-		return saxHandler.parse(purl, deserializationHookStrategy);
+		return deserialize(charSequence, new TranslationContext(), null, stringFormat);
 	}
 
-	public ElementState deserialize(InputStream inputStream) throws SIMPLTranslationException
-	{
-		return deserialize(inputStream, new TranslationContext());
-	}
-
-	/**
-	 * Use the (faster!) SAX parser to form a strongly typed tree of ElementState objects from XML.
-	 * 
-	 * @param inputStream
-	 *          An InputStream to the XML that needs to be translated.
-	 * @return
-	 * @throws SIMPLTranslationException
-	 */
-	public ElementState deserialize(InputStream inputStream, TranslationContext translationContext)
+	public Object deserialize(byte[] byteArray, TranslationContext translationContext,
+			DeserializationHookStrategy deserializationHookStrategy, BinaryFormat binaryFormat)
 			throws SIMPLTranslationException
 	{
-		return deserialize(inputStream, translationContext, null);
-		// ElementStateSAXHandler saxHandler = new ElementStateSAXHandler(this);
-		// return saxHandler.parse(inputStream);
-	}
-
-	/**
-	 * Use the (faster!) SAX parser to form a strongly typed tree of ElementState objects from XML.
-	 * 
-	 * @param inputStream
-	 *          An InputStream to the XML that needs to be translated.
-	 * @param deserializationHookStrategy
-	 *          TODO
-	 * @return
-	 * @throws SIMPLTranslationException
-	 */
-	public ElementState deserialize(InputStream inputStream,
-			DeserializationHookStrategy deserializationHookStrategy) throws SIMPLTranslationException
-	{
-		return deserialize(inputStream, new TranslationContext(), deserializationHookStrategy);
-	}
-
-	public ElementState deserialize(InputStream inputStream, TranslationContext translationContext,
-			DeserializationHookStrategy deserializationHookStrategy) throws SIMPLTranslationException
-	{
-		ElementStateSAXHandler saxHandler = new ElementStateSAXHandler(this, translationContext);
-		return saxHandler.parse(inputStream, deserializationHookStrategy);
-	}
-
-	public ElementState deserialize(ecologylab.net.PURLConnection purlConnection,
-			DeserializationHookStrategy deserializationHookStrategy) throws SIMPLTranslationException, IOException
-	{
-		return deserialize(purlConnection, new TranslationContext(), deserializationHookStrategy);
-
-	}
-
-	public ElementState deserialize(ecologylab.net.PURLConnection purlConnection,
-			TranslationContext translationContext, DeserializationHookStrategy deserializationHookStrategy)
-			throws SIMPLTranslationException, IOException
-	{
-		ElementStateSAXHandler saxHandler = new ElementStateSAXHandler(this, translationContext);
-		return saxHandler.parse(purlConnection, deserializationHookStrategy);
-	}
-
-	public ElementState deserialize(File file, DeserializationHookStrategy deserializationHookStrategy)
-			throws SIMPLTranslationException
-	{
-		return deserialize(file, new TranslationContext(), deserializationHookStrategy);
-	}
-
-	public ElementState deserialize(File file, TranslationContext translationContext,
-			DeserializationHookStrategy deserializationHookStrategy) throws SIMPLTranslationException
-	{
-		ElementStateSAXHandler saxHandler = new ElementStateSAXHandler(this, translationContext);
-		return saxHandler.parse(file, deserializationHookStrategy);
-	}
-
-	public ElementState deserialize(CharSequence charSequence,
-			DeserializationHookStrategy deserializationHookStrategy) throws SIMPLTranslationException
-	{
-		return deserialize(charSequence, new TranslationContext(), deserializationHookStrategy);
-	}
-
-	public ElementState deserialize(CharSequence charSequence, TranslationContext translationContext,
-			DeserializationHookStrategy deserializationHookStrategy) throws SIMPLTranslationException
-	{
-		ElementStateSAXHandler saxHandler = new ElementStateSAXHandler(this, translationContext);
-		return saxHandler.parse(charSequence, deserializationHookStrategy);
-	}
-
-	/**
-	 * Use the (faster!) SAX parser to form a strongly typed tree of ElementState objects from XML.
-	 * 
-	 * @param url
-	 * @return
-	 * @throws SIMPLTranslationException
-	 */
-	public ElementState deserialize(URL url) throws SIMPLTranslationException
-	{
-		return deserialize(url, new TranslationContext());
-	}
-
-	public ElementState deserialize(URL url, TranslationContext translationContext)
-			throws SIMPLTranslationException
-	{
-		ElementStateSAXHandler saxHandler = new ElementStateSAXHandler(this, translationContext);
-		return saxHandler.parse(url);
-	}
-
-	/**
-	 * Use the (faster!) SAX parser to form a strongly typed tree of ElementState objects from XML.
-	 * 
-	 * @param file
-	 * @return
-	 * @throws SIMPLTranslationException
-	 */
-	public ElementState deserialize(File file) throws SIMPLTranslationException
-	{
-		return deserialize(file, new TranslationContext());
-	}
-
-	public ElementState deserialize(File file, TranslationContext translationContext)
-			throws SIMPLTranslationException
-	{
-		ElementStateSAXHandler saxHandler = new ElementStateSAXHandler(this, translationContext);
-		return saxHandler.parse(file);
+		BinaryPullDeserializer binaryPullDeserializer = PullDeserializer.getBinaryDeserializer(this,
+				translationContext, deserializationHookStrategy, binaryFormat);
+		return binaryPullDeserializer.parse(byteArray);
 	}
 
 	public static TranslationScope getBasicTranslations()
@@ -1387,29 +1233,27 @@ public final class TranslationScope extends ElementState
 
 	public static TranslationScope augmentTranslationScope(TranslationScope translationScope)
 	{
-		ArrayList<Class<? extends ElementState>> allClasses = translationScope.getAllClasses();
-		Collection<Class<? extends ElementState>> augmentedClasses = augmentTranslationScope(allClasses)
-				.values();
+		ArrayList<Class<?>> allClasses = translationScope.getAllClasses();
+		Collection<Class<?>> augmentedClasses = augmentTranslationScope(allClasses).values();
 
-		Class<? extends ElementState>[] augmentedClassesArray = (Class<? extends ElementState>[]) augmentedClasses
+		Class<?>[] augmentedClassesArray = (Class<?>[]) augmentedClasses
 				.toArray(new Class<?>[augmentedClasses.size()]);
 
 		return new TranslationScope(translationScope.getName(), augmentedClassesArray);
 	}
 
-	private static HashMap<String, Class<? extends ElementState>> augmentTranslationScope(
-			ArrayList<Class<? extends ElementState>> allClasses)
+	private static HashMap<String, Class<?>> augmentTranslationScope(ArrayList<Class<?>> allClasses)
 	{
-		HashMap<String, Class<? extends ElementState>> augmentedClasses = new HashMap<String, Class<? extends ElementState>>();
-		for (Class<? extends ElementState> thatClass : allClasses)
+		HashMap<String, Class<?>> augmentedClasses = new HashMap<String, Class<?>>();
+		for (Class<?> thatClass : allClasses)
 		{
 			augmentTranslationScope(thatClass, augmentedClasses);
 		}
 		return augmentedClasses;
 	}
 
-	private static void augmentTranslationScope(Class<? extends ElementState> thatClass,
-			HashMap<String, Class<? extends ElementState>> augmentedClasses)
+	private static void augmentTranslationScope(Class<?> thatClass,
+			HashMap<String, Class<?>> augmentedClasses)
 	{
 		if (augmentedClasses.put(thatClass.getSimpleName(), thatClass) != null)
 			return;
@@ -1420,7 +1264,8 @@ public final class TranslationScope extends ElementState
 					augmentedClasses);
 		}
 
-		ClassDescriptor<?, ?> thatClassDescriptor = ClassDescriptor.getClassDescriptor(thatClass);
+		ClassDescriptor<? extends FieldDescriptor> thatClassDescriptor = ClassDescriptor
+				.getClassDescriptor(thatClass);
 
 		HashMapArrayList<String, ? extends FieldDescriptor> fieldDescriptors = thatClassDescriptor
 				.getFieldDescriptorsByFieldName();
@@ -1454,11 +1299,12 @@ public final class TranslationScope extends ElementState
 					}
 					else if (fieldDescriptor.isPolymorphic())
 					{
-						Collection<ClassDescriptor> polymorphDescriptors = fieldDescriptor.getPolymorphicClassDescriptors();
+						Collection<ClassDescriptor> polymorphDescriptors = fieldDescriptor
+								.getPolymorphicClassDescriptors();
 
 						if (polymorphDescriptors != null)
 						{
-							for (ClassDescriptor<?, ?> classDescriptor : polymorphDescriptors)
+							for (ClassDescriptor<? extends FieldDescriptor> classDescriptor : polymorphDescriptors)
 							{
 								augmentTranslationScope(classDescriptor.getDescribedClass(), augmentedClasses);
 							}
@@ -1471,18 +1317,17 @@ public final class TranslationScope extends ElementState
 
 	public void augment()
 	{
-		Class<? extends ElementState>[] augmentedClassesArray = getClassesArray(this);
+		Class<?>[] augmentedClassesArray = getClassesArray(this);
 
 		this.addTranslations(augmentedClassesArray);
 	}
 
-	private static Class<? extends ElementState>[] getClassesArray(TranslationScope translationScope)
+	private static Class<?>[] getClassesArray(TranslationScope translationScope)
 	{
-		ArrayList<Class<? extends ElementState>> allClasses = translationScope.getAllClasses();
-		Collection<Class<? extends ElementState>> augmentedClasses = augmentTranslationScope(allClasses)
-				.values();
+		ArrayList<Class<?>> allClasses = translationScope.getAllClasses();
+		Collection<Class<?>> augmentedClasses = augmentTranslationScope(allClasses).values();
 
-		Class<? extends ElementState>[] augmentedClassesArray = (Class<? extends ElementState>[]) augmentedClasses
+		Class<?>[] augmentedClassesArray = (Class<?>[]) augmentedClasses
 				.toArray(new Class<?>[augmentedClasses.size()]);
 		return augmentedClassesArray;
 	}
@@ -1503,7 +1348,6 @@ public final class TranslationScope extends ElementState
 	{
 		this.performFilters = performFilters;
 	}
-	
 
 	/**
 	 * Augment the given translationScope and return the augmented one
@@ -1511,15 +1355,18 @@ public final class TranslationScope extends ElementState
 	 * @param translationScope
 	 * @return
 	 */
-	public static TranslationScope augmentTranslationScopeWithClassDescriptors(TranslationScope translationScope)
+	public static TranslationScope augmentTranslationScopeWithClassDescriptors(
+			TranslationScope translationScope)
 	{
-		Collection<ClassDescriptor> allClassDescriptors = translationScope.getClassDescriptors();
-		
-		ArrayList<ClassDescriptor> allClasses = translationScope.getAllClassDescriptors();
-		Collection<ClassDescriptor> augmentedClasses = augmentTranslationScopeWithClassDescriptors(allClasses)
-				.values();
+		Collection<ClassDescriptor<? extends FieldDescriptor>> allClassDescriptors = translationScope
+				.getClassDescriptors();
 
-		ClassDescriptor[] augmentedClassesArray = (ClassDescriptor[]) augmentedClasses
+		ArrayList<ClassDescriptor<? extends FieldDescriptor>> allClasses = translationScope
+				.getAllClassDescriptors();
+		Collection<ClassDescriptor<? extends FieldDescriptor>> augmentedClasses = augmentTranslationScopeWithClassDescriptors(
+				allClasses).values();
+
+		ClassDescriptor<? extends FieldDescriptor>[] augmentedClassesArray = (ClassDescriptor[]) augmentedClasses
 				.toArray(new ClassDescriptor[augmentedClasses.size()]);
 
 		return new TranslationScope(translationScope.getName(), augmentedClassesArray);
@@ -1531,36 +1378,37 @@ public final class TranslationScope extends ElementState
 	 * @param allClasses
 	 * @return
 	 */
-	private static HashMap<String, ClassDescriptor> augmentTranslationScopeWithClassDescriptors(
-			ArrayList<ClassDescriptor> allClasses)
+	private static HashMap<String, ClassDescriptor<? extends FieldDescriptor>> augmentTranslationScopeWithClassDescriptors(
+			ArrayList<ClassDescriptor<? extends FieldDescriptor>> allClasses)
 	{
-		HashMap<String, ClassDescriptor> augmentedClasses = new HashMap<String, ClassDescriptor>();
-		for (ClassDescriptor thatClass : allClasses)
+		HashMap<String, ClassDescriptor<? extends FieldDescriptor>> augmentedClasses = new HashMap<String, ClassDescriptor<? extends FieldDescriptor>>();
+		for (ClassDescriptor<? extends FieldDescriptor> thatClass : allClasses)
 		{
 			augmentTranslationScope(thatClass, augmentedClasses);
 		}
 		return augmentedClasses;
-	}	
+	}
 
 	/**
-	 * augment the given ClassDescriptor 
+	 * augment the given ClassDescriptor
 	 * 
 	 * @param thatClass
 	 * @param augmentedClasses
 	 */
-	private static void augmentTranslationScope(ClassDescriptor thatClass,
-			HashMap<String, ClassDescriptor> augmentedClasses)
+	private static void augmentTranslationScope(ClassDescriptor<? extends FieldDescriptor> thatClass,
+			HashMap<String, ClassDescriptor<? extends FieldDescriptor>> augmentedClasses)
 	{
 		if (augmentedClasses.put(thatClass.getDescribedClassSimpleName(), thatClass) != null)
 			return;
 
-		ClassDescriptor superClass = thatClass.getSuperClass();
+		ClassDescriptor<? extends FieldDescriptor> superClass = thatClass.getSuperClass();
 		if (superClass != null && !"ElementState".equals(superClass.getDescribedClassSimpleName()))
 		{
 			augmentTranslationScope(superClass, augmentedClasses);
 		}
 
-		HashMapArrayList<String, ? extends FieldDescriptor> fieldDescriptors = thatClass.getFieldDescriptorsByFieldName();
+		HashMapArrayList<String, ? extends FieldDescriptor> fieldDescriptors = thatClass
+				.getFieldDescriptorsByFieldName();
 
 		if (fieldDescriptors.size() > 0)
 		{
@@ -1570,8 +1418,7 @@ public final class TranslationScope extends ElementState
 			{
 				if (fieldDescriptor.isNested())
 				{
-					augmentTranslationScope(fieldDescriptor.getElementClassDescriptor(),
-							augmentedClasses);
+					augmentTranslationScope(fieldDescriptor.getElementClassDescriptor(), augmentedClasses);
 				}
 				else
 				{
@@ -1584,18 +1431,19 @@ public final class TranslationScope extends ElementState
 						{
 							if (genericClass != null && ElementState.class.isAssignableFrom(genericClass))
 							{
-								augmentTranslationScope(ClassDescriptor.getClassDescriptor(genericClass.asSubclass(ElementState.class)),
-										augmentedClasses);
+								augmentTranslationScope(ClassDescriptor.getClassDescriptor(genericClass
+										.asSubclass(ElementState.class)), augmentedClasses);
 							}
 						}
 					}
 					else if (fieldDescriptor.isPolymorphic())
 					{
-						Collection<ClassDescriptor> polymorphDescriptors = fieldDescriptor.getPolymorphicClassDescriptors();
+						Collection<ClassDescriptor> polymorphDescriptors = fieldDescriptor
+								.getPolymorphicClassDescriptors();
 
 						if (polymorphDescriptors != null)
 						{
-							for (ClassDescriptor<?, ?> classDescriptor : polymorphDescriptors)
+							for (ClassDescriptor<? extends FieldDescriptor> classDescriptor : polymorphDescriptors)
 							{
 								augmentTranslationScope(classDescriptor, augmentedClasses);
 							}
@@ -1605,19 +1453,19 @@ public final class TranslationScope extends ElementState
 			}
 		}
 	}
-	
+
 	/**
 	 * Method returning all the class descriptors corresponds to all the translation Scopes
-	 * 	
+	 * 
 	 * @return
 	 */
-	public ArrayList<ClassDescriptor> getAllClassDescriptors()
+	public ArrayList<ClassDescriptor<? extends FieldDescriptor>> getAllClassDescriptors()
 	{
-		ArrayList<ClassDescriptor> classes = new ArrayList<ClassDescriptor>();
-		
+		ArrayList<ClassDescriptor<? extends FieldDescriptor>> classes = new ArrayList<ClassDescriptor<? extends FieldDescriptor>>();
+
 		for (TranslationScope translationScope : allTranslationScopes.values())
 		{
-			for (ClassDescriptor<?, ?> classDescriptor : translationScope.entriesByTag
+			for (ClassDescriptor<? extends FieldDescriptor> classDescriptor : translationScope.entriesByTag
 					.values())
 			{
 				classes.add(classDescriptor);
@@ -1625,17 +1473,20 @@ public final class TranslationScope extends ElementState
 		}
 		return classes;
 	}
-	
+
 	/**
-	 * Make a new TranslationScope from a subset of this, making sure that the class of all entries in the subset is 
-	 * either superClassCriterion or a subclass thereof.
+	 * Make a new TranslationScope from a subset of this, making sure that the class of all entries in
+	 * the subset is either superClassCriterion or a subclass thereof.
 	 * 
-	 * @param newName							Name for new TranslationScope.
-	 * @param superClassCriterion	Super class discriminant for all classes in the subset.
+	 * @param newName
+	 *          Name for new TranslationScope.
+	 * @param superClassCriterion
+	 *          Super class discriminant for all classes in the subset.
 	 * 
-	 * @return										New or existing TranslationScope with subset of classes in this, based on assignableCriterion.
+	 * @return New or existing TranslationScope with subset of classes in this, based on
+	 *         assignableCriterion.
 	 */
-	public TranslationScope getAssignableSubset(String newName, Class<? extends ElementState> superClassCriterion)
+	public TranslationScope getAssignableSubset(String newName, Class<?> superClassCriterion)
 	{
 		TranslationScope result = lookup(newName);
 		if (result == null)
@@ -1647,9 +1498,9 @@ public final class TranslationScope extends ElementState
 				{
 					result = new TranslationScope(newName);
 					addTranslationScope(newName);
-					for (ClassDescriptor classDescriptor: entriesByClassName.values())
+					for (ClassDescriptor classDescriptor : entriesByClassName.values())
 					{
-						Class<? extends ElementState> thatClass	= classDescriptor.getDescribedClass();
+						Class<?> thatClass = classDescriptor.getDescribedClass();
 						if (superClassCriterion.isAssignableFrom(thatClass))
 							result.addTranslation(classDescriptor);
 					}
@@ -1658,41 +1509,38 @@ public final class TranslationScope extends ElementState
 		}
 		return result;
 	}
-	
-	/**
-	 * A method to clear the exisitng translationScopes and add the given one
-	 * 
-	 * @param name
-	 * @param translationScope
-	 */
-	public static void AddTranslationScope(String name, TranslationScope translationScope)
-	{
-		// not needed due to deserializationPostHook() below.
-//		allTranslationScopes.clear();
-//		allTranslationScopes.put(name, translationScope);
-	}
-	
+
 	/**
 	 * This will switch on the graph serialization
 	 */
-	public static void setGraphSwitch()
+	public static void enableGraphSerialization()
 	{
 		graphSwitch = GRAPH_SWITCH.ON;
 	}
+
+	/**
+	 * This will switch on the graph serialization
+	 */
+	public static void disableGraphSerialization()
+	{
+		graphSwitch = GRAPH_SWITCH.OFF;
+	}
+
 	/**
 	 * Rebuild structures after serializing only some fields.
 	 */
 	@Override
-	protected void deserializationPostHook(TranslationContext translationContext)
+	public void deserializationPostHook(TranslationContext translationContext, Object object)
 	{
-		for (ClassDescriptor classDescriptor: entriesByTag.values())
+		for (ClassDescriptor classDescriptor : entriesByTag.values())
 		{
 			entriesByClassName.put(classDescriptor.getName(), classDescriptor);
 			String simpleName = classDescriptor.getDescribedClassSimpleName();
 			entriesByClassSimpleName.put(simpleName, classDescriptor);
 		}
 		if (allTranslationScopes.containsKey(name))
-			warning("REPLACING another TranslationScope of the SAME NAME during deserialization!\t" + name);
+			warning("REPLACING another TranslationScope of the SAME NAME during deserialization!\t"
+					+ name);
 		allTranslationScopes.put(name, this);
 	}
 }

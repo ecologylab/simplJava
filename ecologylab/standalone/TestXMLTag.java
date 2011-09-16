@@ -5,56 +5,67 @@ package ecologylab.standalone;
 
 import java.util.ArrayList;
 
+import ecologylab.serialization.ClassDescriptor;
 import ecologylab.serialization.ElementState;
-import ecologylab.serialization.ElementState.xml_tag;
 import ecologylab.serialization.SIMPLTranslationException;
+import ecologylab.serialization.StringFormat;
 import ecologylab.serialization.TranslationScope;
+import ecologylab.serialization.annotations.simpl_collection;
+import ecologylab.serialization.annotations.simpl_scalar;
+import ecologylab.serialization.annotations.simpl_tag;
 import ecologylab.serialization.library.jnlp.information.AssociationElement;
+
 /**
  * @author Zachary O. Toups (toupsz@cs.tamu.edu)
  * 
  */
-public @xml_tag("doobie-doobie-dah_dooooooo") class TestXMLTag extends ElementState
+public @simpl_tag("doobie-doobie-dah_dooooooo")
+class TestXMLTag extends ElementState
 {
-    @simpl_scalar @xml_tag("as-df") String asdf;
-    @simpl_collection("nested-tag") ArrayList<AssociationElement> list = new ArrayList<AssociationElement>();
+	@simpl_scalar
+	@simpl_tag("as-df")
+	String												asdf;
 
-    public TestXMLTag()
-    {
-        super();
-    }
+	@simpl_collection("nested-tag")
+	ArrayList<AssociationElement>	list	= new ArrayList<AssociationElement>();
 
-    public TestXMLTag(String asdf)
-    {
-        this.asdf = asdf;
-        
-        for (int i = 0; i < 4; i++)
-        {
-            list.add(new AssociationElement());
-        }
-    }
+	public TestXMLTag()
+	{
+		super();
+	}
 
-    public static void main(String[] args) throws SIMPLTranslationException
-    {
-        TestXMLTag test = new TestXMLTag("asdfasdfasdfasdfasdfasdf");
+	public TestXMLTag(String asdf)
+	{
+		this.asdf = asdf;
 
-        Class[] classes =
-        { TestXMLTag.class, ArrayList.class, AssociationElement.class };
-        
-        ArrayList<TestXMLTag> taggies = new ArrayList<TestXMLTag>();
+		for (int i = 0; i < 4; i++)
+		{
+			list.add(new AssociationElement());
+		}
+	}
 
-        for (int i = 0; i < 4; i++)
-        {
-            taggies.add(new TestXMLTag("asdf"+i));
-        }
-        
-        System.out.println(test.serialize());
-        TranslationScope translationScope = TranslationScope.get("test", classes);
-				System.out.println(translationScope.deserializeCharSequence(test.serialize()).serialize());
-        
-//        System.out.println(taggies.translateToXML());
-//        System.out.println(ElementState.translateFromXMLCharSequence(taggies.translateToXML(),
-//                TranslationScope.get("test", classes)).translateToXML());
+	public static void main(String[] args) throws SIMPLTranslationException
+	{
+		TestXMLTag test = new TestXMLTag("asdfasdfasdfasdfasdfasdf");
 
-    }
+		Class[] classes =
+		{ TestXMLTag.class, ArrayList.class, AssociationElement.class };
+
+		ArrayList<TestXMLTag> taggies = new ArrayList<TestXMLTag>();
+
+		for (int i = 0; i < 4; i++)
+		{
+			taggies.add(new TestXMLTag("asdf" + i));
+		}
+
+		System.out.println(ClassDescriptor.serialize(test, StringFormat.XML));
+		TranslationScope translationScope = TranslationScope.get("test", classes);
+		System.out.println(ClassDescriptor.serialize(translationScope.deserialize(ClassDescriptor
+				.serialize(test, StringFormat.XML), StringFormat.XML), StringFormat.XML));
+
+		// System.out.println(taggies.translateToXML());
+		// System.out.println(ElementState.translateFromXMLCharSequence(taggies.translateToXML(),
+		// TranslationScope.get("test", classes)).translateToXML());
+
+	}
 }

@@ -2,7 +2,10 @@ package ecologylab.standalone.researchnotebook.compositionTS;
 
 import ecologylab.net.ParsedURL;
 import ecologylab.serialization.ElementState;
-import ecologylab.serialization.Hint;
+import ecologylab.serialization.annotations.Hint;
+import ecologylab.serialization.annotations.simpl_composite;
+import ecologylab.serialization.annotations.simpl_hints;
+import ecologylab.serialization.annotations.simpl_scalar;
 
 public class ImageElement extends ElementState{
 	@simpl_scalar float bias;

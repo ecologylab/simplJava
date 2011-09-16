@@ -4,6 +4,7 @@
 package ecologylab.serialization.library.media;
 
 import ecologylab.serialization.ElementState;
+import ecologylab.serialization.annotations.simpl_composite;
 
 /**
  * Yahoo Media XML Namespace Group element.
@@ -24,7 +25,8 @@ public class Group extends ElementState
 	 */
 	public Media lookupMedia()
 	{
-		return (Media) lookupNestedNameSpace("media");
+		return null;
+		//return (Media) lookupNestedNameSpace("media");
 	}
 	   
 	

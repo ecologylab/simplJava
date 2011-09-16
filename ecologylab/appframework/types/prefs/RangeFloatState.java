@@ -4,7 +4,8 @@
 package ecologylab.appframework.types.prefs;
 
 import ecologylab.serialization.ElementState;
-import ecologylab.serialization.simpl_inherit;
+import ecologylab.serialization.annotations.simpl_inherit;
+import ecologylab.serialization.annotations.simpl_scalar;
 
 /**
  * @author andruid

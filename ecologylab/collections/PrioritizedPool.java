@@ -5,7 +5,6 @@ import java.util.Iterator;
 
 import ecologylab.generic.Debug;
 import ecologylab.generic.StringBuilderBaseUtils;
-import ecologylab.generic.ThreadMaster;
 
 /**
  * Prioritized pools are a data structure containing an array of <code>T extends WeightSet</code><br>

@@ -5,7 +5,9 @@ package ecologylab.serialization.library.xaml;
 
 import java.awt.Rectangle;
 
-import ecologylab.serialization.simpl_inherit;
+import ecologylab.serialization.annotations.simpl_inherit;
+import ecologylab.serialization.annotations.simpl_scalar;
+import ecologylab.serialization.annotations.simpl_tag;
 
 /**
  * A base class for representing WPF FrameworkElements that are children of a WPF
@@ -20,14 +22,14 @@ import ecologylab.serialization.simpl_inherit;
 public abstract class PanelChildState extends FrameworkElementState
 {
 
-	@simpl_scalar @xml_tag("Canvas.ZIndex") 	int zIndex;
-	@simpl_scalar @xml_tag("Canvas.Top") 		int top;
-	@simpl_scalar @xml_tag("Canvas.Left") 		int left;
+	@simpl_scalar @simpl_tag("Canvas.ZIndex") 	int zIndex;
+	@simpl_scalar @simpl_tag("Canvas.Top") 		int top;
+	@simpl_scalar @simpl_tag("Canvas.Left") 		int left;
 	
-	@simpl_scalar @xml_tag("Grid.Column")		int column;
-	@simpl_scalar @xml_tag("Grid.Row")			int row;
+	@simpl_scalar @simpl_tag("Grid.Column")		int column;
+	@simpl_scalar @simpl_tag("Grid.Row")			int row;
 	
-	@simpl_scalar @xml_tag("DockPanel.Dock")	String dock;
+	@simpl_scalar @simpl_tag("DockPanel.Dock")	String dock;
 	
 	static class Dock
 	{

@@ -1,5 +1,8 @@
 package ecologylab.serialization;
 
+import java.io.File;
+import java.io.IOException;
+import java.io.OutputStream;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.TypeVariable;
@@ -12,11 +15,25 @@ import java.util.Set;
 
 import ecologylab.generic.HashMapArrayList;
 import ecologylab.generic.ReflectionTools;
-import ecologylab.serialization.ElementState.simpl_map_key_field;
+import ecologylab.serialization.annotations.Hint;
+import ecologylab.serialization.annotations.bibtex_key;
+import ecologylab.serialization.annotations.bibtex_type;
+import ecologylab.serialization.annotations.simpl_collection;
+import ecologylab.serialization.annotations.simpl_composite;
+import ecologylab.serialization.annotations.simpl_descriptor_classes;
+import ecologylab.serialization.annotations.simpl_inherit;
+import ecologylab.serialization.annotations.simpl_map;
+import ecologylab.serialization.annotations.simpl_map_key_field;
+import ecologylab.serialization.annotations.simpl_nowrap;
+import ecologylab.serialization.annotations.simpl_other_tags;
+import ecologylab.serialization.annotations.simpl_scalar;
+import ecologylab.serialization.annotations.simpl_use_equals_equals;
+import ecologylab.serialization.serializers.FormatSerializer;
+import ecologylab.serialization.serializers.stringformats.StringSerializer;
 import ecologylab.serialization.types.CollectionType;
 import ecologylab.serialization.types.ScalarType;
 import ecologylab.serialization.types.TypeRegistry;
-import ecologylab.serialization.types.element.Mappable;
+import ecologylab.serialization.types.element.IMappable;
 
 /**
  * Cached object that holds all of the structures needed to optimize translations to and from XML
@@ -29,48 +46,42 @@ import ecologylab.serialization.types.element.Mappable;
  * @author andruid
  */
 @simpl_inherit
-public class ClassDescriptor<ES extends ElementState, FD extends FieldDescriptor> extends
-		DescriptorBase implements FieldTypes, Mappable<String>, Iterable<FD>
+public class ClassDescriptor<FD extends FieldDescriptor> extends DescriptorBase implements
+		FieldTypes, IMappable<String>, Iterable<FD>
 {
-	
-	private static final String	PACKAGE_CLASS_SEP	= ".";
+
+	private static final String																												PACKAGE_CLASS_SEP										= ".";
 
 	/**
 	 * Class object that we are describing.
 	 */
 	@simpl_scalar
-	private Class<ES>				describedClass;						// TODO -- donot de/serialize this field
-
-	// instead need to serialize full, qualified class name (w package)
-	// but lets keep doing it;
-	// otherwise: that will temporarily break de/serialization in Objective C
-
-//	@simpl_scalar
-//	private String					tagName;
+	private Class<?>																																	describedClass;
 
 	@simpl_scalar
-	private String					describedClassSimpleName;
+	private String																																		describedClassSimpleName;
 
 	@simpl_scalar
-	private String					describedClassPackageName;
-			
+	private String																																		describedClassPackageName;
+
 	@simpl_composite
-	private ClassDescriptor superClass;
-	
+	private ClassDescriptor<? extends FieldDescriptor>																superClass;
+
 	@simpl_collection("interface")
-	@xml_other_tags("inerface")					// handle spelling error that was here
-	private ArrayList<String> interfaces;
+	@simpl_other_tags("inerface")
+	// handle spelling error that was here
+	private ArrayList<String>																													interfaces;
 
 	/**
 	 * This is a pseudo FieldDescriptor object, defined for the class, for cases in which the tag for
 	 * the root element or a field is determined by class name, not by field name.
 	 */
-	private FieldDescriptor	pseudoFieldDescriptor;
+	private FieldDescriptor																														pseudoFieldDescriptor;
 
 	/**
 	 * This flag prevents loops when creating descriptors for type graphs.
 	 */
-	private boolean																				isGetAndOrganizeComplete;
+	private boolean																																		isGetAndOrganizeComplete;
 
 	/**
 	 * Map of FieldToXMLOptimizations, with field names as keys.
@@ -79,57 +90,56 @@ public class ClassDescriptor<ES extends ElementState, FD extends FieldDescriptor
 	 * arrays in Perl, JavaScript, PHP, ..., but with less overhead, because the hashtable is only
 	 * maintained per class, not per instance.
 	 */
-	
-	private HashMapArrayList<String, FD>									fieldDescriptorsByFieldName			= new HashMapArrayList<String, FD>();
+	private HashMapArrayList<String, FD>																							fieldDescriptorsByFieldName					= new HashMapArrayList<String, FD>();
 
 	@simpl_nowrap
 	@simpl_map("field_descriptor")
 	@simpl_map_key_field("name")
-	private HashMapArrayList<String, FD>									declaredFieldDescriptorsByFieldName			= new HashMapArrayList<String, FD>();
+	private HashMapArrayList<String, FD>																							declaredFieldDescriptorsByFieldName	= new HashMapArrayList<String, FD>();
 
 	/**
 	 * This data structure is handy for translateFromXML(). There can be multiple tags (keys in this
-	 * map) for a single FieldDescriptor if @xml_other_tags is used.
+	 * map) for a single FieldDescriptor if @simpl_other_tags is used.
 	 */
-	// TODO -- consider changing this to Scope<FieldDescriptor>, then nesting scopes when @xml_scope
-	// is encountered, to support dynamic binding of @xml_scope.
-	private HashMap<String, FD>														allFieldDescriptorsByTagNames		= new HashMap<String, FD>();
+	private HashMap<String, FD>																												allFieldDescriptorsByTagNames				= new HashMap<String, FD>();
 
-	private HashMap<Integer, FD>													allFieldDescriptorsByTLVIds			= new HashMap<Integer, FD>();
+	private HashMap<Integer, FD>																											allFieldDescriptorsByTLVIds					= new HashMap<Integer, FD>();
 
-	private FD																						fieldDescriptorForBibTeXKey			= null;
+	private FD																																				fieldDescriptorForBibTeXKey					= null;
 
-	private HashMap<String, FD>														allFieldDescriptorsByBibTeXTag	= new HashMap<String, FD>();
+	private HashMap<String, FD>																												allFieldDescriptorsByBibTeXTag			= new HashMap<String, FD>();
 
-	private ArrayList<FD>																	attributeFieldDescriptors				= new ArrayList<FD>();
+	private ArrayList<FD>																															attributeFieldDescriptors						= new ArrayList<FD>();
 
-	private ArrayList<FD>																	elementFieldDescriptors					= new ArrayList<FD>();										;
-	
-	private FD																						scalarValueFieldDescripotor			= null;
+	private ArrayList<FD>																															elementFieldDescriptors							= new ArrayList<FD>();																								;
+
+	private FD																																				scalarValueFieldDescripotor					= null;
 
 	/**
-	 * Global map of all ClassDescriptors. Key is the full, qualified name of the class == describedClassName.
+	 * Global map of all ClassDescriptors. Key is the full, qualified name of the class ==
+	 * describedClassName.
 	 */
-	private static final HashMap<String, ClassDescriptor>	globalClassDescriptorsMap				= new HashMap<String, ClassDescriptor>();
+	private static final HashMap<String, ClassDescriptor<? extends FieldDescriptor>>	globalClassDescriptorsMap						= new HashMap<String, ClassDescriptor<? extends FieldDescriptor>>();
 
-	private ArrayList<FD>																	unresolvedScopeAnnotationFDs;
+	private ArrayList<FD>																															unresolvedScopeAnnotationFDs;
 
-	private String																				bibtexType											= "";
+	private String																																		bibtexType													= "";
 
 	@simpl_collection("generic_type_variable")
-	private ArrayList<String>	genericTypeVariables = new ArrayList<String>();
-	
+	private ArrayList<String>																													genericTypeVariables								= new ArrayList<String>();
+
 	/**
-	 * true if the class was annotated with @simpl_use_equals_equals, and thus that test will be used during de/serialization
-	 * to detect equivalent objects
+	 * true if the class was annotated with @simpl_use_equals_equals, and thus that test will be used
+	 * during de/serialization to detect equivalent objects
 	 */
 	@simpl_scalar
-	private boolean strictObjectGraphRequired = false;
+	private boolean																																		strictObjectGraphRequired						= false;
 
 	static
 	{
 		TypeRegistry.init();
 	}
+
 	/**
 	 * Default constructor only for use by translateFromXML().
 	 */
@@ -143,35 +153,28 @@ public class ClassDescriptor<ES extends ElementState, FD extends FieldDescriptor
 	 * 
 	 * @param thatClass
 	 */
-	protected ClassDescriptor(Class<ES> thatClass)
+	protected ClassDescriptor(Class<?> thatClass)
 	{
 		super(XMLTools.getXmlTagName(thatClass, TranslationScope.STATE), thatClass.getName());
-		
-		this.describedClass 					= thatClass;
+
+		this.describedClass = thatClass;
 		this.describedClassSimpleName = thatClass.getSimpleName();
-		this.describedClassPackageName= thatClass.getPackage().getName();
-		
-		if (thatClass != ElementState.class)
-		{
-			if (ElementState.class.isAssignableFrom(thatClass.getSuperclass()))
-				this.superClass = getClassDescriptor(thatClass.getSuperclass().asSubclass(
-						ElementState.class));
-			else
-				warning(" The class "
-						+ thatClass.toString()
-						+ " is NOT a subclass of ElementState. All serialized classes must extend from ElementState. Check your TranslationScope declarations.");
-		}
+		this.describedClassPackageName = thatClass.getPackage().getName();
+
+		if (thatClass.isAnnotationPresent(simpl_inherit.class))
+			this.superClass = getClassDescriptor(thatClass.getSuperclass());
+
 		addGenericTypeVariables();
-		if(javaParser != null)
+		if (javaParser != null)
 		{
 			comment = javaParser.getJavaDocComment(thatClass);
 		}
-		if(thatClass.isAnnotationPresent(simpl_use_equals_equals.class))
+		if (thatClass.isAnnotationPresent(simpl_use_equals_equals.class))
 		{
-			this.strictObjectGraphRequired	= true;
+			this.strictObjectGraphRequired = true;
 		}
 	}
-	
+
 	/**
 	 * Constructor used by Meta-Metadata Compiler.
 	 * 
@@ -182,41 +185,24 @@ public class ClassDescriptor<ES extends ElementState, FD extends FieldDescriptor
 	 * @param superClass
 	 * @param interfaces
 	 */
-	protected ClassDescriptor(
-			String tagName,
-			String comment,
-			String describedClassPackageName,
-			String describedClassSimpleName,
-			ClassDescriptor superClass,
-			ArrayList<String> interfaces)
+	protected ClassDescriptor(String tagName, String comment, String describedClassPackageName,
+			String describedClassSimpleName, ClassDescriptor<FD> superClass, ArrayList<String> interfaces)
 	{
-		super(tagName, describedClassPackageName + PACKAGE_CLASS_SEP + describedClassSimpleName, comment);
+		super(tagName, describedClassPackageName + PACKAGE_CLASS_SEP + describedClassSimpleName,
+				comment);
 
-		this.describedClassPackageName	= describedClassPackageName;
-		this.describedClassSimpleName 	= describedClassSimpleName;
+		this.describedClassPackageName = describedClassPackageName;
+		this.describedClassSimpleName = describedClassSimpleName;
 		this.superClass = superClass;
 		this.interfaces = interfaces;
 	}
 
-	private void addInterfaces()
-	{
-		Class<?>[] interfaceList = describedClass.getInterfaces();
-		
-		for(int i=0;i<interfaceList.length;i++)
-		{
-			if(interfaceList[i].isAssignableFrom(Mappable.class))
-			{
-				interfaces.add(interfaceList[i].getSimpleName());
-			}
-		}
-	}
-	
 	/**
 	 * Handles a text node.
 	 */
 	private FieldDescriptor	scalarTextFD;
 
-	FieldDescriptor getScalarTextFD()
+	public FieldDescriptor getScalarTextFD()
 	{
 		return scalarTextFD;
 	}
@@ -242,19 +228,19 @@ public class ClassDescriptor<ES extends ElementState, FD extends FieldDescriptor
 		if (typeVariables != null && typeVariables.length > 0)
 		{
 			for (TypeVariable<?> typeVariable : typeVariables)
-			{	
+			{
 				String typeClassName = typeVariable.getName();
-				
+
 				genericTypeVariables.add(typeClassName);
-			}			
+			}
 		}
 	}
-	
-	public ArrayList getGenericTypeVariables()
+
+	public ArrayList<String> getGenericTypeVariables()
 	{
 		return genericTypeVariables;
 	}
-	
+
 	public String getTagName()
 	{
 		return tagName;
@@ -280,15 +266,15 @@ public class ClassDescriptor<ES extends ElementState, FD extends FieldDescriptor
 	 *          An ElementState object that we're looking up Optimizations for.
 	 * @return
 	 */
-	public static ClassDescriptor getClassDescriptor(ElementState elementState)
+	public static ClassDescriptor<? extends FieldDescriptor> getClassDescriptor(Object object)
 	{
-		Class<? extends ElementState> thatClass = elementState.getClass();
+		Class<? extends Object> thatClass = object.getClass();
 
 		return getClassDescriptor(thatClass);
 	}
 
-	static final Class[]	CONSTRUCTOR_ARGS	=
-																					{ Class.class };
+	static final Class<?>[]	CONSTRUCTOR_ARGS	=
+																						{ Class.class };
 
 	/**
 	 * Obtain Optimizations object in the global scope of root Optimizations. Uses just-in-time / lazy
@@ -300,11 +286,11 @@ public class ClassDescriptor<ES extends ElementState, FD extends FieldDescriptor
 	 * @param thatClass
 	 * @return
 	 */
-	public static ClassDescriptor getClassDescriptor(Class<? extends ElementState> thatClass)
+	public static ClassDescriptor<? extends FieldDescriptor> getClassDescriptor(Class<?> thatClass)
 	{
 		String className = thatClass.getName();
 		// stay out of the synchronized block most of the time
-		ClassDescriptor result = globalClassDescriptorsMap.get(className);
+		ClassDescriptor<? extends FieldDescriptor> result = globalClassDescriptorsMap.get(className);
 		if (result == null || !result.isGetAndOrganizeComplete)
 		{
 			// but still be thread safe!
@@ -316,30 +302,21 @@ public class ClassDescriptor<ES extends ElementState, FD extends FieldDescriptor
 					final simpl_descriptor_classes descriptorsClassesAnnotation = thatClass
 							.getAnnotation(simpl_descriptor_classes.class);
 					if (descriptorsClassesAnnotation == null)
-						result = new ClassDescriptor(thatClass);
+						result = new ClassDescriptor<FieldDescriptor>(thatClass);
 					else
 					{
-						Class aClass = descriptorsClassesAnnotation.value()[0];
+						Class<?> aClass = descriptorsClassesAnnotation.value()[0];
 						Object[] args = new Object[1];
 						args[0] = thatClass;
-						result = (ClassDescriptor) ReflectionTools.getInstance(aClass, CONSTRUCTOR_ARGS, args);
+
+						result = (ClassDescriptor<? extends FieldDescriptor>) ReflectionTools.getInstance(
+								aClass, CONSTRUCTOR_ARGS, args);
 					}
 					globalClassDescriptorsMap.put(className, result);
 
 					// NB: this call was moved out of the constructor to avoid recursion problems
 					result.deriveAndOrganizeFieldsRecursive(thatClass, null);
 					result.isGetAndOrganizeComplete = true;
-				}
-				// THIS SHOULD NEVER HAPPEN!!!
-				// but it does in classes like linked list, that is, one with a field that refers to an
-				// instance of itself
-				else if (!result.isGetAndOrganizeComplete)
-				{
-					// TODO -- is this case really o.k.?
-					// if (!thatClass.equals(FieldDescriptor.class) &&
-					// !thatClass.equals(ClassDescriptor.class))
-					// result
-					// .warning(" Circular reference (probably fine, but perhaps a race condition that should never happen.");
 				}
 			}
 		}
@@ -371,20 +348,15 @@ public class ClassDescriptor<ES extends ElementState, FD extends FieldDescriptor
 		return result;
 	}
 
-	// /**
-	// * @return Returns the nameSpacePrefix.
-	// */
-	// String nameSpacePrefix()
-	// {
-	// return nameSpacePrefix;
-	// }
-	// /**
-	// * @param nameSpacePrefix The nameSpacePrefix to set.
-	// */
-	// void setNameSpacePrefix(String nameSpacePrefix)
-	// {
-	// this.nameSpacePrefix = nameSpacePrefix;
-	// }
+	public ArrayList<FD> allFieldDescriptors()
+	{
+		ArrayList<FD> allFieldDescriptors = new ArrayList<FD>();
+		if (attributeFieldDescriptors != null)
+			allFieldDescriptors.addAll(attributeFieldDescriptors);
+		if (elementFieldDescriptors != null)
+			allFieldDescriptors.addAll(elementFieldDescriptors);
+		return allFieldDescriptors;
+	}
 
 	public ArrayList<FD> attributeFieldDescriptors()
 	{
@@ -396,11 +368,8 @@ public class ClassDescriptor<ES extends ElementState, FD extends FieldDescriptor
 		return elementFieldDescriptors;
 	}
 
-	private HashMapArrayList<String, FD>	fieldDescriptors;
-
-	public FD getFieldDescriptorByTag(String tag, TranslationScope tScope, ElementState context)
+	public FD getFieldDescriptorByTag(String tag, TranslationScope tScope, Object context)
 	{
-		// TODO -- add support for name space lookup in context here
 		if (unresolvedScopeAnnotationFDs != null)
 			resolveUnresolvedScopeAnnotationFDs();
 
@@ -414,7 +383,6 @@ public class ClassDescriptor<ES extends ElementState, FD extends FieldDescriptor
 
 	public FD getFieldDescriptorByTLVId(int tlvId)
 	{
-		// TODO -- add support for name space lookup in context here
 		if (unresolvedScopeAnnotationFDs != null)
 			resolveUnresolvedScopeAnnotationFDs();
 
@@ -452,15 +420,14 @@ public class ClassDescriptor<ES extends ElementState, FD extends FieldDescriptor
 	 *         field name!) as the keys. Could be empty. Never null.
 	 */
 
-	private Class<FieldDescriptor> fieldDescriptorAnnotationValue(
-			Class<? extends ElementState> thatClass)
+	private Class<FieldDescriptor> fieldDescriptorAnnotationValue(Class<? extends Object> thatClass)
 	{
 		final simpl_descriptor_classes fieldDescriptorsClassAnnotation = thatClass
 				.getAnnotation(simpl_descriptor_classes.class);
 		Class<FieldDescriptor> result = null;
 		if (fieldDescriptorsClassAnnotation != null)
 		{
-			Class annotatedFieldDescriptorClass = fieldDescriptorsClassAnnotation.value()[1];
+			Class<?> annotatedFieldDescriptorClass = fieldDescriptorsClassAnnotation.value()[1];
 			if (annotatedFieldDescriptorClass != null
 					&& FieldDescriptor.class.isAssignableFrom(annotatedFieldDescriptorClass))
 				result = (Class<FieldDescriptor>) annotatedFieldDescriptorClass;
@@ -476,20 +443,19 @@ public class ClassDescriptor<ES extends ElementState, FD extends FieldDescriptor
 	 * Recurses up the chain of inherited Java classes, when @xml_inherit is specified.
 	 * 
 	 * @param fdc
-	 *          TODO
 	 */
 	private synchronized Class<FD> deriveAndOrganizeFieldsRecursive(
-			Class<? extends ElementState> classWithFields, Class<FD> fieldDescriptorClass)
+			Class<? extends Object> classWithFields, Class<FD> fieldDescriptorClass)
 	{
 		if (fieldDescriptorClass == null)
 		{ // look for annotation in super class if subclass didn't have one
 			fieldDescriptorClass = (Class<FD>) fieldDescriptorAnnotationValue(classWithFields);
 		}
-		
+
 		if (classWithFields.isAnnotationPresent(simpl_inherit.class))
 		{ // recurse on super class first, so subclass declarations shadow those in superclasses, where
 			// there are field name conflicts
-			Class superClass = classWithFields.getSuperclass();
+			Class<?> superClass = classWithFields.getSuperclass();
 
 			if (superClass != null)
 			{
@@ -520,21 +486,6 @@ public class ClassDescriptor<ES extends ElementState, FD extends FieldDescriptor
 				// debug("Skipping " + thatField + " because its static!");
 				continue;
 			}
-			// boolean isEnum = XMLTools.isEnum(thatField);
-			// TODO -- if fieldDescriptorClass is already defined, then use it w reflection, instead of
-			// FieldDescriptor, itself
-			// if (XMLTools.representAsAttribute(thatField))
-			// {
-			// isElement = false;
-			// int type = !isEnum ? ATTRIBUTE : ENUMERATED_ATTRIBUTE;
-			// fieldDescriptor = newFieldDescriptor(thatField, type, fieldDescriptorClass);
-			// }
-			// else if (XMLTools.representAsLeaf(thatField))
-			// {
-			// int type = !isEnum ? LEAF : ENUMERATED_LEAF;
-			// fieldDescriptor = newFieldDescriptor(thatField, type, fieldDescriptorClass);
-			// }
-			// else
 			int fieldType = UNSET_TYPE;
 
 			if (XMLTools.isScalar(thatField))
@@ -547,7 +498,7 @@ public class ClassDescriptor<ES extends ElementState, FD extends FieldDescriptor
 			}
 			else if (XMLTools.representAsCollection(thatField))
 			{
-				fieldType = COLLECTION_ELEMENT;				
+				fieldType = COLLECTION_ELEMENT;
 			}
 			else if (XMLTools.representAsMap(thatField))
 			{
@@ -583,14 +534,13 @@ public class ClassDescriptor<ES extends ElementState, FD extends FieldDescriptor
 				scalarValueFieldDescripotor = fieldDescriptor;
 			}
 
-			// TODO -- throughout this block -- instead of just put, do contains() before put,
-			// and generate a warning message if a mapping is being overridden
+			// generate a warning message if a mapping is being overridden
 			fieldDescriptorsByFieldName.put(thatField.getName(), fieldDescriptor);
-			if(classWithFields == describedClass)
+			if (classWithFields == describedClass)
 			{
 				declaredFieldDescriptorsByFieldName.put(thatField.getName(), fieldDescriptor);
 			}
-			
+
 			if (fieldDescriptor.isMarshallOnly())
 				continue; // not translated from XML, so don't add those mappings
 
@@ -619,8 +569,7 @@ public class ClassDescriptor<ES extends ElementState, FD extends FieldDescriptor
 				mapOtherTagsToFdForDeserialize(fieldDescriptor, fieldDescriptor.otherTags());
 			}
 			else
-			{ // add mappings by class tagNames for polymorphic elements & collections
-				// TODO add support for wrapped polymorphic collections!
+			{
 				mapPolymorphicClassDescriptors(fieldDescriptor);
 			}
 			thatField.setAccessible(true); // else -- ignore non-annotated fields
@@ -632,7 +581,6 @@ public class ClassDescriptor<ES extends ElementState, FD extends FieldDescriptor
 	{
 		if (otherTags != null)
 		{
-			// TODO -- @xml_other_tags for collection/map how should it work?!
 			for (String otherTag : otherTags)
 				mapTagToFdForDeserialize(otherTag, fieldDescriptor);
 		}
@@ -650,7 +598,7 @@ public class ClassDescriptor<ES extends ElementState, FD extends FieldDescriptor
 			{
 				mapTagToFdForDeserialize(tagName, fieldDescriptor);
 			}
-		
+
 		mapTagToFdForDeserialize(fieldDescriptor.getTagName(), fieldDescriptor);
 	}
 
@@ -660,7 +608,6 @@ public class ClassDescriptor<ES extends ElementState, FD extends FieldDescriptor
 	/**
 	 * @param thatField
 	 * @param fieldDescriptorClass
-	 *          TODO
 	 * @return
 	 */
 	private FD newFieldDescriptor(Field thatField, int annotationType, Class<FD> fieldDescriptorClass)
@@ -714,20 +661,6 @@ public class ClassDescriptor<ES extends ElementState, FD extends FieldDescriptor
 	}
 
 	/**
-	 * @param thatField
-	 * @param tagFromAnnotation
-	 * @param required
-	 */
-	private void annotatedFieldError(Field thatField, String tagFromAnnotation, String required)
-	{
-		String tagMsg = ((tagFromAnnotation == null) || (tagFromAnnotation.length() == 0)) ? "" : ("\""
-				+ tagFromAnnotation + "\"");
-
-		error("@xml_collection(" + tagMsg + ") declared as type " + thatField.getType().getSimpleName()
-				+ " for field named " + thatField.getName() + ", which is not a " + required + PACKAGE_CLASS_SEP);
-	}
-
-	/**
 	 * Add an entry to our map of Field objects, using the field's name as the key. Used, for example,
 	 * for ignored fields.
 	 * 
@@ -735,12 +668,11 @@ public class ClassDescriptor<ES extends ElementState, FD extends FieldDescriptor
 	 */
 	void addFieldDescriptorMapping(FD fieldDescriptor)
 	{
-		// FIXME is tag determined by field by class?
 		String tagName = fieldDescriptor.getTagName();
 		if (tagName != null)
 			mapTagToFdForDeserialize(tagName, fieldDescriptor);
 	}
-	
+
 	/**
 	 * (used by the compiler)
 	 * 
@@ -756,56 +688,7 @@ public class ClassDescriptor<ES extends ElementState, FD extends FieldDescriptor
 		return getClassSimpleName() + "[" + this.name + "]";
 	}
 
-	/**
-	 * Map an XML namespace id to the class that should be instantiated to handle it.
-	 * 
-	 * @param translationScope
-	 *          Used for error messages.
-	 * @param nsID
-	 * @param urn
-	 *          TODO
-	 */
-	void mapNamespaceIdToClass(TranslationScope translationScope, String nsID, String urn)
-	{
-		// TODO -- Name Space support!
-		// if (!nameSpaceClassesById.containsKey(nsID))
-		// {
-		// Class<? extends ElementState> nsClass = translationScope.lookupNameSpaceByURN(urn);
-		// final boolean nsUnsupported = (nsClass == null);
-		// nameSpaceClassesById().put(nsID, nsClass);
-		// // FieldToXMLOptimizations xmlnsF2XO = new FieldToXMLOptimizations(nsID, urn, nsUnsupported);
-		// if (nsUnsupported)
-		// warning("No Namespace found in " + translationScope + " for\t\txmlns:" + nsID +"=" + urn);
-		// else
-		// {
-		// debug("FIXME -- COOL! " + translationScope + " \t" + nsClass.getName() + " ->\t\txmlns:" +
-		// nsID +"=" + urn);
-		// // xmlnsAttributeOptimizations().add(xmlnsF2XO);
-		// }
-		// }
-	}
-
-	// boolean containsNameSpaceClass(String nsID)
-	// {
-	// return nameSpaceClassesById().containsKey(nsID);
-	// }
-	// Class<? extends ElementState> lookupNameSpaceClassById(String nsID)
-	// {
-	// return nameSpaceClassesById().get(nsID);
-	// }
-	//
-	// HashMap<String, Class<? extends ElementState>> nameSpaceClassesById()
-	// {
-	// HashMap<String, Class<? extends ElementState>> result = nameSpaceClassesById;
-	// if (result == null)
-	// {
-	// result = new HashMap<String, Class<? extends ElementState>>(2);
-	// nameSpaceClassesById = result;
-	// }
-	// return result;
-	// }
-
-	public Class<ES> getDescribedClass()
+	public Class<?> getDescribedClass()
 	{
 		return describedClass;
 	}
@@ -829,19 +712,21 @@ public class ClassDescriptor<ES extends ElementState, FD extends FieldDescriptor
 	{
 		return describedClassPackageName;
 	}
+
 	/**
-	 * Get the full name of the class that this describes.
-	 * Use the Class to get this, if there is one; else use de/serialize fields that describe this.
+	 * Get the full name of the class that this describes. Use the Class to get this, if there is one;
+	 * else use de/serialize fields that describe this.
 	 * 
 	 * @return
 	 */
 	public String getDescribedClassName()
 	{
-		return describedClass != null ? describedClass.getName() : describedClassPackageName + "." + describedClassSimpleName;
+		return describedClass != null ? describedClass.getName() : describedClassPackageName + "."
+				+ describedClassSimpleName;
 	}
 
 	/**
-	 * @return	The full, qualified name of the class that this describes.
+	 * @return The full, qualified name of the class that this describes.
 	 */
 	@Override
 	public String getJavaTypeName()
@@ -867,7 +752,7 @@ public class ClassDescriptor<ES extends ElementState, FD extends FieldDescriptor
 		return null;
 	}
 
-	public ES getInstance() throws SIMPLTranslationException
+	public Object getInstance() throws SIMPLTranslationException
 	{
 		return XMLTools.getInstance(describedClass);
 	}
@@ -889,7 +774,7 @@ public class ClassDescriptor<ES extends ElementState, FD extends FieldDescriptor
 	{
 		return fieldDescriptorsByFieldName;
 	}
-	
+
 	public HashMapArrayList<String, FD> getDeclaredFieldDescriptorsByFieldName()
 	{
 		return declaredFieldDescriptorsByFieldName;
@@ -907,11 +792,10 @@ public class ClassDescriptor<ES extends ElementState, FD extends FieldDescriptor
 
 		try
 		{
-			mostBasicTranslations.serialize(System.out);
+			ClassDescriptor.serialize(mostBasicTranslations, System.out, StringFormat.XML);
 		}
 		catch (SIMPLTranslationException e)
 		{
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
@@ -944,7 +828,6 @@ public class ClassDescriptor<ES extends ElementState, FD extends FieldDescriptor
 		{
 			for (int i = unresolvedScopeAnnotationFDs.size() - 1; i >= 0; i--)
 			{
-				// TODO -- do we want to enable retrying multiple times in case it gets fixed even later
 				FieldDescriptor fd = unresolvedScopeAnnotationFDs.remove(i);
 				fd.resolveUnresolvedScopeAnnotation();
 			}
@@ -953,9 +836,10 @@ public class ClassDescriptor<ES extends ElementState, FD extends FieldDescriptor
 	}
 
 	/**
-	 * Use the @xml_other_tags annotation to obtain an array of alternative (old) tags for this class.
+	 * Use the @simpl_other_tags annotation to obtain an array of alternative (old) tags for this
+	 * class.
 	 * 
-	 * @return The array of old tags, or null, if there is no @xml_other_tags annotation.
+	 * @return The array of old tags, or null, if there is no @simpl_other_tags annotation.
 	 */
 	public ArrayList<String> otherTags()
 	{
@@ -963,12 +847,13 @@ public class ClassDescriptor<ES extends ElementState, FD extends FieldDescriptor
 		if (result == null)
 		{
 			result = new ArrayList<String>();
-			
-			Class<ES> thisClass = getDescribedClass();
+
+			Class<?> thisClass = getDescribedClass();
 			if (thisClass != null)
 			{
-				final ElementState.xml_other_tags otherTagsAnnotation = thisClass .getAnnotation(xml_other_tags.class);
-		
+				final simpl_other_tags otherTagsAnnotation = thisClass
+						.getAnnotation(simpl_other_tags.class);
+
 				// commented out since getAnnotation also includes inherited annotations
 				// ElementState.xml_other_tags otherTagsAnnotation =
 				// thisClass.getAnnotation(ElementState.xml_other_tags.class);
@@ -976,7 +861,7 @@ public class ClassDescriptor<ES extends ElementState, FD extends FieldDescriptor
 					for (String otherTag : otherTagsAnnotation.value())
 						result.add(otherTag);
 			}
-			
+
 			this.otherTags = result;
 		}
 		return result;
@@ -986,33 +871,33 @@ public class ClassDescriptor<ES extends ElementState, FD extends FieldDescriptor
 	{
 		return scalarValueFieldDescripotor;
 	}
-	
-	public ClassDescriptor getSuperClass()
+
+	public ClassDescriptor<? extends FieldDescriptor> getSuperClass()
 	{
 		return superClass;
 	}
-	
+
 	/**
 	 * method returns whether a strict object graph is required
 	 * 
-	 * @return	true if the class was annotated with @simpl_use_equals_equals, and thus that test will be used during de/serialization
-	 *          to detect equivalent objects
+	 * @return true if the class was annotated with @simpl_use_equals_equals, and thus that test will
+	 *         be used during de/serialization to detect equivalent objects
 	 */
 	public boolean getStrictObjectGraphRequired()
 	{
 		return this.strictObjectGraphRequired;
 	}
-	
+
 	/**
-	 * Find all the Collection fields in this.
-	 * Assemble a Set of them, in order to generate import statements.
+	 * Find all the Collection fields in this. Assemble a Set of them, in order to generate import
+	 * statements.
 	 * 
 	 * @return
 	 */
 	public Set<CollectionType> deriveCollectionDependencies()
 	{
 		HashSet<CollectionType> result = new HashSet<CollectionType>();
-		for (FieldDescriptor fd: declaredFieldDescriptorsByFieldName)
+		for (FieldDescriptor fd : declaredFieldDescriptorsByFieldName)
 		{
 			if (fd.isCollection())
 				result.add(fd.getCollectionType());
@@ -1021,22 +906,22 @@ public class ClassDescriptor<ES extends ElementState, FD extends FieldDescriptor
 	}
 
 	/**
-	 * Find all the Composite fields in this.
-	 * Assemble a Set of them, in order to generate import statements.
+	 * Find all the Composite fields in this. Assemble a Set of them, in order to generate import
+	 * statements.
 	 * 
 	 * @return
 	 */
 	public Set<ClassDescriptor> deriveCompositeDependencies()
 	{
 		HashSet<ClassDescriptor> result = new HashSet<ClassDescriptor>();
-		for (FieldDescriptor fd: declaredFieldDescriptorsByFieldName)
+		for (FieldDescriptor fd : declaredFieldDescriptorsByFieldName)
 		{
 			if (fd.isNested() || (fd.isCollection()))
 			{
 				ClassDescriptor elementClassDescriptor = fd.getElementClassDescriptor();
 				if (elementClassDescriptor != null)
 					result.add(elementClassDescriptor);
-				
+
 				Collection<ClassDescriptor> polyClassDescriptors = fd.getPolymorphicClassDescriptors();
 				if (polyClassDescriptors != null)
 					for (ClassDescriptor polyCd : polyClassDescriptors)
@@ -1047,52 +932,45 @@ public class ClassDescriptor<ES extends ElementState, FD extends FieldDescriptor
 		{
 			result.add(superClass);
 		}
-//		for (String genericTypeName: genericTypeVariables)
-//		{
-//			//FIXME what do we do here???
-//		}
 		return result;
 	}
 
 	/**
-	 * Find all the Scalar fields in this.
-	 * Assemble a Set of them, in order to generate import statements.
+	 * Find all the Scalar fields in this. Assemble a Set of them, in order to generate import
+	 * statements.
 	 * 
 	 * @return
 	 */
 	public Set<ScalarType> deriveScalarDependencies()
 	{
 		HashSet<ScalarType> result = new HashSet<ScalarType>();
-		for (FieldDescriptor fd: declaredFieldDescriptorsByFieldName)
+		for (FieldDescriptor fd : declaredFieldDescriptorsByFieldName)
 		{
 			if (fd.isScalar())
 			{
 				ScalarType<?> scalarType = fd.getScalarType();
 				if (!scalarType.isPrimitive())
 				{
-						result.add(scalarType);
-					ScalarType<?> operativeScalarType	= scalarType.operativeScalarType();
+					result.add(scalarType);
+					ScalarType<?> operativeScalarType = scalarType.operativeScalarType();
 					if (!scalarType.equals(operativeScalarType))
 						result.add(operativeScalarType);
 				}
 			}
 		}
 		/*
-		for (String genericTypeName: genericTypeVariables)
-		{
-			ScalarType scalarType	= TypeRegistry.getType(genericTypeName);
-			if (scalarType != null)
-				result.add(scalarType);
-		}
-		*/
+		 * for (String genericTypeName: genericTypeVariables) { ScalarType scalarType =
+		 * TypeRegistry.getType(genericTypeName); if (scalarType != null) result.add(scalarType); }
+		 */
 		return result;
 	}
+
 	@Override
-	protected void deserializationPreHook(TranslationContext translationContext)
+	public void deserializationPreHook(TranslationContext translationContext)
 	{
 		synchronized (globalClassDescriptorsMap)
 		{
-			String name	= this.getName();
+			String name = this.getName();
 			if (name != null)
 			{
 				if (globalClassDescriptorsMap.containsKey(name))
@@ -1104,14 +982,172 @@ public class ClassDescriptor<ES extends ElementState, FD extends FieldDescriptor
 			}
 		}
 	}
+
 	/**
-	 * Rebuild structures after serializing only some fields.
+	 * Static method for serializing an object to the defined format. TranslationContext is
+	 * automatically initialized to handle graphs if enabled
+	 * 
+	 * @param object
+	 * @param stringBuilder
+	 * @param stringFormat
+	 * @throws SIMPLTranslationException
+	 * @throws IOException
 	 */
-	@Override
-	protected void deserializationPostHook(TranslationContext translationContext)
+	public static void serialize(Object object, File file, Format format)
+			throws SIMPLTranslationException
 	{
-		String name	= this.getName();
-		
+		TranslationContext translationContext = new TranslationContext();
+		serialize(object, file, format, translationContext);
 	}
 
+	/**
+	 * Static method for serializing an object. accepts translation context which a user can supply to
+	 * pass in additional information for the serialization method to use
+	 * 
+	 * @param object
+	 * @param appendable
+	 * @param format
+	 * @param translationContext
+	 * @throws SIMPLTranslationException
+	 * @throws IOException
+	 */
+	public static void serialize(Object object, File file, Format format,
+			TranslationContext translationContext) throws SIMPLTranslationException
+	{
+		FormatSerializer formatSerializer = FormatSerializer.getSerializer(format);
+		formatSerializer.serialize(object, file, translationContext);
+	}
+
+	/**
+	 * Static method for serializing an object to the defined format. TranslationContext is
+	 * automatically initialized to handle graphs if enabled
+	 * 
+	 * @param object
+	 * @param stringBuilder
+	 * @param stringFormat
+	 * @throws SIMPLTranslationException
+	 * @throws IOException
+	 */
+	public static void serialize(Object object, StringBuilder stringBuilder, StringFormat stringFormat)
+			throws SIMPLTranslationException
+	{
+		TranslationContext translationContext = new TranslationContext();
+		serialize(object, stringBuilder, stringFormat, translationContext);
+	}
+
+	/**
+	 * Static method for serializing an object to the defined format. TranslationContext is
+	 * automatically initialized to handle graphs if enabled
+	 * 
+	 * @param object
+	 * @param stringBuilder
+	 * @param stringFormat
+	 * @throws SIMPLTranslationException
+	 * @throws IOException
+	 */
+	public static StringBuilder serialize(Object object, StringFormat stringFormat)
+			throws SIMPLTranslationException
+	{
+		TranslationContext translationContext = new TranslationContext();
+		return serialize(object, stringFormat, translationContext);
+	}
+
+	/**
+	 * Static method for serializing an object to the defined format. TranslationContext is
+	 * automatically initialized to handle graphs if enabled
+	 * 
+	 * @param object
+	 * @param appendable
+	 * @param format
+	 * @throws SIMPLTranslationException
+	 * @throws IOException
+	 */
+	public static void serialize(Object object, Appendable appendable, StringFormat stringFormat)
+			throws SIMPLTranslationException
+	{
+		TranslationContext translationContext = new TranslationContext();
+		serialize(object, appendable, stringFormat, translationContext);
+	}
+
+	public static void serializeOut(Object object, String message, StringFormat stringFormat)
+	{
+		System.out.print(message);
+		System.out.print(':');
+		try
+		{
+			serialize(object, System.out, stringFormat);
+		}
+		catch (SIMPLTranslationException e)
+		{
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+
+	/**
+	 * Static method for serializing an object. accepts translation context which a user can supply to
+	 * pass in additional information for the serialization method to use
+	 * 
+	 * @param object
+	 * @param appendable
+	 * @param format
+	 * @param translationContext
+	 * @throws SIMPLTranslationException
+	 * @throws IOException
+	 */
+	public static void serialize(Object object, Appendable appendable, StringFormat stringFormat,
+			TranslationContext translationContext) throws SIMPLTranslationException
+	{
+		StringSerializer stringSerializer = FormatSerializer.getStringSerializer(stringFormat);
+		stringSerializer.serialize(object, appendable, translationContext);
+	}
+
+	/**
+	 * Static method for serializing an object. accepts translation context which a user can supply to
+	 * pass in additional information for the serialization method to use
+	 * 
+	 * @param object
+	 * @param stringBuilder
+	 * @param format
+	 * @param translationContext
+	 * @throws SIMPLTranslationException
+	 * @throws IOException
+	 */
+	public static void serialize(Object object, StringBuilder stringBuilder,
+			StringFormat stringFormat, TranslationContext translationContext)
+			throws SIMPLTranslationException
+	{
+		StringSerializer stringSerializer = FormatSerializer.getStringSerializer(stringFormat);
+		stringSerializer.serialize(object, stringBuilder, translationContext);
+	}
+
+	/**
+	 * Static method for serializing an object. accepts translation context which a user can supply to
+	 * pass in additional information for the serialization method to use
+	 * 
+	 * @param object
+	 * @param stringBuilder
+	 * @param format
+	 * @param translationContext
+	 * @throws SIMPLTranslationException
+	 * @throws IOException
+	 */
+	public static StringBuilder serialize(Object object, StringFormat stringFormat,
+			TranslationContext translationContext) throws SIMPLTranslationException
+	{
+		StringSerializer stringSerializer = FormatSerializer.getStringSerializer(stringFormat);
+		return stringSerializer.serialize(object, translationContext);
+	}
+
+	/**
+	 * 
+	 * @param object
+	 * @param outputStream
+	 * @param bibtex
+	 */
+	public static void serialize(Object object, OutputStream outputStream, Format format)
+	{
+		// TODO Auto-generated method stub
+
+	}
 }

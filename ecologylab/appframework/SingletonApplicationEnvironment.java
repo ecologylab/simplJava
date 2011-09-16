@@ -24,6 +24,7 @@ import ecologylab.io.Files;
 import ecologylab.net.ParsedURL;
 import ecologylab.serialization.ClassDescriptor;
 import ecologylab.serialization.SIMPLTranslationException;
+import ecologylab.serialization.StringFormat;
 import ecologylab.serialization.TranslationScope;
 import ecologylab.serialization.XMLTranslationExceptionTypes;
 
@@ -492,7 +493,8 @@ public class SingletonApplicationEnvironment extends ApplicationEnvironment impl
 				prfs = PrefSet.loadFromCharSequence(prefSetXML, translationScope);
 				System.out.println("Prefs loaded From Servlet:: ");
 				if (prfs != null)
-					prfs.serialize(System.out);
+					ClassDescriptor.serialize(prfs, System.out, StringFormat.XML);
+					
 				System.out.println(" --- End Prefs");
 			}
 			catch (SIMPLTranslationException e)
@@ -783,7 +785,7 @@ public class SingletonApplicationEnvironment extends ApplicationEnvironment impl
 		try
 		{
 			if (prefSet != null)
-				prefSet.serialize(System.out);
+				ClassDescriptor.serialize(prefSet, System.out, StringFormat.XML);				
 		}
 		catch (SIMPLTranslationException e)
 		{

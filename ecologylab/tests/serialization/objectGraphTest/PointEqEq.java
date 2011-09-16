@@ -1,7 +1,8 @@
 package ecologylab.tests.serialization.objectGraphTest;
 
 import ecologylab.serialization.ElementState;
-import ecologylab.serialization.simpl_use_equals_equals;
+import ecologylab.serialization.annotations.simpl_scalar;
+import ecologylab.serialization.annotations.simpl_use_equals_equals;
 
 @simpl_use_equals_equals
 public class PointEqEq extends ElementState {

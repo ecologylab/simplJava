@@ -4,7 +4,8 @@
 package ecologylab.serialization.library.geom;
 
 import ecologylab.serialization.ElementState;
-import ecologylab.serialization.simpl_inherit;
+import ecologylab.serialization.annotations.simpl_inherit;
+import ecologylab.serialization.annotations.simpl_scalar;
 
 /**
  * @author Zachary O. Toups (toupsz@cs.tamu.edu)

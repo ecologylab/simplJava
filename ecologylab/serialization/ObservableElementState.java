@@ -3,8 +3,9 @@
  */
 package ecologylab.serialization;
 
-import java.util.Observer;
 import java.util.Vector;
+
+import ecologylab.serialization.annotations.simpl_inherit;
 
 
 /**

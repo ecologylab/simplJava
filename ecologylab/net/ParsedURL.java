@@ -1,15 +1,10 @@
 package ecologylab.net;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.InputStream;
 import java.net.CookieHandler;
 import java.net.CookieManager;
-import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
-import java.net.SocketTimeoutException;
 import java.net.URI;
 import java.net.URL;
 import java.net.URLEncoder;
@@ -24,6 +19,7 @@ import ecologylab.generic.IntSlot;
 import ecologylab.generic.StringTools;
 import ecologylab.io.Files;
 import ecologylab.serialization.ElementState;
+import ecologylab.serialization.Format;
 import ecologylab.serialization.SIMPLTranslationException;
 import ecologylab.serialization.TranslationScope;
 
@@ -331,10 +327,10 @@ public class ParsedURL extends Debug implements MimeType
 	 * @return ElementState object derived from XML at the InputStream of this.
 	 * @throws SIMPLTranslationException
 	 */
-	public ElementState translateFromXML(TranslationScope translationScope)
+	public Object translateFromXML(TranslationScope translationScope)
 			throws SIMPLTranslationException
 	{
-		return translationScope.deserialize(this);
+		return translationScope.deserialize(this, Format.XML);
 	}
 
 	public static URL getURL(URL base, String path, String error)

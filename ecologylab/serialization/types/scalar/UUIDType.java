@@ -3,7 +3,7 @@ package ecologylab.serialization.types.scalar;
 import java.util.UUID;
 
 import ecologylab.serialization.ScalarUnmarshallingContext;
-import ecologylab.serialization.simpl_inherit;
+import ecologylab.serialization.annotations.simpl_inherit;
 import ecologylab.serialization.types.CrossLanguageTypeConstants;
 import ecologylab.serialization.types.ScalarType;
 

@@ -5,12 +5,12 @@ import java.awt.geom.AffineTransform;
 import java.awt.geom.Ellipse2D;
 import java.awt.geom.PathIterator;
 import java.awt.geom.Point2D;
-import java.awt.geom.Point2D.Double;
 import java.awt.geom.Rectangle2D;
+import java.awt.geom.Point2D.Double;
 
-import ecologylab.serialization.ElementState.xml_other_tags;
-import ecologylab.serialization.ElementState.xml_tag;
-import ecologylab.serialization.simpl_inherit;
+import ecologylab.serialization.annotations.simpl_inherit;
+import ecologylab.serialization.annotations.simpl_other_tags;
+import ecologylab.serialization.annotations.simpl_tag;
 
 /**
  * Encapsulates a Ellipse2D.Double for use in translating to/from XML.
@@ -28,8 +28,8 @@ import ecologylab.serialization.simpl_inherit;
  * 
  * @author Zachary O. Toups (toupsz@cs.tamu.edu)
  */
-@xml_tag("El2DD")
-@xml_other_tags("ellipse2_d_double")
+@simpl_tag("El2DD")
+@simpl_other_tags("ellipse2_d_double")
 public @simpl_inherit
 class Ellipse2DDoubleState extends RectangularShape
 {

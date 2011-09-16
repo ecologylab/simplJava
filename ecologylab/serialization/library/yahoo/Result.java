@@ -2,8 +2,11 @@ package ecologylab.serialization.library.yahoo;
 
 import ecologylab.net.ParsedURL;
 import ecologylab.serialization.ElementState;
-import ecologylab.serialization.ElementState.xml_tag;
-import ecologylab.serialization.Hint;
+import ecologylab.serialization.annotations.Hint;
+import ecologylab.serialization.annotations.simpl_composite;
+import ecologylab.serialization.annotations.simpl_hints;
+import ecologylab.serialization.annotations.simpl_scalar;
+import ecologylab.serialization.annotations.simpl_tag;
 
 /**
  * Result from a Yahoo Search.
@@ -14,19 +17,19 @@ import ecologylab.serialization.Hint;
  * @author andruid
  */
 public 
-@xml_tag("Result")
+@simpl_tag("Result")
 class Result extends ElementState
 {
-	@simpl_scalar @simpl_hints(Hint.XML_LEAF)	@xml_tag("Title")	String				title;
-	@simpl_scalar @simpl_hints(Hint.XML_LEAF)	@xml_tag("Summary")	String				summary;
+	@simpl_scalar @simpl_hints(Hint.XML_LEAF)	@simpl_tag("Title")	String				title;
+	@simpl_scalar @simpl_hints(Hint.XML_LEAF)	@simpl_tag("Summary")	String				summary;
 	/**
 	 * For web search, the URL of the document.
 	 * For image search, the URL of the image.
 	 */
-	@simpl_scalar @simpl_hints(Hint.XML_LEAF)	@xml_tag("Url")		ParsedURL			url;
+	@simpl_scalar @simpl_hints(Hint.XML_LEAF)	@simpl_tag("Url")		ParsedURL			url;
 
 	// this is a mess double-stuffed url from yahoo. nice to ignore.
-//	@simpl_scalar @simpl_hints(Hint.XML_LEAF)	@xml_tag("ClickUrl")		ParsedURL	clickUrl;
+//	@simpl_scalar @simpl_hints(Hint.XML_LEAF)	@simpl_tag("ClickUrl")		ParsedURL	clickUrl;
 	
 	// there is also a field called ClickUrl. for image search, it duplicates Url.
 	// for web search ClickUrl is that nasty url that takes you through yahoo, and includes
@@ -34,33 +37,33 @@ class Result extends ElementState
 	/**
 	 * For image search, this is the Container web page!
 	 */
-	@simpl_scalar @simpl_hints(Hint.XML_LEAF)	@xml_tag("RefererUrl")	ParsedURL		refererUrl;
+	@simpl_scalar @simpl_hints(Hint.XML_LEAF)	@simpl_tag("RefererUrl")	ParsedURL		refererUrl;
 	
 	/**
 	 * Another field for image search only. How useful! 
 	 * Lets us know if we want to work with the thumbnail or just download the whole image.
 	 * Seems to be in bytes.
 	 */
-	@simpl_scalar @simpl_hints(Hint.XML_LEAF)	@xml_tag("FileSize")	int				fileSize;
+	@simpl_scalar @simpl_hints(Hint.XML_LEAF)	@simpl_tag("FileSize")	int				fileSize;
 	
-	@simpl_scalar @simpl_hints(Hint.XML_LEAF)	@xml_tag("Width")		int				width;
-	@simpl_scalar @simpl_hints(Hint.XML_LEAF)	@xml_tag("Height")		int				height;
+	@simpl_scalar @simpl_hints(Hint.XML_LEAF)	@simpl_tag("Width")		int				width;
+	@simpl_scalar @simpl_hints(Hint.XML_LEAF)	@simpl_tag("Height")		int				height;
 	
 	/**
 	 * For image search only. This seems to be the file suffix, though they use jpeg instead of jpg.
 	 */
-	@simpl_scalar @simpl_hints(Hint.XML_LEAF)	@xml_tag("FileFormat")	String			fileFormat;
+	@simpl_scalar @simpl_hints(Hint.XML_LEAF)	@simpl_tag("FileFormat")	String			fileFormat;
 	
 	/**
 	 * Specific to news search.
 	 */
-	@simpl_scalar @simpl_hints(Hint.XML_LEAF)	@xml_tag("NewsSource")	String			newsSource;
+	@simpl_scalar @simpl_hints(Hint.XML_LEAF)	@simpl_tag("NewsSource")	String			newsSource;
 	
 	/**
 	 * For web search only. Like file format, except its true mime type, like text/html.
 	 * Very nice.
 	 */
-	@simpl_scalar @simpl_hints(Hint.XML_LEAF)	@xml_tag("MimeType")	String			mimeType;
+	@simpl_scalar @simpl_hints(Hint.XML_LEAF)	@simpl_tag("MimeType")	String			mimeType;
 	
 	// DisplayUrl -- boring. Web search only.
 	
@@ -70,7 +73,7 @@ class Result extends ElementState
 	/**
 	 * Cool! For image search, direct access to their thumbnail image.
 	 */
-	@simpl_composite	@xml_tag("Thumbnail")	ThumbnailState	thumbnail;
+	@simpl_composite	@simpl_tag("Thumbnail")	ThumbnailState	thumbnail;
 	
 	   
 	public String getTitle()

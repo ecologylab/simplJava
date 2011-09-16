@@ -1,5 +1,7 @@
 package ecologylab.appframework.types.prefs;
 
+import ecologylab.serialization.annotations.simpl_scalar;
+
 
 public class PrefEnum extends Pref<Enum>
 {

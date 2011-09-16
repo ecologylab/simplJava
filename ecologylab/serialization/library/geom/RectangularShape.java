@@ -5,7 +5,9 @@ package ecologylab.serialization.library.geom;
 
 import java.awt.Shape;
 
-import ecologylab.serialization.simpl_inherit;
+import ecologylab.serialization.annotations.simpl_inherit;
+
+
 
 /**
  * Subclass that adds AWT.

@@ -3,7 +3,7 @@
  */
 package ecologylab.serialization.library.jnlp.resource;
 
-import ecologylab.serialization.simpl_inherit;
+import ecologylab.serialization.annotations.simpl_inherit;
 
 /**
  * A nativelib element specifies a JAR file that contains native libraries. For example:

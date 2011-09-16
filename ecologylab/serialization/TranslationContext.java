@@ -12,35 +12,40 @@ import org.xml.sax.Attributes;
 import ecologylab.collections.MultiMap;
 import ecologylab.generic.Debug;
 import ecologylab.net.ParsedURL;
-import ecologylab.serialization.ElementState.FORMAT;
 import ecologylab.serialization.TranslationScope.GRAPH_SWITCH;
 
 public class TranslationContext extends Debug implements ScalarUnmarshallingContext, FieldTypes
 {
 
-	public static final String							SIMPL_NAMESPACE					= " xmlns:simpl=\"http://ecologylab.net/research/simplGuide/serialization/index.html\"";
+	public static final String				SIMPL_NAMESPACE					= " xmlns:simpl=\"http://ecologylab.net/research/simplGuide/serialization/index.html\"";
 
-	public static final String							SIMPL_ID								= "simpl:id";
+	public static final String				SIMPL										= "simpl";
 
-	public static final String							SIMPL_REF								= "simpl:ref";
+	public static final String				REF											= "ref";
 
-	public static final String							JSON_SIMPL_ID						= "simpl.id";
+	public static final String				ID											= "id";
 
-	public static final String							JSON_SIMPL_REF					= "simpl.ref";
+	public static final String				SIMPL_ID								= "simpl:id";
 
-	private MultiMap<Integer, ElementState>	marshalledObjects				= new MultiMap<Integer, ElementState>();
+	public static final String				SIMPL_REF								= "simpl:ref";
 
-	private MultiMap<Integer, ElementState>	visitedElements					= new MultiMap<Integer, ElementState>();
+	public static final String				JSON_SIMPL_ID						= "simpl.id";
 
-	private MultiMap<Integer, ElementState>	needsAttributeHashCode	= new MultiMap<Integer, ElementState>();
+	public static final String				JSON_SIMPL_REF					= "simpl.ref";
 
-	private HashMap<String, ElementState>		unmarshalledObjects			= new HashMap<String, ElementState>();
+	private MultiMap<Integer, Object>	marshalledObjects				= new MultiMap<Integer, Object>();
 
-	protected ParsedURL											baseDirPurl;
+	private MultiMap<Integer, Object>	visitedElements					= new MultiMap<Integer, Object>();
 
-	protected File													baseDirFile;
+	private MultiMap<Integer, Object>	needsAttributeHashCode	= new MultiMap<Integer, Object>();
 
-	protected String												delimiter								= ",";
+	private HashMap<String, Object>		unmarshalledObjects			= new HashMap<String, Object>();
+
+	protected ParsedURL								baseDirPurl;
+
+	protected File										baseDirFile;
+
+	protected String									delimiter								= ",";
 
 	public TranslationContext()
 	{
@@ -66,7 +71,7 @@ public class TranslationContext extends Debug implements ScalarUnmarshallingCont
 			this.baseDirFile = purlContext.file();
 	}
 
-	public boolean handleSimplIds(final String tag, final String value, ElementState elementState)
+	public boolean handleSimplIds(final String tag, final String value, Object elementState)
 	{
 		if (TranslationScope.graphSwitch == GRAPH_SWITCH.ON)
 		{
@@ -86,21 +91,23 @@ public class TranslationContext extends Debug implements ScalarUnmarshallingCont
 
 		return false;
 	}
-	
-	public void markAsUnmarshalled(String value, ElementState elementState)
+
+	public void markAsUnmarshalled(String value, Object elementState)
 	{
 		this.unmarshalledObjects.put(value, elementState);
 	}
 
-	public void resolveGraph(ElementState elementState)
+	public void resolveGraph(Object elementState)
 	{
 		if (TranslationScope.graphSwitch == GRAPH_SWITCH.ON)
 		{
 			// this.visitedElements.put(System.identityHashCode(elementState), elementState);
 			this.visitedElements.put(elementState.hashCode(), elementState);
 
-			ArrayList<FieldDescriptor> elementFieldDescriptors = elementState.classDescriptor()
-					.elementFieldDescriptors();
+			ClassDescriptor.getClassDescriptor(elementState);
+
+			ArrayList<? extends FieldDescriptor> elementFieldDescriptors = ClassDescriptor
+					.getClassDescriptor(elementState).elementFieldDescriptors();
 
 			for (FieldDescriptor elementFieldDescriptor : elementFieldDescriptors)
 			{
@@ -152,9 +159,9 @@ public class TranslationContext extends Debug implements ScalarUnmarshallingCont
 				{
 					for (Object next : thatCollection)
 					{
-						if (next instanceof ElementState)
+						if (next instanceof Object)
 						{
-							ElementState compositeElement = (ElementState) next;
+							Object compositeElement = (Object) next;
 
 							if (this.alreadyVisited(compositeElement))
 							{
@@ -169,9 +176,9 @@ public class TranslationContext extends Debug implements ScalarUnmarshallingCont
 						}
 					}
 				}
-				else if (thatReferenceObject instanceof ElementState)
+				else if (thatReferenceObject instanceof Object)
 				{
-					ElementState compositeElement = (ElementState) thatReferenceObject;
+					Object compositeElement = (Object) thatReferenceObject;
 
 					if (this.alreadyVisited(compositeElement))
 					{
@@ -188,23 +195,23 @@ public class TranslationContext extends Debug implements ScalarUnmarshallingCont
 		}
 	}
 
-	public boolean alreadyVisited(ElementState elementState)
+	public boolean alreadyVisited(Object elementState)
 	{
 		// return this.visitedElements.contains(System.identityHashCode(elementState), elementState);
 		return this.visitedElements.contains(elementState.hashCode(), elementState);
 	}
 
-	public void mapElementState(ElementState elementState)
+	public void mapObject(Object object)
 	{
 		if (TranslationScope.graphSwitch == GRAPH_SWITCH.ON)
 		{
-			// this.marshalledObjects.put(System.identityHashCode(elementState), elementState);
-			this.marshalledObjects.put(elementState.hashCode(), elementState);
+			if (object != null)
+				this.marshalledObjects.put(object.hashCode(), object);
 		}
 	}
 
-	public void appendSimplIdIfRequired(Appendable appendable, ElementState elementState,
-			FORMAT format) throws IOException
+	public void appendSimplIdIfRequired(Appendable appendable, Object elementState, Format format)
+			throws IOException
 	{
 		if (TranslationScope.graphSwitch == GRAPH_SWITCH.ON && this.needsHashCode(elementState))
 		{
@@ -212,11 +219,14 @@ public class TranslationContext extends Debug implements ScalarUnmarshallingCont
 		}
 	}
 
-	public boolean alreadyMarshalled(ElementState compositeElementState)
+	public boolean alreadyMarshalled(Object compositeObject)
 	{
-		// return this.marshalledObjects.contains(System.identityHashCode(compositeElementState),
-		// compositeElementState);
-		return this.marshalledObjects.contains(compositeElementState.hashCode(), compositeElementState);
+		// return this.marshalledObjects.contains(System.identityHashCode(compositeObject),
+		// compositeObject);
+		if (compositeObject == null)
+			return false;
+
+		return this.marshalledObjects.contains(compositeObject.hashCode(), compositeObject);
 	}
 
 	public void appendSimplNameSpace(Appendable appendable) throws IOException
@@ -224,8 +234,8 @@ public class TranslationContext extends Debug implements ScalarUnmarshallingCont
 		appendable.append(SIMPL_NAMESPACE);
 	}
 
-	public void appendSimplRefId(Appendable appendable, ElementState elementState,
-			FieldDescriptor compositeElementFD, FORMAT format, boolean withTag) throws IOException
+	public void appendSimplRefId(Appendable appendable, Object elementState,
+			FieldDescriptor compositeElementFD, Format format, boolean withTag) throws IOException
 	{
 		switch (format)
 		{
@@ -238,7 +248,7 @@ public class TranslationContext extends Debug implements ScalarUnmarshallingCont
 		}
 	}
 
-	private void appendXMLSimplRefId(Appendable appendable, ElementState elementState,
+	private void appendXMLSimplRefId(Appendable appendable, Object elementState,
 			FieldDescriptor compositeElementFD) throws IOException
 	{
 		compositeElementFD.writeElementStart(appendable);
@@ -246,17 +256,17 @@ public class TranslationContext extends Debug implements ScalarUnmarshallingCont
 		appendable.append("/>");
 	}
 
-	private void appendJSONSimplRefId(Appendable appendable, ElementState elementState,
+	private void appendJSONSimplRefId(Appendable appendable, Object elementState,
 			FieldDescriptor compositeElementFD, boolean withTag) throws IOException
 	{
-		
+
 		compositeElementFD.writeJSONElementStart(appendable, withTag);
 		appendJSONSimplIdAttributeWithTagName(appendable, JSON_SIMPL_REF, elementState, false);
 		compositeElementFD.writeJSONCloseTag(appendable);
 	}
 
 	private void appendXMLSimplIdAttributeWithTagName(Appendable appendable, String tagName,
-			ElementState elementState) throws IOException
+			Object elementState) throws IOException
 	{
 		appendable.append(' ');
 		appendable.append(tagName);
@@ -268,14 +278,14 @@ public class TranslationContext extends Debug implements ScalarUnmarshallingCont
 	}
 
 	private void appendJSONSimplIdAttributeWithTagName(Appendable appendable, String tagName,
-			ElementState elementState, boolean ifLast) throws IOException
+			Object elementState, boolean ifLast) throws IOException
 	{
 		if (ifLast)
 		{
 			appendable.append(',');
 			appendable.append(' ');
 		}
-		
+
 		appendable.append('"');
 		appendable.append(tagName);
 		appendable.append('"');
@@ -285,8 +295,8 @@ public class TranslationContext extends Debug implements ScalarUnmarshallingCont
 		appendable.append('"');
 	}
 
-	private void appendSimplIdAttribute(Appendable appendable, ElementState elementState,
-			FORMAT format) throws IOException
+	private void appendSimplIdAttribute(Appendable appendable, Object elementState, Format format)
+			throws IOException
 	{
 		switch (format)
 		{
@@ -299,7 +309,7 @@ public class TranslationContext extends Debug implements ScalarUnmarshallingCont
 		}
 	}
 
-	public boolean needsHashCode(ElementState elementState)
+	public boolean needsHashCode(Object elementState)
 	{
 		// return this.needsAttributeHashCode.contains(System.identityHashCode(elementState),
 		// elementState);
@@ -311,9 +321,9 @@ public class TranslationContext extends Debug implements ScalarUnmarshallingCont
 		return this.needsAttributeHashCode.size() > 0;
 	}
 
-	public ElementState getFromMap(Attributes attributes)
+	public Object getFromMap(Attributes attributes)
 	{
-		ElementState unMarshalledObject = null;
+		Object unMarshalledObject = null;
 
 		int numAttributes = attributes.getLength();
 		for (int i = 0; i < numAttributes; i++)
@@ -329,8 +339,8 @@ public class TranslationContext extends Debug implements ScalarUnmarshallingCont
 
 		return unMarshalledObject;
 	}
-	
-	public ElementState getFromMap(String value)
+
+	public Object getFromMap(String value)
 	{
 		return this.unmarshalledObjects.get(value);
 	}

@@ -9,7 +9,11 @@ import javax.swing.Timer;
 import ecologylab.collections.Scope;
 import ecologylab.oodss.logging.MixedInitiativeOp;
 import ecologylab.serialization.ElementState;
-import ecologylab.serialization.simpl_inherit;
+import ecologylab.serialization.annotations.simpl_collection;
+import ecologylab.serialization.annotations.simpl_inherit;
+import ecologylab.serialization.annotations.simpl_nowrap;
+import ecologylab.serialization.annotations.simpl_scalar;
+import ecologylab.serialization.annotations.simpl_scope;
 
 @simpl_inherit
 public class PrefDelayedOp<O extends MixedInitiativeOp> extends PrefOp<O> implements ActionListener

@@ -26,7 +26,9 @@ import ecologylab.generic.ResourcePool;
 import ecologylab.oodss.distributed.common.NetworkingConstants;
 import ecologylab.oodss.distributed.exception.MessageTooLargeException;
 import ecologylab.oodss.messages.ServiceMessage;
+import ecologylab.serialization.ClassDescriptor;
 import ecologylab.serialization.SIMPLTranslationException;
+import ecologylab.serialization.StringFormat;
 import ecologylab.serialization.TranslationScope;
 
 /**
@@ -371,7 +373,8 @@ public abstract class NIODatagramCore<S extends Scope> extends Debug implements 
 
 					buffer.putLong(mdataMessage.getUid());
 
-					mdataMessage.getMessage().serialize(builder);
+					ClassDescriptor.serialize(mdataMessage.getMessage(), builder, StringFormat.XML);
+					
 
 					builder.flip();
 
@@ -602,7 +605,7 @@ public abstract class NIODatagramCore<S extends Scope> extends Debug implements 
 
 									messageBuffer.flip();
 
-									ServiceMessage<S> message = (ServiceMessage<S>) translationScope.deserializeCharSequence(messageBuffer);
+									ServiceMessage<S> message = (ServiceMessage<S>) translationScope.deserialize(messageBuffer, StringFormat.XML);
 									message.setSender(address.getAddress());
 
 									PacketHandler handler = handlerPool.acquire();

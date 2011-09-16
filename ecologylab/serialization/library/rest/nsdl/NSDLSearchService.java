@@ -1,7 +1,7 @@
 package ecologylab.serialization.library.rest.nsdl;
 
-import ecologylab.serialization.ElementState.xml_tag;
-import ecologylab.serialization.simpl_inherit;
+import ecologylab.serialization.annotations.simpl_inherit;
+import ecologylab.serialization.annotations.simpl_tag;
 import ecologylab.serialization.library.rest.RestSearchResult;
 
 /**
@@ -9,7 +9,7 @@ import ecologylab.serialization.library.rest.RestSearchResult;
  * @author blake
  *
  */
-@simpl_inherit @xml_tag("NSDLSearchService")
+@simpl_inherit @simpl_tag("NSDLSearchService")
 public class NSDLSearchService extends RestSearchResult
 {
 	public NSDLSearchService()

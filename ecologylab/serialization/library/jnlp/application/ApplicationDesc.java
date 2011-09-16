@@ -8,8 +8,15 @@ import java.net.URLEncoder;
 import java.util.ArrayList;
 
 import ecologylab.appframework.types.prefs.PrefSet;
+import ecologylab.serialization.ClassDescriptor;
 import ecologylab.serialization.ElementState;
 import ecologylab.serialization.SIMPLTranslationException;
+import ecologylab.serialization.StringFormat;
+import ecologylab.serialization.TranslationContext;
+import ecologylab.serialization.annotations.simpl_collection;
+import ecologylab.serialization.annotations.simpl_nowrap;
+import ecologylab.serialization.annotations.simpl_scalar;
+import ecologylab.serialization.annotations.simpl_tag;
 
 /**
  * @author Zachary O. Toups (zach@ecologylab.net)
@@ -18,7 +25,7 @@ import ecologylab.serialization.SIMPLTranslationException;
 public class ApplicationDesc extends ElementState
 {
 	@simpl_scalar
-	@xml_tag("main-class")
+	@simpl_tag("main-class")
 	String						mainClass;
 
 	@simpl_nowrap
@@ -79,15 +86,17 @@ public class ApplicationDesc extends ElementState
 	 * @see ecologylab.serialization.ElementState#serializationPreHook()
 	 */
 	@Override
-	protected void serializationPreHook()
+	public void serializationPreHook(TranslationContext translationContext)
 	{
 		if (prefSet != null)
 		{
 			try
 			{
-				this.add(URLEncoder.encode(prefSet.serialize().toString(), "UTF-8"));
 
-				this.prefSetArgumentIndex = this.arguments.size()-1;
+				this.add(URLEncoder.encode(ClassDescriptor.serialize(prefSet, StringFormat.XML).toString(),
+						"UTF-8"));
+
+				this.prefSetArgumentIndex = this.arguments.size() - 1;
 			}
 			catch (UnsupportedEncodingException e)
 			{
@@ -99,14 +108,14 @@ public class ApplicationDesc extends ElementState
 			}
 		}
 
-		super.serializationPreHook();
+		super.serializationPreHook(translationContext);
 	}
 
 	/**
 	 * @see ecologylab.serialization.ElementState#serializationPostHook()
 	 */
 	@Override
-	protected void serializationPostHook()
+	public void serializationPostHook(TranslationContext translationContext)
 	{
 		if (this.prefSetArgumentIndex > -1)
 		{ // we need to remove it from the arguments list
@@ -115,6 +124,6 @@ public class ApplicationDesc extends ElementState
 			this.prefSetArgumentIndex = -1;
 		}
 
-		super.serializationPostHook();
+		super.serializationPostHook(translationContext);
 	}
 }

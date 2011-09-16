@@ -12,9 +12,15 @@ import java.util.Set;
 import ecologylab.appframework.ApplicationPropertyNames;
 import ecologylab.net.ParsedURL;
 import ecologylab.serialization.ElementState;
+import ecologylab.serialization.Format;
 import ecologylab.serialization.SIMPLTranslationException;
+import ecologylab.serialization.StringFormat;
+import ecologylab.serialization.TranslationContext;
 import ecologylab.serialization.TranslationScope;
-import ecologylab.serialization.simpl_inherit;
+import ecologylab.serialization.annotations.simpl_inherit;
+import ecologylab.serialization.annotations.simpl_map;
+import ecologylab.serialization.annotations.simpl_nowrap;
+import ecologylab.serialization.annotations.simpl_scope;
 
 /**
  * A serial set of Pref objects. Used for reading and writing (load and save). The static
@@ -48,18 +54,18 @@ public class PrefSet extends ElementState implements ApplicationPropertyNames, C
 	public Pref<?> add(Pref<?> pref)
 	{
 		Pref<?> result = null;
-		
+
 		if (pref != null)
 		{
-		constructPreferencesIfNeeded();
+			constructPreferencesIfNeeded();
 
-		result = preferences.put(pref.key(), pref);
-		pref.register();
+			result = preferences.put(pref.key(), pref);
+			pref.register();
 		}
-		
+
 		return result;
 	}
-	
+
 	public Pref<?> addLocalOnly(Pref<?> pref)
 	{
 		constructPreferencesIfNeeded();
@@ -96,6 +102,8 @@ public class PrefSet extends ElementState implements ApplicationPropertyNames, C
 		pref.register();
 	}
 
+
+
 	/**
 	 * Read Pref declarations from a file or across the net.
 	 * 
@@ -110,7 +118,7 @@ public class PrefSet extends ElementState implements ApplicationPropertyNames, C
 		File file = purl.file();
 		PrefSet pS = null;
 		if ((file != null) && file.exists())
-			pS = (PrefSet) translationScope.deserialize(purl);
+			pS = (PrefSet) translationScope.deserialize(purl, Format.XML);
 
 		return pS;
 	}
@@ -127,7 +135,7 @@ public class PrefSet extends ElementState implements ApplicationPropertyNames, C
 	public static PrefSet load(String filename, TranslationScope translationScope)
 			throws SIMPLTranslationException
 	{
-		PrefSet pS = (PrefSet) translationScope.deserialize(filename);
+		PrefSet pS = (PrefSet) translationScope.deserialize(new File(filename), Format.XML);
 
 		return pS;
 	}
@@ -144,7 +152,7 @@ public class PrefSet extends ElementState implements ApplicationPropertyNames, C
 	public static PrefSet loadFromCharSequence(String prefXML, TranslationScope translationScope)
 			throws SIMPLTranslationException
 	{
-		PrefSet pS = (PrefSet) translationScope.deserializeCharSequence(prefXML);
+		PrefSet pS = (PrefSet) translationScope.deserialize(prefXML, StringFormat.XML);
 
 		return pS;
 	}

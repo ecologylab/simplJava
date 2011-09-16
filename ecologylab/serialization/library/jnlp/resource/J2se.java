@@ -3,8 +3,9 @@
  */
 package ecologylab.serialization.library.jnlp.resource;
 
-import ecologylab.serialization.ElementState.xml_tag;
-import ecologylab.serialization.simpl_inherit;
+import ecologylab.serialization.annotations.simpl_inherit;
+import ecologylab.serialization.annotations.simpl_scalar;
+import ecologylab.serialization.annotations.simpl_tag;
 
 /**
  * The j2se element specifies what Java 2 SE Runtime Environment (JRE) versions an application is supported on, as well
@@ -17,7 +18,7 @@ import ecologylab.serialization.simpl_inherit;
  * @author Zachary O. Toups (zach@ecologylab.net)
  * 
  */
-public @simpl_inherit @xml_tag("j2se") class J2se extends HrefBasedResource
+public @simpl_inherit @simpl_tag("j2se") class J2se extends HrefBasedResource
 {
     /**
      * The version attribute refers, by default, to a platform version (specification version) of the Java 2 platform.
@@ -63,11 +64,11 @@ public @simpl_inherit @xml_tag("j2se") class J2se extends HrefBasedResource
      * 
      * 
      */
-    @simpl_scalar @xml_tag("java-vm-args") private String javaVmArgs;
+    @simpl_scalar @simpl_tag("java-vm-args") private String javaVmArgs;
 
-    @simpl_scalar @xml_tag("initial-heap-size") private String initialHeapSize;
+    @simpl_scalar @simpl_tag("initial-heap-size") private String initialHeapSize;
     
-    @simpl_scalar @xml_tag("max-heap-size") private String maxHeapSize;
+    @simpl_scalar @simpl_tag("max-heap-size") private String maxHeapSize;
     
     /**
      * 

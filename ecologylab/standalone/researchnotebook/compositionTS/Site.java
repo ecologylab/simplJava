@@ -1,6 +1,7 @@
 package ecologylab.standalone.researchnotebook.compositionTS;
 
 import ecologylab.serialization.ElementState;
+import ecologylab.serialization.annotations.simpl_scalar;
 
 public class Site extends ElementState{
 	//TODO parsedURL is not working below ('cause of omission of 'http'?)
