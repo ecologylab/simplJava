@@ -1,6 +1,7 @@
 package ecologylab.serialization;
 
 import java.io.File;
+import java.io.InputStream;
 import java.lang.annotation.Annotation;
 import java.net.URL;
 import java.util.ArrayList;
@@ -1124,6 +1125,7 @@ public final class TranslationScope extends ElementState
 		allTranslationScopes.put(name, this);
 	}
 
+	
 	public Object deserialize(File file, TranslationContext translationContext,
 			DeserializationHookStrategy deserializationHookStrategy, Format format)
 			throws SIMPLTranslationException
@@ -1147,27 +1149,14 @@ public final class TranslationScope extends ElementState
 	public Object deserialize(File file, DeserializationHookStrategy deserializationHookStrategy,
 			Format format) throws SIMPLTranslationException
 	{
-		PullDeserializer pullDeserializer = PullDeserializer.getDeserializer(this,
-				new TranslationContext(), deserializationHookStrategy, format);
-		return pullDeserializer.parse(file);
+		return deserialize(file, new TranslationContext(), deserializationHookStrategy, format);
 	}
 
-	public Object deserialize(ParsedURL parsedURL, TranslationContext translationContext,
+	public Object deserialize(ParsedURL parsedURL,
 			DeserializationHookStrategy deserializationHookStrategy, Format format)
 			throws SIMPLTranslationException
 	{
-		PullDeserializer pullDeserializer = PullDeserializer.getDeserializer(this, translationContext,
-				deserializationHookStrategy, format);
-		return pullDeserializer.parse(parsedURL);
-	}
-	
-	public Object deserialize(ParsedURL parsedURL, 
-			DeserializationHookStrategy deserializationHookStrategy, Format format)
-			throws SIMPLTranslationException
-	{
-		PullDeserializer pullDeserializer = PullDeserializer.getDeserializer(this, new TranslationContext(),
-				deserializationHookStrategy, format);
-		return pullDeserializer.parse(parsedURL);
+		return deserialize(parsedURL, new TranslationContext(), deserializationHookStrategy, format);
 	}
 
 	public Object deserialize(ParsedURL parsedURL, TranslationContext translationContext,
@@ -1179,6 +1168,43 @@ public final class TranslationScope extends ElementState
 	public Object deserialize(ParsedURL parsedURL, Format format) throws SIMPLTranslationException
 	{
 		return deserialize(parsedURL, new TranslationContext(), null, format);
+	}
+
+	public Object deserialize(ParsedURL parsedURL, TranslationContext translationContext,
+			DeserializationHookStrategy deserializationHookStrategy, Format format)
+			throws SIMPLTranslationException
+	{
+		PullDeserializer pullDeserializer = PullDeserializer.getDeserializer(this, translationContext,
+				deserializationHookStrategy, format);
+		return pullDeserializer.parse(parsedURL);
+	}
+
+	public Object deserialize(InputStream inputStream,
+			DeserializationHookStrategy deserializationHookStrategy, Format format)
+			throws SIMPLTranslationException
+	{
+		return deserialize(inputStream, new TranslationContext(), deserializationHookStrategy, format);
+	}
+
+	public Object deserialize(InputStream inputStream, TranslationContext translationContext,
+			Format format) throws SIMPLTranslationException
+	{
+		return deserialize(inputStream, translationContext, null, format);
+	}
+
+	public Object deserialize(InputStream inputStream, Format format)
+			throws SIMPLTranslationException
+	{
+		return deserialize(inputStream, new TranslationContext(), null, format);
+	}
+
+	public Object deserialize(InputStream inputStream, TranslationContext translationContext,
+			DeserializationHookStrategy deserializationHookStrategy, Format format)
+			throws SIMPLTranslationException
+	{
+		PullDeserializer pullDeserializer = PullDeserializer.getDeserializer(this, translationContext,
+				deserializationHookStrategy, format);
+		return pullDeserializer.parse(inputStream);
 	}
 
 	public Object deserialize(URL url, Format format) throws SIMPLTranslationException

@@ -983,44 +983,6 @@ public class FieldDescriptor extends DescriptorBase implements FieldTypes, IMapp
 		this.wrapped = wrapped;
 	}
 
-	/**
-	 * Use this and the context to append an attribute / value pair to the StringBuilder passed in.
-	 * 
-	 * @param buffy
-	 * @param context
-	 * @throws IllegalArgumentException
-	 * @throws IllegalAccessException
-	 */
-	public void appendValueAsAttribute(StringBuilder buffy, Object context)
-			throws IllegalArgumentException, IllegalAccessException
-	{
-		if (context != null)
-		{
-			ScalarType scalarType = this.scalarType;
-			Field field = this.field;
-
-			if (scalarType == null)
-			{
-				weird("scalarType = null!");
-			}
-			else if (!scalarType.isDefaultValue(field, context))
-			{
-				// for this field, generate tags and attach name value pair
-
-				// TODO if type.isFloatingPoint() -- deal with floatValuePrecision here!
-				// (which is an instance variable of this) !!!
-
-				buffy.append(' ');
-				buffy.append(this.tagName);
-				buffy.append('=');
-				buffy.append('"');
-
-				scalarType.appendValue(buffy, this, context);
-				buffy.append('"');
-			}
-		}
-	}
-
 	public boolean isDefaultValue(String value)
 	{
 		return scalarType.isDefaultValue(value);
@@ -1050,134 +1012,7 @@ public class FieldDescriptor extends DescriptorBase implements FieldTypes, IMapp
 			return value == null;
 	}
 
-	public void appendValueAsJSONAttribute(Appendable appendable, Object context, boolean isFirst)
-			throws IllegalArgumentException, IllegalAccessException, IOException
-	{
-		if (context != null)
-		{
-			ScalarType scalarType = this.scalarType;
-			Field field = this.field;
-
-			if (!scalarType.isDefaultValue(field, context))
-			{
-				if (!isFirst)
-					appendable.append(", ");
-
-				appendable.append('"');
-				appendable.append(tagName);
-				appendable.append('"');
-				appendable.append(':');
-				appendable.append('"');
-
-				scalarType.appendValue(appendable, this, context, null, Format.JSON);
-				appendable.append('"');
-
-			}
-		}
-	}
-
-	/**
-	 * Use this and the context to append an attribute / value pair to the Appendable passed in.
-	 * 
-	 * @param appendable
-	 * @param context
-	 * @throws IllegalArgumentException
-	 * @throws IllegalAccessException
-	 * @throws IOException
-	 */
-	public void appendTLV(DataOutputStream dataOutputStream, Object context)
-			throws IllegalArgumentException, IllegalAccessException, IOException
-	{
-		if (context != null)
-		{
-			ScalarType scalarType = this.scalarType;
-			Field field = this.field;
-
-			if (!scalarType.isDefaultValue(field, context))
-			{
-				dataOutputStream.writeInt(getTLVId());
-
-				StringBuilder buffy = new StringBuilder();
-				scalarType.appendValue(buffy, this, context);
-
-				ByteArrayOutputStream temp = new ByteArrayOutputStream();
-				DataOutputStream tempStream = new DataOutputStream(temp);
-				tempStream.writeBytes(buffy.toString());
-
-				dataOutputStream.writeInt(tempStream.size());
-				temp.writeTo(dataOutputStream);
-			}
-		}
-	}
-
-	/**
-	 * Use this and the context to append an attribute / value pair to the Appendable passed in.
-	 * 
-	 * @param appendable
-	 * @param context
-	 * @throws IllegalArgumentException
-	 * @throws IllegalAccessException
-	 * @throws IOException
-	 */
-	public void appendTLVCollectionItem(DataOutputStream dataOutputStream, Object instance)
-			throws IllegalArgumentException, IllegalAccessException, IOException
-	{
-		if (instance != null)
-		{
-			ScalarType scalarType = this.scalarType;
-
-			dataOutputStream.writeInt(getTLVId());
-
-			StringBuilder buffy = new StringBuilder();
-			scalarType.appendValue(instance, buffy, true, null);
-
-			ByteArrayOutputStream temp = new ByteArrayOutputStream();
-			DataOutputStream tempStream = new DataOutputStream(temp);
-			tempStream.writeBytes(buffy.toString());
-
-			dataOutputStream.writeInt(tempStream.size());
-			temp.writeTo(dataOutputStream);
-
-		}
-	}
-
-	/**
-	 * Use this and the context to append an attribute / value pair to the Appendable passed in.
-	 * 
-	 * @param appendable
-	 * @param context
-	 * @param serializationContext
-	 *          TODO
-	 * @throws IllegalArgumentException
-	 * @throws IllegalAccessException
-	 * @throws IOException
-	 */
-	public void appendValueAsAttribute(Appendable appendable, Object context,
-			TranslationContext serializationContext) throws IllegalArgumentException,
-			IllegalAccessException, IOException
-	{
-		if (context != null)
-		{
-			Object value = this.getValue(context);
-			String valueString = value == null ? NULL : value.toString();
-			ScalarType scalarType = this.scalarType;
-			if (value != null && !scalarType.isDefaultValue(valueString))
-			{
-				// for this field, generate tags and attach name value pair
-
-				// TODO if type.isFloatingPoint() -- deal with floatValuePrecision here!
-				// (which is an instance variable of this) !!!
-
-				appendable.append(' ');
-				appendable.append(tagName);
-				appendable.append('=');
-				appendable.append('"');
-
-				scalarType.appendValue(appendable, this, context, serializationContext, Format.XML);
-				appendable.append('"');
-			}
-		}
-	}
+	
 
 	public Object getValue(Object context)
 	{
@@ -1290,202 +1125,7 @@ public class FieldDescriptor extends DescriptorBase implements FieldTypes, IMapp
 		}
 	}
 
-	/**
-	 * Use this and the context to append an attribute / value pair to the Appendable passed in.
-	 * 
-	 * @param appendable
-	 * @param context
-	 * @throws IllegalArgumentException
-	 * @throws IllegalAccessException
-	 * @throws IOException
-	 */
-	public void appendValueAsBibtexAttribute(Appendable appendable, Object context, boolean isFirst)
-			throws IllegalArgumentException, IllegalAccessException, IOException
-	{
-		if (context != null)
-		{
-			ScalarType scalarType = this.scalarType;
-			Field field = this.field;
-
-			if (!scalarType.isDefaultValue(field, context))
-			{
-				// for this field, generate tags and attach name value pair
-
-				// TODO if type.isFloatingPoint() -- deal with floatValuePrecision here!
-				// (which is an instance variable of this) !!!
-
-				if (!isFirst)
-					appendable.append(",");
-
-				if (!isBibtexKey)
-				{
-					appendable.append('\n');
-					appendable.append(' ');
-					appendable.append(getBibtexTagName());
-					appendable.append('=');
-					appendable.append('{');
-				}
-
-				scalarType.appendValue(appendable, this, context, null, Format.BIBTEX);
-
-				if (!isBibtexKey)
-					appendable.append('}');
-			}
-		}
-	}
-
-	static final String	START_CDATA	= "<![CDATA[";
-
-	static final String	END_CDATA		= "]]>";
-
-	/**
-	 * Use this and the context to append a leaf node with value to the StringBuilder passed in,
-	 * unless it turns out that the value is the default.
-	 * 
-	 * @param buffy
-	 * @param context
-	 * @throws IllegalArgumentException
-	 * @throws IllegalAccessException
-	 */
-	void appendLeaf(StringBuilder buffy, Object context) throws IllegalArgumentException,
-			IllegalAccessException
-	{
-		if (context != null)
-		{
-			ScalarType scalarType = this.scalarType;
-			Field field = this.field;
-			if (!scalarType.isDefaultValue(field, context))
-			{
-				// for this field, generate <tag>value</tag>
-
-				// TODO if type.isFloatingPoint() -- deal with floatValuePrecision here!
-				// (which is an instance variable of this) !!!
-				writeOpenTag(buffy);
-
-				appendTextValue(buffy, context, scalarType);
-
-				writeCloseTag(buffy);
-			}
-		}
-	}
-
-	/**
-	 * Write the value to the buffy, with appropraite marshalling, and, if specified, a CDATA wrapper.
-	 * 
-	 * @param buffy
-	 *          Place to write to.
-	 * @param context
-	 *          Object to get the value from.
-	 * @param scalarType
-	 *          Performs the marshalling.
-	 * @throws IllegalAccessException
-	 */
-	void appendTextValue(StringBuilder buffy, Object context, ScalarType scalarType)
-			throws IllegalAccessException
-	{
-		if (isCDATA)
-			buffy.append(START_CDATA);
-		scalarType.appendValue(buffy, this, context); // escape if not CDATA! :-)
-		if (isCDATA)
-			buffy.append(END_CDATA);
-	}
-
-	/**
-	 * Use this and the context to append a text node value to the StringBuilder passed in, unless it
-	 * turns out that the value is the default.
-	 * 
-	 * @param buffy
-	 * @param context
-	 * @throws IllegalArgumentException
-	 * @throws IllegalAccessException
-	 */
-	void appendXMLTextScalar(StringBuilder buffy, Object context) throws IllegalArgumentException,
-			IllegalAccessException
-	{
-		if (context != null)
-		{
-			ScalarType scalarType = this.scalarType;
-			if (!scalarType.isDefaultValue(field, context))
-				appendTextValue(buffy, context, scalarType);
-		}
-	}
-
-	/**
-	 * Use this and the context to append a text node value to the StringBuilder passed in, unless it
-	 * turns out that the value is the default.
-	 * 
-	 * @param appendable
-	 * @param context
-	 * @throws IllegalArgumentException
-	 * @throws IllegalAccessException
-	 * @throws IOException
-	 */
-	void appendXMLScalarText(Appendable appendable, Object context) throws IllegalArgumentException,
-			IllegalAccessException, IOException
-	{
-		ScalarType scalarType = this.scalarType;
-		if (!scalarType.isDefaultValue(field/* GO AWAY! xmlTextScalarField */, context))
-			appendTextValue(appendable, context, scalarType);
-	}
-
-	/**
-	 * Use this and the context to append a leaf node with value to the StringBuilder passed in.
-	 * Consideration of default values is not evaluated.
-	 * 
-	 * @param buffy
-	 * @param context
-	 * @throws IllegalArgumentException
-	 * @throws IllegalAccessException
-	 */
-	void appendCollectionLeaf(StringBuilder buffy, Object instance) throws IllegalArgumentException,
-			IllegalAccessException
-	{
-		if (instance != null)
-		{
-			ScalarType scalarType = this.scalarType;
-
-			writeOpenTag(buffy);
-
-			if (isCDATA)
-				buffy.append(START_CDATA);
-			scalarType.appendValue(instance, buffy, !isCDATA, null); // escape if not CDATA! :-)
-			if (isCDATA)
-				buffy.append(END_CDATA);
-
-			writeCloseTag(buffy);
-		}
-	}
-
-	void appendBibtexCollectionAttribute(Appendable appendable, Object instance, boolean isFirst,
-			String delim) throws IllegalArgumentException, IllegalAccessException, IOException
-	{
-		if (instance != null)
-		{
-			if (!isFirst)
-			{
-				appendable.append(delim);
-			}
-
-			ScalarType scalarType = this.scalarType;
-			scalarType.appendValue(instance, appendable, false, null, Format.BIBTEX);
-		}
-	}
-
-	void appendBibtexCollectionCompositeAttribute(Appendable appendable, Object instance,
-			boolean isFirst) throws IllegalArgumentException, IllegalAccessException, IOException
-	{
-		if (instance != null)
-		{
-			if (!isFirst)
-			{
-				appendable.append(", ");
-			}
-
-			ScalarType scalarType = this.scalarType;
-			scalarType.appendValue(appendable, this, instance, null, Format.BIBTEX);
-
-		}
-	}
+	
 
 	public String getHtmlCompositeCollectionValue(Object instance, boolean isFirst)
 			throws IllegalArgumentException, IllegalAccessException, IOException
@@ -1519,99 +1159,7 @@ public class FieldDescriptor extends DescriptorBase implements FieldTypes, IMapp
 		}
 	}
 
-	/**
-	 * Use this and the context to append a leaf node with value to the Appendable passed in.
-	 * Consideration of default values is not evaluated.
-	 * 
-	 * @param appendable
-	 * @param context
-	 * @throws IllegalArgumentException
-	 * @throws IllegalAccessException
-	 * @throws IOException
-	 */
-	void appendCollectionLeaf(Appendable appendable, Object instance)
-			throws IllegalArgumentException, IllegalAccessException, IOException
-	{
-		if (instance != null)
-		{
-			ScalarType scalarType = this.scalarType;
-
-			writeOpenTag(appendable);
-
-			if (isCDATA)
-				appendable.append(START_CDATA);
-			scalarType.appendValue(instance, appendable, !isCDATA, null, Format.XML); // escape if not
-			// CDATA! :-)
-			if (isCDATA)
-				appendable.append(END_CDATA);
-
-			writeCloseTag(appendable);
-		}
-	}
-
-	/**
-	 * Append just the text value to the appendable. No element tags, but it does account for CDATA.
-	 * 
-	 * @param appendable
-	 * @param context
-	 * @param scalarType
-	 * @throws IllegalArgumentException
-	 * @throws IllegalAccessException
-	 * @throws IOException
-	 */
-	void appendTextValue(Appendable appendable, Object context, ScalarType scalarType)
-			throws IllegalArgumentException, IllegalAccessException, IOException
-	{
-		if (isCDATA)
-			appendable.append(START_CDATA);
-		scalarType.appendValue(appendable, this, context, null, Format.XML); // escape if not CDATA! :-)
-		if (isCDATA)
-			appendable.append(END_CDATA);
-	}
-
-	/**
-	 * Use this and the context to append a leaf node with value to the Appendable passed in.
-	 * 
-	 * @param context
-	 * @param serializationContext
-	 *          TODO
-	 * @param buffy
-	 * @param isAtXMLText
-	 * 
-	 * @throws IllegalArgumentException
-	 * @throws IllegalAccessException
-	 */
-	void appendLeaf(Appendable appendable, Object context, TranslationContext serializationContext)
-			throws IllegalArgumentException, IllegalAccessException, IOException
-	{
-		if (context != null)
-		{
-			ScalarType scalarType = this.scalarType;
-			// Field field = this.field;
-			// if (!scalarType.isDefaultValue(field, context)) // this line fails with proxy classes
-			Object value = this.getValue(context);
-			if (value != null && !scalarType.isDefaultValue(value.toString()))
-			{
-				// for this field, generate <tag>value</tag>
-
-				// TODO if type.isFloatingPoint() -- deal with floatValuePrecision here!
-				// (which is an instance variable of this) !!!
-
-				writeOpenTag(appendable);
-
-				if (isCDATA)
-					appendable.append(START_CDATA);
-				scalarType.appendValue(appendable, this, context, serializationContext, Format.XML); // escape
-				// if
-				// not
-				// CDATA! :-)
-				if (isCDATA)
-					appendable.append(END_CDATA);
-
-				writeCloseTag(appendable);
-			}
-		}
-	}
+	
 
 	public boolean isCDATA()
 	{
@@ -1669,79 +1217,7 @@ public class FieldDescriptor extends DescriptorBase implements FieldTypes, IMapp
 			return polymorphClasses;
 	}
 
-	public void writeElementStart(StringBuilder buffy)
-	{
-		buffy.append('<').append(elementStart());
-	}
-
-	public void writeElementStart(Appendable appendable) throws IOException
-	{
-		appendable.append('<').append(elementStart());
-	}
-
-	void writeOpenTag(StringBuilder buffy)
-	{
-		buffy.append('<').append(elementStart()).append('>');
-	}
-
-	void writeCloseTag(StringBuilder buffy)
-	{
-		buffy.append('<').append('/').append(elementStart()).append('>');
-	}
-
-	void writeOpenTag(Appendable buffy) throws IOException
-	{
-		buffy.append('<').append(elementStart()).append('>');
-	}
-
-	void writeCloseTag(Appendable buffy) throws IOException
-	{
-		buffy.append('<').append('/').append(elementStart()).append('>');
-	}
-
-	/**
-	 * Write the tags for opening and closing a wrapped collection.
-	 * 
-	 * @param buffy
-	 * @param close
-	 */
-	public void writeWrap(StringBuilder buffy, boolean close)
-	{
-		buffy.append('<');
-		if (close)
-			buffy.append('/');
-		buffy.append(tagName).append('>');
-	}
-
-	public void writeJSONWrap(Appendable appendable, boolean close) throws IOException
-	{
-		if (!close)
-		{
-			appendable.append('"');
-			appendable.append(tagName);
-			appendable.append('"').append(':');
-			appendable.append('{');
-		}
-		else
-		{
-			appendable.append('}');
-		}
-	}
-
-	/**
-	 * Write the tags for opening and closing a wrapped collection.
-	 * 
-	 * @param appendable
-	 * @param close
-	 * @throws IOException
-	 */
-	public void writeWrap(Appendable appendable, boolean close) throws IOException
-	{
-		appendable.append('<');
-		if (close)
-			appendable.append('/');
-		appendable.append(tagName).append('>');
-	}
+	
 
 	public void writeHtmlWrap(boolean close, int size, String displayLabel, Tr tr) throws IOException
 	{
@@ -1915,22 +1391,6 @@ public class FieldDescriptor extends DescriptorBase implements FieldTypes, IMapp
 			}
 		}
 		return result;
-	}
-
-	/**
-	 * Add element derived from the Node to a Collection.
-	 * 
-	 * @param activeES
-	 *          Contextualizing object that has the Collection slot we're adding to.
-	 * @param childLeafNode
-	 *          XML leafNode that has the value we need to add, after type conversion.
-	 * 
-	 * @throws SIMPLTranslationException
-	 */
-	void addLeafNodeToCollection(ElementState activeES, Node childLeafNode)
-			throws SIMPLTranslationException
-	{
-		addLeafNodeToCollection(activeES, getLeafNodeValue(childLeafNode), null);
 	}
 
 	/**
@@ -2266,27 +1726,6 @@ public class FieldDescriptor extends DescriptorBase implements FieldTypes, IMapp
 		{
 			return scalarType.deriveObjectiveCTypeName();
 		}
-		// if (isCollection())
-		// {
-		// Class<?> type = this.field.getType();
-		//
-		// if (ArrayList.class == type || ArrayList.class == type.getSuperclass())
-		// {
-		// return CrossLanguageTypeConstants.OBJC_ARRAYLIST;
-		// }
-		// else if (HashMap.class == type || HashMap.class == type.getSuperclass())
-		// {
-		// return CrossLanguageTypeConstants.OBJC_HASHMAP;
-		// }
-		// else if (HashMapArrayList.class == type)
-		// {
-		// return CrossLanguageTypeConstants.OBJC_HASHMAPARRAYLIST;
-		// }
-		// else if (Scope.class == type)
-		// {
-		// return CrossLanguageTypeConstants.OBJC_SCOPE;
-		// }
-		// }
 
 		return null;
 	}
@@ -2306,28 +1745,6 @@ public class FieldDescriptor extends DescriptorBase implements FieldTypes, IMapp
 		else
 		{
 			Class<?> type = this.field.getType();
-			// if (isCollection())
-			// {
-			// if (ArrayList.class == type || ArrayList.class == type.getSuperclass())
-			// {
-			// result = CrossLanguageTypeConstants.DOTNET_ARRAYLIST;
-			// }
-			// else if (HashMap.class == type || HashMap.class == type.getSuperclass())
-			// {
-			// result = CrossLanguageTypeConstants.DOTNET_HASHMAP;
-			// }
-			// else if (HashMapArrayList.class == type)
-			// {
-			// result = CrossLanguageTypeConstants.DOTNET_HASHMAPARRAYLIST;
-			// }
-			// else if (Scope.class == type)
-			// {
-			// result = CrossLanguageTypeConstants.DOTNET_SCOPE;
-			// }
-			// }
-			// else
-			// {
-			// Simpl composite ?
 			String name = type.getSimpleName();
 			if (name != null && !name.contains("$")) // FIXME:Dealing with inner classes is not done yet
 				result = name;
@@ -2359,31 +1776,6 @@ public class FieldDescriptor extends DescriptorBase implements FieldTypes, IMapp
 		}
 		else
 		{
-			// Class<?> type = this.field.getType();
-			// if (isCollection())
-			// {
-			// /*
-			// if (ArrayList.class == type || ArrayList.class == type.getSuperclass())
-			// {
-			// result = MappingConstants.JAVA_ARRAYLIST;
-			// }
-			// else if (HashMap.class == type || HashMap.class == type.getSuperclass())
-			// {
-			// result = MappingConstants.JAVA_HASHMAP;
-			// }
-			// else if (HashMapArrayList.class == type)
-			// {
-			// result = MappingConstants.JAVA_HASHMAPARRAYLIST;
-			// }
-			// else if (Scope.class == type)
-			// {
-			// result = MappingConstants.JAVA_SCOPE;
-			// }*/
-			// result = fieldType;
-			// }
-			// else
-			// {
-			// Simpl composite ?
 			String name = fieldType;
 			if (name != null && !name.contains("$")) // FIXME:Dealing with inner classes is not done yet
 				result = name;
@@ -2420,37 +1812,6 @@ public class FieldDescriptor extends DescriptorBase implements FieldTypes, IMapp
 			tempTLVId = tagName.hashCode();
 
 		return tempTLVId;
-
-	}
-
-	public void writeJSONElementStart(Appendable appendable, boolean withTag) throws IOException
-	{
-		if (withTag)
-		{
-			appendable.append('"').append(elementStart()).append('"');
-			appendable.append(':');
-		}
-		appendable.append('{');
-	}
-
-	public void writeJSONCloseTag(Appendable appendable) throws IOException
-	{
-		appendable.append('}');
-	}
-
-	public void writeJSONCollectionStart(PrintStream appendable)
-	{
-		appendable.append('"').append(elementStart()).append('"');
-		appendable.append(':');
-		appendable.append('[');
-
-	}
-
-	public void writeJSONPolymorphicCollectionStart(PrintStream appendable)
-	{
-		appendable.append('"').append(tagName).append('"');
-		appendable.append(':');
-		appendable.append('[');
 
 	}
 

@@ -1,7 +1,6 @@
 package ecologylab.serialization;
 
 import java.io.File;
-import java.io.IOException;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -14,6 +13,11 @@ import ecologylab.generic.Debug;
 import ecologylab.net.ParsedURL;
 import ecologylab.serialization.TranslationScope.GRAPH_SWITCH;
 
+/**
+ * 
+ * @author nabeelshahzad
+ *
+ */
 public class TranslationContext extends Debug implements ScalarUnmarshallingContext, FieldTypes
 {
 
@@ -47,23 +51,28 @@ public class TranslationContext extends Debug implements ScalarUnmarshallingCont
 
 	protected String									delimiter								= ",";
 
+	/**
+	 * 
+	 */
 	public TranslationContext()
 	{
 
 	}
 
+	/**
+	 * 
+	 * @param fileDirContext
+	 */
 	public TranslationContext(File fileDirContext)
 	{
 		if (fileDirContext != null)
 			setBaseDirFile(fileDirContext);
 	}
-
-	public void setBaseDirFile(File fileDirContext)
-	{
-		this.baseDirFile = fileDirContext;
-		this.baseDirPurl = new ParsedURL(fileDirContext);
-	}
-
+	
+	/**
+	 * 
+	 * @param purlContext
+	 */
 	public TranslationContext(ParsedURL purlContext)
 	{
 		this.baseDirPurl = purlContext;
@@ -71,32 +80,30 @@ public class TranslationContext extends Debug implements ScalarUnmarshallingCont
 			this.baseDirFile = purlContext.file();
 	}
 
-	public boolean handleSimplIds(final String tag, final String value, Object elementState)
+	/**
+	 * 
+	 * @param fileDirContext
+	 */
+	public void setBaseDirFile(File fileDirContext)
 	{
-		if (TranslationScope.graphSwitch == GRAPH_SWITCH.ON)
-		{
-			if (tag.equals(TranslationContext.SIMPL_ID))
-			{
-				markAsUnmarshalled(value, elementState);
-				return true;
-			}
-			else
-			{
-				if (tag.equals(TranslationContext.SIMPL_REF))
-				{
-					return true;
-				}
-			}
-		}
-
-		return false;
+		this.baseDirFile = fileDirContext;
+		this.baseDirPurl = new ParsedURL(fileDirContext);
 	}
 
+	/**
+	 * 
+	 * @param value
+	 * @param elementState
+	 */
 	public void markAsUnmarshalled(String value, Object elementState)
 	{
 		this.unmarshalledObjects.put(value, elementState);
 	}
 
+	/**
+	 * 
+	 * @param elementState
+	 */
 	public void resolveGraph(Object elementState)
 	{
 		if (TranslationScope.graphSwitch == GRAPH_SWITCH.ON)
@@ -195,12 +202,21 @@ public class TranslationContext extends Debug implements ScalarUnmarshallingCont
 		}
 	}
 
+	/**
+	 * 
+	 * @param elementState
+	 * @return
+	 */
 	public boolean alreadyVisited(Object elementState)
 	{
 		// return this.visitedElements.contains(System.identityHashCode(elementState), elementState);
 		return this.visitedElements.contains(elementState.hashCode(), elementState);
 	}
 
+	/**
+	 * 
+	 * @param object
+	 */
 	public void mapObject(Object object)
 	{
 		if (TranslationScope.graphSwitch == GRAPH_SWITCH.ON)
@@ -210,15 +226,11 @@ public class TranslationContext extends Debug implements ScalarUnmarshallingCont
 		}
 	}
 
-	public void appendSimplIdIfRequired(Appendable appendable, Object elementState, Format format)
-			throws IOException
-	{
-		if (TranslationScope.graphSwitch == GRAPH_SWITCH.ON && this.needsHashCode(elementState))
-		{
-			this.appendSimplIdAttribute(appendable, elementState, format);
-		}
-	}
-
+	/**
+	 * 
+	 * @param compositeObject
+	 * @return
+	 */
 	public boolean alreadyMarshalled(Object compositeObject)
 	{
 		// return this.marshalledObjects.contains(System.identityHashCode(compositeObject),
@@ -229,86 +241,11 @@ public class TranslationContext extends Debug implements ScalarUnmarshallingCont
 		return this.marshalledObjects.contains(compositeObject.hashCode(), compositeObject);
 	}
 
-	public void appendSimplNameSpace(Appendable appendable) throws IOException
-	{
-		appendable.append(SIMPL_NAMESPACE);
-	}
-
-	public void appendSimplRefId(Appendable appendable, Object elementState,
-			FieldDescriptor compositeElementFD, Format format, boolean withTag) throws IOException
-	{
-		switch (format)
-		{
-		case XML:
-			appendXMLSimplRefId(appendable, elementState, compositeElementFD);
-			break;
-		case JSON:
-			appendJSONSimplRefId(appendable, elementState, compositeElementFD, withTag);
-			break;
-		}
-	}
-
-	private void appendXMLSimplRefId(Appendable appendable, Object elementState,
-			FieldDescriptor compositeElementFD) throws IOException
-	{
-		compositeElementFD.writeElementStart(appendable);
-		appendXMLSimplIdAttributeWithTagName(appendable, SIMPL_REF, elementState);
-		appendable.append("/>");
-	}
-
-	private void appendJSONSimplRefId(Appendable appendable, Object elementState,
-			FieldDescriptor compositeElementFD, boolean withTag) throws IOException
-	{
-
-		compositeElementFD.writeJSONElementStart(appendable, withTag);
-		appendJSONSimplIdAttributeWithTagName(appendable, JSON_SIMPL_REF, elementState, false);
-		compositeElementFD.writeJSONCloseTag(appendable);
-	}
-
-	private void appendXMLSimplIdAttributeWithTagName(Appendable appendable, String tagName,
-			Object elementState) throws IOException
-	{
-		appendable.append(' ');
-		appendable.append(tagName);
-		appendable.append('=');
-		appendable.append('"');
-		// appendable.append(((Integer) System.identityHashCode(elementState)).toString());
-		appendable.append(((Integer) elementState.hashCode()).toString());
-		appendable.append('"');
-	}
-
-	private void appendJSONSimplIdAttributeWithTagName(Appendable appendable, String tagName,
-			Object elementState, boolean ifLast) throws IOException
-	{
-		if (ifLast)
-		{
-			appendable.append(',');
-			appendable.append(' ');
-		}
-
-		appendable.append('"');
-		appendable.append(tagName);
-		appendable.append('"');
-		appendable.append(':');
-		appendable.append('"');
-		appendable.append(((Integer) elementState.hashCode()).toString());
-		appendable.append('"');
-	}
-
-	private void appendSimplIdAttribute(Appendable appendable, Object elementState, Format format)
-			throws IOException
-	{
-		switch (format)
-		{
-		case XML:
-			appendXMLSimplIdAttributeWithTagName(appendable, SIMPL_ID, elementState);
-			break;
-		case JSON:
-			appendJSONSimplIdAttributeWithTagName(appendable, JSON_SIMPL_ID, elementState, true);
-			break;
-		}
-	}
-
+	/**
+	 * 
+	 * @param elementState
+	 * @return
+	 */
 	public boolean needsHashCode(Object elementState)
 	{
 		// return this.needsAttributeHashCode.contains(System.identityHashCode(elementState),
@@ -316,11 +253,20 @@ public class TranslationContext extends Debug implements ScalarUnmarshallingCont
 		return this.needsAttributeHashCode.contains(elementState.hashCode(), elementState);
 	}
 
+	/**
+	 * 
+	 * @return
+	 */
 	public boolean isGraph()
 	{
 		return this.needsAttributeHashCode.size() > 0;
 	}
 
+	/**
+	 * 
+	 * @param attributes
+	 * @return
+	 */
 	public Object getFromMap(Attributes attributes)
 	{
 		Object unMarshalledObject = null;
@@ -340,11 +286,19 @@ public class TranslationContext extends Debug implements ScalarUnmarshallingCont
 		return unMarshalledObject;
 	}
 
+	/**
+	 * 
+	 * @param value
+	 * @return
+	 */
 	public Object getFromMap(String value)
 	{
 		return this.unmarshalledObjects.get(value);
 	}
 
+	/**
+	 * 
+	 */
 	@Override
 	public ParsedURL purlContext()
 	{
@@ -352,12 +306,19 @@ public class TranslationContext extends Debug implements ScalarUnmarshallingCont
 				: null;
 	}
 
+	/**
+	 * 
+	 */
 	@Override
 	public File fileContext()
 	{
 		return (baseDirFile != null) ? baseDirFile : (baseDirPurl != null) ? baseDirPurl.file() : null;
 	}
 
+	/**
+	 * 
+	 * @return
+	 */
 	public String getDelimiter()
 	{
 		return delimiter;
