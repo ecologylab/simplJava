@@ -16,19 +16,3 @@
 		</array>
 	</dict>
 </plist>
-
-<plist version="1.0">
-	<dict>
-		<key>Year Of Birth</key>
-		<integer>1965</integer>
-		<key>Photo</key>
-		<data>PEKBpYGlmYFCPAfekjf39495265Afgfg0052fj81DG==</data>
-		<key>Hobby</key>
-		<string>Swimming</string>
-		<key>Jobs</key>
-		<array>
-			<string>Software engineer</string>
-			<string>Salesperson</string>
-		</array>
-	</dict>
-</plist>
