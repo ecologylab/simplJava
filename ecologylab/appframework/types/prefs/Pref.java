@@ -10,6 +10,7 @@ import java.util.LinkedList;
 import ecologylab.appframework.SingletonApplicationEnvironment;
 import ecologylab.collections.Scope;
 import ecologylab.serialization.ElementState;
+import ecologylab.serialization.TranslationContext;
 import ecologylab.serialization.annotations.simpl_inherit;
 import ecologylab.serialization.annotations.simpl_scalar;
 import ecologylab.serialization.types.element.IMappable;
@@ -24,22 +25,22 @@ import ecologylab.serialization.types.element.IMappable;
 public abstract class Pref<T> extends ElementState implements IMappable<String>, Cloneable
 {
 	/** The global registry of Pref objects. Used for providing lookup services. */
-	static final Scope<Pref<?>>							allPrefsMap	= new Scope<Pref<?>>();
+	static final Scope<Pref<?>>										allPrefsMap	= new Scope<Pref<?>>();
 
 	/** The ApplicationEnvironment associated with this JVM. */
-	static final SingletonApplicationEnvironment			aE					= null;
+	static final SingletonApplicationEnvironment	aE					= null;
 
 	/** Name of a Pref; provides index into the preferences map. */
 	@simpl_scalar
-	protected String												name;
+	protected String															name;
 
 	/** Cached value */
-	T																				valueCached;
+	T																							valueCached;
 
 	/**
 	 * The list of PrefChangedListeners registered to respond to changes in Prefs.
 	 */
-	static LinkedList<PrefChangedListener>	listeners		= new LinkedList<PrefChangedListener>();
+	static LinkedList<PrefChangedListener>				listeners		= new LinkedList<PrefChangedListener>();
 
 	/** No-argument constructor for XML translation. */
 	public Pref()
@@ -239,7 +240,7 @@ public abstract class Pref<T> extends ElementState implements IMappable<String>,
 		PrefInt thatPrefInt = usePrefInt(name, value);
 		thatPrefInt.setValue(value);
 	}
-	
+
 	public static void useAndSetPrefEnum(String name, Enum value)
 	{
 		PrefEnum thatPrefEnum = usePrefEnum(name, value);
@@ -271,7 +272,7 @@ public abstract class Pref<T> extends ElementState implements IMappable<String>,
 		}
 		return pref;
 	}
-	
+
 	/**
 	 * This is for working with <code>Pref</code>s whose values you will continue to access as they
 	 * are edited, live, by the user. The result will be immediate changes in the program's behavior.
@@ -577,7 +578,7 @@ public abstract class Pref<T> extends ElementState implements IMappable<String>,
 		PrefElementState prefElementState = ((PrefElementState) lookupPref(name));
 		return (ElementState) ((prefElementState == null) ? null : prefElementState.value());
 	}
-	
+
 	public static Enum lookupEnum(String name, Enum defaultValue) throws ClassCastException
 	{
 		PrefEnum prefEnum = ((PrefEnum) lookupPref(name));
@@ -649,10 +650,10 @@ public abstract class Pref<T> extends ElementState implements IMappable<String>,
 	}
 
 	/**
-	 * @see ecologylab.serialization.types.element.ArrayListState#clone() This clone method is REQUIRED for
-	 *      preferences being maintained by a servlet. The specific case that we have in place (dec
-	 *      '09) that uses this is the Studies framework. The clone functionality enables maintaining
-	 *      a preference set for each user in a user study.
+	 * @see ecologylab.serialization.types.element.ArrayListState#clone() This clone method is
+	 *      REQUIRED for preferences being maintained by a servlet. The specific case that we have in
+	 *      place (dec '09) that uses this is the Studies framework. The clone functionality enables
+	 *      maintaining a preference set for each user in a user study.
 	 */
 	@Override
 	public abstract Pref<T> clone();
@@ -664,6 +665,16 @@ public abstract class Pref<T> extends ElementState implements IMappable<String>,
 	 */
 	public void postLoadHook(Scope scope)
 	{
-		
+
+	}
+
+	@Override
+	public void deserializationPostHook(TranslationContext translationContext, Object object)
+	{
+		if (object instanceof Pref<?>)
+		{
+			Pref<?> pref = (Pref<?>) object;
+			pref.register();
+		}
 	}
 }

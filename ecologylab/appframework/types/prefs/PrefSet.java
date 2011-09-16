@@ -15,6 +15,7 @@ import ecologylab.serialization.ElementState;
 import ecologylab.serialization.Format;
 import ecologylab.serialization.SIMPLTranslationException;
 import ecologylab.serialization.StringFormat;
+import ecologylab.serialization.TranslationContext;
 import ecologylab.serialization.TranslationScope;
 import ecologylab.serialization.annotations.simpl_inherit;
 import ecologylab.serialization.annotations.simpl_map;
@@ -100,6 +101,8 @@ public class PrefSet extends ElementState implements ApplicationPropertyNames, C
 		Pref<?> pref = (Pref<?>) child;
 		pref.register();
 	}
+
+
 
 	/**
 	 * Read Pref declarations from a file or across the net.

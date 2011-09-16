@@ -22,7 +22,7 @@ import ecologylab.serialization.StringFormat;
 import ecologylab.serialization.TranslationContext;
 import ecologylab.serialization.TranslationScope;
 import ecologylab.serialization.deserializers.ISimplDeserializationPre;
-import ecologylab.serialization.deserializers.ISimplDeserializatonPost;
+import ecologylab.serialization.deserializers.ISimplDeserializationPost;
 import ecologylab.serialization.deserializers.pullhandlers.binaryformats.BinaryPullDeserializer;
 import ecologylab.serialization.deserializers.pullhandlers.stringformats.JSONPullDeserializer;
 import ecologylab.serialization.deserializers.pullhandlers.stringformats.StringPullDeserializer;
@@ -86,6 +86,8 @@ public abstract class PullDeserializer extends Debug implements FieldTypes
 		{
 			FileInputStream fileInputStream = new FileInputStream(file);
 			BufferedInputStream bufferedStream = new BufferedInputStream(fileInputStream);
+			
+			this.translationContext.setBaseDirFile(file.getParentFile());
 
 			Object object = parse(bufferedStream);
 			bufferedStream.close();
@@ -146,9 +148,9 @@ public abstract class PullDeserializer extends Debug implements FieldTypes
 	 */
 	protected void deserializationPostHook(Object object, TranslationContext translationContext)
 	{
-		if (object instanceof ISimplSerializationPost)
+		if (object instanceof ISimplDeserializationPost)
 		{
-			((ISimplDeserializationPre) object).deserializationPreHook(translationContext);
+			((ISimplDeserializationPost) object).deserializationPostHook(translationContext, object);
 		}
 	}
 
@@ -160,9 +162,9 @@ public abstract class PullDeserializer extends Debug implements FieldTypes
 	 */
 	protected void deserializationPreHook(Object object, TranslationContext translationContext)
 	{
-		if (object instanceof ISimplSerializationPre)
+		if (object instanceof ISimplDeserializationPre)
 		{
-			((ISimplDeserializatonPost) object).deserializationPostHook(translationContext);
+			((ISimplDeserializationPre) object).deserializationPreHook(translationContext);
 		}
 	}
 

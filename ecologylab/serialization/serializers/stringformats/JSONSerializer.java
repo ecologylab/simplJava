@@ -158,7 +158,7 @@ public class JSONSerializer extends StringSerializer implements FieldTypes
 		switch (childFd.getType())
 		{
 		case SCALAR:
-			if (childFd.isDefaultValue(object))
+			if (childFd.isDefaultValueFromContext(object))
 				return false;
 			break;
 		case COMPOSITE_ELEMENT:

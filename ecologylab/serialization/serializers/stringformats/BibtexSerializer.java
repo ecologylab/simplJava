@@ -153,7 +153,7 @@ public class BibtexSerializer extends StringSerializer implements FieldTypes
 	private void writeBibtexAttribute(Object object, FieldDescriptor fd, Appendable appendable,
 			TranslationContext translationContext) throws SIMPLTranslationException, IOException
 	{
-		if (!fd.isDefaultValue(object))
+		if (!fd.isDefaultValueFromContext(object))
 		{
 			if (fd.isBibtexKey())
 			{

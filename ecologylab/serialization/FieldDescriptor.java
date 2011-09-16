@@ -658,17 +658,15 @@ public class FieldDescriptor extends DescriptorBase implements FieldTypes, IMapp
 					return IGNORED_ELEMENT;
 				}
 
-				if (ElementState.class.isAssignableFrom(mapElementClass))
-				{
-					elementClassDescriptor = ClassDescriptor.getClassDescriptor(mapElementClass);
-					elementClass = elementClassDescriptor.getDescribedClass();
-				}
-				else
-				{
-					result = MAP_SCALAR; // TODO -- do we really support this case??
-					// FIXME -- add error handling for IGNORED due to scalar type lookup fails
-					deriveScalarSerialization(mapElementClass, field);
-				}
+				elementClassDescriptor = ClassDescriptor.getClassDescriptor(mapElementClass);
+				elementClass = elementClassDescriptor.getDescribedClass();
+				// }
+				// else
+				// {
+				// result = MAP_SCALAR; // TODO -- do we really support this case??
+				// // FIXME -- add error handling for IGNORED due to scalar type lookup fails
+				// deriveScalarSerialization(mapElementClass, field);
+				// }
 			}
 			else
 			{
@@ -1028,7 +1026,7 @@ public class FieldDescriptor extends DescriptorBase implements FieldTypes, IMapp
 		return scalarType.isDefaultValue(value);
 	}
 
-	public boolean isDefaultValue(Object context) throws SIMPLTranslationException
+	public boolean isDefaultValueFromContext(Object context) throws SIMPLTranslationException
 	{
 		try
 		{
@@ -1040,8 +1038,16 @@ public class FieldDescriptor extends DescriptorBase implements FieldTypes, IMapp
 		}
 		catch (Exception ex)
 		{
-			throw new SIMPLTranslationException("checking for defalut value raised exception", ex);
+			throw new SIMPLTranslationException("checking for defalut value raised exception ", ex);
 		}
+	}
+
+	public boolean isDefaultValue(Object value)
+	{
+		if (this.getType() == FieldTypes.SCALAR)
+			return value == null || isDefaultValue(value.toString());
+		else
+			return value == null;
 	}
 
 	public void appendValueAsJSONAttribute(Appendable appendable, Object context, boolean isFirst)

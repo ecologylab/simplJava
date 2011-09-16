@@ -179,18 +179,21 @@ public class XMLSerializer extends StringSerializer implements FieldTypes
 				break;
 			case COMPOSITE_ELEMENT:
 				Object compositeObject = childFd.getObject(object);
-				FieldDescriptor compositeObjectFieldDescriptor = childFd.isPolymorphic() ? getClassDescriptor(
-						compositeObject).pseudoFieldDescriptor()
-						: childFd;
-				writeWrap(childFd, appendable, false);
-				serialize(compositeObject, compositeObjectFieldDescriptor, appendable, translationContext);
-				writeWrap(childFd, appendable, true);
+				if (compositeObject != null)
+				{
+					FieldDescriptor compositeObjectFieldDescriptor = childFd.isPolymorphic() ? getClassDescriptor(
+							compositeObject).pseudoFieldDescriptor()
+							: childFd;
+					writeWrap(childFd, appendable, false);
+					serialize(compositeObject, compositeObjectFieldDescriptor, appendable, translationContext);
+					writeWrap(childFd, appendable, true);
+				}
 				break;
 			case COLLECTION_SCALAR:
 			case MAP_SCALAR:
 				Object scalarCollectionObject = childFd.getObject(object);
 				Collection<?> scalarCollection = XMLTools.getCollection(scalarCollectionObject);
-				if (scalarCollection != null)
+				if (scalarCollection != null && scalarCollection.size() > 0)
 				{
 					writeWrap(childFd, appendable, false);
 
@@ -205,7 +208,7 @@ public class XMLSerializer extends StringSerializer implements FieldTypes
 			case MAP_ELEMENT:
 				Object compositeCollectionObject = childFd.getObject(object);
 				Collection<?> compositeCollection = XMLTools.getCollection(compositeCollectionObject);
-				if (compositeCollection != null)
+				if (compositeCollection != null && compositeCollection.size() > 0)
 				{
 					writeWrap(childFd, appendable, false);
 					for (Object collectionComposite : compositeCollection)
@@ -301,7 +304,7 @@ public class XMLSerializer extends StringSerializer implements FieldTypes
 	private void writeValueAsLeaf(Object object, FieldDescriptor fd, Appendable appendable,
 			TranslationContext translationContext) throws SIMPLTranslationException, IOException
 	{
-		if (!fd.isDefaultValue(object))
+		if (!fd.isDefaultValueFromContext(object))
 		{
 			appendable.append('<').append(fd.elementStart()).append('>');
 			fd.appendValue(appendable, object, translationContext, Format.XML);
@@ -340,7 +343,7 @@ public class XMLSerializer extends StringSerializer implements FieldTypes
 	private void writeValueAsText(Object object, FieldDescriptor fd, Appendable appendable)
 			throws SIMPLTranslationException, IOException
 	{
-		if (fd.isDefaultValue(object))
+		if (!fd.isDefaultValueFromContext(object))
 		{
 			if (fd.isCDATA())
 				appendable.append(START_CDATA);
@@ -374,7 +377,7 @@ public class XMLSerializer extends StringSerializer implements FieldTypes
 	{
 		if (object != null)
 		{
-			if (!fd.isDefaultValue(object))
+			if (!fd.isDefaultValueFromContext(object))
 			{
 				appendable.append(' ');
 				appendable.append(fd.getTagName());

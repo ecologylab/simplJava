@@ -1530,7 +1530,7 @@ public final class TranslationScope extends ElementState
 	 * Rebuild structures after serializing only some fields.
 	 */
 	@Override
-	public void deserializationPostHook(TranslationContext translationContext)
+	public void deserializationPostHook(TranslationContext translationContext, Object object)
 	{
 		for (ClassDescriptor classDescriptor : entriesByTag.values())
 		{
