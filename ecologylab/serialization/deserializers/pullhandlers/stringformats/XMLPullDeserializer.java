@@ -195,12 +195,15 @@ public class XMLPullDeserializer extends StringPullDeserializer
 
 			FieldDescriptor currentFieldDescriptor = new FieldDescriptor();
 
+			String xmlText = "";
+
 			while (event != XMLStreamConstants.END_ELEMENT
 					|| !rootTag.equals(xmlStreamReader.getName().toString()))
 			{
 				if (event != XMLStreamConstants.START_ELEMENT)
 				{
-					// ignoring any white space or formatting characters.
+					if (event == XMLStreamConstants.CHARACTERS)
+						xmlText += xmlStreamReader.getText();
 					event = nextEvent();
 					continue;
 				}
@@ -253,6 +256,10 @@ public class XMLPullDeserializer extends StringPullDeserializer
 				}
 			}
 
+			if(rootClassDescriptor.hasScalarFD())
+			{
+				rootClassDescriptor.getScalarTextFD().setFieldToScalar(root, xmlText, translationContext);
+			}
 			deserializationPostHook(root, translationContext);
 			if (deserializationHookStrategy != null)
 				deserializationHookStrategy.deserializationPostHook(root, null);

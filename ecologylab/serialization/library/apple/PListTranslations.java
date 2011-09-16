@@ -9,6 +9,7 @@ import java.io.IOException;
 import ecologylab.serialization.ClassDescriptor;
 import ecologylab.serialization.Format;
 import ecologylab.serialization.SIMPLTranslationException;
+import ecologylab.serialization.StringFormat;
 import ecologylab.serialization.TranslationScope;
 
 /**
@@ -35,11 +36,13 @@ public class PListTranslations
 	{
 		PList result = (PList) PListTranslations.get()
 		// .deserialize("/Users/toupsz/Dropbox/ttecBibForBill/simpTest2.xml");
-																						.deserialize(	new File("/Users/toupsz/Dropbox/ttecBibForBill/simpTest3"),
+																						.deserialize(	new File("ecologylab/serialization/library/apple/plist.xml"),
 																													Format.XML);
-
-		ClassDescriptor.serialize(result,
-															new File("/Users/toupsz/Dropbox/ttecBibForBill/tecNewTutMap2.xml"),
-															Format.XML);
+		
+		
+		ClassDescriptor.serialize(result, System.out, StringFormat.XML);
+//		ClassDescriptor.serialize(result,
+//															new File("/Users/toupsz/Dropbox/ttecBibForBill/tecNewTutMap2.xml"),
+//															Format.XML);
 	}
 }
