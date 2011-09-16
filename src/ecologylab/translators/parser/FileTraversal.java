@@ -22,7 +22,7 @@ public class FileTraversal
 	/**
 	 * inputClass which is set when searching for the file.
 	 */
-	private Class<? extends ElementState>	inputClass;
+	private Class<?>	inputClass;
 
 	/**
 	 * Default constructor. does nothing
@@ -40,7 +40,7 @@ public class FileTraversal
 	 * @return File null if the search did not yield any result. 
 	 * @throws IOException
 	 */
-	public File searchForFile(Class<? extends ElementState> thatClass, File rootLocation)
+	public File searchForFile(Class<?> thatClass, File rootLocation)
 			throws IOException
 	{
 		this.searchedFile = null;
@@ -112,7 +112,7 @@ public class FileTraversal
 	 * @param targetFile
 	 * @return boolean
 	 */
-	private boolean belongsToSamePackage(Class<? extends ElementState> thatClass, File targetFile)
+	private boolean belongsToSamePackage(Class<?> thatClass, File targetFile)
 	{
 		boolean result = true;
 

@@ -3,15 +3,16 @@
  */
 package ecologylab.translators.hibernate.hbmxml;
 
-import ecologylab.serialization.ElementState.xml_tag;
-import ecologylab.serialization.simpl_inherit;
+import ecologylab.serialization.annotations.simpl_inherit;
+import ecologylab.serialization.annotations.simpl_scalar;
+import ecologylab.serialization.annotations.simpl_tag;
 
 /**
  * @author quyin
  * 
  */
 @simpl_inherit
-@xml_tag("element")
+@simpl_tag("element")
 public class HibernateElement extends HibernateAssociationBase
 {
 
@@ -22,7 +23,7 @@ public class HibernateElement extends HibernateAssociationBase
 	private int			length;
 
 	@simpl_scalar
-	@xml_tag("not-null")
+	@simpl_tag("not-null")
 	private boolean	notNull	= false;
 
 	@simpl_scalar

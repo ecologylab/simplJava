@@ -1,10 +1,11 @@
 package ecologylab.translators.hibernate.hbmxml;
 
-import ecologylab.serialization.ElementState.xml_tag;
-import ecologylab.serialization.simpl_inherit;
+import ecologylab.serialization.annotations.simpl_inherit;
+import ecologylab.serialization.annotations.simpl_scalar;
+import ecologylab.serialization.annotations.simpl_tag;
 
 @simpl_inherit
-@xml_tag("index")
+@simpl_tag("index")
 public class HibernateIndex extends HibernateBasic
 {
 

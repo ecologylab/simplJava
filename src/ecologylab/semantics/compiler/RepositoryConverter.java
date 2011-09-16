@@ -13,8 +13,10 @@ import ecologylab.semantics.metametadata.MetaMetadataRepository;
 import ecologylab.semantics.metametadata.MetaMetadataScalarField;
 import ecologylab.semantics.metametadata.MetaMetadataTranslationScope;
 import ecologylab.semantics.metametadata.NestedMetaMetadataFieldTranslationScope;
-import ecologylab.serialization.ElementState.FORMAT;
+import ecologylab.serialization.ClassDescriptor;
+import ecologylab.serialization.Format;
 import ecologylab.serialization.SIMPLTranslationException;
+import ecologylab.serialization.StringFormat;
 import ecologylab.serialization.TranslationScope;
 import ecologylab.serialization.TranslationScope.GRAPH_SWITCH;
 
@@ -71,8 +73,8 @@ public class RepositoryConverter
 		{
 			try
 			{
-				MetaMetadataRepository repo = (MetaMetadataRepository) mmdTScope.deserialize(f);
-				String json = repo.serialize(FORMAT.JSON).toString();
+				MetaMetadataRepository repo = (MetaMetadataRepository) mmdTScope.deserialize(f, Format.XML);
+				String json = ClassDescriptor.serialize(repo, StringFormat.JSON).toString();
 				if (json != null && json.length() > 0)
 				{
 					File jsonRepoFile = new File(destDir, f.getName().replace((CharSequence) ".xml", (CharSequence) ".json"));

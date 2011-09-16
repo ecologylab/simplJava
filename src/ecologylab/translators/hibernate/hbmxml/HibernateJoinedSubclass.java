@@ -3,8 +3,10 @@
  */
 package ecologylab.translators.hibernate.hbmxml;
 
-import ecologylab.serialization.ElementState.xml_tag;
-import ecologylab.serialization.simpl_inherit;
+import ecologylab.serialization.annotations.simpl_composite;
+import ecologylab.serialization.annotations.simpl_inherit;
+import ecologylab.serialization.annotations.simpl_scalar;
+import ecologylab.serialization.annotations.simpl_tag;
 
 /**
  * The Hibernate mapping of subclasses.
@@ -13,12 +15,12 @@ import ecologylab.serialization.simpl_inherit;
  * 
  */
 @simpl_inherit
-@xml_tag("joined-subclass")
+@simpl_tag("joined-subclass")
 public class HibernateJoinedSubclass extends HibernateClass
 {
 
 	@simpl_scalar
-	@xml_tag("extends")
+	@simpl_tag("extends")
 	private String				extendsAttribute;
 
 	@simpl_composite

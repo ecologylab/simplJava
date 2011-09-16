@@ -1,6 +1,8 @@
 package ecologylab.translators.javascript.test;
 
 import ecologylab.serialization.ElementState;
+import ecologylab.serialization.annotations.simpl_composite;
+import ecologylab.serialization.annotations.simpl_scalar;
 
 public class ReferToSelf extends ElementState
 {

@@ -1,11 +1,9 @@
 package ecologylab.translators.sql;
 
-import java.io.*;
-import java.lang.*;
-import java.lang.reflect.*;
-import java.net.*;
-import java.util.*;
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 
 /**
  * This class uses PostgreSQL's object oriented features to store Java Objects.

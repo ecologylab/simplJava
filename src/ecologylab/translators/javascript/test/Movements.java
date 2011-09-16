@@ -3,8 +3,9 @@ package ecologylab.translators.javascript.test;
 import java.util.ArrayList;
 
 import ecologylab.serialization.ElementState;
-import ecologylab.serialization.ElementState.simpl_collection;
-import ecologylab.serialization.ElementState.simpl_scalar;
+import ecologylab.serialization.annotations.simpl_collection;
+import ecologylab.serialization.annotations.simpl_nowrap;
+import ecologylab.serialization.annotations.simpl_scalar;
 
 public class Movements extends ElementState {
 	@simpl_scalar float time;

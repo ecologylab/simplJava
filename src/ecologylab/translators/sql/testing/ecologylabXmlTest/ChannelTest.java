@@ -3,12 +3,18 @@ package ecologylab.translators.sql.testing.ecologylabXmlTest;
 import java.util.ArrayList;
 
 import ecologylab.net.ParsedURL;
-import ecologylab.semantics.metadata.builtins.Document;
+import ecologylab.serialization.ClassDescriptor;
 import ecologylab.serialization.ElementState;
-import ecologylab.serialization.Hint;
 import ecologylab.serialization.SIMPLTranslationException;
-import ecologylab.serialization.TranslationScope;
-import ecologylab.serialization.simpl_inherit;
+import ecologylab.serialization.StringFormat;
+import ecologylab.serialization.annotations.DbHint;
+import ecologylab.serialization.annotations.Hint;
+import ecologylab.serialization.annotations.simpl_collection;
+import ecologylab.serialization.annotations.simpl_db;
+import ecologylab.serialization.annotations.simpl_hints;
+import ecologylab.serialization.annotations.simpl_inherit;
+import ecologylab.serialization.annotations.simpl_nowrap;
+import ecologylab.serialization.annotations.simpl_scalar;
 import ecologylab.serialization.library.rss.RssTranslations;
 
 /**
@@ -117,11 +123,13 @@ public @simpl_inherit class ChannelTest extends ElementState
 		try
 		{
 			StringBuilder buffy	= new StringBuilder();
-			c.serialize(buffy);
+			
+			ClassDescriptor.serialize(c, buffy, StringFormat.XML);
 			System.out.println(buffy);
 			System.out.println('\n');
-			ElementState c2	= RssTranslations.get().deserializeCharSequence(buffy);
-			c2.serialize(System.out);
+			ElementState c2	= (ElementState) RssTranslations.get().deserialize(buffy, StringFormat.XML);
+			
+			ClassDescriptor.serialize(c2, System.out, StringFormat.XML);
 //			println(c.translateToXML());
 		} catch (SIMPLTranslationException e)
 		{

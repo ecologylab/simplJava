@@ -1,6 +1,7 @@
 package ecologylab.translators.javascript.test;
 
 import ecologylab.serialization.ElementState;
+import ecologylab.serialization.annotations.simpl_scalar;
 
 public class Item extends ElementState{
 	@simpl_scalar float price;

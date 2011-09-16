@@ -3,7 +3,9 @@
  */
 package ecologylab.translators.hibernate.hbmxml;
 
-import ecologylab.serialization.simpl_inherit;
+import ecologylab.serialization.annotations.simpl_inherit;
+import ecologylab.serialization.annotations.simpl_scalar;
+import ecologylab.serialization.annotations.simpl_tag;
 
 /**
  * The Hibernate mapping of foreign-key. Used in subclass joining or composite/collection mapping.
@@ -19,7 +21,7 @@ public class HibernateKey extends HibernateBasic
 	private String	column;
 
 	@simpl_scalar
-	@xml_tag("not-null")
+	@simpl_tag("not-null")
 	private boolean	notNull	= true;
 
 	public HibernateKey()

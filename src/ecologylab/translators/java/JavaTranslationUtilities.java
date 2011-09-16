@@ -12,14 +12,14 @@ import ecologylab.generic.Debug;
 import ecologylab.semantics.html.utils.StringBuilderUtils;
 import ecologylab.serialization.ClassDescriptor;
 import ecologylab.serialization.FieldDescriptor;
-import ecologylab.serialization.simpl_descriptor_classes;
-import ecologylab.serialization.ElementState.simpl_classes;
-import ecologylab.serialization.ElementState.simpl_collection;
-import ecologylab.serialization.ElementState.simpl_hints;
-import ecologylab.serialization.ElementState.simpl_map;
-import ecologylab.serialization.ElementState.simpl_scope;
-import ecologylab.serialization.ElementState.xml_other_tags;
-import ecologylab.serialization.ElementState.xml_tag;
+import ecologylab.serialization.annotations.simpl_classes;
+import ecologylab.serialization.annotations.simpl_collection;
+import ecologylab.serialization.annotations.simpl_descriptor_classes;
+import ecologylab.serialization.annotations.simpl_hints;
+import ecologylab.serialization.annotations.simpl_map;
+import ecologylab.serialization.annotations.simpl_other_tags;
+import ecologylab.serialization.annotations.simpl_scope;
+import ecologylab.serialization.annotations.simpl_tag;
 
 public class JavaTranslationUtilities {
 
@@ -218,7 +218,7 @@ public class JavaTranslationUtilities {
 		//String tagValue = tagAnnotation.value();
 
 		//String simpleName = getSimpleName(annotation);
-		String simpleName = xml_tag.class.getSimpleName();
+		String simpleName = simpl_tag.class.getSimpleName();
 		
 		if (tagValue != null && !tagValue.isEmpty())
 		{
@@ -271,7 +271,7 @@ public class JavaTranslationUtilities {
 		if (otherTags != null && otherTags.size() > 0)
 		{
 			StringBuilder sb = StringBuilderUtils.acquire();
-			sb.append(xml_other_tags.class.getSimpleName()).append("({");
+			sb.append(simpl_other_tags.class.getSimpleName()).append("({");
 			boolean notFirst = false;
 			for (String otherTag : otherTags)
 			{

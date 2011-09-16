@@ -5,16 +5,16 @@ import java.util.HashMap;
 
 import ecologylab.generic.Debug;
 import ecologylab.semantics.metadata.Metadata.mm_name;
-import ecologylab.serialization.ElementState.simpl_scope;
 import ecologylab.serialization.FieldDescriptor;
-import ecologylab.serialization.Hint;
-import ecologylab.serialization.ElementState.simpl_classes;
-import ecologylab.serialization.ElementState.simpl_collection;
-import ecologylab.serialization.ElementState.simpl_hints;
-import ecologylab.serialization.ElementState.simpl_map;
-import ecologylab.serialization.ElementState.xml_other_tags;
-import ecologylab.serialization.ElementState.xml_tag;
-import ecologylab.serialization.simpl_descriptor_classes;
+import ecologylab.serialization.annotations.Hint;
+import ecologylab.serialization.annotations.simpl_classes;
+import ecologylab.serialization.annotations.simpl_collection;
+import ecologylab.serialization.annotations.simpl_descriptor_classes;
+import ecologylab.serialization.annotations.simpl_hints;
+import ecologylab.serialization.annotations.simpl_map;
+import ecologylab.serialization.annotations.simpl_other_tags;
+import ecologylab.serialization.annotations.simpl_scope;
+import ecologylab.serialization.annotations.simpl_tag;
 
 /**
  * Static methods to do repeated useful tasks during the translation
@@ -378,11 +378,11 @@ public class DotNetTranslationUtilities
 		{
 			return getCSharpScopeAnnotation(annotation);
 		}
-		else if (annotation instanceof xml_tag)
+		else if (annotation instanceof simpl_tag)
 		{
 			return getCSharpTagAnnotation(annotation);
 		}
-		else if (annotation instanceof xml_other_tags)
+		else if (annotation instanceof simpl_other_tags)
 		{
 			return getCSharpOtherTagsAnnotation(annotation);
 		}
@@ -473,7 +473,7 @@ public class DotNetTranslationUtilities
 	private static String getCSharpTagAnnotation(Annotation annotation)
 	{
 		String parameter = null;
-		xml_tag tagAnnotation = (xml_tag) annotation;
+		simpl_tag tagAnnotation = (simpl_tag) annotation;
 		String tagValue = tagAnnotation.value();
 
 		String simpleName = getSimpleName(annotation);
@@ -551,7 +551,7 @@ public class DotNetTranslationUtilities
 	private static String getCSharpOtherTagsAnnotation(Annotation annotation)
 	{
 		String parameter = null;
-		xml_other_tags scopeAnnotation = (xml_other_tags) annotation;
+		simpl_other_tags scopeAnnotation = (simpl_other_tags) annotation;
 		String[] scopeValue = scopeAnnotation.value();
 		String simpleName = getSimpleName(scopeAnnotation);
 		if(scopeValue != null && scopeValue.length > 0)

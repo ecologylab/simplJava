@@ -11,8 +11,10 @@ import ecologylab.semantics.metadata.scalar.MetadataInteger;
 import ecologylab.semantics.metadata.scalar.MetadataParsedURL;
 import ecologylab.semantics.metadata.scalar.MetadataString;
 import ecologylab.semantics.metametadata.MetaMetadata;
-import ecologylab.serialization.Hint;
-import ecologylab.serialization.simpl_inherit;
+import ecologylab.serialization.annotations.Hint;
+import ecologylab.serialization.annotations.simpl_hints;
+import ecologylab.serialization.annotations.simpl_inherit;
+import ecologylab.serialization.annotations.simpl_scalar;
 
 /**
  * The Document Class

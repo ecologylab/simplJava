@@ -1,6 +1,9 @@
 package ecologylab.translators.hibernate.hbmxml;
 
-import ecologylab.serialization.simpl_inherit;
+import ecologylab.serialization.annotations.simpl_classes;
+import ecologylab.serialization.annotations.simpl_composite;
+import ecologylab.serialization.annotations.simpl_inherit;
+import ecologylab.serialization.annotations.simpl_scalar;
 
 @simpl_inherit
 public abstract class HibernateCollectionBase extends HibernateFieldBase

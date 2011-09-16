@@ -3,8 +3,9 @@
  */
 package ecologylab.translators.hibernate.hbmxml;
 
-import ecologylab.serialization.ElementState.xml_tag;
-import ecologylab.serialization.simpl_inherit;
+import ecologylab.serialization.annotations.simpl_composite;
+import ecologylab.serialization.annotations.simpl_inherit;
+import ecologylab.serialization.annotations.simpl_tag;
 
 /**
  * The Hibernate mapping of many-to-many relationships (used for element collections).
@@ -13,7 +14,7 @@ import ecologylab.serialization.simpl_inherit;
  * 
  */
 @simpl_inherit
-@xml_tag("list")
+@simpl_tag("list")
 public class HibernateList extends HibernateCollectionBase
 {
 

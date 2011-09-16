@@ -1,8 +1,13 @@
 package ecologylab.translators.hibernate.hbmxml;
 
 import ecologylab.generic.HashMapArrayList;
-import ecologylab.serialization.ElementState.xml_tag;
-import ecologylab.serialization.simpl_inherit;
+import ecologylab.serialization.annotations.simpl_classes;
+import ecologylab.serialization.annotations.simpl_composite;
+import ecologylab.serialization.annotations.simpl_inherit;
+import ecologylab.serialization.annotations.simpl_map;
+import ecologylab.serialization.annotations.simpl_nowrap;
+import ecologylab.serialization.annotations.simpl_scalar;
+import ecologylab.serialization.annotations.simpl_tag;
 
 /**
  * The Hibernate mapping of a class (or entity).
@@ -11,7 +16,7 @@ import ecologylab.serialization.simpl_inherit;
  * 
  */
 @simpl_inherit
-@xml_tag("class")
+@simpl_tag("class")
 public class HibernateClass extends HibernateBasic
 {
 
@@ -28,7 +33,7 @@ public class HibernateClass extends HibernateBasic
 	private HibernateClassId															id;
 
 	@simpl_scalar
-	@xml_tag("discriminator-value")
+	@simpl_tag("discriminator-value")
 	private String																				discriminatorValue;
 
 	@simpl_composite

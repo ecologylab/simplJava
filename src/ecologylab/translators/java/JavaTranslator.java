@@ -16,25 +16,26 @@ import java.util.Set;
 import ecologylab.generic.Debug;
 import ecologylab.generic.HashMapArrayList;
 import ecologylab.serialization.ClassDescriptor;
-import ecologylab.serialization.ElementState.simpl_composite;
-import ecologylab.serialization.ElementState.simpl_nowrap;
-import ecologylab.serialization.ElementState.simpl_scalar;
-import ecologylab.serialization.ElementState.xml_other_tags;
-import ecologylab.serialization.ElementState.xml_tag;
 import ecologylab.serialization.FieldDescriptor;
 import ecologylab.serialization.FieldTypes;
-import ecologylab.serialization.Hint;
+import ecologylab.serialization.Format;
 import ecologylab.serialization.SIMPLTranslationException;
 import ecologylab.serialization.TranslationScope;
 import ecologylab.serialization.XMLTools;
-import ecologylab.serialization.simpl_inherit;
+import ecologylab.serialization.annotations.Hint;
+import ecologylab.serialization.annotations.simpl_composite;
+import ecologylab.serialization.annotations.simpl_inherit;
+import ecologylab.serialization.annotations.simpl_nowrap;
+import ecologylab.serialization.annotations.simpl_other_tags;
+import ecologylab.serialization.annotations.simpl_scalar;
+import ecologylab.serialization.annotations.simpl_tag;
 import ecologylab.serialization.library.rss.Channel;
 import ecologylab.serialization.library.rss.Item;
 import ecologylab.serialization.library.rss.RssState;
 import ecologylab.serialization.types.CollectionType;
 import ecologylab.serialization.types.ScalarType;
 import ecologylab.serialization.types.SimplBaseType;
-import ecologylab.serialization.types.element.Mappable;
+import ecologylab.serialization.types.element.IMappable;
 import ecologylab.standalone.xmlpolymorph.BItem;
 import ecologylab.standalone.xmlpolymorph.SchmItem;
 import ecologylab.standalone.xmlpolymorph.Schmannel;
@@ -266,7 +267,7 @@ public class JavaTranslator implements JavaTranslationConstants
 		System.out.println("generating classes...");
 
 		// Generate header and implementation files
-		Collection<ClassDescriptor>  classes = tScope.entriesByClassName().values();
+		Collection<ClassDescriptor<? extends FieldDescriptor>>  classes = tScope.entriesByClassName().values();
 		
 		int length = classes.size();
 		for (ClassDescriptor classDesc : classes)
@@ -636,7 +637,7 @@ public class JavaTranslator implements JavaTranslationConstants
 			appendAnnotation(appendable, simpl_scalar.class.getSimpleName(),TAB);
 		}
 		
-		// @xml_tag
+		// @simpl_tag
 		String tagName = fieldDescriptor.getTagName();
 		String autoTagName = XMLTools.getXmlTagName(fieldDescriptor.getName(), null);
 		if(tagName != null && !tagName.equals("") && !tagName.equals(autoTagName))
@@ -644,7 +645,7 @@ public class JavaTranslator implements JavaTranslationConstants
 			appendAnnotation(appendable, JavaTranslationUtilities.getJavaTagAnnotation(tagName), TAB);			
 		}		
 		
-		// @xml_other_tags
+		// @simpl_other_tags
 		ArrayList<String> otherTags = fieldDescriptor.otherTags();
 		if (otherTags != null && otherTags.size() > 0)
 		{
@@ -717,15 +718,15 @@ public class JavaTranslator implements JavaTranslationConstants
 		if(tagName != null && !tagName.equals("") && !tagName.equals(autoTagName))
 		{
 			appendAnnotation(appendable, JavaTranslationUtilities.getJavaTagAnnotation(tagName),"\n");
-			addAnnotationDependency(xml_tag.class);
+			addAnnotationDependency(simpl_tag.class);
 		}		
 		
-		// TODO @xml_other_tags
+		// TODO @simpl_other_tags
 		ArrayList<String> otherTags = classDesc.otherTags();
 		if (otherTags != null && otherTags.size() > 0)
 		{
 			appendAnnotation(appendable, JavaTranslationUtilities.getJavaOtherTagsAnnotation(otherTags), "\n");
-			addAnnotationDependency(xml_other_tags.class);
+			addAnnotationDependency(simpl_other_tags.class);
 		}
 		
 		appendable.append(SINGLE_LINE_BREAK);
@@ -916,7 +917,7 @@ public class JavaTranslator implements JavaTranslationConstants
 				appendable.append(interfaces.get(i));
 				implementMappableInterface = true;
 	
-				currentImportDependencies.put(Mappable.class.getPackage().getName(), Mappable.class.getPackage()
+				currentImportDependencies.put(IMappable.class.getPackage().getName(), IMappable.class.getPackage()
 						.getName());
 				
 			}		
@@ -1103,16 +1104,18 @@ public class JavaTranslator implements JavaTranslationConstants
 		
 		TranslationScope ts2 = TranslationScope.get("RSSTranslations", Schmannel.class, BItem.class, SchmItem.class,
 				RssState.class, Item.class, Channel.class);
-		ts2.setGraphSwitch();
-		ts2.serialize(new File("D:\\GSOC\\SIMPL\\GeneratedCode\\New\\tss3.xml"));
+		ts2.enableGraphSerialization();
+		
+		ClassDescriptor.serialize(ts2, new File("D:\\GSOC\\SIMPL\\GeneratedCode\\New\\tss3.xml"), Format.XML);
+		
 		//JavaDocParser.parseSourceFileIfExists(ts,new File("D:\\GSOC\\SIMPL"));
 
 		TranslationScope ts = TranslationScope.get("tscope_tscope", TranslationScope.class, ClassDescriptor.class, FieldDescriptor.class);
-		ts.setGraphSwitch();
-		TranslationScope t = (TranslationScope)ts.deserialize("D:\\GSOC\\SIMPL\\GeneratedCode\\New\\tss3.xml");
-		TranslationScope.AddTranslationScope(t.getName(),t);
+		ts.enableGraphSerialization();
+		TranslationScope t = (TranslationScope)ts.deserialize(new File("D:\\GSOC\\SIMPL\\GeneratedCode\\New\\tss3.xml"), Format.XML);
+		
 		//t.serialize(new File("D:\\GSOC\\SIMPL\\GeneratedCode\\New\\tss2.xml"));
-		t.setGraphSwitch();
+		t.enableGraphSerialization();
 		c.translateToJava(new File("D:\\GSOC\\SIMPL\\GeneratedCode\\Test"),t);
 		//c.translateToJava(new File("D:\\GSOC\\Output"),t);
 								

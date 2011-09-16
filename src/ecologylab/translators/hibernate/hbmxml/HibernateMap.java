@@ -1,15 +1,16 @@
 package ecologylab.translators.hibernate.hbmxml;
 
-import ecologylab.serialization.ElementState.xml_tag;
-import ecologylab.serialization.simpl_inherit;
+import ecologylab.serialization.annotations.simpl_composite;
+import ecologylab.serialization.annotations.simpl_inherit;
+import ecologylab.serialization.annotations.simpl_tag;
 
 @simpl_inherit
-@xml_tag("map")
+@simpl_tag("map")
 public class HibernateMap extends HibernateCollectionBase
 {
 
 	@simpl_composite
-	@xml_tag("map-key")
+	@simpl_tag("map-key")
 	private HibernateMapKey	mapKey;
 
 	public HibernateMap()

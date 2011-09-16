@@ -1,21 +1,18 @@
 package ecologylab.translators.net;
 
 import japa.parser.ParseException;
-import japa.parser.ast.type.Type;
 
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.lang.annotation.Annotation;
-import java.lang.reflect.GenericDeclaration;
 import java.lang.reflect.TypeVariable;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.Map;
 
 import ecologylab.generic.Debug;
 import ecologylab.generic.HashMapArrayList;
@@ -28,11 +25,10 @@ import ecologylab.serialization.XMLTools;
 import ecologylab.serialization.library.rss.Channel;
 import ecologylab.serialization.library.rss.Item;
 import ecologylab.serialization.library.rss.RssState;
-import ecologylab.serialization.types.element.Mappable;
+import ecologylab.serialization.types.element.IMappable;
 import ecologylab.standalone.xmlpolymorph.BItem;
 import ecologylab.standalone.xmlpolymorph.SchmItem;
 import ecologylab.standalone.xmlpolymorph.Schmannel;
-import ecologylab.translators.cocoa.CocoaTranslationConstants;
 import ecologylab.translators.parser.JavaDocParser;
 
 /**
@@ -90,7 +86,7 @@ public class DotNetTranslator implements DotNetTranslationConstants
     * @throws IOException
     * @throws DotNetTranslationException
     */
-	private void translateToCSharp(Appendable appendable, Class<? extends ElementState>... classes)
+	private void translateToCSharp(Appendable appendable, Class<?>... classes)
 			throws IOException, DotNetTranslationException
 	{
 		int length = classes.length;
@@ -108,10 +104,10 @@ public class DotNetTranslator implements DotNetTranslationConstants
 	 * @throws IOException
 	 * @throws DotNetTranslationException
 	 */
-	private void translateToCSharp(Class<? extends ElementState> inputClass, Appendable appendable)
+	private void translateToCSharp(Class<?> inputClass, Appendable appendable)
 			throws IOException, DotNetTranslationException
 	{
-		ClassDescriptor<?, ?> classDescriptor = ClassDescriptor.getClassDescriptor(inputClass);
+		ClassDescriptor<? extends FieldDescriptor> classDescriptor = ClassDescriptor.getClassDescriptor(inputClass);
 
 		HashMapArrayList<String, ? extends FieldDescriptor> fieldDescriptors = classDescriptor
 				.getFieldDescriptorsByFieldName();
@@ -204,11 +200,11 @@ public class DotNetTranslator implements DotNetTranslationConstants
 		System.out.println("generating classes...");
 
 		// Generate header and implementation files
-		ArrayList<Class<? extends ElementState>> classes = anotherScope.getAllClasses();
+		ArrayList<Class<?>> classes = anotherScope.getAllClasses();
 		int length = classes.size();
 		for (int i = 0; i < length; i++)
 		{
-			Class<? extends ElementState> inputClass = classes.get(i);
+			Class<?> inputClass = classes.get(i);
 			if(excludeClassesFromTranslation.contains(inputClass))
 			{
 				System.out.println("Excluding " + inputClass + " from translation as requested");
@@ -292,8 +288,8 @@ public class DotNetTranslator implements DotNetTranslationConstants
 		appendable.append(tScope.getName());
 		appendable.append(QUOTE);
 				
-		ArrayList<Class<? extends ElementState>> allClasses = tScope.getAllClasses();		
-		for(Class<? extends ElementState> myClass : allClasses)
+		ArrayList<Class<?>> allClasses = tScope.getAllClasses();		
+		for(Class<?> myClass : allClasses)
 		{
 			appendable.append(COMMA);
 			appendable.append(SINGLE_LINE_BREAK);
@@ -370,7 +366,7 @@ public class DotNetTranslator implements DotNetTranslationConstants
 	 * @throws IOException
 	 * @throws DotNetTranslationException
 	 */
-	private void translateToCSharp(Class<? extends ElementState> inputClass, File directoryLocation)
+	private void translateToCSharp(Class<?> inputClass, File directoryLocation)
 			throws IOException, DotNetTranslationException
 	{
 		File outputFile = createCSharpFileWithDirectoryStructure(inputClass, directoryLocation);
@@ -386,7 +382,7 @@ public class DotNetTranslator implements DotNetTranslationConstants
 	 * @param appendable
 	 * @throws IOException
 	 */
-	private void appendHeaderComments(Class<? extends ElementState> inputClass, Appendable appendable)
+	private void appendHeaderComments(Class<?> inputClass, Appendable appendable)
 			throws IOException
 	{
 		DateFormat dateFormat = new SimpleDateFormat("MM/dd/yy");
@@ -501,7 +497,7 @@ public class DotNetTranslator implements DotNetTranslationConstants
 	 * @param appendable
 	 * @throws IOException
 	 */
-	private void openNameSpace(Class<? extends ElementState> inputClass, Appendable appendable)
+	private void openNameSpace(Class<?> inputClass, Appendable appendable)
 			throws IOException
 	{
 		openNameSpace(inputClass.getPackage().getName(), appendable);
@@ -544,7 +540,7 @@ public class DotNetTranslator implements DotNetTranslationConstants
 	 * @param appendable
 	 * @throws IOException
 	 */
-	private void appendDefaultConstructor(Class<? extends ElementState> inputClass,
+	private void appendDefaultConstructor(Class<?> inputClass,
 			Appendable appendable) throws IOException
 	{
 		appendDefaultConstructor(inputClass.getSimpleName(), appendable);
@@ -781,7 +777,7 @@ public class DotNetTranslator implements DotNetTranslationConstants
 	 * @param appendable
 	 * @throws IOException
 	 */
-	private void openClassFile(Class<? extends ElementState> inputClass, Appendable appendable)
+	private void openClassFile(Class<?> inputClass, Appendable appendable)
 			throws IOException
 	{
 		appendClassComments(inputClass, appendable);
@@ -818,14 +814,14 @@ public class DotNetTranslator implements DotNetTranslationConstants
 
 		for (int i = 0; i < interfaces.length; i++)
 		{
-			if (interfaces[i].isAssignableFrom(Mappable.class))
+			if (interfaces[i].isAssignableFrom(IMappable.class))
 			{
 				appendable.append(',');
 				appendable.append(SPACE);
 				appendable.append(interfaces[i].getSimpleName());
 				implementMappableInterface = true;
 
-				libraryNamespaces.put(Mappable.class.getPackage().getName(), Mappable.class.getPackage()
+				libraryNamespaces.put(IMappable.class.getPackage().getName(), IMappable.class.getPackage()
 						.getName());
 			}
 		}
@@ -837,7 +833,7 @@ public class DotNetTranslator implements DotNetTranslationConstants
 	}
 
 	private void appendGenericTypeVariables(Appendable appendable,
-			Class<? extends ElementState> inputClass) throws IOException
+			Class<?> inputClass) throws IOException
 	{
 		TypeVariable<?>[] typeVariables = inputClass.getTypeParameters();
 		if (typeVariables != null && typeVariables.length > 0)
@@ -858,7 +854,7 @@ public class DotNetTranslator implements DotNetTranslationConstants
 
 	}
 
-	private void appendClassComments(Class<? extends ElementState> inputClass, Appendable appendable)
+	private void appendClassComments(Class<?> inputClass, Appendable appendable)
 			throws IOException
 	{
 		appendable.append(TAB);

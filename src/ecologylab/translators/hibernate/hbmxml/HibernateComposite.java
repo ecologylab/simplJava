@@ -3,8 +3,9 @@
  */
 package ecologylab.translators.hibernate.hbmxml;
 
-import ecologylab.serialization.ElementState.xml_tag;
-import ecologylab.serialization.simpl_inherit;
+import ecologylab.serialization.annotations.simpl_inherit;
+import ecologylab.serialization.annotations.simpl_scalar;
+import ecologylab.serialization.annotations.simpl_tag;
 
 /**
  * The Hibernate mapping for many-to-one relationships (or composite properties).
@@ -13,12 +14,12 @@ import ecologylab.serialization.simpl_inherit;
  * 
  */
 @simpl_inherit
-@xml_tag("many-to-one")
+@simpl_tag("many-to-one")
 public class HibernateComposite extends HibernateProperty
 {
 
 	@simpl_scalar
-	@xml_tag("class")
+	@simpl_tag("class")
 	private String	compositeClassName;
 
 	public HibernateComposite()

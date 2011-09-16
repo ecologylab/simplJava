@@ -2,9 +2,9 @@ package ecologylab.translators.javascript.test;
 
 import java.io.File;
 import java.io.IOException;
+
 import ecologylab.serialization.SIMPLTranslationException;
 import ecologylab.serialization.TranslationScope;
-import ecologylab.translators.cocoa.CocoaTranslationException;
 import ecologylab.translators.javascript.JavascriptTranslator;
 
 public class JavascriptTranslatorTest {

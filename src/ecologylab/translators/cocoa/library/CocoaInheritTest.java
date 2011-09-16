@@ -2,8 +2,12 @@ package ecologylab.translators.cocoa.library;
 
 import java.net.MalformedURLException;
 
+import ecologylab.serialization.ClassDescriptor;
 import ecologylab.serialization.ElementState;
 import ecologylab.serialization.SIMPLTranslationException;
+import ecologylab.serialization.StringFormat;
+import ecologylab.serialization.annotations.simpl_composite;
+import ecologylab.serialization.annotations.simpl_scalar;
 
 /**
  * xml nested test class
@@ -47,6 +51,6 @@ public class CocoaInheritTest extends ElementState
 	public static void main(String args[]) throws MalformedURLException, SIMPLTranslationException
 	{
 		CocoaInheritTest t = new CocoaInheritTest();
-		t.serialize(System.out);
+		ClassDescriptor.serialize(t, System.out, StringFormat.XML);
 	}
 }

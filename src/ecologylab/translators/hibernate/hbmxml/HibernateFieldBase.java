@@ -3,8 +3,9 @@
  */
 package ecologylab.translators.hibernate.hbmxml;
 
-import ecologylab.serialization.simpl_inherit;
-import ecologylab.serialization.types.element.Mappable;
+import ecologylab.serialization.annotations.simpl_inherit;
+import ecologylab.serialization.annotations.simpl_scalar;
+import ecologylab.serialization.types.element.IMappable;
 
 /**
  * The base class for mapping fields.
@@ -13,7 +14,7 @@ import ecologylab.serialization.types.element.Mappable;
  * 
  */
 @simpl_inherit
-public abstract class HibernateFieldBase extends HibernateBasic implements Mappable<String>
+public abstract class HibernateFieldBase extends HibernateBasic implements IMappable<String>
 {
 
 	public static final String	LAZY_FALSE		= "false";

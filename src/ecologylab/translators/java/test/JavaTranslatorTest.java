@@ -10,9 +10,12 @@ import ecologylab.serialization.ClassDescriptor;
 import ecologylab.serialization.DescriptorBase;
 import ecologylab.serialization.ElementState;
 import ecologylab.serialization.FieldDescriptor;
+import ecologylab.serialization.Format;
 import ecologylab.serialization.SIMPLTranslationException;
 import ecologylab.serialization.TranslationScope;
-import ecologylab.serialization.simpl_inherit;
+import ecologylab.serialization.annotations.simpl_collection;
+import ecologylab.serialization.annotations.simpl_inherit;
+import ecologylab.serialization.annotations.simpl_scalar;
 import ecologylab.serialization.library.rss.Channel;
 import ecologylab.serialization.library.rss.Item;
 import ecologylab.serialization.library.rss.RssState;
@@ -55,8 +58,9 @@ extends Debug
 		DescriptorBase.setJavaParser(new JavaDocParser());
 		TranslationScope ts2 = TranslationScope.get("RSSTranslations5", RssState.class, Item.class,
 				Channel.class);
-		TranslationScope.setGraphSwitch();
-		ts2.serialize(new File(filename));
+		TranslationScope.enableGraphSerialization();
+		ClassDescriptor.serialize(ts2, new File(filename), Format.XML);
+		
 	}
 
 	/**
@@ -71,8 +75,8 @@ extends Debug
 		DescriptorBase.setJavaParser(new JavaDocParser());
 		TranslationScope ts2 = TranslationScope.get("RSSTranslations", Schmannel.class, BItem.class,
 				SchmItem.class, RssState.class, Item.class, Channel.class);
-		TranslationScope.setGraphSwitch();
-		ts2.serialize(new File(filename));
+		TranslationScope.enableGraphSerialization();
+		ClassDescriptor.serialize(ts2, new File(filename), Format.XML);
 	}
 
 	/**
@@ -86,8 +90,8 @@ extends Debug
 		println("testDeserialization("+filename);
 		TranslationScope ts = TranslationScope.get("tscope_tscope2", TranslationScope.class,
 				ClassDescriptor.class, FieldDescriptor.class);
-		TranslationScope.setGraphSwitch();
-		TranslationScope t = (TranslationScope) ts.deserialize(filename);
+		TranslationScope.enableGraphSerialization();
+		TranslationScope t = (TranslationScope) ts.deserialize(new File(filename), Format.XML);
 		System.out.println("Test");
 	}
 
@@ -104,8 +108,8 @@ extends Debug
 		JavaTranslator c = new JavaTranslator();
 		TranslationScope ts = TranslationScope.get("tscope_tscope2", TranslationScope.class,
 				ClassDescriptor.class, FieldDescriptor.class);
-		TranslationScope.setGraphSwitch();
-		TranslationScope t = (TranslationScope) ts.deserialize(filename);
+		TranslationScope.enableGraphSerialization();
+		TranslationScope t = (TranslationScope) ts.deserialize(new File(filename), Format.XML);
 
 		c.translateToJava(new File(codeLocation), t);
 	}
@@ -124,8 +128,8 @@ extends Debug
 		JavaTranslator c = new JavaTranslator();
 		TranslationScope ts = TranslationScope.get("tscope_tscope_polymorphic", TranslationScope.class,
 				ClassDescriptor.class, FieldDescriptor.class);
-		TranslationScope.setGraphSwitch();
-		TranslationScope t = (TranslationScope) ts.deserialize(filename);
+		TranslationScope.enableGraphSerialization();
+		TranslationScope t = (TranslationScope) ts.deserialize(new File(filename), Format.XML);
 
 		c.translateToJava(new File(codeLocation), t);
 	}
@@ -155,8 +159,10 @@ extends Debug
 	{
 		println("testJavaCodeGenerationWithInheritance(" + outputDir);
 		TranslationScope ts = TranslationScope.get("test_inheritance", Base.class, Sub.class);
-		ts.setGraphSwitch();
-		ts.serialize(new File(outputDir + "ts.xml"));
+		TranslationScope.enableGraphSerialization();
+		
+		ClassDescriptor.serialize(ts, new File(outputDir + "ts.xml"), Format.XML);
+		
 		JavaTranslator jt = new JavaTranslator();
 		jt.translateToJava(new File(outputDir + "jt"), ts);
 	}

@@ -1,7 +1,8 @@
 package ecologylab.translators.hibernate.hbmxml;
 
-import ecologylab.serialization.ElementState.xml_tag;
-import ecologylab.serialization.simpl_inherit;
+import ecologylab.serialization.annotations.simpl_inherit;
+import ecologylab.serialization.annotations.simpl_scalar;
+import ecologylab.serialization.annotations.simpl_tag;
 
 /**
  * The Hibernate mapping of properties.
@@ -10,7 +11,7 @@ import ecologylab.serialization.simpl_inherit;
  * 
  */
 @simpl_inherit
-@xml_tag("property")
+@simpl_tag("property")
 public class HibernateProperty extends HibernateFieldBase
 {
 
@@ -27,7 +28,7 @@ public class HibernateProperty extends HibernateFieldBase
 	private int			length;
 
 	@simpl_scalar
-	@xml_tag("not-null")
+	@simpl_tag("not-null")
 	private boolean	notNull;
 
 	@simpl_scalar

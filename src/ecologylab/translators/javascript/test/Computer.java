@@ -1,7 +1,7 @@
 package ecologylab.translators.javascript.test;
 
-import ecologylab.serialization.simpl_inherit;
-import ecologylab.serialization.ElementState.simpl_scalar;
+import ecologylab.serialization.annotations.simpl_inherit;
+import ecologylab.serialization.annotations.simpl_scalar;
 
 public @simpl_inherit class Computer extends Player {
 	@simpl_scalar float difficulty;

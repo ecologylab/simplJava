@@ -88,7 +88,7 @@ public class JavaDocParser implements IJavaParser
 		}
 	}
 
-	public static String[] getClassJavaDocsArray(Class<? extends ElementState> inputClass)
+	public static String[] getClassJavaDocsArray(Class<?> inputClass)
 	{
 		String javaDocs = getClassJavaDocs(inputClass);
 		if (javaDocs != null)
@@ -152,7 +152,7 @@ public class JavaDocParser implements IJavaParser
 	 * @param inputClass
 	 * @return String
 	 */
-	public static String getClassJavaDocs(Class<? extends ElementState> inputClass)
+	public static String getClassJavaDocs(Class<?> inputClass)
 	{
 		return getClassJavaDocs(inputClass.getSimpleName());
 	}
@@ -226,7 +226,7 @@ public class JavaDocParser implements IJavaParser
 	{
 		try
 		{
-			ArrayList<Class<? extends ElementState>> classes = translationScope.getAllClasses();
+			ArrayList<Class<?>> classes = translationScope.getAllClasses();
 			int length = classes.size();
 
 			for (int i = 0; i < length; i++)
@@ -240,7 +240,7 @@ public class JavaDocParser implements IJavaParser
 		}
 	}
 
-	private static void parseSourceFileIfExists(Class<? extends ElementState> inputClass,
+	private static void parseSourceFileIfExists(Class<?> inputClass,
 			File workSpaceLocation) throws ParseException, IOException
 	{
 		if (workSpaceLocation != null)
@@ -253,7 +253,7 @@ public class JavaDocParser implements IJavaParser
 		}
 	}
 
-	private static File findFile(Class<? extends ElementState> inputClass, File workSpaceLocation)
+	private static File findFile(Class<?> inputClass, File workSpaceLocation)
 			throws IOException
 	{
 		FileTraversal fileTraversal = new FileTraversal();

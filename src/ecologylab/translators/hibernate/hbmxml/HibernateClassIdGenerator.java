@@ -3,7 +3,9 @@
  */
 package ecologylab.translators.hibernate.hbmxml;
 
-import ecologylab.serialization.simpl_inherit;
+import ecologylab.serialization.annotations.simpl_inherit;
+import ecologylab.serialization.annotations.simpl_scalar;
+import ecologylab.serialization.annotations.simpl_tag;
 
 /**
  * The Hibernate mapping of class ID generators.
@@ -18,7 +20,7 @@ public class HibernateClassIdGenerator extends HibernateBasic
 	public static final HibernateClassIdGenerator	identityGenerator	= new HibernateClassIdGenerator("identity");
 
 	@simpl_scalar
-	@xml_tag("class")
+	@simpl_tag("class")
 	private String																generatorClass;
 
 	public HibernateClassIdGenerator()

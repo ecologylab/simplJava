@@ -9,9 +9,13 @@ import java.util.ArrayList;
 import ecologylab.semantics.metametadata.MetaMetadata;
 import ecologylab.semantics.metametadata.MetaMetadataRepository;
 import ecologylab.semantics.metametadata.MetaMetadataTranslationScope;
+import ecologylab.serialization.ClassDescriptor;
 import ecologylab.serialization.ElementState;
+import ecologylab.serialization.Format;
 import ecologylab.serialization.SIMPLTranslationException;
+import ecologylab.serialization.StringFormat;
 import ecologylab.serialization.TranslationScope;
+import ecologylab.serialization.annotations.simpl_collection;
 
 /**
  * @author andruid
@@ -40,9 +44,9 @@ public class MetadataScalarTypeTest extends ElementState
 		
 		try
 		{
-			ElementState	result = mmTS.deserialize(file);
+			ElementState	result = (ElementState) mmTS.deserialize(file, Format.XML);
+			ClassDescriptor.serialize(result, System.out, StringFormat.XML);
 			
-			result.serialize(System.out);
 			System.out.println();
 		}
 		catch (SIMPLTranslationException e)

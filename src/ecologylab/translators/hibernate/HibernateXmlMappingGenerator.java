@@ -20,6 +20,7 @@ import ecologylab.serialization.ClassDescriptor;
 import ecologylab.serialization.FieldDescriptor;
 import ecologylab.serialization.FieldTypes;
 import ecologylab.serialization.SIMPLTranslationException;
+import ecologylab.serialization.StringFormat;
 import ecologylab.serialization.TranslationScope;
 import ecologylab.translators.hibernate.hbmxml.HibernateClass;
 import ecologylab.translators.hibernate.hbmxml.HibernateClassId;
@@ -130,7 +131,7 @@ public class HibernateXmlMappingGenerator extends Debug
 			mappingImports.add(String.format("<mapping file=\"%s\" />", newHbmFile.getPath()));
 			PrintWriter writer = new PrintWriter(newHbmFile);
 			writer.println(XML_HEAD);
-			mapping.serialize(writer);
+			ClassDescriptor.serialize(mapping, writer, StringFormat.XML);			
 			writer.println();
 			writer.close();
 		}

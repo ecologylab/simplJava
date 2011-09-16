@@ -1,7 +1,7 @@
 package ecologylab.translators.javascript.test;
 
-import ecologylab.serialization.simpl_inherit;
-import ecologylab.serialization.ElementState.simpl_scalar;
+import ecologylab.serialization.annotations.simpl_inherit;
+import ecologylab.serialization.annotations.simpl_scalar;
 
 @simpl_inherit
 public class Human extends Player {

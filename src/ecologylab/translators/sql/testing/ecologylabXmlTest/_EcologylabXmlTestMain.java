@@ -3,8 +3,10 @@ package ecologylab.translators.sql.testing.ecologylabXmlTest;
 import java.util.ArrayList;
 
 import ecologylab.net.ParsedURL;
+import ecologylab.serialization.ClassDescriptor;
 import ecologylab.serialization.ElementState;
 import ecologylab.serialization.SIMPLTranslationException;
+import ecologylab.serialization.StringFormat;
 import ecologylab.serialization.TranslationScope;
 
 public class _EcologylabXmlTestMain
@@ -34,12 +36,14 @@ public class _EcologylabXmlTestMain
  
 		/*translate to xml*/
 		StringBuilder buffy	= new StringBuilder();
-		c.serialize(buffy);
+		
+		ClassDescriptor.serialize(c, System.out, StringFormat.XML);
 //		c.serialize(System.out);
 		
 		ChannelTest ct = new ChannelTest();
 		TranslationScope ts = TranslationScope.get("this", ChannelTest.class);
-		ts.serialize(System.out);
+		
+		ClassDescriptor.serialize(ts, System.out, StringFormat.XML);
 		
 		
 		
@@ -47,7 +51,7 @@ public class _EcologylabXmlTestMain
 		
 		
 		/*translate from xml to java*/
-		ElementState c2	= RssTranslationsTest.get().deserializeCharSequence(buffy);
+		ElementState c2	= (ElementState) RssTranslationsTest.get().deserialize(buffy, StringFormat.XML);
 		
 //		System.out.println("retranslated by ElementState");
 //		System.out.println(c2.getClass().getCanonicalName());

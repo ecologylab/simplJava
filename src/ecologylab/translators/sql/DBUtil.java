@@ -1,14 +1,9 @@
 package ecologylab.translators.sql;
 
 import java.io.ByteArrayOutputStream;
-import java.io.File;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.io.UnsupportedEncodingException;
-import java.net.URL;
-import java.nio.ByteBuffer;
-import java.nio.CharBuffer;
-import java.nio.charset.Charset;
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.DriverManager;
@@ -22,19 +17,8 @@ import java.util.List;
 
 import org.junit.Test;
 
-
 import ecologylab.generic.Debug;
-import ecologylab.net.ParsedURL;
-//import ecologylab.semantics.generated.library.scholarlyPublication.AcmProceeding;
-import ecologylab.semantics.generated.library.search.SearchResult;
-import ecologylab.semantics.metadata.Metadata;
-import ecologylab.semantics.metadata.builtins.Document;
-import ecologylab.semantics.metadata.scalar.MetadataParsedURL;
-import ecologylab.semantics.metadata.scalar.MetadataString;
-import ecologylab.semantics.metametadata.MetaMetadataRepository;
-import ecologylab.semantics.metametadata.MetaMetadataTranslationScope;
 import ecologylab.serialization.SIMPLTranslationException;
-import ecologylab.serialization.TranslationScope;
 import ecologylab.translators.sql.testing.ecologylabXmlTest.AcmProceedingTest;
 
 public class DBUtil extends Debug implements DBInterface

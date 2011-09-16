@@ -10,7 +10,8 @@ import java.util.Comparator;
 import ecologylab.serialization.ClassDescriptor;
 import ecologylab.serialization.ElementState;
 import ecologylab.serialization.FieldDescriptor;
-import ecologylab.serialization.simpl_inherit;
+import ecologylab.serialization.TranslationContext;
+import ecologylab.serialization.annotations.simpl_inherit;
 
 /**
  * the root class for hibernate mappings.
@@ -51,9 +52,9 @@ public abstract class HibernateBasic extends ElementState
 	}
 
 	@Override
-	protected void serializationPreHook()
+	public void serializationPreHook(TranslationContext translationContext)
 	{
-		super.serializationPreHook();
+		super.serializationPreHook(translationContext);
 
 		ClassDescriptor cd = classDescriptor();
 		ArrayList<FieldDescriptor> fieldDescriptors = cd.elementFieldDescriptors();

@@ -34,7 +34,7 @@ public class NewMetaMetadataCompiler extends Debug
 			JavaTranslationException
 	{
 		debug("\n\nloading repository ...\n\n");
-		TranslationScope.setGraphSwitch();
+		TranslationScope.enableGraphSerialization();
 		MetaMetadataRepository repository = config.loadRepository();
 		TranslationScope tscope = repository
 				.traverseAndGenerateTranslationScope(META_METADATA_COMPILER_TSCOPE_NAME);

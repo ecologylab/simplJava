@@ -2,8 +2,10 @@ package ecologylab.translators.sql.testing.ecologylabXmlTest;
 
 import ecologylab.generic.Debug;
 import ecologylab.net.ParsedURL;
+import ecologylab.serialization.ClassDescriptor;
 import ecologylab.serialization.ElementState;
 import ecologylab.serialization.SIMPLTranslationException;
+import ecologylab.serialization.StringFormat;
 import ecologylab.serialization.TranslationScope;
 
 /**
@@ -66,13 +68,16 @@ extends Debug
 		try
 		{
 			StringBuilder buffy	= new StringBuilder();
-			tScope.serialize(buffy);
+		
+			
+			ClassDescriptor.serialize(tScope, buffy, StringFormat.XML);
 			System.out.println('\n');
 			
-			ElementState translated	= TranslationScope.getBasicTranslations().deserializeCharSequence(buffy);
+			ElementState translated	= (ElementState) TranslationScope.getBasicTranslations().deserialize(buffy, StringFormat.XML);
 				//ElementState.translateFromXMLCharSequence(OUT, TranslationScope.getBasicTranslations());
 			
-			translated.serialize(System.out);
+			
+			ClassDescriptor.serialize(translated, System.out, StringFormat.XML);
 			System.out.println('\n');
 		}
 		catch (SIMPLTranslationException e)

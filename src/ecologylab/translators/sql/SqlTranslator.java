@@ -1,8 +1,6 @@
 package ecologylab.translators.sql;
 
-import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
 
 import java.io.IOException;
 import java.lang.annotation.Annotation;
@@ -14,8 +12,6 @@ import java.util.Calendar;
 import java.util.Collection;
 import java.util.HashSet;
 
-import org.junit.After;
-import org.junit.Before;
 import org.junit.Test;
 
 import ecologylab.generic.HashMapArrayList;
@@ -25,9 +21,9 @@ import ecologylab.serialization.ElementState;
 import ecologylab.serialization.FieldDescriptor;
 import ecologylab.serialization.SIMPLTranslationException;
 import ecologylab.serialization.TranslationScope;
-import ecologylab.serialization.ElementState.DbHint;
-import ecologylab.serialization.ElementState.simpl_collection;
-import ecologylab.serialization.ElementState.simpl_db;
+import ecologylab.serialization.annotations.DbHint;
+import ecologylab.serialization.annotations.simpl_collection;
+import ecologylab.serialization.annotations.simpl_db;
 import ecologylab.serialization.library.rss.Channel;
 import ecologylab.serialization.library.rss.Item;
 import ecologylab.serialization.library.rss.RssState;
@@ -35,8 +31,6 @@ import ecologylab.translators.sql.testing.ecologylabXmlTest.ChannelTest;
 import ecologylab.translators.sql.testing.ecologylabXmlTest.ItemTest;
 import ecologylab.translators.sql.testing.ecologylabXmlTest.PdfTest;
 import ecologylab.translators.sql.testing.ecologylabXmlTest.RssStateTest;
-
-import static org.junit.Assert.*; 
 
 public class SqlTranslator extends SqlTranslatorUtil
 {
@@ -75,7 +69,7 @@ public class SqlTranslator extends SqlTranslatorUtil
 		 * routine for checking intersection between targetClassesName(Collection) and
 		 * typeNames(Collection)
 		 */
-		Class<? extends ElementState>[] thisTargetCompositeTypeClasses = getCompositeTypeClasses(translationScope);
+		Class<?>[] thisTargetCompositeTypeClasses = getCompositeTypeClasses(translationScope);
 
 		/* new translationscope based on derived target composite class */
 		TranslationScope thisNewTranslationScope = TranslationScope.get("newTranslationScope",
@@ -100,18 +94,18 @@ public class SqlTranslator extends SqlTranslatorUtil
 	/*
 	 * core function for deriving composite type definition
 	 */
-	private Class<? extends ElementState>[] getCompositeTypeClasses(TranslationScope translationScope)
+	private Class<?>[] getCompositeTypeClasses(TranslationScope translationScope)
 	{
 		HashSet<String> thisClassNameSet = new HashSet<String>();
 		HashSet<String> thisTypeSet = new HashSet<String>();
 
-		HashSet<Class<? extends ElementState>> thisResultClassesSet = new HashSet<Class<? extends ElementState>>();
+		HashSet<Class<?>> thisResultClassesSet = new HashSet<Class<?>>();
 
 		/*
 		 * Step 1) collect class name
 		 */
-		ArrayList<Class<? extends ElementState>> thisAllClasses = translationScope.getAllClasses();
-		for (Class<? extends ElementState> thisClass : thisAllClasses)
+		ArrayList<Class<?>> thisAllClasses = translationScope.getAllClasses();
+		for (Class<?> thisClass : thisAllClasses)
 		{
 			thisClassNameSet.add(thisClass.getSimpleName());
 		}
@@ -119,7 +113,7 @@ public class SqlTranslator extends SqlTranslatorUtil
 		/*
 		 * Step 2) collect type name
 		 */
-		Collection<ClassDescriptor> thisClassDescriptor = translationScope.getClassDescriptors();
+		Collection<ClassDescriptor<? extends FieldDescriptor>> thisClassDescriptor = translationScope.getClassDescriptors();
 		for (ClassDescriptor classDescriptor : thisClassDescriptor)
 		{
 			HashMapArrayList thisFieldDescriptors = classDescriptor.getFieldDescriptorsByFieldName();
@@ -152,10 +146,10 @@ public class SqlTranslator extends SqlTranslatorUtil
 		/*
 		 * Step 4) type conversion cf. hashSet -> Class<? extends ElementState>[]
 		 */
-		Class<? extends ElementState>[] thisResultClassesArray = new Class[thisResultClassesSet.size()];
+		Class<?>[] thisResultClassesArray = new Class[thisResultClassesSet.size()];
 
 		int i = 0;
-		for (Class<? extends ElementState> thisClass : thisResultClassesSet)
+		for (Class<?> thisClass : thisResultClassesSet)
 		{
 			thisResultClassesArray[i++] = thisClass;
 		}
@@ -189,7 +183,7 @@ public class SqlTranslator extends SqlTranslatorUtil
 			 * core routine for extracting intersection between targetClassesName(Collection) and
 			 * typeNames(Collection) e.g. 'Item' is derived if Item(table) ArrayList[Item]
 			 */
-			Class<? extends ElementState>[] thisTargetCompositeTypeClasses = this
+			Class<?>[] thisTargetCompositeTypeClasses = this
 					.getCompositeTypeClasses(translationScope);
 
 			/* new translationscope based on derived target composite class */
@@ -198,7 +192,7 @@ public class SqlTranslator extends SqlTranslatorUtil
 
 		}
 
-		Collection<ClassDescriptor> classDescriptors = thisTranslationScope.getClassDescriptors();
+		Collection<ClassDescriptor<? extends FieldDescriptor>> classDescriptors = thisTranslationScope.getClassDescriptors();
 		for (ClassDescriptor thisClassDescriptor : classDescriptors)
 		{
 			/* 1) class descriptor - thisClassDescriptor(assuming className=tableName) */
@@ -243,7 +237,7 @@ public class SqlTranslator extends SqlTranslatorUtil
 		/*test case for GeneratedMetadataTranslationScope*/ 
 		thisTranslationScope = RepositoryMetadataTranslationScope.get();
 		
-		Collection<ClassDescriptor> thisClassDescriptor = thisTranslationScope.getClassDescriptors();
+		Collection<ClassDescriptor<? extends FieldDescriptor>> thisClassDescriptor = thisTranslationScope.getClassDescriptors();
 		for (ClassDescriptor classDescriptor : thisClassDescriptor)
 		{
 			System.out.println(classDescriptor.getDescribedClassSimpleName());  
@@ -266,15 +260,15 @@ public class SqlTranslator extends SqlTranslatorUtil
 		
 //		thisTranslationScope = GeneratedMetadataTranslationScope.get(); 
 		
-		ArrayList<Class<? extends ElementState>> thisAllClasses = thisTranslationScope.getAllClasses();
-		for (Class<? extends ElementState> thisClass : thisAllClasses)
+		ArrayList<Class<?>> thisAllClasses = thisTranslationScope.getAllClasses();
+		for (Class<?> thisClass : thisAllClasses)
 		{
 			 System.out.println("className: " + thisClass.getSimpleName());
 			 System.out.println("superclassName : " + thisClass.getSuperclass().getSimpleName());
 		}
 
 		String thisString = "ChannelTest";
-		Class<? extends ElementState> thisClass = thisTranslationScope.getClassBySimpleName(thisString);
+		Class<?> thisClass = thisTranslationScope.getClassBySimpleName(thisString);
 		assertNotNull(thisClass);
 		
 		
@@ -290,8 +284,8 @@ public class SqlTranslator extends SqlTranslatorUtil
 		for (Field field : fields)
 		{
 			System.out.println(field.getName() + " " + field.getType().getSimpleName());
-			simpl_db simpdbAnnotation = field.getAnnotation(ElementState.simpl_db.class);
-			simpl_collection thisXmlCollection = field.getAnnotation(ElementState.simpl_collection.class);
+			simpl_db simpdbAnnotation = field.getAnnotation(simpl_db.class);
+			simpl_collection thisXmlCollection = field.getAnnotation(simpl_collection.class);
 
 			if (simpdbAnnotation != null)
 			{
@@ -347,7 +341,7 @@ public class SqlTranslator extends SqlTranslatorUtil
 			 * TODO get collection value
 			 */
 			simpl_collection thisCollectionValue = thisFieldDescriptor.getField().getAnnotation(
-					ElementState.simpl_collection.class);
+					simpl_collection.class);
 
 			if (thisCollectionValue != null)
 				System.out.println("**** (@xml_collection value) " + thisCollectionValue.value());
@@ -477,9 +471,9 @@ public class SqlTranslator extends SqlTranslatorUtil
 			for (Annotation thisAnnotation : fieldAnnotations)
 			{
 				/* separating DB constraints */
-				if (thisAnnotation.annotationType().equals(ElementState.simpl_db.class))
+				if (thisAnnotation.annotationType().equals(simpl_db.class))
 				{
-					DbHint[] thisDBConstraintValue = thisField.getAnnotation(ElementState.simpl_db.class)
+					DbHint[] thisDBConstraintValue = thisField.getAnnotation(simpl_db.class)
 							.value();
 					for (DbHint dbHint : thisDBConstraintValue)
 					{
@@ -516,7 +510,7 @@ public class SqlTranslator extends SqlTranslatorUtil
 	{
 		TranslationScope thisTranslationScope = TranslationScope.get("thisTranslationScope2",
 				ChannelTest.class);
-		Collection<ClassDescriptor> thisClassDescriptors = thisTranslationScope.getClassDescriptors();
+		Collection<ClassDescriptor<? extends FieldDescriptor>> thisClassDescriptors = thisTranslationScope.getClassDescriptors();
 
 		for (ClassDescriptor classDescriptor : thisClassDescriptors)
 		{

@@ -8,7 +8,10 @@ import ecologylab.serialization.ClassDescriptor;
 import ecologylab.serialization.ElementState;
 import ecologylab.serialization.FieldDescriptor;
 import ecologylab.serialization.SIMPLTranslationException;
-import ecologylab.serialization.TranslationScope;
+import ecologylab.serialization.annotations.DbHint;
+import ecologylab.serialization.annotations.simpl_composite;
+import ecologylab.serialization.annotations.simpl_db;
+import ecologylab.serialization.annotations.simpl_scalar;
 import ecologylab.serialization.library.feedburner.Feedburner;
 import ecologylab.serialization.library.media.Media;
 import ecologylab.serialization.library.media.Thumbnail;
@@ -191,96 +194,5 @@ public class RssStateTest extends ElementState
 
 	public static final File 	outputFile			= new File("/temp/rss.xml");
 	
-	public static void main(String[] args)
-	{
-		ElementState rss;
-		try
-		{
-//		rss = translateFromXMLCharSequence(FLICKR_EXAMPLE, RssTranslations.get());
-//			rss = translateFromXMLCharSequence(NABEEL_TEST, RssTranslations.get());
-			rss = RssTranslations.get().deserialize(CNN_TOP_FEED);
-			
-			System.out.println("");
-			rss.serialize(System.out);
-			System.out.println("");
-			
-			// RssTranslations.get().translateToXML(System.out);
-
-		}
-		catch (SIMPLTranslationException e)
-		{
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-	}
-
-	private static void mostMinimalTranlateToTest()
-	{
-		ClassDescriptor fdClassDescriptor = ClassDescriptor.getClassDescriptor(FieldDescriptor.class);
-		RssStateTest rss	= new RssStateTest();
-		ChannelTest channel	= new ChannelTest();
-		rss.channel		= channel;
-		
-		try
-		{
-			rss.serialize(System.out);
-		}
-		catch (SIMPLTranslationException e)
-		{
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-	}
-
-	private static void doMain()
-	{
-		try
-		{
-//			ParsedURL feedPURL	= ABC_SPORTS_FEED; // CNN_TOP_FEED;
-			ParsedURL feedPURL	= DELICIOUS_FEED; // FLICKR_FEED;
-			println("Translating RSS feed: " + feedPURL+"\n");
-
-			RssStateTest rssState	= (RssStateTest) RssTranslations.get().deserialize(feedPURL);
-//			RssState rssState	= (RssState) ElementState.translateFromXMLCharSequence(FLICKR_EXAMPLE, RssTranslations.get());
-
-			ArrayList<ItemTest> items	= rssState.getChannel().items; //rssState.getChannel().getItems();
-			println("items: " +  items.size());
-			for (ItemTest item : items)
-			{
-				println("description:\t" + item.description);
-				//FIXME! -- how do we make sure the prefix gets propagated through this call into F2XOs?!
-				Media media	= (Media) item.getNestedNameSpace("media");
-				if (media != null)
-				{
-					Thumbnail thumbnail	= media.getThumbnail();
-					if (thumbnail != null)
-						thumbnail.serialize(System.err);
-//					media.translateToXML(System.err);
-					System.err.println('\n');
-				}
-				Feedburner feedburner = (Feedburner) item.getNestedNameSpace("feedburner");
-				if (feedburner != null)
-				{
-					feedburner.serialize(System.err);
-					System.err.println('\n');
-				}
-			}
-
-			rssState.serialize(System.err);
-			println("\n");
-			rssState.serialize(System.err);
-			println("\n");
-			
-//			RssState rssState2	= (RssState) ElementState.translateFromXMLCharSequence(retranslated, RssTranslations.get());
-//			rssState2.translateToXML(System.out);
-
-//			rssState.translateToXML(outputFile);
-			
-			println("\n");
-		} catch (SIMPLTranslationException e)
-		{
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-	}
+	
 }

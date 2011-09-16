@@ -5,13 +5,11 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 
 import org.junit.Test;
 
-import ecologylab.collections.CollectionTools;
 import ecologylab.generic.Debug;
 
 public class SqlTranslatorUtil extends Debug implements DBInterface
