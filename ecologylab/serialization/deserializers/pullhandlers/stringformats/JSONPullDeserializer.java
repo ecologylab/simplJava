@@ -49,13 +49,13 @@ public class JSONPullDeserializer extends StringPullDeserializer
 	{
 		super(translationScope, translationContext);
 	}
-	
+
 	@Override
 	public Object parse(InputStream inputStream) throws SIMPLTranslationException
 	{
 		try
 		{
-			configure(inputStream);				
+			configure(inputStream);
 			return parse();
 		}
 		catch (Exception ex)
@@ -80,7 +80,7 @@ public class JSONPullDeserializer extends StringPullDeserializer
 	{
 		try
 		{
-			configure(charSequence);				
+			configure(charSequence);
 			return parse();
 		}
 		catch (Exception ex)
@@ -88,7 +88,7 @@ public class JSONPullDeserializer extends StringPullDeserializer
 			throw new SIMPLTranslationException("exception occurred in deserialzation ", ex);
 		}
 	}
-	
+
 	private void configure(InputStream inputStream) throws IOException, JsonParseException
 	{
 		// configure the json parser
@@ -346,5 +346,4 @@ public class JSONPullDeserializer extends StringPullDeserializer
 		return false;
 	}
 
-	
 }

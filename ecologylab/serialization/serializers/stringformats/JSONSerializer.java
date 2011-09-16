@@ -170,7 +170,8 @@ public class JSONSerializer extends StringSerializer implements FieldTypes
 			break;
 		case COLLECTION_SCALAR:
 		case MAP_SCALAR:
-			Collection<?> scalarCollection = XMLTools.getCollection(object);
+			Object scalarCollectionObject = childFd.getObject(object);
+			Collection<?> scalarCollection = XMLTools.getCollection(scalarCollectionObject);
 			if (scalarCollection == null || scalarCollection.size() <= 0)
 				return false;
 			break;
@@ -282,7 +283,8 @@ public class JSONSerializer extends StringSerializer implements FieldTypes
 			TranslationContext translationContext, FieldDescriptor childFd) throws IOException,
 			SIMPLTranslationException
 	{
-		Collection<?> scalarCollection = XMLTools.getCollection(object);
+		Object scalarCollectionObject = childFd.getObject(object);
+		Collection<?> scalarCollection = XMLTools.getCollection(scalarCollectionObject);
 		int numberOfItems = 0;
 
 		writeWrap(childFd, appendable, false);
@@ -389,7 +391,7 @@ public class JSONSerializer extends StringSerializer implements FieldTypes
 			TranslationContext translationContext) throws IOException, SIMPLTranslationException
 	{
 		appendable.append('"');
-		fd.appendValue(appendable, object, translationContext, Format.JSON);
+		fd.appendCollectionScalarValue(appendable, object, translationContext, Format.JSON);
 		appendable.append('"');
 	}
 
