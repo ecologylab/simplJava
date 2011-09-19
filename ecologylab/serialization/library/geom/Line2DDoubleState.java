@@ -17,31 +17,33 @@ import ecologylab.serialization.annotations.simpl_scalar;
  * 
  * ***WARNING!!!***
  * 
- * Performing transformations (such as setFrame()) on the result of getRect()
- * will cause this object to become out of synch with its underlying
- * Rectangle2D. DO NOT DO THIS!
+ * Performing transformations (such as setFrame()) on the result of getRect() will cause this object
+ * to become out of synch with its underlying Rectangle2D. DO NOT DO THIS!
  * 
- * If other transformation methods are required, either notify me, or implement
- * them yourself. :D
+ * If other transformation methods are required, either notify me, or implement them yourself. :D
  * 
  * Accessor methods (such as contains()) on the result of getRect() are fine.
  * 
  * @author Zachary O. Toups (zach@ecologylab.net)
  */
-public @simpl_inherit class Line2DDoubleState extends ElementState implements
-		Shape
+public @simpl_inherit
+class Line2DDoubleState extends ElementState implements Shape
 {
-	@simpl_scalar protected double	x1					= 0;
+	@simpl_scalar
+	protected double			x1			= 0;
 
-	@simpl_scalar protected double	x2					= 0;
+	@simpl_scalar
+	protected double			x2			= 0;
 
-	@simpl_scalar protected double	y1					= 0;
+	@simpl_scalar
+	protected double			y1			= 0;
 
-	@simpl_scalar protected double	y2					= 0;
+	@simpl_scalar
+	protected double			y2			= 0;
 
-	private Line2D.Double				line				= null;
+	private Line2D.Double	line		= null;
 
-	private Vector2d						normal			= null;
+	private Vector2d			normal	= null;
 
 	public Line2DDoubleState()
 	{
@@ -123,9 +125,8 @@ public @simpl_inherit class Line2DDoubleState extends ElementState implements
 	}
 
 	/**
-	 * Returns the normal to the plane that runs parallel to the Z-axis and
-	 * through this. Computed as if there is a second vector (0, 0, 1) to cross
-	 * with this + 0 on the z axis.
+	 * Returns the normal to the plane that runs parallel to the Z-axis and through this. Computed as
+	 * if there is a second vector (0, 0, 1) to cross with this + 0 on the z axis.
 	 * 
 	 * @return the normal to this.
 	 */

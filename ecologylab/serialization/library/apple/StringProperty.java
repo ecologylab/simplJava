@@ -17,9 +17,10 @@ import ecologylab.serialization.annotations.simpl_tag;
 @simpl_inherit
 public class StringProperty extends Property
 {
-	@simpl_hints({Hint.XML_TEXT})
+	@simpl_hints(
+	{ Hint.XML_TEXT })
 	@simpl_scalar
-	String contents;
+	String	contents;
 
 	/**
 	 * 
@@ -29,4 +30,8 @@ public class StringProperty extends Property
 		// TODO Auto-generated constructor stub
 	}
 
+	public String getContents()
+	{
+		return contents;
+	}
 }
