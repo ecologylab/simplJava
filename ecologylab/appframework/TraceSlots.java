@@ -18,9 +18,12 @@ public class TraceSlots extends Debug
 	public int			dragDropEndStatus;
 	public int			setFocusStatus;
 	public int			mouseExitStatus;
-	static public int		rolloverRaiseStatus;
+	static public int	rolloverRaiseStatus;
 	public int			handleMouseEventStatus;
 	public int			internalFocusStatus;
-	public static int		renderStatus;
+	public static int	renderStatus;
 	public int			handleMouseEventId;
+	static public int	pieMenuRaiseStatus;
+	static public int	pieMenuRenderStatus;
+	
 }
