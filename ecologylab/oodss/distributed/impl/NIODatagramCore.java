@@ -374,7 +374,6 @@ public abstract class NIODatagramCore<S extends Scope> extends Debug implements 
 					buffer.putLong(mdataMessage.getUid());
 
 					ClassDescriptor.serialize(mdataMessage.getMessage(), builder, StringFormat.XML);
-					
 
 					builder.flip();
 
@@ -384,7 +383,6 @@ public abstract class NIODatagramCore<S extends Scope> extends Debug implements 
 
 					if (doCompress)
 					{
-						// debug("3");
 						/* Compress message */
 						byte[] array = inBuffer;
 						buffer.get(inBuffer, 0, buffer.limit());
@@ -404,7 +402,6 @@ public abstract class NIODatagramCore<S extends Scope> extends Debug implements 
 						}
 						else
 						{
-							// debug("4");
 							compressedSize = deflater.deflate(outBuffer, 0, outBuffer.length);
 							buffer.clear();
 							buffer.put(outBuffer, 0, compressedSize);
@@ -414,10 +411,8 @@ public abstract class NIODatagramCore<S extends Scope> extends Debug implements 
 						{
 							throw new MessageTooLargeException(MAX_MESSAGE_SIZE, compressedSize);
 						}
-						/* debug("Input size: " + uncompressedSize + " and output size: " + compressedSize); */
 					}
 
-					// debug("5");
 					DatagramChannel channel = (DatagramChannel) mdataMessage.getAttachment().key.channel();
 					if (channel.isConnected())
 					{
@@ -448,10 +443,26 @@ public abstract class NIODatagramCore<S extends Scope> extends Debug implements 
 				catch (BufferOverflowException e)
 				{
 					debug("Message was too large: " + e.getLocalizedMessage());
+					try
+					{
+						debug(ClassDescriptor.serialize(mdataMessage.getMessage(), StringFormat.XML));
+					}
+					catch (SIMPLTranslationException e1)
+					{
+						e1.printStackTrace();
+					}
 				}
 				catch (MessageTooLargeException e)
 				{
 					debug("Message was too large: " + e.getActualMessageSize());
+					try
+					{
+						debug(ClassDescriptor.serialize(mdataMessage.getMessage(), StringFormat.XML));
+					}
+					catch (SIMPLTranslationException e1)
+					{
+						e1.printStackTrace();
+					}
 				}
 				catch (ClosedChannelException e)
 				{
@@ -461,6 +472,14 @@ public abstract class NIODatagramCore<S extends Scope> extends Debug implements 
 				catch (IOException e)
 				{
 					debug("Failed to send message: " + e.getMessage());
+					try
+					{
+						debug(ClassDescriptor.serialize(mdataMessage.getMessage(), StringFormat.XML));
+					}
+					catch (SIMPLTranslationException e1)
+					{
+						e1.printStackTrace();
+					}
 				}
 				finally
 				{
@@ -605,7 +624,8 @@ public abstract class NIODatagramCore<S extends Scope> extends Debug implements 
 
 									messageBuffer.flip();
 
-									ServiceMessage<S> message = (ServiceMessage<S>) translationScope.deserialize(messageBuffer, StringFormat.XML);
+									ServiceMessage<S> message = (ServiceMessage<S>) translationScope.deserialize(	messageBuffer,
+																																																StringFormat.XML);
 									message.setSender(address.getAddress());
 
 									PacketHandler handler = handlerPool.acquire();
@@ -644,7 +664,7 @@ public abstract class NIODatagramCore<S extends Scope> extends Debug implements 
 					e.printStackTrace();
 				}
 			}
-			
+
 			handlerPool.shutdown();
 		}
 	}

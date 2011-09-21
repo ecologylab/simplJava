@@ -27,32 +27,38 @@ public class DictionaryProperty extends Property implements ISimplDeserializatio
 	@simpl_nowrap
 	@simpl_classes(
 	{ DictionaryProperty.class, StringProperty.class, KeyProperty.class, ArrayProperty.class,
-			IntegerProperty.class, TrueProperty.class, FalseProperty.class, RealProperty.class, DataProperty.class })
-	List<Property>	properties;
-	
+			IntegerProperty.class, TrueProperty.class, FalseProperty.class, RealProperty.class,
+			DataProperty.class })
+	List<Property>				properties;
+
 	/**
 	 * Not currently serialized; used for access only.
 	 */
-	Map<String, Property> propertyMap;
+	Map<String, Property>	propertyMap;
 
 	public DictionaryProperty()
 	{
 
 	}
-	
+
 	@Override
 	public void deserializationPostHook(TranslationContext translationContext, Object object)
 	{
 		propertyMap = new HashMap<String, Property>();
-		
+
 		Iterator<Property> propertyIter = properties.iterator();
 
 		while (propertyIter.hasNext())
 		{
 			KeyProperty key = (KeyProperty) propertyIter.next();
 			Property value = propertyIter.next();
-			
+
 			propertyMap.put(key.getContents(), value);
 		}
+	}
+
+	public Property getProperty(String key)
+	{
+		return this.propertyMap.get(key);
 	}
 }

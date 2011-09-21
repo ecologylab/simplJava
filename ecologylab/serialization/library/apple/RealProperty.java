@@ -29,4 +29,9 @@ public class RealProperty extends Property
 		// TODO Auto-generated constructor stub
 	}
 
+	public double getContents()
+	{
+		return this.contents;
+	}
+
 }

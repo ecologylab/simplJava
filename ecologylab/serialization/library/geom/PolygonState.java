@@ -8,6 +8,7 @@ import java.awt.geom.PathIterator;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
+import java.util.List;
 
 import ecologylab.serialization.ElementState;
 import ecologylab.serialization.annotations.simpl_collection;
@@ -41,14 +42,14 @@ class PolygonState extends ElementState implements Shape
 		super();
 	}
 
-	public PolygonState(ArrayList<Point2DDoubleState> verticies)
+	public PolygonState(List<Point2DDoubleState> verticies)
 	{
 		super();
 
 		definePolygon(verticies);
 	}
 
-	public void definePolygon(ArrayList<Point2DDoubleState> verticies)
+	public void definePolygon(List<Point2DDoubleState> verticies)
 	{
 		polygonVerticies.clear();
 		polygonVerticies.addAll(verticies);

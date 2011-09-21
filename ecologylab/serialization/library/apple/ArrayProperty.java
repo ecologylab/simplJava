@@ -32,4 +32,8 @@ public class ArrayProperty extends Property
 		// TODO Auto-generated constructor stub
 	}
 
+	public List<Property> getPropertyList()
+	{
+		return this.dictionaries;
+	}
 }

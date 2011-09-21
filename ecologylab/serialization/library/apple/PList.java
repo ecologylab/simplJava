@@ -24,4 +24,9 @@ public class PList extends ElementState
 	{
 
 	}
+
+	public DictionaryProperty getDict()
+	{
+		return dict;
+	}
 }

@@ -47,6 +47,11 @@ class Ellipse2DDoubleState extends RectangularShape
 		super(x, y, width, height);
 	}
 
+	public Ellipse2DDoubleState(double xCenter, double yCenter, double radius)
+	{
+		this(xCenter - radius, yCenter - radius, radius * 2.0, radius * 2.0);
+	}
+
 	/**
 	 * Returns an Ellipse2D object represented by this.
 	 */
