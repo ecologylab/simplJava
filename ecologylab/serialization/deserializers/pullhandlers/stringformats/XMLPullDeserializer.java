@@ -610,8 +610,8 @@ public class XMLPullDeserializer extends StringPullDeserializer
 
 	private String getTagName()
 	{
-		if (!xmlStreamReader.getPrefix().isEmpty())
-			return xmlStreamReader.getPrefix() + xmlStreamReader.getLocalName();
+		if (!(xmlStreamReader.getPrefix().length() == 0))
+			return xmlStreamReader.getPrefix() + ":" + xmlStreamReader.getLocalName();
 		else
 			return xmlStreamReader.getLocalName();
 	}
