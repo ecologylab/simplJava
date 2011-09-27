@@ -34,7 +34,7 @@ public class XMLPullDeserializer extends StringPullDeserializer
 
 	private CharSequence	test;
 
-	XMLStreamReader				xmlStreamReader	= null;
+	XMLStreamReader				xmlStreamReader	= null; 
 
 	/**
 	 * 
