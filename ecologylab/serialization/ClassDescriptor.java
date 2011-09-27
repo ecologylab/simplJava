@@ -74,6 +74,19 @@ public class ClassDescriptor<FD extends FieldDescriptor> extends DescriptorBase 
 	private ArrayList<String>																													interfaces;
 
 	/**
+	 * Class object that we are describing.
+	 */
+	@simpl_scalar
+	private Class<? extends ClassDescriptor>																					classDescriptorClass;
+
+	/**
+	 * Class object that we are describing.
+	 */
+	@simpl_scalar
+	private Class<? extends FieldDescriptor>																					fieldDescriptorClass;
+
+
+	/**
 	 * This is a pseudo FieldDescriptor object, defined for the class, for cases in which the tag for
 	 * the root element or a field is determined by class name, not by field name.
 	 */
@@ -163,7 +176,14 @@ public class ClassDescriptor<FD extends FieldDescriptor> extends DescriptorBase 
 		this.describedClass = thatClass;
 		this.describedClassSimpleName = thatClass.getSimpleName();
 		this.describedClassPackageName = thatClass.getPackage().getName();
-
+		
+		final simpl_descriptor_classes descriptorsClassesAnnotation = thatClass.getAnnotation(simpl_descriptor_classes.class);
+		if (descriptorsClassesAnnotation != null)
+		{
+			classDescriptorClass	= (Class<? extends ClassDescriptor>) descriptorsClassesAnnotation.value()[0];
+			fieldDescriptorClass	= (Class<? extends FieldDescriptor>) descriptorsClassesAnnotation.value()[1];
+		}
+		
 		if (thatClass.isAnnotationPresent(simpl_inherit.class))
 			this.superClass = getClassDescriptor(thatClass.getSuperclass());
 
