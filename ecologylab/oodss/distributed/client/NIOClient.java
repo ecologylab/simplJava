@@ -3,7 +3,10 @@
  */
 package ecologylab.oodss.distributed.client;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
 import java.net.BindException;
 import java.net.InetSocketAddress;
 import java.net.PortUnreachableException;
@@ -11,10 +14,12 @@ import java.net.SocketException;
 import java.nio.BufferOverflowException;
 import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
+import java.nio.channels.Channels;
 import java.nio.channels.ClosedChannelException;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.SocketChannel;
 import java.nio.charset.CharacterCodingException;
+import java.nio.charset.Charset;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -24,6 +29,7 @@ import java.util.Queue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.zip.DataFormatException;
 import java.util.zip.Deflater;
+import java.util.zip.DeflaterOutputStream;
 import java.util.zip.Inflater;
 
 import ecologylab.collections.Scope;
@@ -72,25 +78,11 @@ public class NIOClient<S extends Scope> extends NIONetworking<S> implements Runn
 {
 	protected String																									serverAddress;
 
-	protected final CharBuffer																				outgoingChars;
-
-	/**
-	 * A temporary buffer of characters into which requests are placed before they are moved to
-	 * outgoingChars.
-	 */
-	protected final StringBuilder																			requestBuffer;
-
 	/**
 	 * Stores incoming character data until it can be parsed into an XML message and turned into a
 	 * Java object.
 	 */
 	protected final StringBuilder																			incomingMessageBuffer;
-
-	/** Stores outgoing character data for ResponseMessages. */
-	protected final StringBuilder																			outgoingMessageBuffer;
-
-	/** Stores outgoing header character data. */
-	protected final StringBuilder																			outgoingMessageHeaderBuffer;
 
 	/**
 	 * stores the sequence of characters read from the header of an incoming message, may need to
@@ -193,21 +185,13 @@ public class NIOClient<S extends Scope> extends NIONetworking<S> implements Runn
 
 	private int																												maxMessageLengthChars;
 
-	private CharBuffer																								zippingChars;
-
-	private ByteBuffer																								zippingInBytes;
-
-	private Deflater																									deflater											= new Deflater();
-
 	private String																										contentEncoding;
 
-	private Inflater																									inflater											= new Inflater();
-
-	private ByteBuffer																								zippingOutBytes;
-
-	private ByteBuffer																								compressedMessageBuffer;
-
 	private List<ClientStatusListener>																clientStatusListeners					= null;
+
+	private OutputStream socketOutputStream;
+
+	private OutputStreamWriter socketWriter;
 
 	public NIOClient(String serverAddress, int portNumber, TranslationScope messageSpace,
 			S objectRegistry, int maxMessageLengthChars) throws IOException
@@ -216,20 +200,10 @@ public class NIOClient<S extends Scope> extends NIONetworking<S> implements Runn
 
 		this.maxMessageLengthChars = maxMessageLengthChars;
 
-		this.outgoingChars = CharBuffer.allocate(maxMessageLengthChars);
-
-		this.outgoingMessageBuffer = new StringBuilder(maxMessageLengthChars);
-		this.outgoingMessageHeaderBuffer = new StringBuilder(MAX_HTTP_HEADER_LENGTH);
-		this.requestBuffer = new StringBuilder(maxMessageLengthChars);
 		this.incomingMessageBuffer = new StringBuilder(maxMessageLengthChars);
 
 		builderPool = new StringBuilderPool(2, 4, maxMessageLengthChars);
 		pRequestPool = new PreppedRequestPool(2, 4, maxMessageLengthChars);
-
-		zippingChars = CharBuffer.allocate(maxMessageLengthChars);
-		zippingInBytes = ByteBuffer.allocate(maxMessageLengthChars);
-		zippingOutBytes = ByteBuffer.allocate(maxMessageLengthChars);
-		this.compressedMessageBuffer = ByteBuffer.allocate(maxMessageLengthChars);
 
 		this.serverAddress = serverAddress;
 	}
@@ -318,29 +292,19 @@ public class NIOClient<S extends Scope> extends NIONetworking<S> implements Runn
 	protected PreppedRequest prepareAndEnqueueRequestForSending(SendableRequest request)
 			throws SIMPLTranslationException, MessageTooLargeException
 	{
-		int reqLength = requestBuffer.length();
-		if (reqLength > this.maxMessageLengthChars)
-			throw new MessageTooLargeException(this.maxMessageLengthChars, reqLength);
-		
 		long uid = this.generateUid();
 
 		PreppedRequest pReq = null;
 
-		synchronized (requestBuffer)
-		{
-			// fill requestBuffer
-			ClassDescriptor.serialize(requestBuffer, requestBuffer, StringFormat.XML);			
+		pReq = this.pRequestPool.acquire();
+		
+		
+		
+		// fill requestBuffer
+		ClassDescriptor.serialize(pReq.getRequest(), pReq.getRequest(), StringFormat.XML);			
 
-			// TODO not convinced this is the most efficient workflow. Why do we need requestBuffer at all??? -ZODT
-			// drain requestBuffer and fill a prepped request
-			pReq = this.pRequestPool.acquire();
-			pReq.setRequest(requestBuffer);
-			pReq.setUid(uid);
-			pReq.setDisposable(request.isDisposable());
-
-			// clear requestBuffer
-			requestBuffer.setLength(0);
-		}
+		pReq.setUid(uid);
+		pReq.setDisposable(request.isDisposable());
 
 		if (pReq != null)
 			enqueueRequestForSending(pReq);
@@ -490,6 +454,9 @@ public class NIOClient<S extends Scope> extends NIONetworking<S> implements Runn
 				super.openSelector();
 				thisSocket.register(selector, SelectionKey.OP_READ);
 			}
+			
+			socketOutputStream = Channels.newOutputStream(thisSocket);
+			socketWriter = new OutputStreamWriter(socketOutputStream, CHARSET);
 		}
 		catch (BindException e)
 		{
@@ -823,62 +790,55 @@ public class NIOClient<S extends Scope> extends NIONetworking<S> implements Runn
 
 		StringBuilder message = null;
 
+		byte[] messageBytes = null;
+		
 		try
 		{
 			message = builderPool.acquire();
 
 			if (this.sendCompressed)
 			{
-				this.compressedMessageBuffer.clear();
 
-				try
-				{
-					this.compress(outgoingReq, compressedMessageBuffer);
-					compressedMessageBuffer.flip();
-				}
-				catch (DataFormatException e)
-				{
-					e.printStackTrace();
-					return;
-				}
-			}
-
-			message.append(CONTENT_LENGTH_STRING);
-			message.append(':');
-			if (!this.sendCompressed)
-			{
-				message.append(outgoingReq.length());
+				messageBytes = this.compress(outgoingReq);
 			}
 			else
 			{
-				message.append(compressedMessageBuffer.limit() - compressedMessageBuffer.position());
+				messageBytes = this.encode(outgoingReq);
 			}
-			message.append(HTTP_HEADER_LINE_DELIMITER);
 
-			message.append(UNIQUE_IDENTIFIER_STRING);
-			message.append(':');
-			message.append(pReq.getUid());
+						
+			socketWriter.append(CONTENT_LENGTH_STRING);
+			socketWriter.append(':');
+			socketWriter.append(messageBytes.length);
+			
+			socketWriter.append(HTTP_HEADER_LINE_DELIMITER);
+
+			socketWriter.append(UNIQUE_IDENTIFIER_STRING);
+			socketWriter.append(':');
+			socketWriter.append(pReq.getUid());
 
 			if (allowCompression)
 			{
-				message.append(HTTP_HEADER_LINE_DELIMITER);
-				message.append(HTTP_ACCEPTED_ENCODINGS);
+				socketWriter.append(HTTP_HEADER_LINE_DELIMITER);
+				socketWriter.append(HTTP_ACCEPTED_ENCODINGS);
 			}
 			if (this.sendCompressed)
 			{
-				message.append(HTTP_HEADER_LINE_DELIMITER);
-				message.append(HTTP_CONTENT_CODING);
-				message.append(":");
-				message.append(HTTP_DEFLATE_ENCODING);
+				socketWriter.append(HTTP_HEADER_LINE_DELIMITER);
+				socketWriter.append(HTTP_CONTENT_CODING);
+				socketWriter.append(":");
+				socketWriter.append(HTTP_DEFLATE_ENCODING);
 			}
 
-			message.append(HTTP_HEADER_TERMINATOR);
+			socketWriter.append(HTTP_HEADER_TERMINATOR);
 
 			if (!this.sendCompressed)
 			{
 				message.append(outgoingReq);
 			}
 
+			Channels.newOutputStream(thisSocket);
+			
 			outgoingChars.clear();
 
 			int capacity;
@@ -953,31 +913,30 @@ public class NIOClient<S extends Scope> extends NIONetworking<S> implements Runn
 		}
 	}
 
-	private void compress(StringBuilder src, ByteBuffer dest) throws DataFormatException
+	private byte[] compress(StringBuilder src) throws IOException
 	{
-		synchronized (zippingChars)
-		{
-			zippingChars.clear();
-
-			src.getChars(0, src.length(), this.zippingChars.array(), 0);
-			zippingChars.position(0);
-			zippingChars.limit(src.length());
-
-			zippingInBytes.clear();
-
-			encoder.reset();
-			encoder.encode(zippingChars, zippingInBytes, true);
-			encoder.flush(zippingInBytes);
-
-			zippingInBytes.flip();
-
-			deflater.reset();
-			deflater.setInput(zippingInBytes.array(), zippingInBytes.position(), zippingInBytes.limit());
-			deflater.finish();
-
-			dest.position(dest.position()
-					+ deflater.deflate(dest.array(), dest.position(), dest.remaining()));
-		}
+		ByteArrayOutputStream byteArrayStream = new ByteArrayOutputStream(1024);
+		DeflaterOutputStream zipStream = new DeflaterOutputStream(byteArrayStream);
+		OutputStreamWriter encodingStream = new OutputStreamWriter(zipStream, CHARSET);
+		
+		encodingStream.append(src);
+		encodingStream.flush();
+		zipStream.flush();
+		byteArrayStream.flush();
+			
+		return byteArrayStream.toByteArray();
+	}
+	
+	private byte[] encode(StringBuilder src) throws IOException
+	{
+		ByteArrayOutputStream byteArrayStream = new ByteArrayOutputStream(1024);
+		OutputStreamWriter encodingStream = new OutputStreamWriter(byteArrayStream, CHARSET);
+		
+		encodingStream.append(src);
+		encodingStream.flush();
+		byteArrayStream.flush();
+			
+		return byteArrayStream.toByteArray();
 	}
 
 	private void processUpdate(UpdateMessage message)
