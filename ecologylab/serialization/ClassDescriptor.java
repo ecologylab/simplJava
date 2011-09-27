@@ -12,6 +12,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
+import java.util.Map.Entry;
 
 import ecologylab.generic.HashMapArrayList;
 import ecologylab.generic.ReflectionTools;
@@ -134,6 +135,8 @@ public class ClassDescriptor<FD extends FieldDescriptor> extends DescriptorBase 
 	 */
 	@simpl_scalar
 	private boolean																																		strictObjectGraphRequired						= false;
+	
+	public Class<?> fdClass;
 
 	static
 	{
@@ -452,8 +455,17 @@ public class ClassDescriptor<FD extends FieldDescriptor> extends DescriptorBase 
 			fieldDescriptorClass = (Class<FD>) fieldDescriptorAnnotationValue(classWithFields);
 		}
 
+//		if (classWithFields.isAnnotationPresent(simpl_inherit.class))
+//		{
+//			ClassDescriptor<FD> superClassDescriptor = (ClassDescriptor<FD>) ClassDescriptor
+//					.getClassDescriptor(classWithFields.getSuperclass());
+//
+//			referFieldDescriptors(superClassDescriptor);
+//		}
+
 		if (classWithFields.isAnnotationPresent(simpl_inherit.class))
-		{ // recurse on super class first, so subclass declarations shadow those in superclasses, where
+		{ // recurse on super class first, so subclass declarations shadow those in superclasses,
+
 			// there are field name conflicts
 			Class<?> superClass = classWithFields.getSuperclass();
 
@@ -575,6 +587,55 @@ public class ClassDescriptor<FD extends FieldDescriptor> extends DescriptorBase 
 			thatField.setAccessible(true); // else -- ignore non-annotated fields
 		} // end for all fields
 		return fieldDescriptorClass;
+	}
+
+	private void referFieldDescriptors(ClassDescriptor<FD> superClassDescriptor)
+	{
+		for (Entry<String, FD> fieldDescriptorEntry : superClassDescriptor
+				.getFieldDescriptorsByFieldName().entrySet())
+		{
+			fieldDescriptorsByFieldName.put(fieldDescriptorEntry.getKey(), fieldDescriptorEntry
+					.getValue());
+		}
+
+		for (Entry<String, FD> fieldDescriptorEntry : superClassDescriptor
+				.getDeclaredFieldDescriptorsByFieldName().entrySet())
+		{
+			declaredFieldDescriptorsByFieldName.put(fieldDescriptorEntry.getKey(), fieldDescriptorEntry
+					.getValue());
+		}
+
+		for (Entry<String, FD> fieldDescriptorEntry : superClassDescriptor
+				.getAllFieldDescriptorsByTagNames().entrySet())
+		{
+			allFieldDescriptorsByTagNames.put(fieldDescriptorEntry.getKey(), fieldDescriptorEntry
+					.getValue());
+		}
+
+		for (Entry<Integer, FD> fieldDescriptorEntry : superClassDescriptor
+				.getAllFieldDescriptorsByTLVIds().entrySet())
+		{
+			allFieldDescriptorsByTLVIds.put(fieldDescriptorEntry.getKey(), fieldDescriptorEntry
+					.getValue());
+		}
+
+		for (Entry<String, FD> fieldDescriptorEntry : superClassDescriptor
+				.getAllFieldDescriptorsByBibTeXTag().entrySet())
+		{
+			allFieldDescriptorsByBibTeXTag.put(fieldDescriptorEntry.getKey(), fieldDescriptorEntry
+					.getValue());
+		}
+
+		for (FD fieldDescriptor : superClassDescriptor.attributeFieldDescriptors())
+		{
+			attributeFieldDescriptors.add(fieldDescriptor);
+		}
+
+		for (FD fieldDescriptor : superClassDescriptor.elementFieldDescriptors())
+		{
+			elementFieldDescriptors.add(fieldDescriptor);
+		}
+
 	}
 
 	protected void mapOtherTagsToFdForDeserialize(FD fieldDescriptor, ArrayList<String> otherTags)
@@ -778,6 +839,21 @@ public class ClassDescriptor<FD extends FieldDescriptor> extends DescriptorBase 
 	public HashMapArrayList<String, FD> getDeclaredFieldDescriptorsByFieldName()
 	{
 		return declaredFieldDescriptorsByFieldName;
+	}
+
+	public HashMap<String, FD> getAllFieldDescriptorsByTagNames()
+	{
+		return allFieldDescriptorsByTagNames;
+	}
+
+	public HashMap<Integer, FD> getAllFieldDescriptorsByTLVIds()
+	{
+		return allFieldDescriptorsByTLVIds;
+	}
+
+	public HashMap<String, FD> getAllFieldDescriptorsByBibTeXTag()
+	{
+		return allFieldDescriptorsByBibTeXTag;
 	}
 
 	public String getSuperClassName()
