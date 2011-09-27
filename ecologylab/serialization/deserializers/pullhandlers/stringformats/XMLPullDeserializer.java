@@ -34,7 +34,7 @@ public class XMLPullDeserializer extends StringPullDeserializer
 
 	private CharSequence	test;
 
-	XMLStreamReader				xmlStreamReader	= null; 
+	XMLStreamReader				xmlStreamReader	= null;
 
 	/**
 	 * 
@@ -143,7 +143,7 @@ public class XMLPullDeserializer extends StringPullDeserializer
 			throw new SIMPLTranslationException("start of an element expected");
 		}
 
-		String rootTag = xmlStreamReader.getLocalName();
+		String rootTag = getTagName();
 
 		ClassDescriptor<? extends FieldDescriptor> rootClassDescriptor = translationScope
 				.getClassDescriptorByTag(rootTag);
@@ -197,8 +197,8 @@ public class XMLPullDeserializer extends StringPullDeserializer
 
 			String xmlText = "";
 
-			while (event != XMLStreamConstants.END_ELEMENT
-					|| !rootTag.equals(xmlStreamReader.getName().toString()))
+			while (xmlStreamReader.hasNext()
+					&& (event != XMLStreamConstants.END_ELEMENT || !rootTag.equals(getTagName())))
 			{
 				if (event != XMLStreamConstants.START_ELEMENT)
 				{
@@ -208,7 +208,7 @@ public class XMLPullDeserializer extends StringPullDeserializer
 					continue;
 				}
 
-				String tag = xmlStreamReader.getName().toString();
+				String tag = getTagName();
 
 				currentFieldDescriptor = currentFieldDescriptor.getType() == WRAPPER ? currentFieldDescriptor
 						.getWrappedFD()
@@ -256,7 +256,7 @@ public class XMLPullDeserializer extends StringPullDeserializer
 				}
 			}
 
-			if(rootClassDescriptor.hasScalarFD())
+			if (rootClassDescriptor.hasScalarFD())
 			{
 				rootClassDescriptor.getScalarTextFD().setFieldToScalar(root, xmlText, translationContext);
 			}
@@ -277,9 +277,9 @@ public class XMLPullDeserializer extends StringPullDeserializer
 	{
 		int event = xmlStreamReader.getEventType();
 
-		while (fd.isCollectionTag(xmlStreamReader.getLocalName()))
+		while (fd.isCollectionTag(getTagName()))
 		{
-			String tag = xmlStreamReader.getLocalName();
+			String tag = getTagName();
 			if (event != XMLStreamConstants.START_ELEMENT)
 			{
 				// end of collection
@@ -321,7 +321,7 @@ public class XMLPullDeserializer extends StringPullDeserializer
 			throws SIMPLTranslationException, IOException, XMLStreamException
 	{
 
-		String tagName = xmlStreamReader.getLocalName();
+		String tagName = getTagName();
 		Object subRoot = getSubRoot(currentFieldDescriptor, tagName, root);
 		currentFieldDescriptor.setFieldToComposite(root, subRoot);
 
@@ -343,7 +343,7 @@ public class XMLPullDeserializer extends StringPullDeserializer
 		Object subRoot;
 		int event = xmlStreamReader.getEventType();
 
-		while (fd.isCollectionTag(xmlStreamReader.getLocalName()))
+		while (fd.isCollectionTag(getTagName()))
 		{
 			if (event != XMLStreamConstants.START_ELEMENT)
 			{
@@ -351,7 +351,7 @@ public class XMLPullDeserializer extends StringPullDeserializer
 				break;
 			}
 
-			String compositeTagName = xmlStreamReader.getLocalName();
+			String compositeTagName = getTagName();
 			subRoot = getSubRoot(fd, compositeTagName, root);
 			if (subRoot instanceof IMappable<?>)
 			{
@@ -380,7 +380,7 @@ public class XMLPullDeserializer extends StringPullDeserializer
 	{
 		Object subRoot;
 		int event = xmlStreamReader.getEventType();
-		while (fd.isCollectionTag(xmlStreamReader.getLocalName()))
+		while (fd.isCollectionTag(getTagName()))
 		{
 			if (event != XMLStreamConstants.START_ELEMENT)
 			{
@@ -388,7 +388,7 @@ public class XMLPullDeserializer extends StringPullDeserializer
 				break;
 			}
 
-			String compositeTagName = xmlStreamReader.getLocalName();
+			String compositeTagName = getTagName();
 			subRoot = getSubRoot(fd, compositeTagName, root);
 			Collection collection = (Collection) fd.automaticLazyGetCollectionOrMap(root);
 			collection.add(subRoot);
@@ -438,8 +438,7 @@ public class XMLPullDeserializer extends StringPullDeserializer
 		int event = -1;
 		println("ignoring tag: " + tag);
 
-		while (event != XMLStreamConstants.END_ELEMENT
-				|| !xmlStreamReader.getName().toString().equals(tag))
+		while (event != XMLStreamConstants.END_ELEMENT || !getTagName().equals(tag))
 			event = nextEvent();
 
 		return nextEvent();
@@ -595,10 +594,10 @@ public class XMLPullDeserializer extends StringPullDeserializer
 		switch (event)
 		{
 		case XMLStreamConstants.START_ELEMENT:
-			System.out.println(xmlStreamReader.getLocalName());
+			System.out.println(getTagName());
 			break;
 		case XMLStreamConstants.END_ELEMENT:
-			System.out.println(xmlStreamReader.getLocalName());
+			System.out.println(getTagName());
 			break;
 		case XMLStreamConstants.CHARACTERS:
 			System.out.println(xmlStreamReader.getText());
@@ -607,6 +606,14 @@ public class XMLPullDeserializer extends StringPullDeserializer
 			System.out.println("cdata " + xmlStreamReader.getText());
 			break;
 		} // end switch
+	}
+
+	private String getTagName()
+	{
+		if (!xmlStreamReader.getPrefix().isEmpty())
+			return xmlStreamReader.getPrefix() + xmlStreamReader.getLocalName();
+		else
+			return xmlStreamReader.getLocalName();
 	}
 
 	/**
