@@ -5,6 +5,8 @@ package ecologylab.oodss.distributed.client;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.net.BindException;
@@ -79,12 +81,6 @@ public class NIOClient<S extends Scope> extends NIONetworking<S> implements Runn
 	protected String																									serverAddress;
 
 	/**
-	 * Stores incoming character data until it can be parsed into an XML message and turned into a
-	 * Java object.
-	 */
-	protected final StringBuilder																			incomingMessageBuffer;
-
-	/**
 	 * stores the sequence of characters read from the header of an incoming message, may need to
 	 * persist across read calls, as the entire header may not be sent at once.
 	 */
@@ -142,6 +138,8 @@ public class NIOClient<S extends Scope> extends NIONetworking<S> implements Runn
 	private int																												endOfFirstHeader							= -1;
 
 	protected int																											startReadIndex								= 0;
+	
+	protected boolean 																										maybeEndSequence 					= false;
 
 	private int																												uidOfCurrentMessage						= -1;
 
@@ -193,14 +191,14 @@ public class NIOClient<S extends Scope> extends NIONetworking<S> implements Runn
 
 	private OutputStreamWriter socketWriter;
 
+	private boolean maybeLineEnd = false;
+
 	public NIOClient(String serverAddress, int portNumber, TranslationScope messageSpace,
 			S objectRegistry, int maxMessageLengthChars) throws IOException
 	{
 		super("NIOClient", portNumber, messageSpace, objectRegistry, maxMessageLengthChars);
 
 		this.maxMessageLengthChars = maxMessageLengthChars;
-
-		this.incomingMessageBuffer = new StringBuilder(maxMessageLengthChars);
 
 		builderPool = new StringBuilderPool(2, 4, maxMessageLengthChars);
 		pRequestPool = new PreppedRequestPool(2, 4, maxMessageLengthChars);
@@ -788,14 +786,10 @@ public class NIOClient<S extends Scope> extends NIONetworking<S> implements Runn
 
 		this.addUnfulfilledRequest(pReq);
 
-		StringBuilder message = null;
-
 		byte[] messageBytes = null;
 		
 		try
 		{
-			message = builderPool.acquire();
-
 			if (this.sendCompressed)
 			{
 
@@ -809,13 +803,13 @@ public class NIOClient<S extends Scope> extends NIONetworking<S> implements Runn
 						
 			socketWriter.append(CONTENT_LENGTH_STRING);
 			socketWriter.append(':');
-			socketWriter.append(messageBytes.length);
+			socketWriter.append("" + messageBytes.length);
 			
 			socketWriter.append(HTTP_HEADER_LINE_DELIMITER);
 
 			socketWriter.append(UNIQUE_IDENTIFIER_STRING);
 			socketWriter.append(':');
-			socketWriter.append(pReq.getUid());
+			socketWriter.append("" + pReq.getUid());
 
 			if (allowCompression)
 			{
@@ -832,66 +826,15 @@ public class NIOClient<S extends Scope> extends NIONetworking<S> implements Runn
 
 			socketWriter.append(HTTP_HEADER_TERMINATOR);
 
-			if (!this.sendCompressed)
-			{
-				message.append(outgoingReq);
-			}
-
-			Channels.newOutputStream(thisSocket);
+			socketWriter.flush();
 			
-			outgoingChars.clear();
-
-			int capacity;
-
-			while (message.length() > 0)
-			{
-				outgoingChars.clear();
-				capacity = outgoingChars.capacity();
-
-				if (message.length() > capacity)
-				{
-					outgoingChars.put(message.toString(), 0, capacity);
-					message.delete(0, capacity);
-				}
-				else
-				{
-					outgoingChars.put(message.toString());
-					message.delete(0, message.length());
-				}
-
-				outgoingChars.flip();
-
-				synchronized (encoder)
-				{
-					// XXX
-					// debug(outgoingChars.toString());
-					ByteBuffer encodedBytes = encoder.encode(outgoingChars);
-					int sentBytes = 0;
-					int bytesToSend = encodedBytes.limit();
-
-					while (bytesToSend > sentBytes)
-					{
-						sentBytes += thisSocket.write(encodedBytes);
-						// debug("sentBytes: "+sentBytes);
-					}
-				}
-			}
-			if (this.sendCompressed)
-			{
-				thisSocket.write(compressedMessageBuffer);
-			}
+			socketOutputStream.write(messageBytes);
+			socketOutputStream.flush();
 		}
 		catch (ClosedChannelException e)
 		{
 			debug("connection severed; disconnecting and storing requests...");
 			setPendingInvalidate(incomingKey, false);
-		}
-		catch (BufferOverflowException e)
-		{
-			debug("buffer overflow.");
-			e.printStackTrace();
-			System.out.println("capacity: " + outgoingChars.capacity());
-			System.out.println("outgoing request: " + outgoingReq);
 		}
 		catch (NullPointerException e)
 		{
@@ -906,10 +849,6 @@ public class NIOClient<S extends Scope> extends NIONetworking<S> implements Runn
 		{
 			debug("connection severed; disconnecting...");
 			this.disconnect(false);
-		}
-		finally
-		{
-			message = builderPool.release(message);
 		}
 	}
 
@@ -1072,180 +1011,175 @@ public class NIOClient<S extends Scope> extends NIONetworking<S> implements Runn
 	 *      java.nio.channels.SocketChannel, byte[], int)
 	 */
 	@Override
-	protected void processReadData(Object sessionToken, SelectionKey sk, ByteBuffer bytes,
-			int bytesRead) throws BadClientException
+	protected void processReadData(Object sessionToken, SelectionKey sk, InputStream inputStream) throws BadClientException
 	{
-		synchronized (incomingMessageBuffer)
+	
+		try
 		{
-			try
+			// look for HTTP header
+			while (inputStream.available() > 0)
 			{
-				incomingMessageBuffer.append(decoder.decode(bytes));
-
-				// look for HTTP header
-				while (incomingMessageBuffer.length() > 0)
+				if (endOfFirstHeader == -1)
 				{
-					if (endOfFirstHeader == -1)
-					{
-						endOfFirstHeader = this.parseHeader(startReadIndex, incomingMessageBuffer);
-					}
+					endOfFirstHeader = this.parseHeader(startReadIndex, new InputStreamReader(inputStream));
+				}
 
-					if (endOfFirstHeader == -1)
-					{ /*
-						 * no header yet; if it's too large, bad client; if it's not too large yet, just exit,
-						 * it'll get checked again when more data comes down the pipe
-						 */
-						if (incomingMessageBuffer.length() > ServerConstants.MAX_HTTP_HEADER_LENGTH)
-						{
-							// clear the buffer
-							BadClientException e = new BadClientException(((SocketChannel) sk.channel()).socket()
-									.getInetAddress().getHostAddress(), "Maximum HTTP header length exceeded. Read "
-									+ incomingMessageBuffer.length() + "/" + MAX_HTTP_HEADER_LENGTH);
-
-							incomingMessageBuffer.setLength(0);
-
-							throw e;
-						}
-
-						// next time around, start reading from where we left off this
-						// time
-						startReadIndex = incomingMessageBuffer.length();
-
-						break;
-					}
-					else
-					{ // we've read all of the header, and have it loaded into the
-						// map; now we can use it
-						if (contentLengthRemaining == -1)
-						{
-							try
-							{
-								// handle all header information here; delete it when
-								// done here
-								contentLengthRemaining = Integer
-										.parseInt(this.headerMap.get(CONTENT_LENGTH_STRING));
-								if (headerMap.containsKey(UNIQUE_IDENTIFIER_STRING))
-								{
-									uidOfCurrentMessage = Integer.parseInt(this.headerMap
-											.get(UNIQUE_IDENTIFIER_STRING));
-								}
-								contentEncoding = this.headerMap.get(HTTP_CONTENT_CODING);
-
-								// done with the header; delete it
-								incomingMessageBuffer.delete(0, endOfFirstHeader);
-								this.headerMap.clear();
-							}
-							catch (NumberFormatException e)
-							{
-								e.printStackTrace();
-								contentLengthRemaining = -1;
-							}
-							// next time we read the header (the next message), we need
-							// to start from the beginning
-							startReadIndex = 0;
-						}
-					}
-
+				if (endOfFirstHeader == -1)
+				{ 
 					/*
-					 * we have the end of the first header (otherwise we would have broken out earlier). If we
-					 * don't have the content length, something bad happened, because it should have been
-					 * read.
+					 * no header yet; if it's too large, bad client; if it's not too large yet, just exit,
+					 * it'll get checked again when more data comes down the pipe
 					 */
+					/*if (incomingMessageBuffer.length() > ServerConstants.MAX_HTTP_HEADER_LENGTH)
+					{
+						// clear the buffer
+						BadClientException e = new BadClientException(((SocketChannel) sk.channel()).socket()
+								.getInetAddress().getHostAddress(), "Maximum HTTP header length exceeded. Read "
+								+ incomingMessageBuffer.length() + "/" + MAX_HTTP_HEADER_LENGTH);
+
+						incomingMessageBuffer.setLength(0);
+
+						throw e;
+					}
+
+					// next time around, start reading from where we left off this
+					// time
+					startReadIndex = incomingMessageBuffer.length();
+					*/
+					break;
+				}
+				else
+				{ // we've read all of the header, and have it loaded into the
+					// map; now we can use it
 					if (contentLengthRemaining == -1)
 					{
-						/*
-						 * if we still don't have the remaining length, then there was a problem
-						 */
-						break;
-					}
-					else if (contentLengthRemaining > this.maxMessageLengthChars)
-					{
-						throw new BadClientException(((SocketChannel) sk.channel()).socket().getInetAddress()
-								.getHostAddress(), "Specified content length too large: " + contentLengthRemaining);
-					}
-
-					try
-					{
-						// see if the incoming buffer has enough characters to
-						// include the specified content length
-						if (incomingMessageBuffer.length() >= contentLengthRemaining)
+						try
 						{
-							firstMessageBuffer.append(incomingMessageBuffer.substring(0, contentLengthRemaining));
+							// handle all header information here; delete it when
+							// done here
+							contentLengthRemaining = Integer
+									.parseInt(this.headerMap.get(CONTENT_LENGTH_STRING));
+							if (headerMap.containsKey(UNIQUE_IDENTIFIER_STRING))
+							{
+								uidOfCurrentMessage = Integer.parseInt(this.headerMap
+										.get(UNIQUE_IDENTIFIER_STRING));
+							}
+							contentEncoding = this.headerMap.get(HTTP_CONTENT_CODING);
 
-							incomingMessageBuffer.delete(0, contentLengthRemaining);
-
-							// reset to do a new read on the next invocation
+							this.headerMap.clear();
+						}
+						catch (NumberFormatException e)
+						{
+							e.printStackTrace();
 							contentLengthRemaining = -1;
-							endOfFirstHeader = -1;
 						}
-						else
-						{
-							firstMessageBuffer.append(incomingMessageBuffer);
-
-							// indicate that we need to get more from the buffer in
-							// the next invocation
-							contentLengthRemaining -= incomingMessageBuffer.length();
-
-							incomingMessageBuffer.setLength(0);
-						}
-					}
-					catch (NullPointerException e)
-					{
-						e.printStackTrace();
-					}
-
-					if ((firstMessageBuffer.length() > 0) && (contentLengthRemaining == -1))
-					{ /*
-						 * if we've read a complete message, then contentLengthRemaining will be reset to -1
-						 */
-						// we got a response
-
-						if (contentEncoding != null)
-						{
-							if (contentEncoding.equals(HTTP_DEFLATE_ENCODING))
-							{
-								unCompress(firstMessageBuffer);
-							}
-							else
-							{
-								throw new BadClientException(((SocketChannel) sk.channel()).socket()
-										.getInetAddress().getHostAddress(), "Specified content encoding: "
-										+ contentEncoding + "not supported!");
-							}
-						}
-						if (!this.blockingRequestPending)
-						{
-							// we process the read data into a response message, let it
-							// perform its response, then dispose of
-							// the
-							// resulting MessageWithMetadata object
-							this.responsePool.release(processString(firstMessageBuffer.toString(),
-									uidOfCurrentMessage));
-						}
-						else
-						{
-							blockingResponsesQueue.add(processString(firstMessageBuffer.toString(),
-									uidOfCurrentMessage));
-							synchronized (this)
-							{
-								notify();
-							}
-						}
-
-						firstMessageBuffer.setLength(0);
+						// next time we read the header (the next message), we need
+						// to start from the beginning
+						startReadIndex = 0;
 					}
 				}
-			}
-			catch (CharacterCodingException e1)
-			{
-				e1.printStackTrace();
-			}
-			catch (DataFormatException e)
-			{
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
 
+				/*
+				 * we have the end of the first header (otherwise we would have broken out earlier). If we
+				 * don't have the content length, something bad happened, because it should have been
+				 * read.
+				 */
+				if (contentLengthRemaining == -1)
+				{
+					/*
+					 * if we still don't have the remaining length, then there was a problem
+					 */
+					break;
+				}
+				else if (contentLengthRemaining > this.maxMessageLengthChars)
+				{
+					throw new BadClientException(((SocketChannel) sk.channel()).socket().getInetAddress()
+							.getHostAddress(), "Specified content length too large: " + contentLengthRemaining);
+				}
+
+				try
+				{
+					// see if the incoming buffer has enough characters to
+					// include the specified content length
+					if (incomingMessageBuffer.length() >= contentLengthRemaining)
+					{
+						firstMessageBuffer.append(incomingMessageBuffer.substring(0, contentLengthRemaining));
+
+						incomingMessageBuffer.delete(0, contentLengthRemaining);
+
+						// reset to do a new read on the next invocation
+						contentLengthRemaining = -1;
+						endOfFirstHeader = -1;
+					}
+					else
+					{
+						firstMessageBuffer.append(incomingMessageBuffer);
+
+						// indicate that we need to get more from the buffer in
+						// the next invocation
+						contentLengthRemaining -= incomingMessageBuffer.length();
+
+						incomingMessageBuffer.setLength(0);
+					}
+				}
+				catch (NullPointerException e)
+				{
+					e.printStackTrace();
+				}
+
+				if ((firstMessageBuffer.length() > 0) && (contentLengthRemaining == -1))
+				{ /*
+					 * if we've read a complete message, then contentLengthRemaining will be reset to -1
+					 */
+					// we got a response
+
+					if (contentEncoding != null)
+					{
+						if (contentEncoding.equals(HTTP_DEFLATE_ENCODING))
+						{
+							unCompress(firstMessageBuffer);
+						}
+						else
+						{
+							throw new BadClientException(((SocketChannel) sk.channel()).socket()
+									.getInetAddress().getHostAddress(), "Specified content encoding: "
+									+ contentEncoding + "not supported!");
+						}
+					}
+					if (!this.blockingRequestPending)
+					{
+						// we process the read data into a response message, let it
+						// perform its response, then dispose of
+						// the
+						// resulting MessageWithMetadata object
+						this.responsePool.release(processString(firstMessageBuffer.toString(),
+								uidOfCurrentMessage));
+					}
+					else
+					{
+						blockingResponsesQueue.add(processString(firstMessageBuffer.toString(),
+								uidOfCurrentMessage));
+						synchronized (this)
+						{
+							notify();
+						}
+					}
+
+					firstMessageBuffer.setLength(0);
+				}
+			}
 		}
+		catch (CharacterCodingException e1)
+		{
+			e1.printStackTrace();
+		}
+		catch (DataFormatException e)
+		{
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+	
 	}
 
 	private CharSequence unCompress(StringBuilder firstMessageBuffer)
@@ -1416,11 +1350,12 @@ public class NIOClient<S extends Scope> extends NIONetworking<S> implements Runn
 	 * @param headerMap
 	 *          - the map into which all of the parsed headers will be placed.
 	 * @return the length of the parsed header, or -1 if it was not yet found.
+	 * @throws IOException 
 	 */
-	protected int parseHeader(int startChar, StringBuilder allIncomingChars)
+	protected int parseHeader(int startChar, InputStreamReader incomingReader) throws IOException
 	{
 		// indicates that we might be at the end of the header
-		boolean maybeEndSequence = false;
+		
 		char currentChar;
 
 		synchronized (currentHeaderSequence)
@@ -1428,11 +1363,9 @@ public class NIOClient<S extends Scope> extends NIONetworking<S> implements Runn
 			StringTools.clear(currentHeaderSequence);
 			StringTools.clear(currentKeyHeaderSequence);
 
-			int length = allIncomingChars.length();
-
-			for (int i = 0; i < length; i++)
+			while (incomingReader.ready())
 			{
-				currentChar = allIncomingChars.charAt(i);
+				currentChar = (char) incomingReader.read();
 
 				switch (currentChar)
 				{
@@ -1444,6 +1377,7 @@ public class NIOClient<S extends Scope> extends NIONetworking<S> implements Runn
 					currentKeyHeaderSequence.append(currentHeaderSequence);
 
 					StringTools.clear(currentHeaderSequence);
+					maybeLineEnd  = false;
 
 					break;
 				case ('\r'):
@@ -1451,7 +1385,11 @@ public class NIOClient<S extends Scope> extends NIONetworking<S> implements Runn
 					 * we have the end of a line; if there's a CRLF, then we have the end of the value
 					 * sequence or the end of the header.
 					 */
-					if (allIncomingChars.charAt(i + 1) == '\n')
+					maybeLineEnd  = true;
+					break;
+				case ('\n'):
+					maybeLineEnd  = false;
+					if(maybeLineEnd)
 					{
 						if (!maybeEndSequence)
 						{// load the key/value pair
@@ -1460,20 +1398,19 @@ public class NIOClient<S extends Scope> extends NIONetworking<S> implements Runn
 
 							StringTools.clear(currentKeyHeaderSequence);
 							StringTools.clear(currentHeaderSequence);
-
-							i++; // so we don't re-read that last character
 						}
 						else
 						{ // end of the header
-							return i + 2;
+							maybeEndSequence = false;
+							return 0;
 						}
 
 						maybeEndSequence = true;
 					}
-					break;
 				default:
 					currentHeaderSequence.append(currentChar);
 					maybeEndSequence = false;
+					maybeLineEnd  = false;
 					break;
 				}
 			}
