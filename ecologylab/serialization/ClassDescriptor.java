@@ -478,7 +478,7 @@ public class ClassDescriptor<FD extends FieldDescriptor> extends DescriptorBase 
 			ClassDescriptor<FD> superClassDescriptor = (ClassDescriptor<FD>) ClassDescriptor
 					.getClassDescriptor(classWithFields.getSuperclass());
 
-			referFieldDescriptors(superClassDescriptor);
+			referFieldDescriptorsFrom(superClassDescriptor);
 		}
 
 		// if (classWithFields.isAnnotationPresent(simpl_inherit.class))
@@ -606,7 +606,7 @@ public class ClassDescriptor<FD extends FieldDescriptor> extends DescriptorBase 
 
 	}
 
-	private void referFieldDescriptors(ClassDescriptor<FD> superClassDescriptor)
+	private void referFieldDescriptorsFrom(ClassDescriptor<FD> superClassDescriptor)
 	{
 		for (Entry<String, FD> fieldDescriptorEntry : superClassDescriptor
 				.getFieldDescriptorsByFieldName().entrySet())
