@@ -443,7 +443,7 @@ public class FieldDescriptor extends DescriptorBase implements FieldTypes, IMapp
 		if (result)
 		{
 			unresolvedScopeAnnotation = null;
-			declaringClassDescriptor.mapPolymorphicClassDescriptors(this);
+			//declaringClassDescriptor.mapPolymorphicClassDescriptors(this);
 		}
 		return result;
 	}

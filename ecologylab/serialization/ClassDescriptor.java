@@ -85,7 +85,6 @@ public class ClassDescriptor<FD extends FieldDescriptor> extends DescriptorBase 
 	@simpl_scalar
 	private Class<? extends FieldDescriptor>																					fieldDescriptorClass;
 
-
 	/**
 	 * This is a pseudo FieldDescriptor object, defined for the class, for cases in which the tag for
 	 * the root element or a field is determined by class name, not by field name.
@@ -148,8 +147,8 @@ public class ClassDescriptor<FD extends FieldDescriptor> extends DescriptorBase 
 	 */
 	@simpl_scalar
 	private boolean																																		strictObjectGraphRequired						= false;
-	
-	public Class<?> fdClass;
+
+	public Class<?>																																		fdClass;
 
 	static
 	{
@@ -176,14 +175,17 @@ public class ClassDescriptor<FD extends FieldDescriptor> extends DescriptorBase 
 		this.describedClass = thatClass;
 		this.describedClassSimpleName = thatClass.getSimpleName();
 		this.describedClassPackageName = thatClass.getPackage().getName();
-		
-		final simpl_descriptor_classes descriptorsClassesAnnotation = thatClass.getAnnotation(simpl_descriptor_classes.class);
+
+		final simpl_descriptor_classes descriptorsClassesAnnotation = thatClass
+				.getAnnotation(simpl_descriptor_classes.class);
 		if (descriptorsClassesAnnotation != null)
 		{
-			classDescriptorClass	= (Class<? extends ClassDescriptor>) descriptorsClassesAnnotation.value()[0];
-			fieldDescriptorClass	= (Class<? extends FieldDescriptor>) descriptorsClassesAnnotation.value()[1];
+			classDescriptorClass = (Class<? extends ClassDescriptor>) descriptorsClassesAnnotation
+					.value()[0];
+			fieldDescriptorClass = (Class<? extends FieldDescriptor>) descriptorsClassesAnnotation
+					.value()[1];
 		}
-		
+
 		if (thatClass.isAnnotationPresent(simpl_inherit.class))
 			this.superClass = getClassDescriptor(thatClass.getSuperclass());
 
@@ -338,7 +340,7 @@ public class ClassDescriptor<FD extends FieldDescriptor> extends DescriptorBase 
 					globalClassDescriptorsMap.put(className, result);
 
 					// NB: this call was moved out of the constructor to avoid recursion problems
-					result.deriveAndOrganizeFieldsRecursive(thatClass, null);
+					result.deriveAndOrganizeFieldsRecursive(thatClass);
 					result.isGetAndOrganizeComplete = true;
 				}
 			}
@@ -466,38 +468,31 @@ public class ClassDescriptor<FD extends FieldDescriptor> extends DescriptorBase 
 	 * Recurses up the chain of inherited Java classes, when @xml_inherit is specified.
 	 * 
 	 * @param fdc
+	 * @return
 	 */
-	private synchronized Class<FD> deriveAndOrganizeFieldsRecursive(
-			Class<? extends Object> classWithFields, Class<FD> fieldDescriptorClass)
+	private synchronized void deriveAndOrganizeFieldsRecursive(Class<? extends Object> classWithFields)
 	{
-		if (fieldDescriptorClass == null)
-		{ // look for annotation in super class if subclass didn't have one
-			fieldDescriptorClass = (Class<FD>) fieldDescriptorAnnotationValue(classWithFields);
-		}
-
-//		if (classWithFields.isAnnotationPresent(simpl_inherit.class))
-//		{
-//			ClassDescriptor<FD> superClassDescriptor = (ClassDescriptor<FD>) ClassDescriptor
-//					.getClassDescriptor(classWithFields.getSuperclass());
-//
-//			referFieldDescriptors(superClassDescriptor);
-//		}
 
 		if (classWithFields.isAnnotationPresent(simpl_inherit.class))
-		{ // recurse on super class first, so subclass declarations shadow those in superclasses,
+		{
+			ClassDescriptor<FD> superClassDescriptor = (ClassDescriptor<FD>) ClassDescriptor
+					.getClassDescriptor(classWithFields.getSuperclass());
 
-			// there are field name conflicts
-			Class<?> superClass = classWithFields.getSuperclass();
-
-			if (superClass != null)
-			{
-				Class<FD> superFieldDescriptorClass = deriveAndOrganizeFieldsRecursive(superClass,
-						fieldDescriptorClass);
-				// only assign (override) from super if we haven't found one here.
-				if (fieldDescriptorClass == null)
-					fieldDescriptorClass = superFieldDescriptorClass;
-			}
+			referFieldDescriptors(superClassDescriptor);
 		}
+
+		// if (classWithFields.isAnnotationPresent(simpl_inherit.class))
+		// { // recurse on super class first, so subclass declarations shadow those in superclasses,
+		//
+		// // there are field name conflicts
+		// Class<?> superClass = classWithFields.getSuperclass();
+		//
+		// if (superClass != null)
+		// {
+		// deriveAndOrganizeFieldsRecursive(superClass);
+		//
+		// }
+		// }
 
 		if (classWithFields.isAnnotationPresent(bibtex_type.class))
 		{
@@ -539,7 +534,8 @@ public class ClassDescriptor<FD extends FieldDescriptor> extends DescriptorBase 
 			if (fieldType == UNSET_TYPE)
 				continue; // not a simpl serialization annotated field
 
-			FD fieldDescriptor = newFieldDescriptor(thatField, fieldType, fieldDescriptorClass);
+			FD fieldDescriptor = newFieldDescriptor(thatField, fieldType,
+					(Class<FD>) fieldDescriptorClass);
 			// create indexes for serialize
 			if (fieldDescriptor.getType() == SCALAR)
 			{
@@ -589,7 +585,8 @@ public class ClassDescriptor<FD extends FieldDescriptor> extends DescriptorBase 
 			final String fieldTagName = fieldDescriptor.getTagName();
 			if (fieldDescriptor.isWrapped())
 			{
-				FD wrapper = newFieldDescriptor(fieldDescriptor, fieldTagName, fieldDescriptorClass);
+				FD wrapper = newFieldDescriptor(fieldDescriptor, fieldTagName,
+						(Class<FD>) fieldDescriptorClass);
 				mapTagToFdForDeserialize(fieldTagName, wrapper);
 				mapOtherTagsToFdForDeserialize(wrapper, fieldDescriptor.otherTags());
 			}
@@ -606,7 +603,7 @@ public class ClassDescriptor<FD extends FieldDescriptor> extends DescriptorBase 
 			}
 			thatField.setAccessible(true); // else -- ignore non-annotated fields
 		} // end for all fields
-		return fieldDescriptorClass;
+
 	}
 
 	private void referFieldDescriptors(ClassDescriptor<FD> superClassDescriptor)
@@ -655,7 +652,14 @@ public class ClassDescriptor<FD extends FieldDescriptor> extends DescriptorBase 
 		{
 			elementFieldDescriptors.add(fieldDescriptor);
 		}
-
+		
+		if(superClassDescriptor.getUnresolvedScopeAnnotationFDs() != null)
+		{
+			for(FD fd : superClassDescriptor.getUnresolvedScopeAnnotationFDs())
+			{
+				this.registerUnresolvedScopeAnnotationFD(fd);
+			}
+		}
 	}
 
 	protected void mapOtherTagsToFdForDeserialize(FD fieldDescriptor, ArrayList<String> otherTags)
@@ -876,6 +880,11 @@ public class ClassDescriptor<FD extends FieldDescriptor> extends DescriptorBase 
 		return allFieldDescriptorsByBibTeXTag;
 	}
 
+	public ArrayList<FD> getUnresolvedScopeAnnotationFDs()
+	{
+		return this.unresolvedScopeAnnotationFDs;
+	}
+
 	public String getSuperClassName()
 	{
 		return XMLTools.getClassSimpleName(describedClass.getSuperclass());
@@ -926,6 +935,7 @@ public class ClassDescriptor<FD extends FieldDescriptor> extends DescriptorBase 
 			{
 				FieldDescriptor fd = unresolvedScopeAnnotationFDs.remove(i);
 				fd.resolveUnresolvedScopeAnnotation();
+				this.mapPolymorphicClassDescriptors((FD) fd);
 			}
 		}
 		unresolvedScopeAnnotationFDs = null;
