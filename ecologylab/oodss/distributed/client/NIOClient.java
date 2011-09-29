@@ -1450,4 +1450,16 @@ public class NIOClient<S extends Scope> extends Debug implements ClientConstants
 
 		return this.clientStatusListeners;
 	}
+	
+	public void setPriority(int priority)
+	{
+		if (reader != null)
+		{
+			reader.setPriority(priority);
+		}
+		if (writer != null)
+		{
+			writer.setPriority(priority);
+		}
+	}
 }
