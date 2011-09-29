@@ -215,6 +215,14 @@ public class NIOClient<S extends Scope> extends Debug implements ClientConstants
 
 		this.serverAddress = serverAddress;
 	}
+	
+	
+	@Deprecated
+	public NIOClient(String serverAddress, int portNumber, TranslationScope messageSpace,
+			S objectRegistry, int maxMessageLengthChars) throws IOException
+	{
+		this(serverAddress, portNumber, messageSpace, objectRegistry);
+	}
 
 	/**
 	 * If this client is not already connected, connects to the specified serverAddress on the
