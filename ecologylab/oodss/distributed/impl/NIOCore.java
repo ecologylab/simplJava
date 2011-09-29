@@ -247,10 +247,9 @@ public abstract class NIOCore extends Debug implements StartAndStoppable, Networ
 
 	/**
 	 * @param key
-	 * @throws IOException 
 	 */
 	protected abstract void readReady(SelectionKey key) throws ClientOfflineException,
-			BadClientException, IOException;
+			BadClientException;
 
 	/**
 	 * Queues a request to change key's interest operations back to READ.

@@ -3,12 +3,9 @@
  */
 package ecologylab.oodss.distributed.impl;
 
-import java.io.BufferedInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.nio.BufferOverflowException;
 import java.nio.ByteBuffer;
-import java.nio.channels.Channels;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.SocketChannel;
 import java.nio.charset.CharsetDecoder;
@@ -26,7 +23,6 @@ import ecologylab.oodss.exceptions.BadClientException;
 import ecologylab.oodss.exceptions.ClientOfflineException;
 import ecologylab.oodss.messages.DefaultServicesTranslations;
 import ecologylab.serialization.TranslationScope;
-import ecologylab.serialization.library.rss.Channel;
 
 /**
  * Handles backend, low-level communication between distributed programs, using NIO. This is the
@@ -65,8 +61,6 @@ public abstract class NIONetworking<S extends Scope> extends NIOCore
 	protected CharsetDecoder											decoder					= CHARSET.newDecoder();
 
 	protected CharsetEncoder											encoder					= CHARSET.newEncoder();
-	
-	protected Map<SocketChannel, InputStream> channelStreams			= new HashMap<SocketChannel, InputStream>();
 
 	/**
 	 * Creates a Services Server Base. Sets internal variables, but does not bind the port. Port
@@ -108,11 +102,7 @@ public abstract class NIONetworking<S extends Scope> extends NIOCore
 	@Override
 	protected void readReady(SelectionKey key) throws ClientOfflineException, BadClientException
 	{
-		try {
-			readKey(key);
-		} catch (IOException e) {
-			throw new ClientOfflineException(e);
-		}
+		readKey(key);
 	}
 
 	/**
@@ -158,29 +148,40 @@ public abstract class NIONetworking<S extends Scope> extends NIOCore
 	 * 
 	 * @param key
 	 * @throws BadClientException
-	 * @throws IOException 
 	 */
-	private final void readKey(SelectionKey key) throws BadClientException, ClientOfflineException, IOException
+	private final void readKey(SelectionKey key) throws BadClientException, ClientOfflineException
 	{
 		SocketChannel sc = (SocketChannel) key.channel();
 		int bytesRead;
 
-		
 		this.readBuffer.clear();
-		
-		InputStream inputStream = null;
-		
-		if((inputStream = channelStreams.get(sc)) == null)
+
+		// read
+		try
 		{
-			inputStream = new BufferedInputStream(Channels.newInputStream(sc));
-			channelStreams.put(sc, inputStream);
+			bytesRead = sc.read(readBuffer);
+		}
+		catch (BufferOverflowException e)
+		{
+			throw new BadClientException(sc.socket().getInetAddress().getHostAddress(),
+					"Client overflowed the buffer.");
+		}
+		catch (IOException e)
+		{ // error trying to read; client disconnected
+			throw new ClientOfflineException("Client forcibly closed connection.");
 		}
 
-		if (inputStream.available() > 0)
+		if (bytesRead == -1)
+		{ // connection closed cleanly
+			throw new ClientOfflineException("Client closed connection cleanly.");
+		}
+		else if (bytesRead > 0)
 		{
+			readBuffer.flip();
+
 			// get the session key that was formed at accept(), and send it over as
 			// the sessionId
-			this.processReadData(key.attachment(), key, inputStream);
+			this.processReadData(key.attachment(), key, readBuffer, bytesRead);
 		}
 	}
 
@@ -257,7 +258,8 @@ public abstract class NIONetworking<S extends Scope> extends NIOCore
 	 *           if the client from which the bytes were read has transmitted something inappropriate,
 	 *           such as data too large for a buffer or a possibly malicious message.
 	 */
-	protected abstract void processReadData(Object sessionToken, SelectionKey sk, InputStream stream) throws BadClientException;
+	protected abstract void processReadData(Object sessionToken, SelectionKey sk, ByteBuffer bytes,
+			int bytesRead) throws BadClientException;
 
 	/**
 	 * This defines the actions that server needs to perform when the client ends unexpected way.
