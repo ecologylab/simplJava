@@ -5,29 +5,21 @@ package ecologylab.oodss.distributed.client;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
-import java.io.BufferedReader;
-import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
-import java.io.Reader;
 import java.net.BindException;
 import java.net.InetSocketAddress;
 import java.net.PortUnreachableException;
 import java.net.Socket;
 import java.net.SocketException;
-import java.nio.BufferOverflowException;
 import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
-import java.nio.channels.Channels;
 import java.nio.channels.ClosedChannelException;
-import java.nio.channels.SelectionKey;
-import java.nio.channels.SocketChannel;
 import java.nio.charset.CharacterCodingException;
-import java.nio.charset.Charset;
 import java.nio.charset.CharsetDecoder;
 import java.util.Collections;
 import java.util.HashMap;
@@ -36,10 +28,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Queue;
 import java.util.concurrent.LinkedBlockingQueue;
-import java.util.zip.DataFormatException;
-import java.util.zip.Deflater;
 import java.util.zip.DeflaterOutputStream;
-import java.util.zip.Inflater;
 import java.util.zip.InflaterInputStream;
 
 import ecologylab.collections.Scope;
@@ -49,11 +38,9 @@ import ecologylab.generic.StringBuilderPool;
 import ecologylab.generic.StringTools;
 import ecologylab.oodss.distributed.common.ClientConstants;
 import ecologylab.oodss.distributed.common.LimitedInputStream;
-import ecologylab.oodss.distributed.common.ServerConstants;
 import ecologylab.oodss.distributed.exception.MessageTooLargeException;
 import ecologylab.oodss.distributed.impl.MessageWithMetadata;
 import ecologylab.oodss.distributed.impl.MessageWithMetadataPool;
-import ecologylab.oodss.distributed.impl.NIONetworking;
 import ecologylab.oodss.distributed.impl.PreppedRequest;
 import ecologylab.oodss.distributed.impl.PreppedRequestPool;
 import ecologylab.oodss.exceptions.BadClientException;
@@ -102,8 +89,7 @@ public class NIOClient<S extends Scope> extends Debug implements ClientConstants
 	 */
 	private final StringBuilder																				currentKeyHeaderSequence			= new StringBuilder();
 
-	private MessageWithMetadata<ServiceMessage, Object>								response											= null;
-
+	
 	private volatile boolean																					blockingRequestPending				= false;
 
 	private final Queue<MessageWithMetadata<ServiceMessage, Object>>	blockingResponsesQueue				= new LinkedBlockingQueue<MessageWithMetadata<ServiceMessage, Object>>();
@@ -159,12 +145,6 @@ public class NIOClient<S extends Scope> extends Debug implements ClientConstants
 	private int																												contentLengthRemaining				= -1;
 
 	/**
-	 * Stores the first XML message from the incomingMessageBuffer, or parts of it (if it is being
-	 * read over several invocations).
-	 */
-	private final StringBuilder																				firstMessageBuffer						= new StringBuilder();
-
-	/**
 	 * Whether or not to allow server to reply using compression
 	 */
 	private boolean																										allowCompression							= false;
@@ -179,18 +159,14 @@ public class NIOClient<S extends Scope> extends Debug implements ClientConstants
 	 */
 	protected final HashMap<String, String>														headerMap											= new HashMap<String, String>();
 
-	protected Socket																						thisSocket										= null;
+	protected Socket																									thisSocket										= null;
 
 	protected final PreppedRequestPool																pRequestPool;
 
 	protected final MessageWithMetadataPool<ServiceMessage, Object>		responsePool									= new MessageWithMetadataPool<ServiceMessage, Object>(
 																																																			2,
 																																																			4);
-
-	private final StringBuilderPool																		builderPool;
-
-	private int																												maxMessageLengthChars;
-
+	
 	private String																										contentEncoding;
 
 	private List<ClientStatusListener>																clientStatusListeners					= null;
@@ -208,13 +184,9 @@ public class NIOClient<S extends Scope> extends Debug implements ClientConstants
 
 	private boolean																										maybeLineEnd									= false;
 
-	private ByteArrayOutputStream																			byteArrayOutput;
-
 	private int																												portNumber;
 
 	private InputStream																								socketInputStream;
-
-	private InputStreamReader																					socketReader;
 
 	private boolean																										running												= false;
 
@@ -230,27 +202,18 @@ public class NIOClient<S extends Scope> extends Debug implements ClientConstants
 																																																			.newDecoder();
 
 	public NIOClient(String serverAddress, int portNumber, TranslationScope messageSpace,
-			S objectRegistry, int maxMessageLengthChars) throws IOException
+			S objectRegistry) throws IOException
 	{
 		super();
-
-		this.maxMessageLengthChars = maxMessageLengthChars;
 
 		this.portNumber = portNumber;
 		this.objectRegistry = objectRegistry;
 
 		this.translationScope = messageSpace;
 
-		builderPool = new StringBuilderPool(2, 4, maxMessageLengthChars);
-		pRequestPool = new PreppedRequestPool(2, 4, maxMessageLengthChars);
+		pRequestPool = new PreppedRequestPool(2, 4, 1024);
 
 		this.serverAddress = serverAddress;
-	}
-
-	public NIOClient(String serverAddress, int portNumber, TranslationScope messageSpace,
-			S objectRegistry) throws IOException
-	{
-		this(serverAddress, portNumber, messageSpace, objectRegistry, DEFAULT_MAX_MESSAGE_LENGTH_CHARS);
 	}
 
 	/**
@@ -262,10 +225,10 @@ public class NIOClient<S extends Scope> extends Debug implements ClientConstants
 	 */
 	public boolean connect()
 	{
-		debug("initializing connection...");
+		debug(5, "initializing connection...");
 		if (this.connectImpl())
 		{
-			debug("starting listener thread...");
+			debug(5, "starting listener thread...");
 
 			this.start();
 
@@ -287,11 +250,11 @@ public class NIOClient<S extends Scope> extends Debug implements ClientConstants
 				{
 					this.sessionId = ((InitConnectionResponse) initResponse).getSessionId();
 
-					debug("new session: " + this.sessionId);
+					debug(3, "new session: " + this.sessionId);
 				}
 				else if (this.sessionId == ((InitConnectionResponse) initResponse).getSessionId())
 				{
-					debug("reconnected and restored previous connection: " + this.sessionId);
+					debug(3, "reconnected and restored previous connection: " + this.sessionId);
 				}
 				else
 				{
@@ -307,7 +270,7 @@ public class NIOClient<S extends Scope> extends Debug implements ClientConstants
 
 		this.notifyOfStatusChange(this.connected());
 
-		debug("connected? " + this.connected());
+		debug(5, "connected? " + this.connected());
 		return connected();
 	}
 
@@ -363,7 +326,7 @@ public class NIOClient<S extends Scope> extends Debug implements ClientConstants
 		while (this.requestsRemaining() > 0 && this.connected() && waitForResponses
 				&& attemptsCounter++ < 10)
 		{
-			debug("******************* Request queue not empty, finishing " + requestsRemaining()
+			debug(5, "******************* Request queue not empty, finishing " + requestsRemaining()
 					+ " messages before disconnecting (attempt " + attemptsCounter + ")...");
 			synchronized (this)
 			{
@@ -378,19 +341,19 @@ public class NIOClient<S extends Scope> extends Debug implements ClientConstants
 			}
 		}
 
-		debug("* starting disconnect process...");
+		debug(5, "* starting disconnect process...");
 
 		try
 		{
 			if (connected())
 			{
-				debug("** currently connected...");
+				debug(5, "** currently connected...");
 
 				while (waitForResponses && connected() && !this.shutdownOK() && attemptsCounter-- > 0)
 				{
-					debug("*** " + this.unfulfilledRequests.size()
+					debug(5, "*** " + this.unfulfilledRequests.size()
 							+ " requests still pending response from server (attempt " + attemptsCounter + ").");
-					debug("*** connected: " + connected());
+					debug(5, "*** connected: " + connected());
 
 					synchronized (this)
 					{
@@ -408,7 +371,7 @@ public class NIOClient<S extends Scope> extends Debug implements ClientConstants
 				// disconnect properly...
 				if (this.sessionId != null)
 				{
-					debug("**** session still active; handling disconnecting messages...");
+					debug(5, "**** session still active; handling disconnecting messages...");
 					this.handleDisconnectingMessages();
 					this.sessionId = null;
 				}
@@ -416,8 +379,8 @@ public class NIOClient<S extends Scope> extends Debug implements ClientConstants
 		}
 		finally
 		{
-			nullOut();
 			stop();
+			nullOut();
 		}
 	}
 
@@ -427,7 +390,7 @@ public class NIOClient<S extends Scope> extends Debug implements ClientConstants
 	 */
 	protected void handleDisconnectingMessages()
 	{
-		debug("************** sending disconnect request");
+		debug(5, "************** sending disconnect request");
 		try
 		{
 			this.sendMessage(DisconnectRequest.REUSABLE_INSTANCE, 10000);
@@ -454,8 +417,6 @@ public class NIOClient<S extends Scope> extends Debug implements ClientConstants
 		{
 			synchronized (thisSocket)
 			{
-				debug("null out");
-
 				thisSocket = null;
 			}
 		}
@@ -476,7 +437,7 @@ public class NIOClient<S extends Scope> extends Debug implements ClientConstants
 			try
 			{
 				// create the channel and connect it to the server
-				debug("creating socket!");
+				debug(5, "creating socket!");
 				thisSocket = new Socket();
 				
 				
@@ -486,30 +447,29 @@ public class NIOClient<S extends Scope> extends Debug implements ClientConstants
 				socketWriter = new OutputStreamWriter(socketOutputStream, CHARSET);
 	
 				socketInputStream = new BufferedInputStream(thisSocket.getInputStream());
-				socketReader = new InputStreamReader(socketInputStream, CHARSET);
 			}
 			catch (BindException e)
 			{
-				debug("Couldnt create socket connection to server - " + serverAddress + ":" + portNumber
+				debug(5, "Couldnt create socket connection to server - " + serverAddress + ":" + portNumber
 						+ " - " + e);
 	
 				nullOut();
 			}
 			catch (PortUnreachableException e)
 			{
-				debug("Server is alive, but has no daemon on portNumber " + portNumber + ": " + e);
+				debug(5, "Server is alive, but has no daemon on portNumber " + portNumber + ": " + e);
 	
 				nullOut();
 			}
 			catch (SocketException e)
 			{
-				debug("Server '" + serverAddress + "' unreachable: " + e);
+				debug(5, "Server '" + serverAddress + "' unreachable: " + e);
 	
 				nullOut();
 			}
 			catch (IOException e)
 			{
-				debug("Bad response from server: " + e);
+				debug(5, "Bad response from server: " + e);
 	
 				nullOut();
 			}
@@ -623,7 +583,7 @@ public class NIOClient<S extends Scope> extends Debug implements ClientConstants
 		{
 			if (timeOutMillis <= -1)
 			{
-				debug("waiting on blocking request");
+				debug(5, "waiting on blocking request");
 			}
 
 			try
@@ -643,7 +603,7 @@ public class NIOClient<S extends Scope> extends Debug implements ClientConstants
 				Thread.interrupted();
 			}
 
-			debug("waking");
+			debug(5, "waking");
 
 			timeCounter += System.currentTimeMillis() - startTime;
 			startTime = System.currentTimeMillis();
@@ -654,7 +614,7 @@ public class NIOClient<S extends Scope> extends Debug implements ClientConstants
 
 				if (responseMessage.getUid() == currentMessageUid)
 				{
-					debug("got the right response: " + currentMessageUid);
+					debug(5, "got the right response: " + currentMessageUid);
 
 					blockingRequestPending = false;
 
@@ -687,7 +647,7 @@ public class NIOClient<S extends Scope> extends Debug implements ClientConstants
 
 		if (blockingRequestFailed)
 		{
-			debug("Request failed due to timeout!");
+			debug(5, "Request failed due to timeout!");
 		}
 
 		return null;
@@ -757,9 +717,19 @@ public class NIOClient<S extends Scope> extends Debug implements ClientConstants
 
 	public void stop()
 	{
-		debug("shutting down client listening thread.");
+		debug(5, "shutting down client listening thread.");
 		running = false;
 
+		try
+		{
+			thisSocket.close();
+		}
+		catch (IOException e)
+		{
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
 		reader.interrupt();
 		writer.interrupt();
 	}
@@ -798,7 +768,7 @@ public class NIOClient<S extends Scope> extends Debug implements ClientConstants
 	 */
 	protected void reconnect()
 	{
-		debug("attempting to reconnect...");
+		debug(5, "attempting to reconnect...");
 		int reconnectsRemaining = this.reconnectAttempts;
 		if (reconnectsRemaining < 0)
 		{
@@ -918,7 +888,7 @@ public class NIOClient<S extends Scope> extends Debug implements ClientConstants
 		}
 		catch (ClosedChannelException e)
 		{
-			debug("connection severed; disconnecting and storing requests...");
+			debug(5, "connection severed; disconnecting and storing requests...");
 		}
 		catch (NullPointerException e)
 		{
@@ -974,23 +944,18 @@ public class NIOClient<S extends Scope> extends Debug implements ClientConstants
 	 * 
 	 * @param incomingMessage
 	 * @return
+	 * @throws SIMPLTranslationException 
 	 */
 	private MessageWithMetadata<ServiceMessage, Object> processString(
-			InputStream incomingMessageStream, int incomingUid)
+			InputStream incomingMessageStream, int incomingUid) throws SIMPLTranslationException
 	{
 
 		/*
 		 * if (show(5)) debug("incoming message: " + incomingMessage);
 		 */
 
-		try
-		{
-			response = translateXMLStringToServiceMessage(incomingMessageStream, incomingUid);
-		}
-		catch (SIMPLTranslationException e)
-		{
-			e.printStackTrace();
-		}
+		MessageWithMetadata<ServiceMessage, Object> response = translateXMLStringToServiceMessage(
+				incomingMessageStream, incomingUid);		
 
 		if (response == null)
 		{
@@ -1087,8 +1052,6 @@ public class NIOClient<S extends Scope> extends Debug implements ClientConstants
 						// done here
 						contentLengthRemaining = Integer.parseInt(this.headerMap.get(CONTENT_LENGTH_STRING));
 
-						byteArrayOutput = new ByteArrayOutputStream(contentLengthRemaining);
-
 						if (headerMap.containsKey(UNIQUE_IDENTIFIER_STRING))
 						{
 							uidOfCurrentMessage = Integer.parseInt(this.headerMap.get(UNIQUE_IDENTIFIER_STRING));
@@ -1123,66 +1086,58 @@ public class NIOClient<S extends Scope> extends Debug implements ClientConstants
 
 				if (contentLengthRemaining > 0)
 				{
-					while (contentLengthRemaining > 0)
-					{
-						int bytesToRead = Math.min(readBuffer.length, contentLengthRemaining);
-						
-						int available = inputStream.available();
-						
-						int readBytes = inputStream.read(readBuffer, 0, bytesToRead);
-
-						if (readBytes > 0)
-						{
-							byteArrayOutput.write(readBuffer, 0, readBytes);
-							contentLengthRemaining -= readBytes;
-						}
-						else
-						{
-							break;
-						}
-
-					}
-
-				}
-
-				if (contentLengthRemaining == 0)
-				{
-					// reset to do a new read on the next invocation
-					contentLengthRemaining = -1;
-					endOfFirstHeader = -1;
+					LimitedInputStream limitStream = new LimitedInputStream(inputStream, contentLengthRemaining);
 					
-					ByteArrayInputStream byteStream = new ByteArrayInputStream(byteArrayOutput.toByteArray());
-					byteArrayOutput = null;
-
+					
 					InflaterInputStream inflateStream = null;
 
 					InputStream messageStream = null;
 
 					if (contentEncoding != null && contentEncoding.equals(HTTP_DEFLATE_ENCODING))
 					{
-						inflateStream = new InflaterInputStream(byteStream);
+						inflateStream = new InflaterInputStream(limitStream);
 						messageStream = inflateStream;
 					}
 					else
 					{
-						messageStream = byteStream;
+						messageStream = limitStream;
 					}
 
-					if (!this.blockingRequestPending)
+					try
 					{
-						// we process the read data into a response message, let it
-						// perform its response, then dispose of
-						// the
-						// resulting MessageWithMetadata object
-						this.responsePool.release(processString(messageStream, uidOfCurrentMessage));
-					}
-					else
-					{
-						blockingResponsesQueue.add(processString(messageStream, uidOfCurrentMessage));
-						synchronized (this)
+						
+						if (!this.blockingRequestPending)
 						{
-							notify();
+							// we process the read data into a response message, let it
+							// perform its response, then dispose of
+							// the
+							// resulting MessageWithMetadata object
+							this.responsePool.release(processString(messageStream, uidOfCurrentMessage));
 						}
+						else
+						{
+							blockingResponsesQueue.add(processString(messageStream, uidOfCurrentMessage));
+							synchronized (this)
+							{
+								notify();
+							}
+						}
+						
+					}
+					catch (SIMPLTranslationException e)
+					{
+						e.printStackTrace();
+						
+					}
+					finally
+					{
+						while(limitStream.available() > 0)
+						{							
+							limitStream.read(readBuffer);
+						}
+						
+						contentLengthRemaining = -1; 
+						endOfFirstHeader = -1;
 					}
 
 				}
@@ -1197,6 +1152,17 @@ public class NIOClient<S extends Scope> extends Debug implements ClientConstants
 		catch (CharacterCodingException e1)
 		{
 			e1.printStackTrace();
+		}
+		catch (SocketException se)
+		{
+			if(running && !se.getMessage().contains("closed"))
+			{
+				se.printStackTrace();
+			}	
+			else
+			{
+				// this is totally normal
+			}
 		}
 		catch (IOException e)
 		{
@@ -1282,13 +1248,13 @@ public class NIOClient<S extends Scope> extends Debug implements ClientConstants
 	 */
 	public boolean isServerRunning()
 	{
-		debug("checking availability of server");
+		debug(5, "checking availability of server");
 		boolean serverIsRunning = createConnection();
 
 		// we're just checking, don't keep the connection
 		if (connected())
 		{
-			debug("server is running; disconnecting");
+			debug(5, "server is running; disconnecting");
 			disconnect();
 		}
 
@@ -1333,7 +1299,7 @@ public class NIOClient<S extends Scope> extends Debug implements ClientConstants
 			StringTools.clear(currentHeaderSequence);
 			StringTools.clear(currentKeyHeaderSequence);
 
-			loop: while (true)
+			while (true)
 			{
 				int ret = incomingStream.read(readBuffer, 0, 1);
 				
@@ -1403,11 +1369,6 @@ public class NIOClient<S extends Scope> extends Debug implements ClientConstants
 				
 			}
 		}
-	}
-
-	public int getMaxMessageLengthChars()
-	{
-		return this.maxMessageLengthChars;
 	}
 
 	public void setReconnectBlocker(ReconnectBlocker blocker)
