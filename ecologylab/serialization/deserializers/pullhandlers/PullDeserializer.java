@@ -7,6 +7,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
+import java.nio.charset.Charset;
 
 import ecologylab.generic.Debug;
 import ecologylab.net.ConnectionAdapter;
@@ -135,11 +136,20 @@ public abstract class PullDeserializer extends Debug implements FieldTypes
 	/**
 	 * 
 	 * @param inputStream
+	 * @param charSet
+	 * @return
+	 * @throws SIMPLTranslationException
+	 */
+	public abstract Object parse(InputStream inputStream, Charset charSet) throws SIMPLTranslationException;
+
+	/**
+	 * 
+	 * @param inputStream
 	 * @return
 	 * @throws SIMPLTranslationException
 	 */
 	public abstract Object parse(InputStream inputStream) throws SIMPLTranslationException;
-
+	
 	/**
 	 * 
 	 * @param object

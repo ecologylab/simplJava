@@ -3,15 +3,21 @@
  */
 package ecologylab.oodss.distributed.client;
 
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
+import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
+import java.io.Reader;
 import java.net.BindException;
 import java.net.InetSocketAddress;
 import java.net.PortUnreachableException;
+import java.net.Socket;
 import java.net.SocketException;
 import java.nio.BufferOverflowException;
 import java.nio.ByteBuffer;
@@ -22,6 +28,7 @@ import java.nio.channels.SelectionKey;
 import java.nio.channels.SocketChannel;
 import java.nio.charset.CharacterCodingException;
 import java.nio.charset.Charset;
+import java.nio.charset.CharsetDecoder;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -33,12 +40,15 @@ import java.util.zip.DataFormatException;
 import java.util.zip.Deflater;
 import java.util.zip.DeflaterOutputStream;
 import java.util.zip.Inflater;
+import java.util.zip.InflaterInputStream;
 
 import ecologylab.collections.Scope;
+import ecologylab.generic.Debug;
 import ecologylab.generic.Generic;
 import ecologylab.generic.StringBuilderPool;
 import ecologylab.generic.StringTools;
 import ecologylab.oodss.distributed.common.ClientConstants;
+import ecologylab.oodss.distributed.common.LimitedInputStream;
 import ecologylab.oodss.distributed.common.ServerConstants;
 import ecologylab.oodss.distributed.exception.MessageTooLargeException;
 import ecologylab.oodss.distributed.impl.MessageWithMetadata;
@@ -56,6 +66,7 @@ import ecologylab.oodss.messages.SendableRequest;
 import ecologylab.oodss.messages.ServiceMessage;
 import ecologylab.oodss.messages.UpdateMessage;
 import ecologylab.serialization.ClassDescriptor;
+import ecologylab.serialization.Format;
 import ecologylab.serialization.SIMPLTranslationException;
 import ecologylab.serialization.StringFormat;
 import ecologylab.serialization.TranslationScope;
@@ -75,8 +86,7 @@ import ecologylab.serialization.TranslationScope;
  * 
  * @author Zachary O. Dugas Toups (zach@ecologylab.net)
  */
-public class NIOClient<S extends Scope> extends NIONetworking<S> implements Runnable,
-		ClientConstants
+public class NIOClient<S extends Scope> extends Debug implements ClientConstants
 {
 	protected String																									serverAddress;
 
@@ -98,7 +108,7 @@ public class NIOClient<S extends Scope> extends NIONetworking<S> implements Runn
 
 	private final Queue<MessageWithMetadata<ServiceMessage, Object>>	blockingResponsesQueue				= new LinkedBlockingQueue<MessageWithMetadata<ServiceMessage, Object>>();
 
-	protected final Queue<PreppedRequest>															requestsQueue									= new LinkedBlockingQueue<PreppedRequest>();
+	protected final LinkedBlockingQueue<PreppedRequest>								requestsQueue									= new LinkedBlockingQueue<PreppedRequest>();
 
 	/**
 	 * A map that stores all the requests that have not yet gotten responses. Maps UID to
@@ -137,9 +147,7 @@ public class NIOClient<S extends Scope> extends NIONetworking<S> implements Runn
 
 	private int																												endOfFirstHeader							= -1;
 
-	protected int																											startReadIndex								= 0;
-	
-	protected boolean 																										maybeEndSequence 					= false;
+	protected boolean																									maybeEndSequence							= false;
 
 	private int																												uidOfCurrentMessage						= -1;
 
@@ -171,7 +179,7 @@ public class NIOClient<S extends Scope> extends NIONetworking<S> implements Runn
 	 */
 	protected final HashMap<String, String>														headerMap											= new HashMap<String, String>();
 
-	protected SocketChannel																						thisSocket										= null;
+	protected Socket																						thisSocket										= null;
 
 	protected final PreppedRequestPool																pRequestPool;
 
@@ -187,18 +195,51 @@ public class NIOClient<S extends Scope> extends NIONetworking<S> implements Runn
 
 	private List<ClientStatusListener>																clientStatusListeners					= null;
 
-	private OutputStream socketOutputStream;
+	private byte[]																										readBuffer										= new byte[1024];
+	
+	private ByteBuffer																								firstByteReadBuffer 					= ByteBuffer.wrap(readBuffer, 0, 1);
+	
+	private CharBuffer																								firstCharBuffer								= CharBuffer
+																																																			.allocate(1);
 
-	private OutputStreamWriter socketWriter;
+	private OutputStream																							socketOutputStream;
 
-	private boolean maybeLineEnd = false;
+	private OutputStreamWriter																				socketWriter;
+
+	private boolean																										maybeLineEnd									= false;
+
+	private ByteArrayOutputStream																			byteArrayOutput;
+
+	private int																												portNumber;
+
+	private InputStream																								socketInputStream;
+
+	private InputStreamReader																					socketReader;
+
+	private boolean																										running												= false;
+
+	private Thread																										reader;
+
+	private Thread																										writer;
+
+	private S																													objectRegistry;
+
+	private TranslationScope																					translationScope;
+
+	protected CharsetDecoder																					decoder												= CHARSET
+																																																			.newDecoder();
 
 	public NIOClient(String serverAddress, int portNumber, TranslationScope messageSpace,
 			S objectRegistry, int maxMessageLengthChars) throws IOException
 	{
-		super("NIOClient", portNumber, messageSpace, objectRegistry, maxMessageLengthChars);
+		super();
 
 		this.maxMessageLengthChars = maxMessageLengthChars;
+
+		this.portNumber = portNumber;
+		this.objectRegistry = objectRegistry;
+
+		this.translationScope = messageSpace;
 
 		builderPool = new StringBuilderPool(2, 4, maxMessageLengthChars);
 		pRequestPool = new PreppedRequestPool(2, 4, maxMessageLengthChars);
@@ -260,7 +301,7 @@ public class NIOClient<S extends Scope> extends NIONetworking<S> implements Runn
 					this.sessionId = newId;
 				}
 
-				this.thisSocket.keyFor(this.selector).attach(this.sessionId);
+				// this.thisSocket.keyFor(this.selector).attach(this.sessionId);
 			}
 		}
 
@@ -295,11 +336,9 @@ public class NIOClient<S extends Scope> extends NIONetworking<S> implements Runn
 		PreppedRequest pReq = null;
 
 		pReq = this.pRequestPool.acquire();
-		
-		
-		
+
 		// fill requestBuffer
-		ClassDescriptor.serialize(pReq.getRequest(), pReq.getRequest(), StringFormat.XML);			
+		ClassDescriptor.serialize(request, pReq.getRequest(), StringFormat.XML);
 
 		pReq.setUid(uid);
 		pReq.setDisposable(request.isDisposable());
@@ -316,10 +355,6 @@ public class NIOClient<S extends Scope> extends NIONetworking<S> implements Runn
 		{
 			requestsQueue.add(request);
 		}
-
-		this.queueForWrite(this.thisSocket.keyFor(selector));
-
-		selector.wakeup();
 	}
 
 	public void disconnect(boolean waitForResponses)
@@ -428,7 +463,7 @@ public class NIOClient<S extends Scope> extends NIONetworking<S> implements Runn
 
 	public boolean connected()
 	{
-		return (thisSocket != null) && !thisSocket.isConnectionPending() && thisSocket.isConnected();
+		return (thisSocket != null) && thisSocket.isConnected();
 	}
 
 	/**
@@ -436,52 +471,49 @@ public class NIOClient<S extends Scope> extends NIONetworking<S> implements Runn
 	 */
 	protected boolean createConnection()
 	{
-		try
+		if(!connected())
 		{
-			// create the channel and connect it to the server
-			debug("creating socket!");
-			thisSocket = SocketChannel.open(new InetSocketAddress(serverAddress, portNumber));
-
-			// disable blocking
-			thisSocket.configureBlocking(false);
-
-			if (connected())
+			try
 			{
-				// register the channel for read operations, now that it is
-				// connected
-				super.openSelector();
-				thisSocket.register(selector, SelectionKey.OP_READ);
+				// create the channel and connect it to the server
+				debug("creating socket!");
+				thisSocket = new Socket();
+				
+				
+				thisSocket.connect(new InetSocketAddress(serverAddress, portNumber));
+	
+				socketOutputStream = new BufferedOutputStream(thisSocket.getOutputStream());
+				socketWriter = new OutputStreamWriter(socketOutputStream, CHARSET);
+	
+				socketInputStream = new BufferedInputStream(thisSocket.getInputStream());
+				socketReader = new InputStreamReader(socketInputStream, CHARSET);
 			}
-			
-			socketOutputStream = Channels.newOutputStream(thisSocket);
-			socketWriter = new OutputStreamWriter(socketOutputStream, CHARSET);
+			catch (BindException e)
+			{
+				debug("Couldnt create socket connection to server - " + serverAddress + ":" + portNumber
+						+ " - " + e);
+	
+				nullOut();
+			}
+			catch (PortUnreachableException e)
+			{
+				debug("Server is alive, but has no daemon on portNumber " + portNumber + ": " + e);
+	
+				nullOut();
+			}
+			catch (SocketException e)
+			{
+				debug("Server '" + serverAddress + "' unreachable: " + e);
+	
+				nullOut();
+			}
+			catch (IOException e)
+			{
+				debug("Bad response from server: " + e);
+	
+				nullOut();
+			}
 		}
-		catch (BindException e)
-		{
-			debug("Couldnt create socket connection to server - " + serverAddress + ":" + portNumber
-					+ " - " + e);
-
-			nullOut();
-		}
-		catch (PortUnreachableException e)
-		{
-			debug("Server is alive, but has no daemon on portNumber " + portNumber + ": " + e);
-
-			nullOut();
-		}
-		catch (SocketException e)
-		{
-			debug("Server '" + serverAddress + "' unreachable: " + e);
-
-			nullOut();
-		}
-		catch (IOException e)
-		{
-			debug("Bad response from server: " + e);
-
-			nullOut();
-		}
-
 		return connected();
 	}
 
@@ -661,21 +693,75 @@ public class NIOClient<S extends Scope> extends NIONetworking<S> implements Runn
 		return null;
 	}
 
-	@Override
+	private class SocketReader implements Runnable
+	{
+
+		@Override
+		public void run()
+		{
+			while (running)
+			{
+				try
+				{
+					processReadData(socketInputStream);
+				}
+				catch (BadClientException e)
+				{
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+
+		}
+
+	}
+
+	private class SocketWriter implements Runnable
+	{
+
+		@Override
+		public void run()
+		{
+			while (running)
+			{
+				try
+				{
+					createPacketFromMessageAndSend(requestsQueue.take());
+				}
+				catch (InterruptedException e)
+				{
+					if (!running)
+					{
+						break;
+					}
+				}
+
+			}
+
+		}
+
+	}
+
 	public void start()
 	{
 		if (connected())
 		{
-			super.start();
+			running = true;
+			reader = new Thread(new SocketReader());
+			reader.start();
+
+			writer = new Thread(new SocketWriter());
+			writer.start();
 		}
 	}
 
-	@Override
 	public void stop()
 	{
 		debug("shutting down client listening thread.");
+		running = false;
 
-		super.stop();
+		reader.interrupt();
+		writer.interrupt();
 	}
 
 	/**
@@ -780,14 +866,14 @@ public class NIOClient<S extends Scope> extends NIONetworking<S> implements Runn
 	 * 
 	 * @param pReq
 	 */
-	private void createPacketFromMessageAndSend(PreppedRequest pReq, SelectionKey incomingKey)
+	private void createPacketFromMessageAndSend(PreppedRequest pReq)
 	{
 		StringBuilder outgoingReq = pReq.getRequest();
 
 		this.addUnfulfilledRequest(pReq);
 
 		byte[] messageBytes = null;
-		
+
 		try
 		{
 			if (this.sendCompressed)
@@ -800,11 +886,10 @@ public class NIOClient<S extends Scope> extends NIONetworking<S> implements Runn
 				messageBytes = this.encode(outgoingReq);
 			}
 
-						
 			socketWriter.append(CONTENT_LENGTH_STRING);
 			socketWriter.append(':');
 			socketWriter.append("" + messageBytes.length);
-			
+
 			socketWriter.append(HTTP_HEADER_LINE_DELIMITER);
 
 			socketWriter.append(UNIQUE_IDENTIFIER_STRING);
@@ -834,7 +919,6 @@ public class NIOClient<S extends Scope> extends NIONetworking<S> implements Runn
 		catch (ClosedChannelException e)
 		{
 			debug("connection severed; disconnecting and storing requests...");
-			setPendingInvalidate(incomingKey, false);
 		}
 		catch (NullPointerException e)
 		{
@@ -857,24 +941,25 @@ public class NIOClient<S extends Scope> extends NIONetworking<S> implements Runn
 		ByteArrayOutputStream byteArrayStream = new ByteArrayOutputStream(1024);
 		DeflaterOutputStream zipStream = new DeflaterOutputStream(byteArrayStream);
 		OutputStreamWriter encodingStream = new OutputStreamWriter(zipStream, CHARSET);
-		
+
 		encodingStream.append(src);
 		encodingStream.flush();
 		zipStream.flush();
+		zipStream.finish();
 		byteArrayStream.flush();
-			
+
 		return byteArrayStream.toByteArray();
 	}
-	
+
 	private byte[] encode(StringBuilder src) throws IOException
 	{
 		ByteArrayOutputStream byteArrayStream = new ByteArrayOutputStream(1024);
 		OutputStreamWriter encodingStream = new OutputStreamWriter(byteArrayStream, CHARSET);
-		
+
 		encodingStream.append(src);
 		encodingStream.flush();
 		byteArrayStream.flush();
-			
+
 		return byteArrayStream.toByteArray();
 	}
 
@@ -890,16 +975,17 @@ public class NIOClient<S extends Scope> extends NIONetworking<S> implements Runn
 	 * @param incomingMessage
 	 * @return
 	 */
-	private MessageWithMetadata<ServiceMessage, Object> processString(String incomingMessage,
-			int incomingUid)
+	private MessageWithMetadata<ServiceMessage, Object> processString(
+			InputStream incomingMessageStream, int incomingUid)
 	{
 
-		if (show(5))
-			debug("incoming message: " + incomingMessage);
+		/*
+		 * if (show(5)) debug("incoming message: " + incomingMessage);
+		 */
 
 		try
 		{
-			response = translateXMLStringToServiceMessage(incomingMessage, incomingUid);
+			response = translateXMLStringToServiceMessage(incomingMessageStream, incomingUid);
 		}
 		catch (SIMPLTranslationException e)
 		{
@@ -967,271 +1053,155 @@ public class NIOClient<S extends Scope> extends NIONetworking<S> implements Runn
 	}
 
 	/**
-	 * This method does nothing, as NIOClients do not accept incoming connections.
-	 * 
-	 * @see ecologylab.oodss.distributed.impl.NIONetworking#acceptKey(java.nio.channels.SelectionKey)
-	 */
-	@Override
-	protected void acceptKey(SelectionKey key)
-	{
-	}
-
-	/**
-	 * @see ecologylab.oodss.distributed.impl.NIONetworking#checkAndDropIdleKeys()
-	 */
-	@Override
-	protected void checkAndDropIdleKeys()
-	{
-
-	}
-
-	/**
-	 * @see ecologylab.oodss.distributed.impl.NIONetworking#invalidateKey(java.nio.channels.SelectionKey,
-	 *      boolean)
-	 */
-	@Override
-	protected void invalidateKey(SelectionKey key, boolean permanent)
-	{
-		debug("server disconnected...");
-
-		// clean up
-		this.invalidateKey((SocketChannel) key.channel());
-
-		if (!permanent)
-		{
-			Thread thread = new Thread(new Reconnecter());
-			thread.run();
-		}
-
-		this.notifyOfStatusChange(false);
-	}
-
-	/**
 	 * @see ecologylab.oodss.distributed.impl.NIONetworking#processReadData(java.lang.Object,
 	 *      java.nio.channels.SocketChannel, byte[], int)
 	 */
-	@Override
-	protected void processReadData(Object sessionToken, SelectionKey sk, InputStream inputStream) throws BadClientException
+	protected void processReadData(InputStream inputStream) throws BadClientException
 	{
-	
+
 		try
 		{
 			// look for HTTP header
-			while (inputStream.available() > 0)
+
+			if (endOfFirstHeader == -1)
+			{				
+				endOfFirstHeader = this.parseHeader(inputStream);
+			}
+
+			if (endOfFirstHeader == -1)
 			{
-				if (endOfFirstHeader == -1)
-				{
-					endOfFirstHeader = this.parseHeader(startReadIndex, new InputStreamReader(inputStream));
-				}
-
-				if (endOfFirstHeader == -1)
-				{ 
-					/*
-					 * no header yet; if it's too large, bad client; if it's not too large yet, just exit,
-					 * it'll get checked again when more data comes down the pipe
-					 */
-					/*if (incomingMessageBuffer.length() > ServerConstants.MAX_HTTP_HEADER_LENGTH)
-					{
-						// clear the buffer
-						BadClientException e = new BadClientException(((SocketChannel) sk.channel()).socket()
-								.getInetAddress().getHostAddress(), "Maximum HTTP header length exceeded. Read "
-								+ incomingMessageBuffer.length() + "/" + MAX_HTTP_HEADER_LENGTH);
-
-						incomingMessageBuffer.setLength(0);
-
-						throw e;
-					}
-
-					// next time around, start reading from where we left off this
-					// time
-					startReadIndex = incomingMessageBuffer.length();
-					*/
-					break;
-				}
-				else
-				{ // we've read all of the header, and have it loaded into the
-					// map; now we can use it
-					if (contentLengthRemaining == -1)
-					{
-						try
-						{
-							// handle all header information here; delete it when
-							// done here
-							contentLengthRemaining = Integer
-									.parseInt(this.headerMap.get(CONTENT_LENGTH_STRING));
-							if (headerMap.containsKey(UNIQUE_IDENTIFIER_STRING))
-							{
-								uidOfCurrentMessage = Integer.parseInt(this.headerMap
-										.get(UNIQUE_IDENTIFIER_STRING));
-							}
-							contentEncoding = this.headerMap.get(HTTP_CONTENT_CODING);
-
-							this.headerMap.clear();
-						}
-						catch (NumberFormatException e)
-						{
-							e.printStackTrace();
-							contentLengthRemaining = -1;
-						}
-						// next time we read the header (the next message), we need
-						// to start from the beginning
-						startReadIndex = 0;
-					}
-				}
-
 				/*
-				 * we have the end of the first header (otherwise we would have broken out earlier). If we
-				 * don't have the content length, something bad happened, because it should have been
-				 * read.
+				 * no header yet; if it's too large, bad client; if it's not too large yet, just exit, it'll
+				 * get checked again when more data comes down the pipe
 				 */
+				return;
+			}
+			else
+			{ // we've read all of the header, and have it loaded into the
+				// map; now we can use it
 				if (contentLengthRemaining == -1)
 				{
-					/*
-					 * if we still don't have the remaining length, then there was a problem
-					 */
-					break;
-				}
-				else if (contentLengthRemaining > this.maxMessageLengthChars)
-				{
-					throw new BadClientException(((SocketChannel) sk.channel()).socket().getInetAddress()
-							.getHostAddress(), "Specified content length too large: " + contentLengthRemaining);
-				}
-
-				try
-				{
-					// see if the incoming buffer has enough characters to
-					// include the specified content length
-					if (incomingMessageBuffer.length() >= contentLengthRemaining)
+					try
 					{
-						firstMessageBuffer.append(incomingMessageBuffer.substring(0, contentLengthRemaining));
+						// handle all header information here; delete it when
+						// done here
+						contentLengthRemaining = Integer.parseInt(this.headerMap.get(CONTENT_LENGTH_STRING));
 
-						incomingMessageBuffer.delete(0, contentLengthRemaining);
+						byteArrayOutput = new ByteArrayOutputStream(contentLengthRemaining);
 
-						// reset to do a new read on the next invocation
-						contentLengthRemaining = -1;
-						endOfFirstHeader = -1;
-					}
-					else
-					{
-						firstMessageBuffer.append(incomingMessageBuffer);
-
-						// indicate that we need to get more from the buffer in
-						// the next invocation
-						contentLengthRemaining -= incomingMessageBuffer.length();
-
-						incomingMessageBuffer.setLength(0);
-					}
-				}
-				catch (NullPointerException e)
-				{
-					e.printStackTrace();
-				}
-
-				if ((firstMessageBuffer.length() > 0) && (contentLengthRemaining == -1))
-				{ /*
-					 * if we've read a complete message, then contentLengthRemaining will be reset to -1
-					 */
-					// we got a response
-
-					if (contentEncoding != null)
-					{
-						if (contentEncoding.equals(HTTP_DEFLATE_ENCODING))
+						if (headerMap.containsKey(UNIQUE_IDENTIFIER_STRING))
 						{
-							unCompress(firstMessageBuffer);
+							uidOfCurrentMessage = Integer.parseInt(this.headerMap.get(UNIQUE_IDENTIFIER_STRING));
+						}
+						contentEncoding = this.headerMap.get(HTTP_CONTENT_CODING);
+
+						this.headerMap.clear();
+					}
+					catch (NumberFormatException e)
+					{
+						e.printStackTrace();
+						contentLengthRemaining = -1;
+					}
+				}
+			}
+
+			/*
+			 * we have the end of the first header (otherwise we would have broken out earlier). If we
+			 * don't have the content length, something bad happened, because it should have been read.
+			 */
+			if (contentLengthRemaining == -1)
+			{
+				/*
+				 * if we still don't have the remaining length, then there was a problem
+				 */
+				return;
+			}
+
+			try
+			{
+				// buffer all incoming bytes from stream
+
+				if (contentLengthRemaining > 0)
+				{
+					while (contentLengthRemaining > 0)
+					{
+						int bytesToRead = Math.min(readBuffer.length, contentLengthRemaining);
+						
+						int available = inputStream.available();
+						
+						int readBytes = inputStream.read(readBuffer, 0, bytesToRead);
+
+						if (readBytes > 0)
+						{
+							byteArrayOutput.write(readBuffer, 0, readBytes);
+							contentLengthRemaining -= readBytes;
 						}
 						else
 						{
-							throw new BadClientException(((SocketChannel) sk.channel()).socket()
-									.getInetAddress().getHostAddress(), "Specified content encoding: "
-									+ contentEncoding + "not supported!");
+							break;
 						}
+
 					}
+
+				}
+
+				if (contentLengthRemaining == 0)
+				{
+					// reset to do a new read on the next invocation
+					contentLengthRemaining = -1;
+					endOfFirstHeader = -1;
+					
+					ByteArrayInputStream byteStream = new ByteArrayInputStream(byteArrayOutput.toByteArray());
+					byteArrayOutput = null;
+
+					InflaterInputStream inflateStream = null;
+
+					InputStream messageStream = null;
+
+					if (contentEncoding != null && contentEncoding.equals(HTTP_DEFLATE_ENCODING))
+					{
+						inflateStream = new InflaterInputStream(byteStream);
+						messageStream = inflateStream;
+					}
+					else
+					{
+						messageStream = byteStream;
+					}
+
 					if (!this.blockingRequestPending)
 					{
 						// we process the read data into a response message, let it
 						// perform its response, then dispose of
 						// the
 						// resulting MessageWithMetadata object
-						this.responsePool.release(processString(firstMessageBuffer.toString(),
-								uidOfCurrentMessage));
+						this.responsePool.release(processString(messageStream, uidOfCurrentMessage));
 					}
 					else
 					{
-						blockingResponsesQueue.add(processString(firstMessageBuffer.toString(),
-								uidOfCurrentMessage));
+						blockingResponsesQueue.add(processString(messageStream, uidOfCurrentMessage));
 						synchronized (this)
 						{
 							notify();
 						}
 					}
 
-					firstMessageBuffer.setLength(0);
 				}
+
 			}
+			catch (NullPointerException e)
+			{
+				e.printStackTrace();
+			}
+
 		}
 		catch (CharacterCodingException e1)
 		{
 			e1.printStackTrace();
 		}
-		catch (DataFormatException e)
+		catch (IOException e)
 		{
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-
-	
-	}
-
-	private CharSequence unCompress(StringBuilder firstMessageBuffer)
-			throws CharacterCodingException, DataFormatException
-	{
-		synchronized (zippingChars)
-		{
-			zippingChars.clear();
-
-			firstMessageBuffer.getChars(0, firstMessageBuffer.length(), this.zippingChars.array(), 0);
-			zippingChars.position(0);
-			zippingChars.limit(firstMessageBuffer.length());
-
-			zippingInBytes.clear();
-
-			encoder.reset();
-			encoder.encode(zippingChars, zippingInBytes, true);
-			encoder.flush(zippingInBytes);
-
-			zippingInBytes.flip();
-
-			inflater.reset();
-			inflater.setInput(zippingInBytes.array(), zippingInBytes.position(), zippingInBytes.limit());
-
-			zippingOutBytes.clear();
-			inflater
-					.inflate(zippingOutBytes.array(), zippingOutBytes.position(), zippingOutBytes.limit());
-
-			zippingOutBytes.position(0);
-			zippingOutBytes.limit(inflater.getTotalOut());
-
-			zippingChars.clear();
-
-			decoder.reset();
-			decoder.decode(zippingOutBytes, zippingChars, true);
-			decoder.flush(zippingChars);
-
-			zippingChars.flip();
-
-			firstMessageBuffer.setLength(0);
-
-			return firstMessageBuffer.append(zippingChars.array(), 0, zippingChars.limit());
-		}
-	}
-
-	/**
-	 * @see ecologylab.oodss.distributed.impl.NIONetworking#removeBadConnections(java.nio.channels.SelectionKey)
-	 */
-	@Override
-	protected void removeBadConnections(SelectionKey key)
-	{
-		// TODO Auto-generated method stub
 
 	}
 
@@ -1255,10 +1225,10 @@ public class NIOClient<S extends Scope> extends NIONetworking<S> implements Runn
 	 * @throws XMLTranslationException
 	 */
 	protected MessageWithMetadata<ServiceMessage, Object> translateXMLStringToServiceMessage(
-			String messageString, int incomingUid) throws SIMPLTranslationException
+			InputStream inputStream, int incomingUid) throws SIMPLTranslationException
 	{
-		ServiceMessage resp = (ServiceMessage) this.translationScope
-				.deserialize(messageString, StringFormat.XML);
+		ServiceMessage resp = (ServiceMessage) this.translationScope.deserialize(inputStream,
+				Format.XML, CHARSET);
 
 		if (resp == null)
 		{
@@ -1350,23 +1320,38 @@ public class NIOClient<S extends Scope> extends NIONetworking<S> implements Runn
 	 * @param headerMap
 	 *          - the map into which all of the parsed headers will be placed.
 	 * @return the length of the parsed header, or -1 if it was not yet found.
-	 * @throws IOException 
+	 * @throws IOException
 	 */
-	protected int parseHeader(int startChar, InputStreamReader incomingReader) throws IOException
+	protected int parseHeader(InputStream incomingStream) throws IOException
 	{
 		// indicates that we might be at the end of the header
-		
-		char currentChar;
 
+		char currentChar;
+		
 		synchronized (currentHeaderSequence)
 		{
 			StringTools.clear(currentHeaderSequence);
 			StringTools.clear(currentKeyHeaderSequence);
 
-			while (incomingReader.ready())
+			loop: while (true)
 			{
-				currentChar = (char) incomingReader.read();
+				int ret = incomingStream.read(readBuffer, 0, 1);
+				
+				if(ret != 1)
+				{
+					return -1;
+				}
+				
+				firstByteReadBuffer.position(0);
+				firstByteReadBuffer.limit(1);
+								
+				firstCharBuffer.clear();
+				decoder.decode(firstByteReadBuffer, firstCharBuffer, true);
 
+				firstCharBuffer.flip();
+				
+				currentChar = firstCharBuffer.charAt(0);
+				
 				switch (currentChar)
 				{
 				case (':'):
@@ -1377,7 +1362,7 @@ public class NIOClient<S extends Scope> extends NIONetworking<S> implements Runn
 					currentKeyHeaderSequence.append(currentHeaderSequence);
 
 					StringTools.clear(currentHeaderSequence);
-					maybeLineEnd  = false;
+					maybeLineEnd = false;
 
 					break;
 				case ('\r'):
@@ -1385,11 +1370,10 @@ public class NIOClient<S extends Scope> extends NIONetworking<S> implements Runn
 					 * we have the end of a line; if there's a CRLF, then we have the end of the value
 					 * sequence or the end of the header.
 					 */
-					maybeLineEnd  = true;
+					maybeLineEnd = true;
 					break;
 				case ('\n'):
-					maybeLineEnd  = false;
-					if(maybeLineEnd)
+					if (maybeLineEnd)
 					{
 						if (!maybeEndSequence)
 						{// load the key/value pair
@@ -1407,87 +1391,23 @@ public class NIOClient<S extends Scope> extends NIONetworking<S> implements Runn
 
 						maybeEndSequence = true;
 					}
+					maybeLineEnd = false;
+					
+					break;
 				default:
 					currentHeaderSequence.append(currentChar);
 					maybeEndSequence = false;
-					maybeLineEnd  = false;
+					maybeLineEnd = false;
 					break;
 				}
-			}
-
-			// if we got here, we didn't finish the header
-			return -1;
-		}
-	}
-
-	/**
-	 * @see ecologylab.oodss.distributed.impl.NIONetworking#writeKey(java.nio.channels.SelectionKey)
-	 */
-	@Override
-	protected void writeKey(SelectionKey key) throws IOException
-	{
-		// lock outgoing requests queue, send data from it, then switch out of
-		// write mode
-		synchronized (requestsQueue)
-		{
-			while (this.requestsRemaining() > 0)
-			{
-				this.createPacketFromMessageAndSend(this.dequeueRequest(), key);
+				
 			}
 		}
-	}
-
-	/**
-	 * @see ecologylab.oodss.distributed.impl.NIOCore#acceptReady(java.nio.channels.SelectionKey)
-	 */
-	@Override
-	protected void acceptReady(SelectionKey key)
-	{
-	}
-
-	/**
-	 * @see ecologylab.oodss.distributed.impl.NIOCore#connectReady(java.nio.channels.SelectionKey)
-	 */
-	@Override
-	protected void connectReady(SelectionKey key)
-	{
-	}
-
-	/**
-	 * @see ecologylab.oodss.distributed.impl.NIOCore#readFinished(java.nio.channels.SelectionKey)
-	 */
-	@Override
-	protected void readFinished(SelectionKey key)
-	{
-	}
-
-	/**
-	 * @see ecologylab.oodss.distributed.impl.NIOCore#acceptFinished(java.nio.channels.SelectionKey)
-	 */
-	@Override
-	public void acceptFinished(SelectionKey key)
-	{
-	}
-
-	@Override
-	protected boolean handleInvalidate(SelectionKey key, boolean forcePermanent)
-	{
-		return false;
 	}
 
 	public int getMaxMessageLengthChars()
 	{
 		return this.maxMessageLengthChars;
-	}
-
-	public void terminate()
-	{
-		for (SelectionKey key : this.selector.keys())
-		{
-			this.setPendingInvalidate(key, false);
-		}
-
-		nullOut();
 	}
 
 	public void setReconnectBlocker(ReconnectBlocker blocker)

@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.InputStream;
 import java.lang.annotation.Annotation;
 import java.net.URL;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -1183,28 +1184,55 @@ public final class TranslationScope extends ElementState
 			DeserializationHookStrategy deserializationHookStrategy, Format format)
 			throws SIMPLTranslationException
 	{
-		return deserialize(inputStream, new TranslationContext(), deserializationHookStrategy, format);
+		return deserialize(inputStream, new TranslationContext(), deserializationHookStrategy, format, null);
+	}
+	
+	public Object deserialize(InputStream inputStream,
+			DeserializationHookStrategy deserializationHookStrategy, Format format,
+			Charset charSet)
+			throws SIMPLTranslationException
+	{
+		return deserialize(inputStream, new TranslationContext(), deserializationHookStrategy, format, charSet);
 	}
 
 	public Object deserialize(InputStream inputStream, TranslationContext translationContext,
 			Format format) throws SIMPLTranslationException
 	{
-		return deserialize(inputStream, translationContext, null, format);
+		return deserialize(inputStream, translationContext, null, format, null);
+	}
+	
+	public Object deserialize(InputStream inputStream, TranslationContext translationContext,
+			Format format, Charset charSet) throws SIMPLTranslationException
+	{
+		return deserialize(inputStream, translationContext, null, format, charSet);
 	}
 
 	public Object deserialize(InputStream inputStream, Format format)
 			throws SIMPLTranslationException
 	{
-		return deserialize(inputStream, new TranslationContext(), null, format);
+		return deserialize(inputStream, new TranslationContext(), null, format, null);
+	}
+	
+	public Object deserialize(InputStream inputStream, Format format, Charset charSet)
+			throws SIMPLTranslationException
+	{
+		return deserialize(inputStream, new TranslationContext(), null, format, charSet);
 	}
 
 	public Object deserialize(InputStream inputStream, TranslationContext translationContext,
-			DeserializationHookStrategy deserializationHookStrategy, Format format)
+			DeserializationHookStrategy deserializationHookStrategy, Format format, Charset charSet)
 			throws SIMPLTranslationException
 	{
 		PullDeserializer pullDeserializer = PullDeserializer.getDeserializer(this, translationContext,
 				deserializationHookStrategy, format);
-		return pullDeserializer.parse(inputStream);
+		if(charSet != null)
+		{
+			return pullDeserializer.parse(inputStream, charSet);
+		}
+		else
+		{
+			return pullDeserializer.parse(inputStream);
+		}
 	}
 
 	public Object deserialize(URL url, Format format) throws SIMPLTranslationException
