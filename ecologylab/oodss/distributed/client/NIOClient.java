@@ -194,7 +194,7 @@ public class NIOClient<S extends Scope> extends Debug implements ClientConstants
 
 	private Thread																										writer;
 
-	private S																													objectRegistry;
+	protected S																													objectRegistry;
 
 	private TranslationScope																					translationScope;
 
