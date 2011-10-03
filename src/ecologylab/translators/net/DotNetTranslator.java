@@ -421,7 +421,7 @@ public class DotNetTranslator implements DotNetTranslationConstants
 
 		ClassDescriptor genericSuperClassDescriptor = inputClass.getSuperClass();
 		if (genericSuperClassDescriptor == null)
-			genericSuperClassDescriptor = new ClassDescriptor(ElementState.class);
+			genericSuperClassDescriptor = ClassDescriptor.getClassDescriptor(ElementState.class);
 
 		appendAnnotations(appendable, annotations, TAB);
 
