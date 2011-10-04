@@ -17,7 +17,6 @@ import java.lang.annotation.Target;
 @Inherited
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
-
 public @interface simpl_descriptor_classes
 {
   Class<?>[] value();

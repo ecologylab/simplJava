@@ -62,7 +62,7 @@ import ecologylab.serialization.types.element.IMappable;
  */
 @SuppressWarnings("rawtypes")
 @simpl_inherit
-public class FieldDescriptor extends DescriptorBase implements FieldTypes, IMappable<String>
+public class FieldDescriptor extends DescriptorBase implements FieldTypes, IMappable<String>, Cloneable
 {
 
 	public static final String												NULL											= ScalarType.DEFAULT_VALUE_STRING;
@@ -192,6 +192,12 @@ public class FieldDescriptor extends DescriptorBase implements FieldTypes, IMapp
 	private String																		genericParametersString;
 
 	private ArrayList<Class>													dependencies							= new ArrayList<Class>();
+	
+	/**
+	 * if is null, this field is not a cloned one. <br />
+	 * if not null, refers to the descriptor that this field is cloned from.
+	 */
+	private FieldDescriptor														clonedFrom;
 
 	/**
 	 * Default constructor only for use by translateFromXML().
@@ -443,7 +449,7 @@ public class FieldDescriptor extends DescriptorBase implements FieldTypes, IMapp
 		if (result)
 		{
 			unresolvedScopeAnnotation = null;
-			declaringClassDescriptor.mapPolymorphicClassDescriptors(this);
+			//declaringClassDescriptor.mapPolymorphicClassDescriptors(this);
 		}
 		return result;
 	}
@@ -2018,4 +2024,29 @@ public class FieldDescriptor extends DescriptorBase implements FieldTypes, IMapp
 		return isPolymorphic() ? polymorphClassDescriptors.containsKey(tagName)
 				: collectionOrMapTagName.equals(tagName);
 	}
+	
+	/**
+	 * make a SHALLOW copy of this descriptor.
+	 */
+	public FieldDescriptor clone()
+	{
+		FieldDescriptor cloned = null;
+		try
+		{
+			cloned = (FieldDescriptor) super.clone();
+			cloned.clonedFrom = this;
+		}
+		catch (CloneNotSupportedException e)
+		{
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return cloned;
+	}
+	
+	public FieldDescriptor getDescriptorClonedFrom()
+	{
+		return clonedFrom;
+	}
+	
 }
