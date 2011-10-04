@@ -1470,4 +1470,9 @@ public class NIOClient<S extends Scope> extends Debug implements ClientConstants
 			writer.setPriority(priority);
 		}
 	}
+	
+	public S getScope()
+	{
+		return objectRegistry;
+	}
 }
