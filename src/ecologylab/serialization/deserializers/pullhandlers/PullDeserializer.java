@@ -25,6 +25,7 @@ import ecologylab.serialization.TranslationScope;
 import ecologylab.serialization.deserializers.ISimplDeserializationPre;
 import ecologylab.serialization.deserializers.ISimplDeserializationPost;
 import ecologylab.serialization.deserializers.pullhandlers.binaryformats.BinaryPullDeserializer;
+import ecologylab.serialization.deserializers.pullhandlers.stringformats.BaseXmlPullDeserializerFactory;
 import ecologylab.serialization.deserializers.pullhandlers.stringformats.JSONPullDeserializer;
 import ecologylab.serialization.deserializers.pullhandlers.stringformats.StringPullDeserializer;
 import ecologylab.serialization.deserializers.pullhandlers.stringformats.XMLPullDeserializer;
@@ -34,13 +35,13 @@ import ecologylab.serialization.serializers.ISimplSerializationPre;
 public abstract class PullDeserializer extends Debug implements FieldTypes
 {
 
-	protected TranslationScope																													translationScope;
+	protected TranslationScope						translationScope;
 
-	protected TranslationContext																												translationContext;
+	protected TranslationContext					translationContext;
 
 	protected DeserializationHookStrategy	deserializationHookStrategy;
 
-	static final ConnectionAdapter																											connectionAdapter	= new ConnectionAdapter();
+	static final ConnectionAdapter				connectionAdapter	= new ConnectionAdapter();
 
 	/**
 	 * Constructs that creates a JSON deserialization handler
@@ -65,9 +66,7 @@ public abstract class PullDeserializer extends Debug implements FieldTypes
 	 * @param translationContext
 	 *          used for graph handling
 	 */
-	public PullDeserializer(
-			TranslationScope translationScope,
-			TranslationContext translationContext,
+	public PullDeserializer(TranslationScope translationScope, TranslationContext translationContext,
 			DeserializationHookStrategy deserializationHookStrategy)
 	{
 		this.translationScope = translationScope;
@@ -87,7 +86,7 @@ public abstract class PullDeserializer extends Debug implements FieldTypes
 		{
 			FileInputStream fileInputStream = new FileInputStream(file);
 			BufferedInputStream bufferedStream = new BufferedInputStream(fileInputStream);
-			
+
 			this.translationContext.setBaseDirFile(file.getParentFile());
 
 			Object object = parse(bufferedStream);
@@ -140,7 +139,8 @@ public abstract class PullDeserializer extends Debug implements FieldTypes
 	 * @return
 	 * @throws SIMPLTranslationException
 	 */
-	public abstract Object parse(InputStream inputStream, Charset charSet) throws SIMPLTranslationException;
+	public abstract Object parse(InputStream inputStream, Charset charSet)
+			throws SIMPLTranslationException;
 
 	/**
 	 * 
@@ -149,7 +149,7 @@ public abstract class PullDeserializer extends Debug implements FieldTypes
 	 * @throws SIMPLTranslationException
 	 */
 	public abstract Object parse(InputStream inputStream) throws SIMPLTranslationException;
-	
+
 	/**
 	 * 
 	 * @param object
@@ -201,17 +201,16 @@ public abstract class PullDeserializer extends Debug implements FieldTypes
 	 * @return
 	 * @throws SIMPLTranslationException
 	 */
-	public static PullDeserializer getDeserializer(
-			TranslationScope translationScope,
+	public static PullDeserializer getDeserializer(TranslationScope translationScope,
 			TranslationContext translationContext,
-			DeserializationHookStrategy deserializationHookStrategy,
-			Format format) throws SIMPLTranslationException
+			DeserializationHookStrategy deserializationHookStrategy, Format format)
+			throws SIMPLTranslationException
 	{
 		switch (format)
 		{
 		case XML:
-			return new XMLPullDeserializer(translationScope, translationContext,
-					deserializationHookStrategy);
+			return BaseXmlPullDeserializerFactory.getXMLPullDeserializerFactory().getFormatSerializer(
+					translationScope, translationContext, deserializationHookStrategy);
 		case JSON:
 			return new JSONPullDeserializer(translationScope, translationContext,
 					deserializationHookStrategy);
@@ -246,17 +245,16 @@ public abstract class PullDeserializer extends Debug implements FieldTypes
 	 * @return
 	 * @throws SIMPLTranslationException
 	 */
-	public static StringPullDeserializer getStringDeserializer(
-			TranslationScope translationScope,
+	public static StringPullDeserializer getStringDeserializer(TranslationScope translationScope,
 			TranslationContext translationContext,
-			DeserializationHookStrategy deserializationHookStrategy,
-			StringFormat stringFormat) throws SIMPLTranslationException
+			DeserializationHookStrategy deserializationHookStrategy, StringFormat stringFormat)
+			throws SIMPLTranslationException
 	{
 		switch (stringFormat)
 		{
 		case XML:
-			return new XMLPullDeserializer(translationScope, translationContext,
-					deserializationHookStrategy);
+			return BaseXmlPullDeserializerFactory.getXMLPullDeserializerFactory().getFormatSerializer(
+					translationScope, translationContext, deserializationHookStrategy);
 		case JSON:
 			return new JSONPullDeserializer(translationScope, translationContext,
 					deserializationHookStrategy);
@@ -290,11 +288,10 @@ public abstract class PullDeserializer extends Debug implements FieldTypes
 	 * @return
 	 * @throws SIMPLTranslationException
 	 */
-	public static BinaryPullDeserializer getBinaryDeserializer(
-			TranslationScope translationScope,
+	public static BinaryPullDeserializer getBinaryDeserializer(TranslationScope translationScope,
 			TranslationContext translationContext,
-			DeserializationHookStrategy deserializationHookStrategy,
-			BinaryFormat binaryFormat) throws SIMPLTranslationException
+			DeserializationHookStrategy deserializationHookStrategy, BinaryFormat binaryFormat)
+			throws SIMPLTranslationException
 	{
 		switch (binaryFormat)
 		{
