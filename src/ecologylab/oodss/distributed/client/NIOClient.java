@@ -730,7 +730,8 @@ public class NIOClient<S extends Scope> extends Debug implements ClientConstants
 
 		try
 		{
-			thisSocket.close();
+			if(thisSocket != null)
+				thisSocket.close();
 		}
 		catch (IOException e)
 		{
@@ -1163,14 +1164,7 @@ public class NIOClient<S extends Scope> extends Debug implements ClientConstants
 		}
 		catch (SocketException se)
 		{
-			if(running && !se.getMessage().contains("closed"))
-			{
-				se.printStackTrace();
-			}	
-			else
-			{
-				// this is totally normal
-			}
+			this.stop();
 		}
 		catch (IOException e)
 		{
