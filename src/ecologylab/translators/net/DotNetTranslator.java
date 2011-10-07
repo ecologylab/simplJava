@@ -11,16 +11,33 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
 
 import ecologylab.generic.Debug;
 import ecologylab.generic.HashMapArrayList;
+import ecologylab.semantics.html.utils.StringBuilderUtils;
 import ecologylab.serialization.ClassDescriptor;
 import ecologylab.serialization.ElementState;
 import ecologylab.serialization.FieldDescriptor;
+import ecologylab.serialization.FieldTypes;
 import ecologylab.serialization.SIMPLTranslationException;
 import ecologylab.serialization.TranslationScope;
 import ecologylab.serialization.XMLTools;
+import ecologylab.serialization.annotations.Hint;
+import ecologylab.serialization.annotations.simpl_classes;
+import ecologylab.serialization.annotations.simpl_collection;
+import ecologylab.serialization.annotations.simpl_composite;
+import ecologylab.serialization.annotations.simpl_hints;
+import ecologylab.serialization.annotations.simpl_inherit;
+import ecologylab.serialization.annotations.simpl_map;
+import ecologylab.serialization.annotations.simpl_nowrap;
+import ecologylab.serialization.annotations.simpl_other_tags;
+import ecologylab.serialization.annotations.simpl_scalar;
+import ecologylab.serialization.annotations.simpl_scope;
+import ecologylab.serialization.annotations.simpl_tag;
 import ecologylab.serialization.types.element.IMappable;
+import ecologylab.translators.java.JavaTranslationUtilities;
 import ecologylab.translators.parser.JavaDocParser;
 
 /**
@@ -104,7 +121,7 @@ public class DotNetTranslator implements DotNetTranslationConstants
 			for (FieldDescriptor fieldDescriptor : fieldDescriptors)
 			{
 				if (fieldDescriptor.belongsTo(classDescriptor))
-					appendFieldAsCSharpAttribute(fieldDescriptor, classFile);
+					appendFieldAsCSharpAttribute(inputClass, fieldDescriptor, classFile);
 			}
 
 			appendDefaultConstructor(inputClass, classFile);
@@ -423,7 +440,7 @@ public class DotNetTranslator implements DotNetTranslationConstants
 		if (genericSuperClassDescriptor == null)
 			genericSuperClassDescriptor = ClassDescriptor.getClassDescriptor(ElementState.class);
 
-		appendAnnotations(appendable, annotations, TAB);
+		appendClassAnnotations(appendable, inputClass, "");
 
 		appendable.append(TAB);
 		appendable.append(PUBLIC);
@@ -548,13 +565,16 @@ public class DotNetTranslator implements DotNetTranslationConstants
 	}
 
 	/**
+	 * @param context
+	 *          TODO
 	 * @param fieldDescriptor
 	 * @param appendable
 	 * @throws IOException
 	 * @throws DotNetTranslationException
 	 */
-	private void appendFieldAsCSharpAttribute(FieldDescriptor fieldDescriptor, Appendable appendable)
-			throws IOException, DotNetTranslationException
+	private void appendFieldAsCSharpAttribute(ClassDescriptor context,
+			FieldDescriptor fieldDescriptor, Appendable appendable) throws IOException,
+			DotNetTranslationException
 	{
 		registerNamespaces(fieldDescriptor);
 
@@ -567,9 +587,9 @@ public class DotNetTranslator implements DotNetTranslationConstants
 
 		boolean isKeyword = checkForKeywords(fieldDescriptor, appendable);
 		appendComments(appendable, true, isKeyword);
-
 		appendFieldComments(fieldDescriptor, appendable);
-		appendAnnotation(fieldDescriptor, appendable);
+		appendFieldAnnotations(context, fieldDescriptor, appendable);
+
 		appendable.append(DOUBLE_TAB);
 		appendable.append(PRIVATE);
 		appendable.append(SPACE);
@@ -661,35 +681,162 @@ public class DotNetTranslator implements DotNetTranslationConstants
 
 	}
 
-	/**
-	 * @param fieldDescriptor
-	 * @param appendable
-	 * @throws IOException
-	 */
-	private void appendAnnotation(FieldDescriptor fieldDescriptor, Appendable appendable)
-			throws IOException
+	private void appendClassAnnotations(Appendable appendable, ClassDescriptor classDesc,
+			String tabSpacing) throws IOException
 	{
-		Annotation[] annotations = fieldDescriptor.getField().getAnnotations();
-		appendAnnotations(appendable, annotations, DOUBLE_TAB);
+		ClassDescriptor superClass = classDesc.getSuperClass();
+		if (superClass != null && !superClass.getDescribedClassSimpleName().equals("ElementState"))
+			appendAnnotation(appendable, "", simpl_inherit.class);
+
+		String tagName = classDesc.getTagName();
+		String autoTagName = XMLTools.getXmlTagName(classDesc.getDescribedClassSimpleName(), null);
+		if (tagName != null && !tagName.equals("") && !tagName.equals(autoTagName))
+		{
+			appendAnnotation(appendable, SINGLE_LINE_BREAK, simpl_tag.class, true, tagName);
+		}
+
+		// TODO @simpl_other_tags
+		ArrayList<String> otherTags = classDesc.otherTags();
+		if (otherTags != null && otherTags.size() > 0)
+		{
+			appendAnnotation(appendable, SINGLE_LINE_BREAK, simpl_other_tags.class, true, otherTags);
+		}
+
+		appendable.append(SINGLE_LINE_BREAK);
+
+		appendClassAnnotationsHook(appendable, classDesc, tabSpacing);
 	}
 
-	/**
-	 * @param appendable
-	 * @param annotations
-	 * @param tabSpacing
-	 * @throws IOException
-	 */
-	private void appendAnnotations(Appendable appendable, Annotation[] annotations, String tabSpacing)
+	private void appendClassAnnotationsHook(Appendable appendable, ClassDescriptor classDesc,
+			String tabSpacing)
+	{
+
+	}
+
+	private void addDependency(String name)
+	{
+		libraryNamespaces.put(name, name);
+		allNamespaces.put(name, name);
+	}
+
+	private void appendFieldAnnotations(ClassDescriptor contextCd, FieldDescriptor fieldDescriptor,
+			Appendable appendable) throws IOException
+	{
+		int type = fieldDescriptor.getType();
+		String collectionMapTagValue = fieldDescriptor.getCollectionOrMapTagName();
+
+		if (type == FieldTypes.COMPOSITE_ELEMENT)
+		{
+			// @simpl_composite
+			appendAnnotation(appendable, TAB, simpl_composite.class);
+		}
+		else if (type == FieldTypes.COLLECTION_ELEMENT || type == FieldTypes.COLLECTION_SCALAR)
+		{
+			addDependency(List.class.getName());
+			if (!fieldDescriptor.isWrapped())
+			{
+				// @simpl_nowrap
+				appendAnnotation(appendable, TAB, simpl_nowrap.class);
+			}
+			// @simpl_collection
+			if (fieldDescriptor.isPolymorphic())
+				appendAnnotation(appendable, TAB, simpl_collection.class);
+			else
+				appendAnnotation(appendable, TAB, simpl_collection.class, true, collectionMapTagValue);
+		}
+		else if (type == FieldTypes.MAP_ELEMENT)
+		{
+			// @simpl_map
+			appendAnnotation(appendable, TAB, simpl_map.class, true, collectionMapTagValue);
+		}
+		else
+		{
+			// @simpl_scalar
+			appendAnnotation(appendable, TAB, simpl_scalar.class);
+		}
+
+		// @simpl_tag
+		String tagName = fieldDescriptor.getTagName();
+		String autoTagName = XMLTools.getXmlTagName(fieldDescriptor.getName(), null);
+		if (tagName != null && !tagName.equals("") && !tagName.equals(autoTagName))
+		{
+			appendAnnotation(appendable, TAB, simpl_tag.class, true, tagName);
+		}
+
+		// @simpl_other_tags
+		ArrayList<String> otherTags = fieldDescriptor.otherTags();
+		if (otherTags != null && otherTags.size() > 0)
+		{
+			appendAnnotation(appendable, TAB, simpl_other_tags.class, true, otherTags);
+		}
+
+		if (!((type == FieldTypes.COMPOSITE_ELEMENT) || (type == FieldTypes.COLLECTION_ELEMENT) || (type == FieldTypes.COLLECTION_SCALAR)))
+		{
+			Hint hint = fieldDescriptor.getXmlHint();
+			if (hint != null)
+			{
+				// @simpl_hints
+				appendAnnotation(appendable, TAB, simpl_hints.class, false, Hint.class.getSimpleName()
+						+ "." + hint.name());
+				addDependency(Hint.class.getName());
+			}
+		}
+
+		// @simpl_classes
+		Collection<ClassDescriptor> polyClassDescriptors = fieldDescriptor
+				.getPolymorphicClassDescriptors();
+		if (polyClassDescriptors != null)
+		{
+			HashSet<ClassDescriptor> classDescriptors = new HashSet<ClassDescriptor>(polyClassDescriptors);
+			appendAnnotation(appendable, TAB, simpl_classes.class, false,
+					JavaTranslationUtilities.getJavaClassesAnnotation(classDescriptors));
+		}
+
+		// @simpl_scope
+		String polyScope = fieldDescriptor.getUnresolvedScopeAnnotation();
+		if (polyScope != null && polyScope.length() > 0)
+		{
+			appendAnnotation(appendable, TAB, simpl_scope.class, true, polyScope);
+		}
+
+		appendFieldAnnotationsHook(appendable, contextCd, fieldDescriptor, TAB);
+	}
+
+
+
+	private void appendFieldAnnotationsHook(Appendable appendable, ClassDescriptor context,
+			FieldDescriptor fieldDescriptor, String tabSpacing)
+	{
+
+	}
+
+	private void appendAnnotation(Appendable appendable, String tab, Class annotationClass,
+			boolean quoted, ArrayList<String> params) throws IOException
+	{
+		StringBuilder sb = StringBuilderUtils.acquire();
+		if (params != null && params.size() > 0)
+			for (int i = 0; i < params.size(); ++i)
+				sb.append(i == 0 ? "(" : ", ").append(quoted ? "\"" : "").append(params.get(i)).append(quoted ? "\"" : "").append(i == params.size() - 1 ? ")" : "");
+		appendAnnotation(appendable, tab, annotationClass, false, sb.toString());
+		StringBuilderUtils.release(sb);
+	}
+
+	public void appendAnnotation(Appendable appendable, String indent, Class annotationClass)
 			throws IOException
 	{
-		for (Annotation annotation : annotations)
-		{
-			appendable.append(tabSpacing);
-			appendable.append(OPENING_SQUARE_BRACE);
-			appendable.append(DotNetTranslationUtilities.getCSharpAnnotation(annotation));
-			appendable.append(CLOSING_SQUARE_BRACE);
-			appendable.append(SINGLE_LINE_BREAK);
-		}
+		appendAnnotation(appendable, indent, annotationClass, false, "");
+	}
+
+	public void appendAnnotation(Appendable appendable, String indent, Class annotationClass,
+			boolean quoted, String params) throws IOException
+	{
+		appendable.append(indent);
+		appendable.append(OPENING_SQUARE_BRACE);
+		appendable.append(annotationClass.getSimpleName());
+		if (params != null && params.length() > 0)
+			appendable.append("(").append(quoted ? "\"" : "").append(params).append(quoted ? "\"" : "")
+					.append(")");
+		appendable.append(CLOSING_SQUARE_BRACE);
 	}
 
 	/**
@@ -952,3 +1099,4 @@ public class DotNetTranslator implements DotNetTranslationConstants
 	}
 
 }
+ 
