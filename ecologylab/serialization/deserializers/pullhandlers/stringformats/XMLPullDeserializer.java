@@ -409,16 +409,18 @@ public class XMLPullDeserializer extends StringPullDeserializer
 	private int deserializeScalar(Object root, FieldDescriptor currentFieldDescriptor)
 			throws XMLStreamException
 	{
-		nextEvent();
 
+		//nextEvent();
+		
 		StringBuilder text = new StringBuilder();
-		text.append(xmlStreamReader.getText());
+		//text.append(xmlStreamReader.getText());
 
-		while (nextEvent() != XMLStreamConstants.END_ELEMENT)
+		do
 		{
 			if (xmlStreamReader.getEventType() == XMLStreamConstants.CHARACTERS)
 				text.append(xmlStreamReader.getText());
 		}
+		while (nextEvent() != XMLStreamConstants.END_ELEMENT);
 
 		String value = text.toString();
 		currentFieldDescriptor.setFieldToScalar(root, value, translationContext);
