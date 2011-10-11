@@ -15,6 +15,7 @@ import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -22,19 +23,19 @@ import java.util.regex.Pattern;
 import org.w3c.dom.Node;
 import org.xml.sax.Attributes;
 
-import com.sun.corba.se.spi.ior.MakeImmutable;
-
 import sun.reflect.generics.reflectiveObjects.ParameterizedTypeImpl;
 import sun.reflect.generics.reflectiveObjects.TypeVariableImpl;
 import ecologylab.generic.HashMapArrayList;
 import ecologylab.generic.ReflectionTools;
 import ecologylab.generic.StringTools;
+import ecologylab.serialization.MetaInformation.Argument;
 import ecologylab.serialization.TranslationScope.GRAPH_SWITCH;
 import ecologylab.serialization.annotations.Hint;
 import ecologylab.serialization.annotations.simpl_classes;
 import ecologylab.serialization.annotations.simpl_collection;
 import ecologylab.serialization.annotations.simpl_composite;
 import ecologylab.serialization.annotations.simpl_filter;
+import ecologylab.serialization.annotations.simpl_hints;
 import ecologylab.serialization.annotations.simpl_inherit;
 import ecologylab.serialization.annotations.simpl_map;
 import ecologylab.serialization.annotations.simpl_map_key_field;
@@ -42,6 +43,7 @@ import ecologylab.serialization.annotations.simpl_nowrap;
 import ecologylab.serialization.annotations.simpl_other_tags;
 import ecologylab.serialization.annotations.simpl_scalar;
 import ecologylab.serialization.annotations.simpl_scope;
+import ecologylab.serialization.annotations.simpl_tag;
 import ecologylab.serialization.annotations.simpl_wrap;
 import ecologylab.serialization.library.html.A;
 import ecologylab.serialization.library.html.Div;
@@ -66,6 +68,8 @@ public class FieldDescriptor extends DescriptorBase implements FieldTypes, IMapp
 {
 
 	public static final String												NULL											= ScalarType.DEFAULT_VALUE_STRING;
+
+	public static final Class[]												SET_METHOD_STRING_ARG			= { String.class };
 
 	@simpl_scalar
 	protected Field																		field;																												// TODO
@@ -112,6 +116,7 @@ public class FieldDescriptor extends DescriptorBase implements FieldTypes, IMapp
 	@simpl_map("polymorph_class")
 	private HashMap<String, Class>										polymorphClasses;
 
+	@Deprecated // we now use the package name to infer namespaces.
 	@simpl_map("library_namespace")
 	private HashMap<String, String>										libraryNamespaces					= new HashMap<String, String>();
 
@@ -178,9 +183,6 @@ public class FieldDescriptor extends DescriptorBase implements FieldTypes, IMapp
 
 	private Method																		setValueMethod;
 
-	public static final Class[]												SET_METHOD_STRING_ARG			=
-																																							{ String.class };
-
 	private String																		bibtexTag									= "";
 
 	private boolean																		isBibtexKey								= false;
@@ -191,21 +193,20 @@ public class FieldDescriptor extends DescriptorBase implements FieldTypes, IMapp
 	@simpl_scalar
 	private String																		genericParametersString;
 
-	private ArrayList<Class>													dependencies							= new ArrayList<Class>();
+	private ArrayList<ClassDescriptor>								dependencies							= new ArrayList<ClassDescriptor>();
 	
 	/**
 	 * if is null, this field is not a cloned one. <br />
 	 * if not null, refers to the descriptor that this field is cloned from.
 	 */
 	private FieldDescriptor														clonedFrom;
-
+	
 	/**
 	 * Default constructor only for use by translateFromXML().
 	 */
 	public FieldDescriptor()
 	{
 		super();
-
 	}
 
 	/**
@@ -301,7 +302,10 @@ public class FieldDescriptor extends DescriptorBase implements FieldTypes, IMapp
 		if (isGeneric)
 		{
 			genericParametersString = XMLTools.getJavaGenericParametersString(field);
-			dependencies = XMLTools.getJavaGenericDependencies(field);
+			ArrayList<Class> dependedClasses = XMLTools.getJavaGenericDependencies(field);
+			if (dependedClasses != null)
+				for (Class dependedClass : dependedClasses)
+					addDependency(dependedClass);
 		}
 	}
 
@@ -1750,16 +1754,16 @@ public class FieldDescriptor extends DescriptorBase implements FieldTypes, IMapp
 		}
 		else
 		{
-			Class<?> type = this.field.getType();
-			String name = type.getSimpleName();
+			String name = fieldType;
 			if (name != null && !name.contains("$")) // FIXME:Dealing with inner classes is not done yet
 				result = name;
 			// }
 		}
 
-		if (XMLTools.isGeneric(this.field))
+		if (this.IsGeneric())
 		{
-			result += XMLTools.getCSharpGenericParametersString(this.field);
+			// FIXME does not handles scalar type name translation in generic parameters!
+			result += getGenericParametersString();
 		}
 
 		return result;
@@ -1775,10 +1779,7 @@ public class FieldDescriptor extends DescriptorBase implements FieldTypes, IMapp
 		}
 		if (scalarType != null && !isCollection())
 		{
-			if (fieldType != null)
-				result = fieldType;
-			else
-				result = scalarType.getJavaTypeName();
+			result = scalarType.getSimpleName();
 		}
 		else
 		{
@@ -1874,7 +1875,7 @@ public class FieldDescriptor extends DescriptorBase implements FieldTypes, IMapp
 	/**
 	 * A method to add the namespaces corresponds to the field descriptor.
 	 */
-
+	@Deprecated
 	private void addNamespaces()
 	{
 		ArrayList<Class<?>> genericClasses = XMLTools.getGenericParameters(field);
@@ -1904,6 +1905,7 @@ public class FieldDescriptor extends DescriptorBase implements FieldTypes, IMapp
 	 * 
 	 * @return HashMap <String, String>
 	 */
+	@Deprecated
 	public HashMap<String, String> getNamespaces()
 	{
 		return libraryNamespaces;
@@ -1925,9 +1927,22 @@ public class FieldDescriptor extends DescriptorBase implements FieldTypes, IMapp
 		return genericParametersString;
 	}
 
-	public ArrayList<Class> getDependencies()
+	public ArrayList<ClassDescriptor> getDependencies()
 	{
 		return dependencies;
+	}
+	
+	public void addDependency(ClassDescriptor dependedClassD)
+	{
+		if (dependencies == null)
+			dependencies = new ArrayList<ClassDescriptor>();
+		dependencies.add(dependedClassD);
+	}
+	
+	public void addDependency(Class dependedClass)
+	{
+		// for those classes not SIMPL-enabled, this creates a surrogate class descriptor.
+		addDependency(new ClassDescriptor(dependedClass));
 	}
 
 	/**
@@ -1944,10 +1959,32 @@ public class FieldDescriptor extends DescriptorBase implements FieldTypes, IMapp
 	@Override
 	public String getCSharpTypeName()
 	{
-		return elementClassDescriptor != null ? elementClassDescriptor.getCSharpTypeName() : scalarType
-				.getCSharpTypeName();
+		
+		String cSharpTypeName = elementClassDescriptor == null ? null : elementClassDescriptor.getCSharpTypeName();
+		if (cSharpTypeName == null)
+			return scalarType.getCSharpTypeName();
+		else
+		{
+			// FIXME SIMPL does not handle map of scalar correctly!
+			ScalarType possibleMapScalarType = TypeRegistry.getScalarTypeByName(cSharpTypeName);
+			if (possibleMapScalarType != null)
+				return possibleMapScalarType.getCSharpTypeName();
+			else
+				return cSharpTypeName;
+		} 
 	}
-
+	
+	@Override
+	public String getCSharpNamespace()
+	{
+		if (this.isScalar())
+			return this.getScalarType().getCSharpNamespace();
+		else if (this.isCollection())
+			return this.getCollectionType().getCSharpNamespace();
+		else
+			return this.getElementClassDescriptor().getCSharpNamespace();
+	}
+	
 	@Override
 	public String getObjectiveCTypeName()
 	{
@@ -2047,6 +2084,98 @@ public class FieldDescriptor extends DescriptorBase implements FieldTypes, IMapp
 	public FieldDescriptor getDescriptorClonedFrom()
 	{
 		return clonedFrom;
+	}
+	
+	/**
+	 * @return The list of meta-information (annotations, attributes, etc.) for this field.
+	 */
+	public List<MetaInformation> getMetaInformation()
+	{
+		if (this.metaInfo == null)
+		{
+			this.metaInfo = new ArrayList<MetaInformation>();
+
+			int type = getType();
+			String collectionMapTagValue = getCollectionOrMapTagName();
+
+			if (type == FieldTypes.COMPOSITE_ELEMENT)
+			{
+				// @simpl_composite
+				metaInfo.add(new MetaInformation(simpl_composite.class));
+
+				// @simpl_wrap
+				if (isWrapped())
+					metaInfo.add(new MetaInformation(simpl_wrap.class));
+			}
+			else if (type == FieldTypes.COLLECTION_ELEMENT || type == FieldTypes.COLLECTION_SCALAR)
+			{
+				addDependency(List.class);
+
+				// @simpl_collection
+				if (isPolymorphic())
+					metaInfo.add(new MetaInformation(simpl_collection.class));
+				else
+					metaInfo.add(new MetaInformation(simpl_collection.class, false, collectionMapTagValue));
+
+				// @simpl_nowrap
+				if (!isWrapped())
+				{
+					metaInfo.add(new MetaInformation(simpl_nowrap.class));
+				}
+			}
+			else if (type == FieldTypes.MAP_ELEMENT)
+			{
+				// @simpl_map
+				metaInfo.add(new MetaInformation(simpl_map.class, false, collectionMapTagValue));
+			}
+			else
+			{
+				// @simpl_scalar
+				metaInfo.add(new MetaInformation(simpl_scalar.class));
+
+				// @simpl_hints
+				Hint hint = getXmlHint();
+				if (hint != null)
+				{
+					addDependency(Hint.class);
+					metaInfo.add(new MetaInformation(simpl_hints.class, true, hint));
+				}
+			}
+
+			// @simpl_tag
+			String autoTagName = XMLTools.getXmlTagName(getName(), null);
+			if (tagName != null && !tagName.equals("") && !tagName.equals(autoTagName))
+				metaInfo.add(new MetaInformation(simpl_tag.class, false, tagName));
+
+			// @simpl_other_tags
+			ArrayList<String> otherTags = otherTags();
+			if (otherTags != null && otherTags.size() > 0)
+				metaInfo.add(new MetaInformation(simpl_other_tags.class, true, otherTags.toArray()));
+
+			// @simpl_classes
+			Collection<ClassDescriptor> polyClassDescriptors = getPolymorphicClassDescriptors();
+			if (polyClassDescriptors != null)
+			{
+				List<Argument> args = new ArrayList<Argument>();
+				for (ClassDescriptor polyClassD : polyClassDescriptors)
+				{
+					Argument a = new Argument();
+					a.value = polyClassD;
+					a.typeName = polyClassD.getDescribedClassName();
+					a.simpleTypeName = polyClassD.getDescribedClassSimpleName();
+					args.add(a);
+					addDependency(polyClassD);
+				}
+				MetaInformation simplClasses = new MetaInformation(simpl_classes.class, true, args);
+				metaInfo.add(simplClasses);
+			}
+
+			// @simpl_scope
+			String polyScope = getUnresolvedScopeAnnotation();
+			if (polyScope != null && polyScope.length() > 0)
+				metaInfo.add(new MetaInformation(simpl_scope.class, false, polyScope));
+		}
+		return metaInfo;
 	}
 	
 }

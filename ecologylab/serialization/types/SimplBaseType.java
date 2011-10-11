@@ -17,6 +17,8 @@ import ecologylab.serialization.annotations.simpl_scalar;
 abstract public class SimplBaseType extends ElementState
 {
 
+	public static final String	CSHARP_PRIMITIVE_NAMESPACE	= "System";
+
 	/**
 	 * This is the unique platform-independent identifier that S.IM.PL uses to describe this entity.
 	 */
@@ -48,8 +50,11 @@ abstract public class SimplBaseType extends ElementState
 	public abstract String getJavaTypeName();
 
 	public abstract String getCSharpTypeName();
+	
+	public abstract String getCSharpNamespace();
 
 	public abstract String getObjectiveCTypeName();
 
 	public abstract String getDbTypeName();
+	
 }

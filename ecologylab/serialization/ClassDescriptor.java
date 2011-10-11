@@ -11,6 +11,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Set;
 import java.util.Map.Entry;
 
@@ -28,6 +29,7 @@ import ecologylab.serialization.annotations.simpl_map_key_field;
 import ecologylab.serialization.annotations.simpl_nowrap;
 import ecologylab.serialization.annotations.simpl_other_tags;
 import ecologylab.serialization.annotations.simpl_scalar;
+import ecologylab.serialization.annotations.simpl_tag;
 import ecologylab.serialization.annotations.simpl_use_equals_equals;
 import ecologylab.serialization.serializers.FormatSerializer;
 import ecologylab.serialization.serializers.stringformats.StringSerializer;
@@ -69,8 +71,7 @@ public class ClassDescriptor<FD extends FieldDescriptor> extends DescriptorBase 
 	private ClassDescriptor<? extends FieldDescriptor>																superClass;
 
 	@simpl_collection("interface")
-	@simpl_other_tags("inerface")
-	// handle spelling error that was here
+	@simpl_other_tags("inerface") // handle spelling error that was here
 	private ArrayList<String>																													interfaces;
 
 	/**
@@ -149,7 +150,7 @@ public class ClassDescriptor<FD extends FieldDescriptor> extends DescriptorBase 
 	private boolean																																		strictObjectGraphRequired						= false;
 
 	public Class<?>																																		fdClass;
-
+	
 	static
 	{
 		TypeRegistry.init();
@@ -826,6 +827,19 @@ public class ClassDescriptor<FD extends FieldDescriptor> extends DescriptorBase 
 	}
 
 	@Override
+	public String getCSharpNamespace()
+	{
+		String csTypeName = this.getCSharpTypeName();
+		if (csTypeName != null)
+		{
+			int pos = csTypeName.lastIndexOf('.');
+			return pos > 0 ? csTypeName.substring(0, pos) : CSHARP_PRIMITIVE_NAMESPACE;
+		}
+		else
+			return null;
+	}
+
+	@Override
 	public String getObjectiveCTypeName()
 	{
 		return this.getDescribedClassSimpleName();
@@ -1025,7 +1039,7 @@ public class ClassDescriptor<FD extends FieldDescriptor> extends DescriptorBase 
 			if (fd.isNested() || (fd.isCollection()))
 			{
 				ClassDescriptor elementClassDescriptor = fd.getElementClassDescriptor();
-				if (elementClassDescriptor != null)
+				if (elementClassDescriptor != null && TypeRegistry.getScalarTypeByName(elementClassDescriptor.getDescribedClassName()) == null)
 					result.add(elementClassDescriptor);
 
 				Collection<ClassDescriptor> polyClassDescriptors = fd.getPolymorphicClassDescriptors();
@@ -1256,4 +1270,31 @@ public class ClassDescriptor<FD extends FieldDescriptor> extends DescriptorBase 
 		// TODO Auto-generated method stub
 
 	}
+
+	/**
+	 * @return The list of meta-information (annotations, attributes, etc.) for this class.
+	 */
+	public List<MetaInformation> getMetaInformation()
+	{
+		if (metaInfo == null)
+		{
+			metaInfo = new ArrayList<MetaInformation>();
+			
+			// @simpl_inherit
+			if (superClass != null)
+				metaInfo.add(new MetaInformation(simpl_inherit.class));
+		
+			// @simpl_tag
+			String autoTagName = XMLTools.getXmlTagName(getDescribedClassSimpleName(), null);
+			if (tagName != null && !tagName.equals("") && !tagName.equals(autoTagName))
+				metaInfo.add(new MetaInformation(simpl_tag.class, false, tagName));
+			
+			// @simpl_other_tags
+			ArrayList<String> otherTags = otherTags();
+			if (otherTags != null && otherTags.size() > 0)
+				metaInfo.add(new MetaInformation(simpl_other_tags.class, true, otherTags.toArray()));
+		}
+		return metaInfo;
+	}
+	
 }
