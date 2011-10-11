@@ -4,16 +4,24 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import ecologylab.appframework.PropertiesAndDirectories;
 import ecologylab.generic.Debug;
 import ecologylab.generic.HashMapArrayList;
+import ecologylab.io.Files;
 import ecologylab.semantics.html.utils.StringBuilderUtils;
+import ecologylab.semantics.metadata.builtins.MetadataBuiltinsTranslationScope;
+import ecologylab.semantics.metametadata.MetaMetadata;
+import ecologylab.semantics.metametadata.MetaMetadataRepository;
+import ecologylab.semantics.namesandnums.SemanticsNames;
 import ecologylab.serialization.ClassDescriptor;
 import ecologylab.serialization.FieldDescriptor;
 import ecologylab.serialization.FieldTypes;
@@ -44,6 +52,7 @@ import ecologylab.standalone.xmlpolymorph.BItem;
 import ecologylab.standalone.xmlpolymorph.SchmItem;
 import ecologylab.standalone.xmlpolymorph.Schmannel;
 import ecologylab.translators.CodeTranslator;
+import ecologylab.translators.CodeTranslatorConfig;
 import ecologylab.translators.net.DotNetTranslationException;
 
 /**
@@ -227,7 +236,7 @@ public class JavaTranslator implements JavaTranslationConstants, CodeTranslator
 	}
 
 	@Override
-	public void translate(File directoryLocation, TranslationScope tScope)
+	public void translate(File directoryLocation, TranslationScope tScope, CodeTranslatorConfig config)
 			throws IOException, SIMPLTranslationException, JavaTranslationException
 	{
 		System.out.println("Parsing source files to extract comments");
@@ -252,7 +261,7 @@ public class JavaTranslator implements JavaTranslationConstants, CodeTranslator
 				continue;
 			}
 			System.out.println("Translating " + classDesc);
-			translate(classDesc, directoryLocation);
+			translate(classDesc, directoryLocation, null);
 		}
 
 		// create a folder to put the translation scope getter class
@@ -264,7 +273,7 @@ public class JavaTranslator implements JavaTranslationConstants, CodeTranslator
 	}
 
 	@Override
-	public void translate(ClassDescriptor inputClass, File directoryLocation)
+	public void translate(ClassDescriptor inputClass, File directoryLocation, CodeTranslatorConfig config)
 			throws IOException, JavaTranslationException
 	{
 		File outputFile = createJavaFileWithDirectoryStructure(inputClass, directoryLocation);
@@ -1070,6 +1079,65 @@ public class JavaTranslator implements JavaTranslationConstants, CodeTranslator
 	{
 		globalImportDependencies.add(fullClassName);
 	}
+	
+	
+	public void createTranslationScopeClass(File generatedSemanticsRootDir, String packageName,
+			MetaMetadataRepository repository) throws IOException
+	{
+		File rootDir = PropertiesAndDirectories.createDirsAsNeeded(generatedSemanticsRootDir);
+		File packageDir = PropertiesAndDirectories.createDirsAsNeeded(new File(rootDir, packageName.replace('.', Files.sep)));
+		String REPOSITORY_METADATA_TRANSLATION_SCOPE_CLASS_NAME = "XXXXXXXX";
+		File file = new File(packageDir, REPOSITORY_METADATA_TRANSLATION_SCOPE_CLASS_NAME + ".java");
+		PrintWriter printWriter = new PrintWriter(new FileWriter(file));
+
+		// Write the package
+		printWriter.println("package " + packageName + ";\n");
+
+		// write java doc comment
+		printWriter.println(JavaTranslationUtilities.getJavaClassComments(REPOSITORY_METADATA_TRANSLATION_SCOPE_CLASS_NAME));
+		printWriter.println("\n");
+
+		// Write the import statements
+		Class[] basicImports = {
+				TranslationScope.class,
+				SemanticsNames.class,
+				MetadataBuiltinsTranslationScope.class,
+		};
+		for (Class clazz : basicImports)
+			printWriter.println("import " + clazz.getName() + ";\n");
+
+		// Write java-doc comments
+		printWriter.println("/**\n * This is the tranlation scope class for generated files.\n */\n");
+
+		// Write the class
+		printWriter.print("public class ");
+		printWriter.print(REPOSITORY_METADATA_TRANSLATION_SCOPE_CLASS_NAME);
+		printWriter.print("\n{\n");
+		printWriter.print("\tprotected static final Class TRANSLATIONS[] =\n\t{\n");
+		List<String> classes = new ArrayList<String>(); 
+		if (repository.values() != null)
+			for (MetaMetadata mmd : repository.values())
+				if (mmd.isNewMetadataClass())
+				{
+					ClassDescriptor cd = mmd.getMetadataClassDescriptor();
+					classes.add("\t\t" + cd.getDescribedClassPackageName() + "." + cd.getDescribedClassSimpleName() + ".class,\n");
+				}
+		Collections.sort(classes);
+		for (String classDef : classes)
+			printWriter.println(classDef);
+		printWriter.println("\t};\n");
+
+		// Write get() method
+		printWriter.println("\tpublic static TranslationScope get()\n\t{");
+		printWriter.println("\t\treturn TranslationScope.get(SemanticsNames.REPOSITORY_METADATA_TRANSLATIONS, MetadataBuiltinsTranslationScope.get(), TRANSLATIONS);");
+		printWriter.println("\t}\n");
+
+		// End the class
+		printWriter.println("}");
+
+		printWriter.close();
+	}
+	
 	/**
 	 * Main method to test the working of the library.
 	 * 
@@ -1094,9 +1162,17 @@ public class JavaTranslator implements JavaTranslationConstants, CodeTranslator
 		
 		//t.serialize(new File("D:\\GSOC\\SIMPL\\GeneratedCode\\New\\tss2.xml"));
 		t.enableGraphSerialization();
-		c.translate(new File("D:\\GSOC\\SIMPL\\GeneratedCode\\Test"),t);
+		c.translate(new File("D:\\GSOC\\SIMPL\\GeneratedCode\\Test"),t, null);
 		//c.translateToJava(new File("D:\\GSOC\\Output"),t);
 								
 		//c.translateToJava(System.out, Item.class);
 	}
+
+	@Override
+	public String getTargetLanguage()
+	{
+		// TODO Auto-generated method stub
+		return "java";
+	}
+	
 }

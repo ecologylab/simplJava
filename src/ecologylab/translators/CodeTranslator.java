@@ -15,12 +15,6 @@ import ecologylab.serialization.TranslationScope;
 public interface CodeTranslator
 {
 
-	public static enum TargetLanguage
-	{
-		JAVA,
-		C_SHARP,
-	}
-	
 	/**
 	 * Generate source codes taking an input translation scope.
 	 * <p>
@@ -32,12 +26,13 @@ public interface CodeTranslator
 	 *          The directory in which generated source codes will be placed.
 	 * @param tScope
 	 *          The translation scope from which source codes will be generated.
-	 * 
+	 * @param config
+	 * 					The configuration.
 	 * @throws IOException
 	 * @throws SIMPLTranslationException
 	 * @throws CodeTranslationException
 	 */
-	void translate(File directoryLocation, TranslationScope tScope)
+	void translate(File directoryLocation, TranslationScope tScope, CodeTranslatorConfig config)
 			throws IOException, SIMPLTranslationException, CodeTranslationException;
 
 	/**
@@ -47,11 +42,12 @@ public interface CodeTranslator
 	 *          The descriptor for the type that needs be to translated.
 	 * @param directoryLocation
 	 *          The directory in which generated source codes will be placed.
-	 *          
+	 * @param config
+	 * 					The configuration.
 	 * @throws IOException
 	 * @throws CodeTranslationException
 	 */
-	void translate(ClassDescriptor classDescriptor, File directoryLocation)
+	void translate(ClassDescriptor classDescriptor, File directoryLocation, CodeTranslatorConfig config)
 			throws IOException, CodeTranslationException;
 
 	/**
@@ -61,4 +57,9 @@ public interface CodeTranslator
 	 */
 	void excludeClassFromTranslation(ClassDescriptor classToExclude);
 
+	/**
+	 * @return The target language name.
+	 */
+	String getTargetLanguage();
+	
 }

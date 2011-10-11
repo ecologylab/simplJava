@@ -21,6 +21,8 @@ public class DotNetTranslationUtilities
 
 	private static final String							PROPERTY_SAFE_SUFFIX	= "Prop";
 
+	private static final String							BAD_NAME							= "### BAD NAME ###";
+
 	private static HashMap<String, String>	keywords							= new HashMap<String, String>();
 
 	static
@@ -120,13 +122,21 @@ public class DotNetTranslationUtilities
 	 */
 	private static Map<String, String> annotationTranslations = new HashMap<String, String>();
 	
+	private static Map<String, String> annotationPackageTranslations = new HashMap<String, String>();
+	
 	static
 	{
 		// init annotationTranslations
+		annotationTranslations.put("simpl_nowrap", "SimplNoWrap");
+		
+		// init annotationNamespaceTranslations
+		annotationPackageTranslations.put("ecologylab.serialization.annotations", BAD_NAME);
 	}
 	
 	/**
-	 * Utility function to translate java annotation names to C# attribute names;
+	 * Utility function to translate java annotation names to C# attribute names.
+	 * 
+	 * If there is an entry in the translation table, use that entry; otherwise use camel case.
 	 * 
 	 * @param annotation
 	 * @return
@@ -136,6 +146,27 @@ public class DotNetTranslationUtilities
 		if (annotationTranslations.containsKey(simpleName))
 			return annotationTranslations.get(simpleName);
 		return XMLTools.classNameFromElementName(simpleName);
+	}
+	
+	/**
+	 * Utility function to translate java annotation package names to C# namespaces.
+	 * 
+	 * If there is an entry in the translation table, and the value is BAD_NAME, return null;
+	 * 
+	 * If there is an entry in the translation table but the value is not BAD_NAME, use that entry;
+	 * 
+	 * If there is no entry in the translation table, return the original package name.
+	 * 
+	 * @param packageName
+	 * @return
+	 */
+	public static String translateAnnotationPackage(String packageName)
+	{
+		String translatedNamespace = annotationPackageTranslations.get(packageName);
+		if (BAD_NAME.equals(translatedNamespace))
+			return null;
+		else
+			return translatedNamespace == null ? packageName : translatedNamespace;
 	}
 	
 	public static String translateMetaInfoArgValue(Object argValue)
@@ -164,19 +195,18 @@ public class DotNetTranslationUtilities
 
 	/**
 	 * Generate a C# property name for this field.
-	 * 
+	 * @param context TODO
 	 * @param fieldDescriptor
+	 * 
 	 * @return
 	 */
-	public static String getPropertyName(FieldDescriptor fieldDescriptor)
+	public static String getPropertyName(ClassDescriptor context, FieldDescriptor fieldDescriptor)
 	{
 		String fieldName = fieldDescriptor.getName();
+		
 		StringBuilder propertyNameBuilder = StringBuilderUtils.acquire();
 		String propertyName = null;
-
-		ClassDescriptor elementCD = fieldDescriptor.getElementClassDescriptor();
-		String declaringClassName = elementCD == null ? null : elementCD.getDescribedClassSimpleName();
-
+		String declaringClassName = context.getDescribedClassSimpleName();
 		if (Character.isLowerCase(fieldName.charAt(0)))
 		{
 			propertyNameBuilder.append(Character.toUpperCase(fieldName.charAt(0)));

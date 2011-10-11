@@ -1,129 +1,53 @@
 package ecologylab.semantics.compiler;
 
 import java.io.File;
-import java.io.FileWriter;
 import java.io.IOException;
-import java.io.PrintWriter;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
 
-import ecologylab.appframework.PropertiesAndDirectories;
 import ecologylab.generic.Debug;
-import ecologylab.io.Files;
 import ecologylab.semantics.metadata.builtins.MetadataBuiltinsTranslationScope;
-import ecologylab.semantics.metametadata.MetaMetadata;
 import ecologylab.semantics.metametadata.MetaMetadataRepository;
-import ecologylab.semantics.namesandnums.SemanticsNames;
 import ecologylab.serialization.ClassDescriptor;
 import ecologylab.serialization.SIMPLTranslationException;
 import ecologylab.serialization.TranslationScope;
 import ecologylab.translators.CodeTranslationException;
 import ecologylab.translators.CodeTranslator;
-import ecologylab.translators.CodeTranslator.TargetLanguage;
-import ecologylab.translators.java.JavaTranslationUtilities;
 
 /**
  * 
  * @author quyin
- *
+ * 
  */
+// TODO use ApplicationEnvironment to facilitate loading XML configs.
 public class NewMetaMetadataCompiler extends Debug // ApplicationEnvironment
 {
 
-	private static final String					REPOSITORY_METADATA_TRANSLATION_SCOPE_PACKAGE_NAME	= "ecologylab.semantics.generated.library";
+	private static final String	META_METADATA_COMPILER_TSCOPE_NAME	= "meta-metadata-compiler-tscope";
 
-	private static final String					REPOSITORY_METADATA_TRANSLATION_SCOPE_CLASS_NAME		= "RepositoryMetadataTranslationScope";
-
-	private static final String					META_METADATA_COMPILER_TSCOPE_NAME									= "meta-metadata-compiler-tscope";
-	
-	static
+	public void compile(CompilerConfig config) throws IOException, SIMPLTranslationException,
+			CodeTranslationException
 	{
-		CompilerConfig.registerTranslator(TargetLanguage.JAVA, new MetaMetadataJavaTranslator());
-//		CompilerConfig.registerTranslator(TargetLanguage.C_SHARP, new MetaMetadataDotNetTranslator());
-	}
-
-	private CodeTranslator	translator;
-
-	public void compile(CompilerConfig config) throws IOException, SIMPLTranslationException, CodeTranslationException
-	{
-		debug("\n\nloading repository ...\n\n");
+		debug("\n\n loading repository ...\n\n");
 		TranslationScope.enableGraphSerialization();
 		MetaMetadataRepository repository = config.loadRepository();
-		TranslationScope tscope = repository.traverseAndGenerateTranslationScope(META_METADATA_COMPILER_TSCOPE_NAME);
+		TranslationScope tscope = repository
+				.traverseAndGenerateTranslationScope(META_METADATA_COMPILER_TSCOPE_NAME);
 		TranslationScope metadataBuiltInTScope = MetadataBuiltinsTranslationScope.get();
-		
-		translator = config.getCodeTranslator();
+
+		CodeTranslator translator = config.getCodeTranslator();
 		for (ClassDescriptor cd : metadataBuiltInTScope.getClassDescriptors())
 			translator.excludeClassFromTranslation(cd);
 
 		File generatedSemanticsLocation = config.getGeneratedSemanticsLocation();
-		debug("\n\ncompiling to " + generatedSemanticsLocation + " ...\n\n");
-		translator.translate(generatedSemanticsLocation, tscope);
-		createTranslationScopeClass(generatedSemanticsLocation, REPOSITORY_METADATA_TRANSLATION_SCOPE_PACKAGE_NAME, repository);
-		
+		debug("\n\n compiling to " + generatedSemanticsLocation + " ...\n\n");
+		translator.translate(generatedSemanticsLocation, tscope, config);
+
 		compilerHook(repository);
+		debug("\n\n compiler finished.");
 	}
-	
+
 	protected void compilerHook(MetaMetadataRepository repository)
 	{
-		
-	}
 
-	public void createTranslationScopeClass(File generatedSemanticsRootDir, String packageName,
-			MetaMetadataRepository repository) throws IOException
-	{
-		File rootDir = PropertiesAndDirectories.createDirsAsNeeded(generatedSemanticsRootDir);
-		File packageDir = PropertiesAndDirectories.createDirsAsNeeded(new File(rootDir, packageName.replace('.', Files.sep)));
-		File file = new File(packageDir, REPOSITORY_METADATA_TRANSLATION_SCOPE_CLASS_NAME + ".java");
-		PrintWriter printWriter = new PrintWriter(new FileWriter(file));
-
-		// Write the package
-		printWriter.println("package " + packageName + ";\n");
-
-		// write java doc comment
-		printWriter.println(JavaTranslationUtilities.getJavaClassComments(REPOSITORY_METADATA_TRANSLATION_SCOPE_CLASS_NAME));
-		printWriter.println("\n");
-
-		// Write the import statements
-		Class[] basicImports = {
-				TranslationScope.class,
-				SemanticsNames.class,
-				MetadataBuiltinsTranslationScope.class,
-		};
-		for (Class clazz : basicImports)
-			printWriter.println("import " + clazz.getName() + ";\n");
-
-		// Write java-doc comments
-		printWriter.println("/**\n * This is the tranlation scope class for generated files.\n */\n");
-
-		// Write the class
-		printWriter.print("public class ");
-		printWriter.print(REPOSITORY_METADATA_TRANSLATION_SCOPE_CLASS_NAME);
-		printWriter.print("\n{\n");
-		printWriter.print("\tprotected static final Class TRANSLATIONS[] =\n\t{\n");
-		List<String> classes = new ArrayList<String>(); 
-		if (repository.values() != null)
-			for (MetaMetadata mmd : repository.values())
-				if (mmd.isNewMetadataClass())
-				{
-					ClassDescriptor cd = mmd.getMetadataClassDescriptor();
-					classes.add("\t\t" + cd.getDescribedClassPackageName() + "." + cd.getDescribedClassSimpleName() + ".class,\n");
-				}
-		Collections.sort(classes);
-		for (String classDef : classes)
-			printWriter.println(classDef);
-		printWriter.println("\t};\n");
-
-		// Write get() method
-		printWriter.println("\tpublic static TranslationScope get()\n\t{");
-		printWriter.println("\t\treturn TranslationScope.get(SemanticsNames.REPOSITORY_METADATA_TRANSLATIONS, MetadataBuiltinsTranslationScope.get(), TRANSLATIONS);");
-		printWriter.println("\t}\n");
-
-		// End the class
-		printWriter.println("}");
-
-		printWriter.close();
 	}
 
 	/**
@@ -131,11 +55,24 @@ public class NewMetaMetadataCompiler extends Debug // ApplicationEnvironment
 	 * 
 	 * @throws IOException
 	 * @throws SIMPLTranslationException
-	 * @throws CodeTranslationException 
+	 * @throws CodeTranslationException
 	 */
-	public static void main(String[] args) throws IOException, SIMPLTranslationException, CodeTranslationException 
+	public static void main(String[] args) throws IOException, SIMPLTranslationException,
+			CodeTranslationException
 	{
-		CompilerConfig config = new CompilerConfig();
+		if (args.length < 2)
+		{
+			error(NewMetaMetadataCompiler.class, "lacking argument(s).");
+			error(NewMetaMetadataCompiler.class, "args: <target-language> <generated-semantics-location>");
+			error(NewMetaMetadataCompiler.class, "  - <target-language>: e.g. java or csharp (cs, c#).");
+			error(NewMetaMetadataCompiler.class, "  - <generated-semantics-location>: the path to the location for generated semantics.");
+			System.exit(-1);
+		}
+
+		String lang = args[0].toLowerCase();
+		String semanticsLoc = args[1];
+		
+		CompilerConfig config = new CompilerConfig(lang, new File(semanticsLoc));
 		NewMetaMetadataCompiler compiler = new NewMetaMetadataCompiler();
 		compiler.compile(config);
 	}

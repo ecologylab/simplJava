@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <launchConfiguration type="org.eclipse.jdt.launching.localJavaApplication">
 <listAttribute key="org.eclipse.debug.core.MAPPED_RESOURCE_PATHS">
-<listEntry value="/simplTranslators/src/ecologylab/translators/java/test/JavaTranslatorTest.java"/>
+<listEntry value="/simplTranslators/test/ecologylab/translators/java/JavaTranslatorTest.java"/>
 </listAttribute>
 <listAttribute key="org.eclipse.debug.core.MAPPED_RESOURCE_TYPES">
 <listEntry value="1"/>
 </listAttribute>
-<stringAttribute key="org.eclipse.jdt.launching.MAIN_TYPE" value="ecologylab.translators.java.test.JavaTranslatorTest"/>
+<stringAttribute key="org.eclipse.jdt.launching.MAIN_TYPE" value="ecologylab.translators.java.JavaTranslatorTest"/>
 <stringAttribute key="org.eclipse.jdt.launching.PROGRAM_ARGUMENTS" value="/tmp/javatranslator.xml"/>
 <stringAttribute key="org.eclipse.jdt.launching.PROJECT_ATTR" value="simplTranslators"/>
 <stringAttribute key="org.eclipse.jdt.launching.VM_ARGUMENTS" value="-Xms320m -Xmx512m"/>

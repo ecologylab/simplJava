@@ -4,19 +4,19 @@ import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 
+import ecologylab.generic.ReflectionTools;
 import ecologylab.io.Files;
 import ecologylab.semantics.collecting.MetaMetadataRepositoryInit;
 import ecologylab.semantics.metametadata.MetaMetadataRepository;
 import ecologylab.semantics.metametadata.MetaMetadataRepositoryLoader;
 import ecologylab.semantics.metametadata.exceptions.MetaMetadataException;
-import ecologylab.serialization.ElementState;
 import ecologylab.serialization.Format;
+import ecologylab.serialization.annotations.Hint;
+import ecologylab.serialization.annotations.simpl_hints;
 import ecologylab.serialization.annotations.simpl_inherit;
 import ecologylab.serialization.annotations.simpl_scalar;
 import ecologylab.translators.CodeTranslator;
-import ecologylab.translators.CodeTranslator.TargetLanguage;
-import ecologylab.translators.java.JavaTranslator;
-import ecologylab.translators.net.DotNetTranslator;
+import ecologylab.translators.CodeTranslatorConfig;
 
 /**
  * The encapsulation of compiler configurations. This class provides the default configuration,
@@ -29,57 +29,108 @@ import ecologylab.translators.net.DotNetTranslator;
  * 
  */
 @simpl_inherit
-public class CompilerConfig extends ElementState
+public class CompilerConfig extends CodeTranslatorConfig
 {
 
-	private static final Map<TargetLanguage, CodeTranslator> registeredTranslators = new HashMap<TargetLanguage, CodeTranslator>();
-	
+	public static final String												JAVA						= "java";
+
+	public static final String												CSHARP					= "csharp";
+
+	private static final Map<String, CodeTranslator>	codeTranslators	= new HashMap<String, CodeTranslator>();
+
 	static
 	{
-		registeredTranslators.put(TargetLanguage.JAVA, new JavaTranslator());
-		registeredTranslators.put(TargetLanguage.C_SHARP, new DotNetTranslator());
+		CodeTranslator javaTranslator = new MetaMetadataJavaTranslator();
+		CodeTranslator csharpTranslator = new MetaMetadataDotNetTranslator();
+		
+		registerCodeTranslator(JAVA, javaTranslator);
+
+		registerCodeTranslator(CSHARP, csharpTranslator);
+		registerCodeTranslator("c_sharp", csharpTranslator);
+		registerCodeTranslator("cs", csharpTranslator);
+		registerCodeTranslator("c#", csharpTranslator);
 	}
-	
+
 	/**
 	 * Provide a registering mechanism for extending translators.
 	 * 
-	 * @param lang
-	 * @param translator
+	 * @param targetLanguage
+	 * @param codeTranslator
 	 */
-	public static void registerTranslator(TargetLanguage lang, CodeTranslator translator)
+	public static void registerCodeTranslator(String targetLanguage, CodeTranslator codeTranslator)
 	{
-		registeredTranslators.put(lang, translator);
+		codeTranslators.put(targetLanguage, codeTranslator);
 	}
 
 	/**
 	 * The location (directory) of the repository.
 	 */
 	@simpl_scalar
-	private File						repositoryLocation					= new File(MetaMetadataRepositoryInit.DEFAULT_REPOSITORY_LOCATION);
+	@simpl_hints({ Hint.XML_LEAF })
+	private File													repositoryLocation	= new File(MetaMetadataRepositoryInit.DEFAULT_REPOSITORY_LOCATION);
 
 	/**
 	 * The format in which repository is stored.
 	 */
 	@simpl_scalar
-	private Format					repositoryFormat						= Format.XML;
+	@simpl_hints({ Hint.XML_LEAF })
+	private Format												repositoryFormat		= Format.XML;
 
 	/**
 	 * The location (directory) of generated semantics.
 	 */
 	@simpl_scalar
-	private File						generatedSemanticsLocation	= new File(".." + Files.sep + "ecologylabGeneratedSemantics");
+	@simpl_hints({ Hint.XML_LEAF })
+	private File													generatedSemanticsLocation;
 
 	/**
 	 * The target languange.
 	 */
 	@simpl_scalar
-	private TargetLanguage	targetLanguage							= TargetLanguage.JAVA;
+	@simpl_hints({ Hint.XML_LEAF })
+	private String												targetLanguage;
+
+	@simpl_scalar
+	@simpl_hints({ Hint.XML_LEAF })
+	private String												codeTranslatorClass;
+
+	private MetaMetadataRepositoryLoader	repositoryLoader;
+
+	private CodeTranslator								codeTranslator;
+	
+	private MetaMetadataRepository				repository;
 
 	/**
-	 * The repository loader. (If new loader is desired, allow injection of this field.)
+	 * Constructor for S.IM.PL.
 	 */
-	protected MetaMetadataRepositoryLoader loader				= new MetaMetadataRepositoryLoader();
-	
+	public CompilerConfig()
+	{
+		this(JAVA, new File(".." + Files.sep + "ecologylabGeneratedSemantics"));
+	}
+
+	/**
+	 * Convenience constructor.
+	 * 
+	 * @param targetLanguage
+	 * @param generatedSemanticsLocation
+	 */
+	CompilerConfig(String targetLanguage, File generatedSemanticsLocation)
+	{
+		super("ecologylab.semantics.generated.library", "RepositoryMetadataTranslationScope");
+		this.targetLanguage = targetLanguage;
+		this.generatedSemanticsLocation = generatedSemanticsLocation;
+	}
+
+	/**
+	 * @return The repository loader.
+	 */
+	protected MetaMetadataRepositoryLoader getRepositoryLoader()
+	{
+		if (repositoryLoader == null)
+			repositoryLoader = new MetaMetadataRepositoryLoader();
+		return repositoryLoader;
+	}
+
 	/**
 	 * Load repository using current configs.
 	 * 
@@ -87,7 +138,9 @@ public class CompilerConfig extends ElementState
 	 */
 	public MetaMetadataRepository loadRepository()
 	{
-		return loader.loadFromDir(repositoryLocation, repositoryFormat);
+		if (repository == null)
+			repository = getRepositoryLoader().loadFromDir(repositoryLocation, repositoryFormat);
+		return repository;
 	}
 
 	/**
@@ -104,12 +157,29 @@ public class CompilerConfig extends ElementState
 	 */
 	public CodeTranslator getCodeTranslator()
 	{
-		CodeTranslator translator = registeredTranslators.get(targetLanguage);
-		if (translator == null)
+		if (codeTranslator == null)
 		{
-			throw new MetaMetadataException("Unregistered or unknown target language: " + targetLanguage);
+			codeTranslator = codeTranslators.get(targetLanguage);
+			if (codeTranslator == null && codeTranslatorClass != null)
+			{
+				try
+				{
+					Class TC =  Class.forName(codeTranslatorClass);
+					codeTranslator = ReflectionTools.getInstance(TC);
+				}
+				catch (ClassNotFoundException e)
+				{
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+			if (codeTranslator == null)
+			{
+				throw new MetaMetadataException("Unregistered or unknown target language: "
+						+ targetLanguage);
+			}
 		}
-		return translator;
+		return codeTranslator;
 	}
 
 }

@@ -1,4 +1,4 @@
-package ecologylab.translators.java.test;
+package ecologylab.translators.java;
 
 import java.io.File;
 import java.io.IOException;
@@ -112,7 +112,7 @@ extends Debug
 		TranslationScope.enableGraphSerialization();
 		TranslationScope t = (TranslationScope) ts.deserialize(new File(filename), Format.XML);
 
-		c.translate(new File(codeLocation), t);
+		c.translate(new File(codeLocation), t, null);
 	}
 
 	/**
@@ -132,7 +132,7 @@ extends Debug
 		TranslationScope.enableGraphSerialization();
 		TranslationScope t = (TranslationScope) ts.deserialize(new File(filename), Format.XML);
 
-		c.translate(new File(codeLocation), t);
+		c.translate(new File(codeLocation), t, null);
 	}
 
 	@simpl_inherit
@@ -165,7 +165,7 @@ extends Debug
 		ClassDescriptor.serialize(ts, new File(outputDir + "ts.xml"), Format.XML);
 		
 		CodeTranslator jt = new JavaTranslator();
-		jt.translate(new File(outputDir + "jt"), ts);
+		jt.translate(new File(outputDir + "jt"), ts, null);
 	}
 
 }

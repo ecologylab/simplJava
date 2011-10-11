@@ -14,13 +14,27 @@ import ecologylab.serialization.MetaInformation;
 import ecologylab.serialization.TranslationScope;
 
 /**
+ * Define the abstract structure of a code translator.
  * 
  * @author quyin
  *
  */
 public abstract class AbstractCodeTranslator extends Debug implements CodeTranslator
 {
+	
+	private final String		targetLanguage;
 
+	public AbstractCodeTranslator(String targetLanguage)
+	{
+		this.targetLanguage = targetLanguage;
+	}
+	
+	@Override
+	public String getTargetLanguage()
+	{
+		return targetLanguage;
+	}
+	
 	// - file comments
 	/**
 	 * Append class header comment.
@@ -60,15 +74,15 @@ public abstract class AbstractCodeTranslator extends Debug implements CodeTransl
 	protected abstract void appendClassComments(ClassDescriptor inputClass, Appendable appendable) throws IOException;
 	protected abstract void appendStructuredComments(Appendable appendable, String spacing, String... comments) throws IOException;
 	protected abstract void appendClassMetaInformation(ClassDescriptor inputClass, Appendable appendable) throws IOException;
-	protected abstract void appendMetaInformation(MetaInformation metaInfo, Appendable appendable, String spacing) throws IOException;
+	protected abstract void appendMetaInformation(MetaInformation metaInfo, Appendable appendable) throws IOException;
 	protected abstract void appendClassMetaInformationHook(ClassDescriptor inputClass, Appendable appendable);
 	protected abstract void appendGenericTypeVariables(Appendable appendable, ClassDescriptor inputClass) throws IOException;
 
 	// - fields (comments, annotations, definition)
 	protected abstract void appendField(ClassDescriptor context, FieldDescriptor fieldDescriptor, Appendable appendable) throws IOException, CodeTranslationException;
 	protected abstract void appendFieldComments(FieldDescriptor fieldDescriptor, Appendable appendable) throws IOException;
-	protected abstract void appendFieldAnnotations(ClassDescriptor contextCd, FieldDescriptor fieldDescriptor, Appendable appendable) throws IOException;
-	protected abstract void appendFieldAnnotationsHook(ClassDescriptor contextCd, FieldDescriptor fieldDesc, Appendable appendable) throws IOException;
+	protected abstract void appendFieldMetaInformation(ClassDescriptor contextCd, FieldDescriptor fieldDescriptor, Appendable appendable) throws IOException;
+	protected abstract void appendFieldMetaInformationHook(ClassDescriptor contextCd, FieldDescriptor fieldDesc, Appendable appendable) throws IOException;
 
 	// - getters & setters
 	protected abstract void appendGettersAndSetters(ClassDescriptor context, FieldDescriptor fieldDescriptor, Appendable appendable) throws IOException;
@@ -89,11 +103,11 @@ public abstract class AbstractCodeTranslator extends Debug implements CodeTransl
 	protected abstract void appendDependencies(Collection<String> dependencies, Appendable appendable) throws IOException;
 	protected abstract void addGlobalDependency(String name);
 	protected abstract void addCurrentClassDependency(String name);
-	protected abstract void addTScopeDependency(String name);
+	protected abstract void addLibraryTScopeDependency(String name);
 
 	// - library translation scope class
 	protected abstract void generateLibraryTScopeClass(File directoryLocation, TranslationScope tScope) throws IOException;
 	protected abstract void openLibraryTScopeClassBody(String className, Appendable appendable) throws IOException;
-	protected abstract void appendLibraryTScopeGetter(String functionName, Appendable appendable, TranslationScope tScope) throws IOException;
+	protected abstract void appendLibraryTScopeGetter(TranslationScope tScope, Appendable appendable) throws IOException;
 
 }

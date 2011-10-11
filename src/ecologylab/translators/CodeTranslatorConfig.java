@@ -1,60 +1,52 @@
 package ecologylab.translators;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import ecologylab.serialization.ElementState;
+import ecologylab.serialization.annotations.Hint;
+import ecologylab.serialization.annotations.simpl_hints;
 import ecologylab.serialization.annotations.simpl_inherit;
 import ecologylab.serialization.annotations.simpl_scalar;
-import ecologylab.translators.CodeTranslator.TargetLanguage;
 
+/**
+ * 
+ * @author quyin
+ *
+ */
 @simpl_inherit
 public class CodeTranslatorConfig extends ElementState
 {
 	
 	@simpl_scalar
-	private String generatedTranslationScopeClassPackage;
+	@simpl_hints({Hint.XML_LEAF})
+	private String libraryTScopeClassPackage;
 	
 	@simpl_scalar
-	private String generatedTranslationScopeClassSimpleName;
+	@simpl_hints({Hint.XML_LEAF})
+	private String libraryTScopeClassSimpleName;
 
 	protected CodeTranslatorConfig()
 	{
-		this("generated_translation_scope", "GeneratedTranslationScope");
+		this("library_tscope", "LibraryTranslationScope");
 	}
 	
 	protected CodeTranslatorConfig(String packageName)
 	{
-		this(packageName, "GeneratedTranslationScope");
+		this(packageName, "LibraryTranslationScope");
 	}
 	
 	protected CodeTranslatorConfig(String packageName, String simpleName)
 	{
-		generatedTranslationScopeClassPackage = packageName;
-		generatedTranslationScopeClassSimpleName = simpleName;
+		libraryTScopeClassPackage = packageName;
+		libraryTScopeClassSimpleName = simpleName;
 	}
 	
-	public String getGeneratedTranslationScopeClassPackageName()
+	public String getLibraryTScopeClassPackageName()
 	{
-		return generatedTranslationScopeClassPackage;
+		return libraryTScopeClassPackage;
 	}
 
-	public String getGeneratedTranslationScopeClassSimpleName()
+	public String getLibraryTScopeClassSimpleName()
 	{
-		return generatedTranslationScopeClassSimpleName;
-	}
-
-	static Map<TargetLanguage, CodeTranslatorConfig> defaultConfigs = new HashMap<CodeTranslator.TargetLanguage, CodeTranslatorConfig>();
-	
-	static
-	{
-		defaultConfigs.put(TargetLanguage.JAVA, new CodeTranslatorConfig());
-		defaultConfigs.put(TargetLanguage.C_SHARP, new CodeTranslatorConfig("GeneratedTranslationScope"));
-	}
-	
-	public static CodeTranslatorConfig getDefaultConfig(TargetLanguage lang)
-	{
-		return defaultConfigs.get(lang);
+		return libraryTScopeClassSimpleName;
 	}
 
 }

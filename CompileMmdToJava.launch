@@ -7,6 +7,7 @@
 <listEntry value="1"/>
 </listAttribute>
 <stringAttribute key="org.eclipse.jdt.launching.MAIN_TYPE" value="ecologylab.semantics.compiler.NewMetaMetadataCompiler"/>
+<stringAttribute key="org.eclipse.jdt.launching.PROGRAM_ARGUMENTS" value="java ../ecologylabGeneratedSemantics/"/>
 <stringAttribute key="org.eclipse.jdt.launching.PROJECT_ATTR" value="simplTranslators"/>
 <stringAttribute key="org.eclipse.jdt.launching.VM_ARGUMENTS" value="-ea"/>
 </launchConfiguration>

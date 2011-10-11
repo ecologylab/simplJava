@@ -8,6 +8,7 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import ecologylab.io.Files;
+import ecologylab.semantics.generated.library.dlese.GetRecordAdditionalMetadata;
 import ecologylab.semantics.metadata.scalar.MetadataString;
 import ecologylab.semantics.metametadata.MetaMetadata;
 import ecologylab.semantics.metametadata.MetaMetadataCollectionField;
@@ -25,18 +26,12 @@ public class TestNewMetaMetadataCompiler
 	
 	protected CompilerConfig getCompilerConfig(final File testingRepository)
 	{
-		CompilerConfig config = new CompilerConfig()
+		CompilerConfig config = new CompilerConfig(CompilerConfig.JAVA, new File(".." + Files.sep + "testMetaMetadataCompiler" + Files.sep + "src"))
 		{
-			@Override
-			public File getGeneratedSemanticsLocation()
-			{
-				return new File(".." + Files.sep + "testMetaMetadataCompiler" + Files.sep + "src");
-			}
-
 			@Override
 			public MetaMetadataRepository loadRepository()
 			{
-				return loader.loadFromFiles(Arrays.asList(testingRepository), Format.XML);
+				return this.getRepositoryLoader().loadFromFiles(Arrays.asList(testingRepository), Format.XML);
 			}
 		};
 		return config;
@@ -44,21 +39,15 @@ public class TestNewMetaMetadataCompiler
 
 	protected CompilerConfig getCompilerConfigForDir(final File testingRepositoryDir)
 	{
-		CompilerConfig config = new CompilerConfig()
+		CompilerConfig config = new CompilerConfig(CompilerConfig.JAVA, new File(".." + Files.sep + "testMetaMetadataCompiler" + Files.sep + "src"))
 		{
 			MetaMetadataRepository repo = null;
-			
-			@Override
-			public File getGeneratedSemanticsLocation()
-			{
-				return new File(".." + Files.sep + "testMetaMetadataCompiler" + Files.sep + "src");
-			}
 
 			@Override
 			public MetaMetadataRepository loadRepository()
 			{
 				if (repo == null)
-					repo =  loader.loadFromDir(testingRepositoryDir, Format.XML);
+					repo =  getRepositoryLoader().loadFromDir(testingRepositoryDir, Format.XML);
 				return repo;
 			}
 		};

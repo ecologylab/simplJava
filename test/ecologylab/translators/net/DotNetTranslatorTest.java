@@ -22,7 +22,7 @@ public class DotNetTranslatorTest extends Debug
 	{
 		TranslationScope tScope = TranslationScope.get("TestCSCodeGenBasics", new Class[] { TestBase.class, TestSub.class });
 		AbstractCodeTranslator t = new DotNetTranslator();
-		t.translate(new File(OUTPUT_DIR + Files.sep + "Basics"), tScope);
+		t.translate(new File(OUTPUT_DIR + Files.sep + "Basics"), tScope, null);
 	}
 	
 //	public static void main(String[] args)
