@@ -1547,6 +1547,14 @@ public class FieldDescriptor extends DescriptorBase implements FieldTypes, IMapp
 
 		return childClassDescriptor;
 	}
+	
+	public ClassDescriptor getChildClassDescriptor(int tlvId)
+	{
+		ClassDescriptor childClassDescriptor = !isPolymorphic() ? elementClassDescriptor
+				: tlvClassDescriptors.get(tlvId);
+
+		return childClassDescriptor;
+	}
 
 	private Object getInstance(Attributes attributes, ClassDescriptor childClassDescriptor,
 			TranslationContext graphContext) throws SIMPLTranslationException

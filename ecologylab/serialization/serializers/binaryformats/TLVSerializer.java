@@ -152,17 +152,18 @@ public class TLVSerializer extends BinarySerializer implements FieldTypes
 				break;
 			case COLLECTION_SCALAR:
 			case MAP_SCALAR:
-				Collection<?> scalarCollection = XMLTools.getCollection(object);
+				Object scalarCollectionObject = childFd.getObject(object);
+				Collection<?> scalarCollection = XMLTools.getCollection(scalarCollectionObject);
 				for (Object collectionObject : scalarCollection)
 				{
-					writeValue(collectionObject, childFd, collectionBuffer, translationContext);
+					writeScalarCollectionLeaf(collectionObject, childFd, collectionBuffer, translationContext);
 				}
 				writeWrap(childFd, outputBuffer, byteArrayOutputStreamCollection);
 				break;
 			case COLLECTION_ELEMENT:
 			case MAP_ELEMENT:
-				Object collectionObject = childFd.getObject(object);
-				Collection<?> compositeCollection = XMLTools.getCollection(collectionObject);
+				Object compositeCollectionObject = childFd.getObject(object);
+				Collection<?> compositeCollection = XMLTools.getCollection(compositeCollectionObject);
 				for (Object collectionComposite : compositeCollection)
 				{
 					FieldDescriptor collectionObjectFieldDescriptor = childFd.isPolymorphic() ? getClassDescriptor(
@@ -196,6 +197,44 @@ public class TLVSerializer extends BinarySerializer implements FieldTypes
 			}
 			else
 				collectionBuffy.writeTo(outputBuffer);
+		}
+		catch (IOException e)
+		{
+			throw new SIMPLTranslationException("IOException", e);
+		}
+	}
+
+	private void writeScalarCollectionLeaf(Object object, FieldDescriptor fd,
+			DataOutputStream outputBuffer, TranslationContext translationContext)
+			throws SIMPLTranslationException
+	{
+		try
+		{
+			if (!fd.isDefaultValue(object.toString()))
+			{
+				outputBuffer.writeInt(fd.getTLVId());
+
+				// TODO appendValue in scalar types should be able to append bytes to DataOutputStream.
+				final StringBuilder buffy = new StringBuilder();
+				OutputStream outputStream = new OutputStream()
+				{
+					@Override
+					public void write(int b) throws IOException
+					{
+						buffy.append((char) b);
+					}
+				};
+
+				fd.appendCollectionScalarValue(new PrintStream(outputStream), object, translationContext,
+						Format.TLV);
+
+				ByteArrayOutputStream temp = new ByteArrayOutputStream();
+				DataOutputStream tempStream = new DataOutputStream(temp);
+				tempStream.writeBytes(buffy.toString());
+
+				outputBuffer.writeInt(tempStream.size());
+				temp.writeTo(outputBuffer);
+			}
 		}
 		catch (IOException e)
 		{

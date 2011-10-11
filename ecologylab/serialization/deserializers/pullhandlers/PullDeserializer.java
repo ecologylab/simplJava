@@ -24,6 +24,7 @@ import ecologylab.serialization.TranslationScope;
 import ecologylab.serialization.deserializers.ISimplDeserializationPre;
 import ecologylab.serialization.deserializers.ISimplDeserializationPost;
 import ecologylab.serialization.deserializers.pullhandlers.binaryformats.BinaryPullDeserializer;
+import ecologylab.serialization.deserializers.pullhandlers.binaryformats.TLVPullDeserializer;
 import ecologylab.serialization.deserializers.pullhandlers.stringformats.JSONPullDeserializer;
 import ecologylab.serialization.deserializers.pullhandlers.stringformats.StringPullDeserializer;
 import ecologylab.serialization.deserializers.pullhandlers.stringformats.XMLPullDeserializer;
@@ -206,6 +207,8 @@ public abstract class PullDeserializer extends Debug implements FieldTypes
 			return new JSONPullDeserializer(translationScope, translationContext,
 					deserializationHookStrategy);
 		case TLV:
+			return new TLVPullDeserializer(translationScope, translationContext,
+					deserializationHookStrategy);
 		case BIBTEX:
 		default:
 			throw new SIMPLTranslationException(format + " format not supported");

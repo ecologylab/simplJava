@@ -634,6 +634,11 @@ public final class TranslationScope extends ElementState
 	{
 		return entriesByTag.get(tag);
 	}
+	
+	public ClassDescriptor<? extends FieldDescriptor> getClassDescriptorByTlvId(int id)
+	{
+		return entriesByTLVId.get(id);
+	}
 
 	public ClassDescriptor getClassDescriptorByTLVId(int tlvId)
 	{

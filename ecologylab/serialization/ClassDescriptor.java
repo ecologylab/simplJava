@@ -1264,11 +1264,12 @@ public class ClassDescriptor<FD extends FieldDescriptor> extends DescriptorBase 
 	 * @param object
 	 * @param outputStream
 	 * @param bibtex
+	 * @throws SIMPLTranslationException 
 	 */
-	public static void serialize(Object object, OutputStream outputStream, Format format)
+	public static void serialize(Object object, OutputStream outputStream, Format format) throws SIMPLTranslationException
 	{
-		// TODO Auto-generated method stub
-
+		FormatSerializer serializer = FormatSerializer.getSerializer(format);
+		serializer.serialize(object, outputStream);
 	}
 
 	/**
