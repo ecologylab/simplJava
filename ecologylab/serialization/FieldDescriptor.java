@@ -94,7 +94,7 @@ public class FieldDescriptor extends DescriptorBase implements FieldTypes, IMapp
 	private Class																			elementClass;
 
 	@simpl_scalar
-	private boolean																		isGeneric;
+	protected boolean																	isGeneric;
 
 	// ///////////////// next fields are for polymorphic fields
 	// ////////////////////////////////////////
@@ -191,7 +191,7 @@ public class FieldDescriptor extends DescriptorBase implements FieldTypes, IMapp
 	private String																		fieldType;
 
 	@simpl_scalar
-	private String																		genericParametersString;
+	protected String																	genericParametersString;
 
 	private ArrayList<ClassDescriptor>								dependencies							= new ArrayList<ClassDescriptor>();
 	
@@ -1759,6 +1759,9 @@ public class FieldDescriptor extends DescriptorBase implements FieldTypes, IMapp
 		else if (scalarType != null /* && !isCollection() */)
 		{
 			result = scalarType.deriveCSharpTypeName();
+			int lastDot = result.lastIndexOf('.');
+			if (lastDot > 0 && lastDot < result.length() - 1)
+				result = result.substring(lastDot + 1);
 		}
 		else
 		{
