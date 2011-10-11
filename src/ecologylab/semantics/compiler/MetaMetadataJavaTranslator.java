@@ -6,6 +6,7 @@ import ecologylab.semantics.metadata.MetadataFieldDescriptor;
 import ecologylab.semantics.metametadata.MetaMetadataCompositeField;
 import ecologylab.semantics.metametadata.MetaMetadataField;
 import ecologylab.semantics.metametadata.MetaMetadataScalarField;
+import ecologylab.semantics.metametadata.MmdCompilerService;
 import ecologylab.semantics.metametadata.exceptions.MetaMetadataException;
 import ecologylab.serialization.ClassDescriptor;
 import ecologylab.serialization.FieldDescriptor;
@@ -13,7 +14,7 @@ import ecologylab.serialization.FieldTypes;
 import ecologylab.serialization.types.ScalarType;
 import ecologylab.translators.java.JavaTranslator;
 
-public class MetaMetadataJavaTranslator extends JavaTranslator
+public class MetaMetadataJavaTranslator extends JavaTranslator implements MmdCompilerService
 {
 	
 	public static final String	SCALAR_GETTER_SETTER_SUFFIX	= "Metadata";
@@ -35,8 +36,7 @@ public class MetaMetadataJavaTranslator extends JavaTranslator
 		
 		MetadataFieldDescriptor fd = (MetadataFieldDescriptor) fieldDesc;
 		MetaMetadataField f = fd.getDefiningMmdField();
-		String annotations = f.getAdditionalAnnotationsInJava(this);
-		appendable.append(spacing).append(annotations).append(SINGLE_LINE_BREAK);
+		f.addAdditionalMetaInformation(fieldDesc.getMetaInformation(), this);
 	}
 
 	@Override

@@ -1,7 +1,5 @@
 package ecologylab.translators.java;
 
-import japa.parser.ParseException;
-
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
@@ -16,7 +14,6 @@ import java.util.Set;
 import ecologylab.generic.Debug;
 import ecologylab.generic.HashMapArrayList;
 import ecologylab.semantics.html.utils.StringBuilderUtils;
-import ecologylab.semantics.metametadata.MmdCompilerService;
 import ecologylab.serialization.ClassDescriptor;
 import ecologylab.serialization.FieldDescriptor;
 import ecologylab.serialization.FieldTypes;
@@ -46,6 +43,7 @@ import ecologylab.serialization.types.element.IMappable;
 import ecologylab.standalone.xmlpolymorph.BItem;
 import ecologylab.standalone.xmlpolymorph.SchmItem;
 import ecologylab.standalone.xmlpolymorph.Schmannel;
+import ecologylab.translators.CodeTranslator;
 import ecologylab.translators.net.DotNetTranslationException;
 
 /**
@@ -56,7 +54,7 @@ import ecologylab.translators.net.DotNetTranslationException;
  * @version 1.0
  */
 
-public class JavaTranslator implements JavaTranslationConstants, MmdCompilerService
+public class JavaTranslator implements JavaTranslationConstants, CodeTranslator
 {
 	
 	/**
@@ -166,7 +164,7 @@ public class JavaTranslator implements JavaTranslationConstants, MmdCompilerServ
 		addDependencies(compositeDependencies);
 		
 		Set<ScalarType> scalarDependencies = classDescriptor.deriveScalarDependencies();
-		System.out.println(classDescriptor.getDescribedClassName()+" HAS " + scalarDependencies.size() + " scalar dependencies\n");
+//		System.out.println(classDescriptor.getDescribedClassName()+" HAS " + scalarDependencies.size() + " scalar dependencies\n");
 		addDependencies(scalarDependencies);
 		
 		Set<CollectionType> colletionDependencies = classDescriptor.deriveCollectionDependencies();
@@ -228,40 +226,9 @@ public class JavaTranslator implements JavaTranslationConstants, MmdCompilerServ
 			addDependency(simplBaseType.getJavaTypeName());
 	}
 
-	/**
-	 * Takes an input class to generate an Java source files. Takes the {@code directoryLocation}
-	 * of the files where the file needs to be generated.
-	 * <p>
-	 * This function internally calls the {@code translateToJava} main entry function to generate
-	 * the required files
-	 * </p>
-	 * 
-	 * @param inputClass
-	 * @param appendable
-	 * @throws IOException
-	 * @throws SIMPLTranslationException
-	 * @throws JavaTranslationException
-	 */
-	public void translateToJava(File directoryLocation, TranslationScope tScope)
+	@Override
+	public void translate(File directoryLocation, TranslationScope tScope)
 			throws IOException, SIMPLTranslationException, JavaTranslationException
-	{
-		translateToJava(directoryLocation, tScope, null);
-	}
-
-	/**
-	 * A method generating the java source files from the given translation scope object 
-	 * at the given directlyLocation 
-	 * 
-	 * @param directoryLocation
-	 * @param tScope
-	 * @param workSpaceLocation
-	 * @throws IOException
-	 * @throws SIMPLTranslationException
-	 * @throws ParseException
-	 * @throws JavaTranslationException
-	 */
-	public void translateToJava(File directoryLocation, final TranslationScope tScope, File workSpaceLocation)
-		throws IOException, SIMPLTranslationException, JavaTranslationException
 	{
 		System.out.println("Parsing source files to extract comments");
 
@@ -285,7 +252,7 @@ public class JavaTranslator implements JavaTranslationConstants, MmdCompilerServ
 				continue;
 			}
 			System.out.println("Translating " + classDesc);
-			translateToJava(classDesc, directoryLocation);
+			translate(classDesc, directoryLocation);
 		}
 
 		// create a folder to put the translation scope getter class
@@ -296,20 +263,8 @@ public class JavaTranslator implements JavaTranslationConstants, MmdCompilerServ
 		System.out.println("DONE !");
 	}
 
-	/**
-	 * Generates the java file for the given classdescriptor. Takes the {@code directoryLocation}
-	 * of the files where the file needs to be generated.
-	 * <p>
-	 * This function internally calls the {@code translateToJava} main entry function to generate
-	 * the required files
-	 * </p>
-	 * 
-	 * @param inputClass
-	 * @param appendable
-	 * @throws IOException
-	 * @throws DotNetTranslationException
-	 */
-	private void translateToJava(ClassDescriptor inputClass, File directoryLocation)
+	@Override
+	public void translate(ClassDescriptor inputClass, File directoryLocation)
 			throws IOException, JavaTranslationException
 	{
 		File outputFile = createJavaFileWithDirectoryStructure(inputClass, directoryLocation);
@@ -1083,11 +1038,10 @@ public class JavaTranslator implements JavaTranslationConstants, MmdCompilerServ
 		appendable.append(SINGLE_LINE_BREAK);
 	}
 
-	/**
-	 * method to exclude class from translation
-	 * 
-	 * @param someClass
+	/* (non-Javadoc)
+	 * @see ecologylab.translators.java.CodeTranslator#excludeClassFromTranslation(ecologylab.serialization.ClassDescriptor)
 	 */
+	@Override
 	public void excludeClassFromTranslation(ClassDescriptor someClass)
 	{
 		excludeClassesFromTranslation.add(someClass);
@@ -1124,7 +1078,7 @@ public class JavaTranslator implements JavaTranslationConstants, MmdCompilerServ
 	 */
 	public static void main(String args[]) throws Exception
 	{
-		JavaTranslator c = new JavaTranslator();
+		CodeTranslator c = new JavaTranslator();
 		
 		TranslationScope ts2 = TranslationScope.get("RSSTranslations", Schmannel.class, BItem.class, SchmItem.class,
 				RssState.class, Item.class, Channel.class);
@@ -1140,7 +1094,7 @@ public class JavaTranslator implements JavaTranslationConstants, MmdCompilerServ
 		
 		//t.serialize(new File("D:\\GSOC\\SIMPL\\GeneratedCode\\New\\tss2.xml"));
 		t.enableGraphSerialization();
-		c.translateToJava(new File("D:\\GSOC\\SIMPL\\GeneratedCode\\Test"),t);
+		c.translate(new File("D:\\GSOC\\SIMPL\\GeneratedCode\\Test"),t);
 		//c.translateToJava(new File("D:\\GSOC\\Output"),t);
 								
 		//c.translateToJava(System.out, Item.class);

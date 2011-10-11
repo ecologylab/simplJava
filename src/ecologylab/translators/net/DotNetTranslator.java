@@ -1,44 +1,32 @@
 package ecologylab.translators.net;
 
+import static ecologylab.translators.net.DotNetTranslationConstants.SPACE;
+
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.lang.annotation.Annotation;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Date;
-import java.util.HashMap;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import ecologylab.generic.Debug;
 import ecologylab.generic.HashMapArrayList;
 import ecologylab.semantics.html.utils.StringBuilderUtils;
 import ecologylab.serialization.ClassDescriptor;
-import ecologylab.serialization.ElementState;
 import ecologylab.serialization.FieldDescriptor;
-import ecologylab.serialization.FieldTypes;
+import ecologylab.serialization.MetaInformation;
+import ecologylab.serialization.MetaInformation.Argument;
 import ecologylab.serialization.SIMPLTranslationException;
 import ecologylab.serialization.TranslationScope;
-import ecologylab.serialization.XMLTools;
-import ecologylab.serialization.annotations.Hint;
-import ecologylab.serialization.annotations.simpl_classes;
-import ecologylab.serialization.annotations.simpl_collection;
-import ecologylab.serialization.annotations.simpl_composite;
-import ecologylab.serialization.annotations.simpl_hints;
-import ecologylab.serialization.annotations.simpl_inherit;
-import ecologylab.serialization.annotations.simpl_map;
-import ecologylab.serialization.annotations.simpl_nowrap;
-import ecologylab.serialization.annotations.simpl_other_tags;
-import ecologylab.serialization.annotations.simpl_scalar;
-import ecologylab.serialization.annotations.simpl_scope;
-import ecologylab.serialization.annotations.simpl_tag;
+import ecologylab.serialization.types.CollectionType;
+import ecologylab.serialization.types.ScalarType;
 import ecologylab.serialization.types.element.IMappable;
-import ecologylab.translators.java.JavaTranslationUtilities;
-import ecologylab.translators.parser.JavaDocParser;
+import ecologylab.translators.AbstractCodeTranslator;
+import ecologylab.translators.CodeTranslatorConfig;
 
 /**
  * 
@@ -48,348 +36,134 @@ import ecologylab.translators.parser.JavaDocParser;
  * @version 1.0
  * 
  */
-public class DotNetTranslator implements DotNetTranslationConstants
+@SuppressWarnings({"unchecked", "rawtypes"})
+public class DotNetTranslator extends AbstractCodeTranslator implements DotNetTranslationConstants
 {
+	
+	/**
+	 * Dependences for each class, globally.
+	 */
+	private Set<String>									globalDependencies						= new HashSet<String>();
 
-	private HashMap<String, String>			libraryNamespaces							= new HashMap<String, String>();
+	/**
+	 * Dependencies of current class.
+	 */
+	private Set<String>									currentClassDependencies			= new HashSet<String>();
 
-	private HashMap<String, String>			allNamespaces									= new HashMap<String, String>();
+	/**
+	 * Dependencies of the encompassing TranslationScope class.
+	 */
+	private Set<String>									libraryTScopeDependencies						= new HashSet<String>();
 
 	private String											currentNamespace;
 
 	private boolean											implementMappableInterface		= false;
 
-	private ArrayList<String>						additionalImportLines;
-
 	private ArrayList<ClassDescriptor>	excludeClassesFromTranslation	= new ArrayList<ClassDescriptor>();
-
-	/**
-	 * Constructor
-	 */
+	
 	public DotNetTranslator()
 	{
-
+		addGlobalDependency("System");
+		addGlobalDependency("System.Collections");
+		addGlobalDependency("System.Collections.Generic");
+		addGlobalDependency("Simpl.Serialization");
+		addGlobalDependency("Simpl.Serialization.Attributes");
+		addGlobalDependency("Simpl.Fundamental.Generic");
+		addGlobalDependency("ecologylab.collections");
 	}
 
-	/**
-	 * The main entry function. Goes through a sequence of steps to convert the Translation Scope into
-	 * a C# file
-	 * 
-	 * @param appendable
-	 * @param classes
-	 * @throws IOException
-	 * @throws DotNetTranslationException
-	 */
-	private void translateToCSharp(Appendable appendable, ClassDescriptor... classes)
-			throws IOException, DotNetTranslationException
-	{
-		int length = classes.length;
-		for (int i = 0; i < length; i++)
-		{
-			translateToCSharp(classes[i], appendable);
-		}
-	}
-
-	/**
-	 * @param inputClass
-	 * @param appendable
-	 * @throws IOException
-	 * @throws DotNetTranslationException
-	 */
-	private void translateToCSharp(ClassDescriptor inputClass, Appendable appendable)
-			throws IOException, DotNetTranslationException
-	{
-		ClassDescriptor classDescriptor = inputClass;
-
-		HashMapArrayList<String, ? extends FieldDescriptor> fieldDescriptors = classDescriptor
-				.getDeclaredFieldDescriptorsByFieldName();
-
-		StringBuilder classFile = new StringBuilder();
-		StringBuilder header = new StringBuilder();
-
-		appendHeaderComments(inputClass.getDescribedClassSimpleName(), header);
-		openNameSpace(inputClass, classFile);
-
-		openClassFile(inputClass, classFile);
-
-		classDescriptor.resolveUnresolvedScopeAnnotationFDs();
-
-		if (fieldDescriptors.size() > 0)
-		{
-			classDescriptor.resolveUnresolvedScopeAnnotationFDs();
-
-			for (FieldDescriptor fieldDescriptor : fieldDescriptors)
-			{
-				if (fieldDescriptor.belongsTo(classDescriptor))
-					appendFieldAsCSharpAttribute(inputClass, fieldDescriptor, classFile);
-			}
-
-			appendDefaultConstructor(inputClass, classFile);
-
-			for (FieldDescriptor fieldDescriptor : fieldDescriptors)
-			{
-				if (fieldDescriptor.belongsTo(classDescriptor))
-					appendGettersAndSetters(fieldDescriptor, classFile);
-			}
-
-			if (implementMappableInterface)
-			{
-				implementMappableMethods(classFile);
-				implementMappableInterface = false;
-			}
-		}
-
-		closeClassFile(classFile);
-		closeNameSpace(classFile);
-
-		importNameSpaces(header);
-		libraryNamespaces.clear();
-
-		setAdditionalImportNamespaces(additionalImportLines);
-		appendable.append(header);
-		appendable.append(classFile);
-	}
-
-	/**
-	 * @param directoryLocation
-	 * @param tScope
-	 * @throws IOException
-	 * @throws SIMPLTranslationException
-	 * @throws DotNetTranslationException
-	 */
-	public void translateToCSharp(File directoryLocation, TranslationScope tScope)
+	@Override
+	public void translate(File directoryLocation, TranslationScope tScope)
 			throws IOException, SIMPLTranslationException, DotNetTranslationException
 	{
-		translateToCSharp(directoryLocation, tScope, null);
-	}
-
-	/**
-	 * @param directoryLocation
-	 * @param tScope
-	 * @param workSpaceLocation
-	 * @throws IOException
-	 * @throws SIMPLTranslationException
-	 * @throws DotNetTranslationException
-	 */
-	public void translateToCSharp(File directoryLocation, final TranslationScope tScope,
-			File workSpaceLocation) throws IOException, SIMPLTranslationException,
-			DotNetTranslationException
-	{
-		System.out.println("Parsing source files to extract comments");
-
-		TranslationScope anotherScope = TranslationScope.augmentTranslationScope(tScope);
-
-		if (workSpaceLocation != null)
-			JavaDocParser.parseSourceFileIfExists(anotherScope, workSpaceLocation);
-
-		System.out.println("generating classes...");
-
-		Collection<ClassDescriptor<? extends FieldDescriptor>> classes = anotherScope
-				.entriesByClassName().values();
-
-		int length = classes.size();
+		debug("Generating C# classes ...");
+		Collection<ClassDescriptor<? extends FieldDescriptor>> classes = tScope.entriesByClassName().values();
 		for (ClassDescriptor classDesc : classes)
 		{
 			if (excludeClassesFromTranslation.contains(classDesc))
 			{
-				System.out.println("Excluding " + classDesc + "from translation as requested");
+				debug("Excluding " + classDesc + "from translation as requested.");
 				continue;
 			}
-			System.out.println("Translating " + classDesc);
-			translateToCSharp(classDesc, directoryLocation);
+			debug("Translating " + classDesc + "...");
+			translate(classDesc, directoryLocation);
 		}
-		File tScopeDirectory = createGetTranslationScopeFolder(directoryLocation);
-		generateTranslationScopeGetterClass(tScopeDirectory, tScope);
-		System.out.println("DONE!");
+		generateLibraryTScopeClass(directoryLocation, tScope);
+		debug("DONE!");
+	}
+
+	@Override
+	public void translate(ClassDescriptor inputClass, File directoryLocation)
+			throws IOException, DotNetTranslationException
+	{
+		File outputFile = createCSharpFileWithDirectoryStructure(directoryLocation, inputClass.getDescribedClassPackageName(), inputClass.getDescribedClassSimpleName());
+		BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(outputFile));
+		translate(inputClass, implementMappableInterface, bufferedWriter);
+		bufferedWriter.close();
 	}
 
 	/**
+	 * The actual method converting a class descriptor into C# codes.
+	 * 
 	 * @param inputClass
-	 * @param directoryLocation
+	 * @param appendable
 	 * @throws IOException
 	 * @throws DotNetTranslationException
 	 */
-	public void translateToCSharp(ClassDescriptor inputClass, File directoryLocation)
+	private void translate(ClassDescriptor inputClass, boolean implementMappable, Appendable appendable)
 			throws IOException, DotNetTranslationException
 	{
-		File outputFile = createCSharpFileWithDirectoryStructure(inputClass, directoryLocation);
-		BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(outputFile));
+		HashMapArrayList<String, ? extends FieldDescriptor> fieldDescriptors =
+				inputClass.getDeclaredFieldDescriptorsByFieldName();
+		inputClass.resolveUnresolvedScopeAnnotationFDs();
+		currentClassDependencies = new HashSet<String>(globalDependencies);
 
-		translateToCSharp(inputClass, bufferedWriter);
-		bufferedWriter.close();
-	}
+		StringBuilder classBody = StringBuilderUtils.acquire();
+		
+		// file header
+		StringBuilder header = StringBuilderUtils.acquire();
+		appendHeaderComments(inputClass.getDescribedClassSimpleName(), SINGLE_LINE_COMMENT, FILE_EXTENSION, header);
+		
+		// unit scope
+		openUnitScope(inputClass, classBody);
 
-	/**
-	 * @param directoryLocation
-	 * @param tScope
-	 * @throws IOException
-	 */
-	private void generateTranslationScopeGetterClass(File directoryLocation, TranslationScope tScope)
-			throws IOException
-	{
-		String tScopeCamelCasedName = XMLTools.javaNameFromElementName(tScope.getName(), true);
-		File sourceFile = new File(directoryLocation + FILE_PATH_SEPARATOR + tScopeCamelCasedName
-				+ FILE_EXTENSION);
-		BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(sourceFile));
-
-		importDefaultNamespaces(bufferedWriter);
-		importAllNamespaces(bufferedWriter);
-		namespaceComments(bufferedWriter);
-		bufferedWriter.append(SINGLE_LINE_BREAK);
-		openNameSpace(tScope.getPackageName(), bufferedWriter);
-		openTranslationScopeClassFile(tScopeCamelCasedName, bufferedWriter);
-		appendDefaultConstructor(tScopeCamelCasedName, bufferedWriter);
-		appendTranslationScopeGetterFunction(FGET, bufferedWriter, tScope);
-		closeClassFile(bufferedWriter);
-		closeNameSpace(bufferedWriter);
-		bufferedWriter.close();
-	}
-
-	/**
-	 * Appends header comments
-	 * 
-	 * @param appendable
-	 * @throws IOException
-	 */
-	private void namespaceComments(Appendable appendable) throws IOException
-	{
-		appendable.append("//developer should modify the namespace");
-		appendable.append(SINGLE_LINE_BREAK);
-		appendable.append("//by default it falls into ecologylab.serialization");
-	}
-
-	/**
-	 * @param functionName
-	 * @param appendable
-	 * @param tScope
-	 * @throws IOException
-	 */
-	private void appendTranslationScopeGetterFunction(String functionName, Appendable appendable,
-			TranslationScope tScope) throws IOException
-	{
-		appendable.append(SINGLE_LINE_BREAK);
-		appendable.append(DOUBLE_TAB);
-		appendable.append(PUBLIC);
-		appendable.append(SPACE);
-		appendable.append(STATIC);
-		appendable.append(SPACE);
-		appendable.append(DOTNET_TRANSLATION_SCOPE);
-		appendable.append(SPACE);
-		appendable.append(functionName);
-		appendable.append(OPENING_BRACE);
-		appendable.append(CLOSING_BRACE);
-		appendable.append(SINGLE_LINE_BREAK);
-		appendable.append(DOUBLE_TAB);
-		appendable.append(OPENING_CURLY_BRACE);
-		appendable.append(SINGLE_LINE_BREAK);
-
-		appendable.append(DOUBLE_TAB);
-		appendable.append(TAB);
-		appendable.append(RETURN);
-		appendable.append(SPACE);
-		appendable.append(DOTNET_TRANSLATION_SCOPE);
-		appendable.append(DOT);
-		appendable.append(FGET);
-		appendable.append(OPENING_BRACE);
-		appendable.append(QUOTE);
-		appendable.append(tScope.getName());
-		appendable.append(QUOTE);
-
-		Collection<ClassDescriptor<? extends FieldDescriptor>> allClasses = tScope.entriesByClassName()
-				.values();
-		for (ClassDescriptor<? extends FieldDescriptor> myClass : allClasses)
+		// class
+		// class: opening
+		openClassBody(inputClass, classBody);
+		// class: fields
+		for (FieldDescriptor fieldDescriptor : fieldDescriptors)
 		{
-			appendable.append(COMMA);
-			appendable.append(SINGLE_LINE_BREAK);
-			appendable.append(DOUBLE_TAB);
-			appendable.append(DOUBLE_TAB);
-			appendable.append(TYPE_OF);
-			appendable.append(OPENING_BRACE);
-			appendable.append(myClass.getClassSimpleName());
-			appendable.append(CLOSING_BRACE);
+			if (fieldDescriptor.belongsTo(inputClass))
+				appendField(inputClass, fieldDescriptor, classBody);
 		}
-
-		appendable.append(CLOSING_BRACE);
-		appendable.append(END_LINE);
-		appendable.append(SINGLE_LINE_BREAK);
-		appendable.append(DOUBLE_TAB);
-		appendable.append(CLOSING_CURLY_BRACE);
-		appendable.append(SINGLE_LINE_BREAK);
-	}
-
-	/**
-	 * @param className
-	 * @param appendable
-	 * @throws IOException
-	 */
-	private void openTranslationScopeClassFile(String className, Appendable appendable)
-			throws IOException
-	{
-		appendable.append(TAB);
-		appendable.append(PUBLIC);
-		appendable.append(SPACE);
-		appendable.append(CLASS);
-		appendable.append(SPACE);
-		appendable.append(className);
-
-		appendable.append(SINGLE_LINE_BREAK);
-		appendable.append(TAB);
-		appendable.append(OPENING_CURLY_BRACE);
-		appendable.append(SINGLE_LINE_BREAK);
-	}
-
-	/**
-	 * @param appendable
-	 * @throws IOException
-	 */
-	private void importAllNamespaces(Appendable appendable) throws IOException
-	{
-		// append all the registered namespace
-		if (allNamespaces != null && allNamespaces.size() > 0)
+		// class: constructor(s)
+		appendConstructor(inputClass, classBody);
+		// class: getters and setters
+		for (FieldDescriptor fieldDescriptor : fieldDescriptors)
 		{
-			for (String namespace : allNamespaces.values())
-			{
-				appendable.append(SINGLE_LINE_BREAK);
-				appendable.append(USING);
-				appendable.append(SPACE);
-				appendable.append(namespace);
-				appendable.append(END_LINE);
-			}
+			if (fieldDescriptor.belongsTo(inputClass))
+				appendGettersAndSetters(inputClass, fieldDescriptor, classBody);
 		}
+		// class: mappable
+		if (implementMappable)
+			implementMappable(classBody);
+		// class: closing
+		closeClassBody(classBody);
+		
+		// unit scope: closing
+		closeUnitScope(classBody);
 
-		appendable.append(DOUBLE_LINE_BREAK);
-	}
-
-	/**
-	 * @param directoryLocation
-	 * @return
-	 */
-	private File createGetTranslationScopeFolder(File directoryLocation)
-	{
-		String tScopeDirectoryPath = directoryLocation.toString() + FILE_PATH_SEPARATOR;
-
-		tScopeDirectoryPath += TRANSATIONSCOPE_FOLDER + FILE_PATH_SEPARATOR;
-		File tScopeDirectory = new File(tScopeDirectoryPath);
-		tScopeDirectory.mkdir();
-		return tScopeDirectory;
-	}
-
-	/**
-	 * @param className
-	 * @param appendable
-	 * @throws IOException
-	 */
-	private void appendHeaderComments(String className, Appendable appendable) throws IOException
-	{
-		DateFormat dateFormat = new SimpleDateFormat("MM/dd/yy");
-		DateFormat yearFormat = new SimpleDateFormat("yyyy");
-
-		Date date = new Date();
-
-		appendable.append("//\n// " + className
-				+ ".cs\n// s.im.pl serialization\n//\n// Generated by DotNetTranslator on "
-				+ dateFormat.format(date) + ".\n// Copyright " + yearFormat.format(date)
-				+ " Interface Ecology Lab. \n//\n\n");
+		// dependencies
+		currentClassDependencies.addAll(deriveDependencies(inputClass));
+		appendDependencies(currentClassDependencies, header);
+		currentClassDependencies.clear();
+		
+		// write to the file stream
+		appendable.append(header);
+		appendable.append(classBody);
+		
+		StringBuilderUtils.release(header);
+		StringBuilderUtils.release(classBody);
 	}
 
 	/**
@@ -399,21 +173,12 @@ public class DotNetTranslator implements DotNetTranslationConstants
 	 * @param appendable
 	 * @throws IOException
 	 */
-	private void openNameSpace(ClassDescriptor inputClass, Appendable appendable) throws IOException
+	@Override
+	protected void openUnitScope(ClassDescriptor inputClass, Appendable appendable) throws IOException
 	{
-		openNameSpace(inputClass.getDescribedClassPackageName(), appendable);
-	}
-
-	/**
-	 * @param classNameSpace
-	 * @param appendable
-	 * @throws IOException
-	 */
-	private void openNameSpace(String classNameSpace, Appendable appendable) throws IOException
-	{
-		currentNamespace = classNameSpace;
-		allNamespaces.put(currentNamespace, currentNamespace);
-
+		currentNamespace = inputClass.getCSharpNamespace();
+		addTScopeDependency(currentNamespace);
+		
 		appendable.append(NAMESPACE);
 		appendable.append(SPACE);
 		appendable.append(currentNamespace);
@@ -430,18 +195,13 @@ public class DotNetTranslator implements DotNetTranslationConstants
 	 * @param appendable
 	 * @throws IOException
 	 */
-	private void openClassFile(ClassDescriptor inputClass, Appendable appendable) throws IOException
+	@Override
+	protected void openClassBody(ClassDescriptor inputClass, Appendable appendable) throws IOException
 	{
 		appendClassComments(inputClass, appendable);
-
-		Annotation[] annotations = inputClass.getDescribedClass().getAnnotations();
-
-		ClassDescriptor genericSuperClassDescriptor = inputClass.getSuperClass();
-		if (genericSuperClassDescriptor == null)
-			genericSuperClassDescriptor = ClassDescriptor.getClassDescriptor(ElementState.class);
-
-		appendClassAnnotations(appendable, inputClass, "");
-
+		
+		appendClassMetaInformation(inputClass, appendable);
+		
 		appendable.append(TAB);
 		appendable.append(PUBLIC);
 		appendable.append(SPACE);
@@ -449,22 +209,19 @@ public class DotNetTranslator implements DotNetTranslationConstants
 		appendable.append(SPACE);
 		appendable.append(inputClass.getDescribedClassSimpleName());
 		appendGenericTypeVariables(appendable, inputClass);
-		appendable.append(SPACE);
-		appendable.append(INHERITANCE_OPERATOR);
-		appendable.append(SPACE);
-		appendable.append(genericSuperClassDescriptor.getDescribedClassSimpleName());
-
-		if (ElementState.class.isAssignableFrom(genericSuperClassDescriptor.getClass()))
-			;
+		
+		ClassDescriptor superCD = inputClass.getSuperClass();
+		if (superCD != null)
 		{
-			libraryNamespaces.put(genericSuperClassDescriptor.getPackageName(),
-					genericSuperClassDescriptor.getPackageName());
-			allNamespaces.put(genericSuperClassDescriptor.getPackageName(),
-					genericSuperClassDescriptor.getPackageName());
+			appendable.append(SPACE);
+			appendable.append(INHERITANCE_OPERATOR);
+			appendable.append(SPACE);
+			appendable.append(superCD.getDescribedClassSimpleName());
+			currentClassDependencies.add(superCD.getCSharpNamespace());
 		}
-
+	
+		// TODO currently interfaces can only be done through reflection
 		ArrayList<String> interfaces = inputClass.getInterfaceList();
-
 		if (interfaces != null)
 		{
 			for (int i = 0; i < interfaces.size(); i++)
@@ -473,70 +230,50 @@ public class DotNetTranslator implements DotNetTranslationConstants
 				appendable.append(SPACE);
 				appendable.append(interfaces.get(i));
 				implementMappableInterface = true;
-
-				libraryNamespaces.put(IMappable.class.getPackage().getName(), IMappable.class.getPackage()
-						.getName());
-
+				currentClassDependencies.add(IMappable.class.getPackage().getName());
 			}
 		}
-
+	
 		appendable.append(SINGLE_LINE_BREAK);
 		appendable.append(TAB);
 		appendable.append(OPENING_CURLY_BRACE);
 		appendable.append(SINGLE_LINE_BREAK);
-
 	}
 
 	/**
+	 * Append class comments.
+	 * 
 	 * @param inputClass
 	 * @param appendable
 	 * @throws IOException
 	 */
-	private void appendClassComments(ClassDescriptor inputClass, Appendable appendable)
+	@Override
+	protected void appendClassComments(ClassDescriptor inputClass, Appendable appendable)
 			throws IOException
 	{
-		appendable.append(TAB);
-		appendable.append(OPEN_COMMENTS);
-		appendable.append(SINGLE_LINE_BREAK);
-
-		appendCommentsFromArray(appendable, JavaDocParser.getClassJavaDocsArray(inputClass), false);
-
-		appendable.append(TAB);
-		appendable.append(CLOSE_COMMENTS);
-		appendable.append(SINGLE_LINE_BREAK);
-
+		String comment = inputClass.getComment();
+		if (comment != null && comment.length() > 0)
+			appendStructuredComments(appendable, TAB, inputClass.getComment());
 	}
 
-	/**
-	 * @param appendable
-	 * @param javaDocCommentArray
-	 * @param doubleTabs
-	 * @throws IOException
-	 */
-	private void appendCommentsFromArray(Appendable appendable, String[] javaDocCommentArray,
-			boolean doubleTabs) throws IOException
+	@Override
+	protected void appendClassMetaInformation(ClassDescriptor inputClass, Appendable appendable)
+			throws IOException
 	{
-		String numOfTabs = TAB;
-		if (doubleTabs)
-			numOfTabs = DOUBLE_TAB;
-
-		if (javaDocCommentArray != null)
-		{
-			for (String comment : javaDocCommentArray)
+		List<MetaInformation> metaInfo = inputClass.getMetaInformation();
+		if (metaInfo != null)
+			for (MetaInformation piece : metaInfo)
 			{
-				appendable.append(numOfTabs);
-				appendable.append(XML_COMMENTS);
-				appendable.append(comment);
-				appendable.append(SINGLE_LINE_BREAK);
+				appendMetaInformation(piece, appendable, TAB);
 			}
-		}
-		else
-		{
-			appendable.append(numOfTabs);
-			appendable.append(XML_COMMENTS);
-			appendable.append("missing java doc comments or could not find the source file.");
-			appendable.append(SINGLE_LINE_BREAK);
-		}
+		
+		appendClassMetaInformationHook(inputClass, appendable);
+	}
+
+	@Override
+	protected void appendClassMetaInformationHook(ClassDescriptor inputClass, Appendable appendable)
+	{
+		// empty implementation
 	}
 
 	/**
@@ -544,9 +281,11 @@ public class DotNetTranslator implements DotNetTranslationConstants
 	 * @param inputClass
 	 * @throws IOException
 	 */
-	private void appendGenericTypeVariables(Appendable appendable, ClassDescriptor inputClass)
+	@Override
+	protected void appendGenericTypeVariables(Appendable appendable, ClassDescriptor inputClass)
 			throws IOException
 	{
+		// TODO currently generic parameters can only be done through reflection!
 		ArrayList<String> typeVariables = inputClass.getGenericTypeVariables();
 		if (typeVariables != null && typeVariables.size() > 0)
 		{
@@ -565,31 +304,30 @@ public class DotNetTranslator implements DotNetTranslationConstants
 	}
 
 	/**
+	 * Append a field to the translated class source.
+	 * 
 	 * @param context
-	 *          TODO
 	 * @param fieldDescriptor
 	 * @param appendable
 	 * @throws IOException
 	 * @throws DotNetTranslationException
 	 */
-	private void appendFieldAsCSharpAttribute(ClassDescriptor context,
-			FieldDescriptor fieldDescriptor, Appendable appendable) throws IOException,
-			DotNetTranslationException
+	@Override
+	protected void appendField(ClassDescriptor context, FieldDescriptor fieldDescriptor, Appendable appendable)
+			throws IOException, DotNetTranslationException
 	{
-		registerNamespaces(fieldDescriptor);
-
 		String cSharpType = fieldDescriptor.getCSharpType();
 		if (cSharpType == null)
 		{
 			System.out.println("ERROR, no valid CSharpType found for : " + fieldDescriptor);
 			return;
 		}
-
-		boolean isKeyword = checkForKeywords(fieldDescriptor, appendable);
-		appendComments(appendable, true, isKeyword);
+	
+		boolean isKeyword = checkForKeywords(fieldDescriptor);
+		if (isKeyword)
+				appendable.append(OPEN_BLOCK_COMMENTS).append(SINGLE_LINE_BREAK);
 		appendFieldComments(fieldDescriptor, appendable);
 		appendFieldAnnotations(context, fieldDescriptor, appendable);
-
 		appendable.append(DOUBLE_TAB);
 		appendable.append(PRIVATE);
 		appendable.append(SPACE);
@@ -598,245 +336,63 @@ public class DotNetTranslator implements DotNetTranslationConstants
 		appendable.append(fieldDescriptor.getName());
 		appendable.append(END_LINE);
 		appendable.append(DOUBLE_LINE_BREAK);
-
-		appendComments(appendable, false, isKeyword);
+		if (isKeyword)
+				appendable.append(CLOSE_BLOCK_COMMENTS).append(SINGLE_LINE_BREAK);
 	}
 
-	/**
-	 * @param fieldDescriptor
-	 */
-	private void registerNamespaces(FieldDescriptor fieldDescriptor)
+	private Set<String> deriveDependencies(ClassDescriptor inputClass)
 	{
-		HashMap<String, String> namespaces = fieldDescriptor.getNamespaces();
-
-		if (namespaces != null && namespaces.size() > 0)
-		{
-			for (String key : namespaces.keySet())
-			{
-				libraryNamespaces.put(key, namespaces.get(key));
-				allNamespaces.put(key, namespaces.get(key));
-			}
-		}
+		Set<String> dependencies = new HashSet<String>();
+		
+		Set<ScalarType> scalars = inputClass.deriveScalarDependencies();
+		for (ScalarType scalar : scalars)
+			dependencies.add(scalar.getCSharpNamespace());
+		
+		Set<ClassDescriptor> composites = inputClass.deriveCompositeDependencies();
+		for (ClassDescriptor composite : composites)
+			dependencies.add(composite.getCSharpNamespace());
+		
+		Set<CollectionType> collections = inputClass.deriveCollectionDependencies();
+		for (CollectionType collection : collections)
+			dependencies.add(collection.getCSharpNamespace());
+		
+		return dependencies;
 	}
-
-	/**
-	 * @param fieldAccessor
-	 * @param appendable
-	 * @return
-	 * @throws IOException
-	 */
-	private boolean checkForKeywords(FieldDescriptor fieldAccessor, Appendable appendable)
-			throws IOException
-	{
-		if (DotNetTranslationUtilities.isKeyword(fieldAccessor.getName()))
-		{
-			Debug.warning(fieldAccessor, " Field Name: [" + fieldAccessor.getName()
-					+ "]. This is a keyword in C#. Cannot translate");
-			return true;
-		}
-
-		return false;
-	}
-
-	/**
-	 * @param appendable
-	 * @param start
-	 * @param isKeywrord
-	 * @throws IOException
-	 */
-	private void appendComments(Appendable appendable, boolean start, boolean isKeywrord)
-			throws IOException
-	{
-		if (isKeywrord)
-			if (start)
-			{
-				appendable.append("/*");
-				appendable.append(SINGLE_LINE_BREAK);
-			}
-			else
-			{
-				appendable.append("*/");
-				appendable.append(SINGLE_LINE_BREAK);
-			}
-	}
-
+	
 	/**
 	 * @param fieldDescriptor
 	 * @param appendable
 	 * @throws IOException
 	 */
-	private void appendFieldComments(FieldDescriptor fieldDescriptor, Appendable appendable)
+	@Override
+	protected void appendFieldComments(FieldDescriptor fieldDescriptor, Appendable appendable)
 			throws IOException
 	{
-		appendable.append(DOUBLE_TAB);
-		appendable.append(OPEN_COMMENTS);
-		appendable.append(SINGLE_LINE_BREAK);
-
-		appendCommentsFromArray(appendable,
-				JavaDocParser.getFieldJavaDocsArray(fieldDescriptor.getField()), true);
-
-		appendable.append(DOUBLE_TAB);
-		appendable.append(CLOSE_COMMENTS);
-		appendable.append(SINGLE_LINE_BREAK);
-
+		String comment = fieldDescriptor.getComment();
+		if (comment != null && comment.length() > 0)
+			appendStructuredComments(appendable, DOUBLE_TAB, comment);
 	}
 
-	private void appendClassAnnotations(Appendable appendable, ClassDescriptor classDesc,
-			String tabSpacing) throws IOException
-	{
-		ClassDescriptor superClass = classDesc.getSuperClass();
-		if (superClass != null && !superClass.getDescribedClassSimpleName().equals("ElementState"))
-			appendAnnotation(appendable, "", simpl_inherit.class);
-
-		String tagName = classDesc.getTagName();
-		String autoTagName = XMLTools.getXmlTagName(classDesc.getDescribedClassSimpleName(), null);
-		if (tagName != null && !tagName.equals("") && !tagName.equals(autoTagName))
-		{
-			appendAnnotation(appendable, SINGLE_LINE_BREAK, simpl_tag.class, true, tagName);
-		}
-
-		// TODO @simpl_other_tags
-		ArrayList<String> otherTags = classDesc.otherTags();
-		if (otherTags != null && otherTags.size() > 0)
-		{
-			appendAnnotation(appendable, SINGLE_LINE_BREAK, simpl_other_tags.class, true, otherTags);
-		}
-
-		appendable.append(SINGLE_LINE_BREAK);
-
-		appendClassAnnotationsHook(appendable, classDesc, tabSpacing);
-	}
-
-	private void appendClassAnnotationsHook(Appendable appendable, ClassDescriptor classDesc,
-			String tabSpacing)
-	{
-
-	}
-
-	private void addDependency(String name)
-	{
-		libraryNamespaces.put(name, name);
-		allNamespaces.put(name, name);
-	}
-
-	private void appendFieldAnnotations(ClassDescriptor contextCd, FieldDescriptor fieldDescriptor,
+	@Override
+	protected void appendFieldAnnotations(ClassDescriptor contextCd, FieldDescriptor fieldDescriptor,
 			Appendable appendable) throws IOException
 	{
-		int type = fieldDescriptor.getType();
-		String collectionMapTagValue = fieldDescriptor.getCollectionOrMapTagName();
-
-		if (type == FieldTypes.COMPOSITE_ELEMENT)
-		{
-			// @simpl_composite
-			appendAnnotation(appendable, TAB, simpl_composite.class);
-		}
-		else if (type == FieldTypes.COLLECTION_ELEMENT || type == FieldTypes.COLLECTION_SCALAR)
-		{
-			addDependency(List.class.getName());
-			if (!fieldDescriptor.isWrapped())
+		List<MetaInformation> metaInfo = fieldDescriptor.getMetaInformation();
+		if (metaInfo != null)
+			for (MetaInformation piece : metaInfo)
 			{
-				// @simpl_nowrap
-				appendAnnotation(appendable, TAB, simpl_nowrap.class);
+				appendMetaInformation(piece, appendable, DOUBLE_TAB);
+				// TODO process dependencies
 			}
-			// @simpl_collection
-			if (fieldDescriptor.isPolymorphic())
-				appendAnnotation(appendable, TAB, simpl_collection.class);
-			else
-				appendAnnotation(appendable, TAB, simpl_collection.class, true, collectionMapTagValue);
-		}
-		else if (type == FieldTypes.MAP_ELEMENT)
-		{
-			// @simpl_map
-			appendAnnotation(appendable, TAB, simpl_map.class, true, collectionMapTagValue);
-		}
-		else
-		{
-			// @simpl_scalar
-			appendAnnotation(appendable, TAB, simpl_scalar.class);
-		}
-
-		// @simpl_tag
-		String tagName = fieldDescriptor.getTagName();
-		String autoTagName = XMLTools.getXmlTagName(fieldDescriptor.getName(), null);
-		if (tagName != null && !tagName.equals("") && !tagName.equals(autoTagName))
-		{
-			appendAnnotation(appendable, TAB, simpl_tag.class, true, tagName);
-		}
-
-		// @simpl_other_tags
-		ArrayList<String> otherTags = fieldDescriptor.otherTags();
-		if (otherTags != null && otherTags.size() > 0)
-		{
-			appendAnnotation(appendable, TAB, simpl_other_tags.class, true, otherTags);
-		}
-
-		if (!((type == FieldTypes.COMPOSITE_ELEMENT) || (type == FieldTypes.COLLECTION_ELEMENT) || (type == FieldTypes.COLLECTION_SCALAR)))
-		{
-			Hint hint = fieldDescriptor.getXmlHint();
-			if (hint != null)
-			{
-				// @simpl_hints
-				appendAnnotation(appendable, TAB, simpl_hints.class, false, Hint.class.getSimpleName()
-						+ "." + hint.name());
-				addDependency(Hint.class.getName());
-			}
-		}
-
-		// @simpl_classes
-		Collection<ClassDescriptor> polyClassDescriptors = fieldDescriptor
-				.getPolymorphicClassDescriptors();
-		if (polyClassDescriptors != null)
-		{
-			HashSet<ClassDescriptor> classDescriptors = new HashSet<ClassDescriptor>(polyClassDescriptors);
-			appendAnnotation(appendable, TAB, simpl_classes.class, false,
-					JavaTranslationUtilities.getJavaClassesAnnotation(classDescriptors));
-		}
-
-		// @simpl_scope
-		String polyScope = fieldDescriptor.getUnresolvedScopeAnnotation();
-		if (polyScope != null && polyScope.length() > 0)
-		{
-			appendAnnotation(appendable, TAB, simpl_scope.class, true, polyScope);
-		}
-
-		appendFieldAnnotationsHook(appendable, contextCd, fieldDescriptor, TAB);
+	
+		appendFieldAnnotationsHook(contextCd, fieldDescriptor, appendable);
 	}
 
-
-
-	private void appendFieldAnnotationsHook(Appendable appendable, ClassDescriptor context,
-			FieldDescriptor fieldDescriptor, String tabSpacing)
+	@Override
+	protected void appendFieldAnnotationsHook(ClassDescriptor contextCd, FieldDescriptor fieldDesc,
+			Appendable appendable) throws IOException
 	{
-
-	}
-
-	private void appendAnnotation(Appendable appendable, String tab, Class annotationClass,
-			boolean quoted, ArrayList<String> params) throws IOException
-	{
-		StringBuilder sb = StringBuilderUtils.acquire();
-		if (params != null && params.size() > 0)
-			for (int i = 0; i < params.size(); ++i)
-				sb.append(i == 0 ? "(" : ", ").append(quoted ? "\"" : "").append(params.get(i)).append(quoted ? "\"" : "").append(i == params.size() - 1 ? ")" : "");
-		appendAnnotation(appendable, tab, annotationClass, false, sb.toString());
-		StringBuilderUtils.release(sb);
-	}
-
-	public void appendAnnotation(Appendable appendable, String indent, Class annotationClass)
-			throws IOException
-	{
-		appendAnnotation(appendable, indent, annotationClass, false, "");
-	}
-
-	public void appendAnnotation(Appendable appendable, String indent, Class annotationClass,
-			boolean quoted, String params) throws IOException
-	{
-		appendable.append(indent);
-		appendable.append(OPENING_SQUARE_BRACE);
-		appendable.append(annotationClass.getSimpleName());
-		if (params != null && params.length() > 0)
-			appendable.append("(").append(quoted ? "\"" : "").append(params).append(quoted ? "\"" : "")
-					.append(")");
-		appendable.append(CLOSING_SQUARE_BRACE);
+		// for derived classes to use.
 	}
 
 	/**
@@ -844,10 +400,19 @@ public class DotNetTranslator implements DotNetTranslationConstants
 	 * @param appendable
 	 * @throws IOException
 	 */
-	private void appendDefaultConstructor(ClassDescriptor inputClass, Appendable appendable)
+	@Override
+	protected void appendConstructor(ClassDescriptor inputClass, Appendable appendable)
 			throws IOException
 	{
 		appendDefaultConstructor(inputClass.getDescribedClassSimpleName(), appendable);
+		
+		appendConstructorHook(inputClass, appendable);
+	}
+
+	@Override
+	protected void appendConstructorHook(ClassDescriptor inputClass, Appendable appendable) throws IOException
+	{
+		// for derived classes to use.
 	}
 
 	/**
@@ -855,7 +420,9 @@ public class DotNetTranslator implements DotNetTranslationConstants
 	 * @param appendable
 	 * @throws IOException
 	 */
-	private void appendDefaultConstructor(String className, Appendable appendable) throws IOException
+	@Override
+	protected void appendDefaultConstructor(String className, Appendable appendable)
+			throws IOException
 	{
 		appendable.append(DOUBLE_TAB);
 		appendable.append(PUBLIC);
@@ -872,11 +439,13 @@ public class DotNetTranslator implements DotNetTranslationConstants
 	}
 
 	/**
+	 * @param context
 	 * @param fieldDescriptor
 	 * @param appendable
 	 * @throws IOException
 	 */
-	private void appendGettersAndSetters(FieldDescriptor fieldDescriptor, Appendable appendable)
+	@Override
+	protected void appendGettersAndSetters(ClassDescriptor context, FieldDescriptor fieldDescriptor, Appendable appendable)
 			throws IOException
 	{
 		String cSharpType = fieldDescriptor.getCSharpType();
@@ -885,12 +454,12 @@ public class DotNetTranslator implements DotNetTranslationConstants
 			System.out.println("ERROR, no valid CSharpType found for : " + fieldDescriptor);
 			return;
 		}
-
+	
 		appendable.append(SINGLE_LINE_BREAK);
-
-		boolean isKeyword = checkForKeywords(fieldDescriptor, appendable);
-		appendComments(appendable, true, isKeyword);
-
+	
+		boolean isKeyword = checkForKeywords(fieldDescriptor);
+		if (isKeyword)
+				appendable.append(OPEN_BLOCK_COMMENTS).append(SINGLE_LINE_BREAK);
 		appendable.append(DOUBLE_TAB);
 		appendable.append(PUBLIC);
 		appendable.append(SPACE);
@@ -923,20 +492,26 @@ public class DotNetTranslator implements DotNetTranslationConstants
 		appendable.append(END_LINE);
 		appendable.append(CLOSING_CURLY_BRACE);
 		appendable.append(SINGLE_LINE_BREAK);
-
 		appendable.append(DOUBLE_TAB);
 		appendable.append(CLOSING_CURLY_BRACE);
 		appendable.append(SINGLE_LINE_BREAK);
+		if (isKeyword)
+				appendable.append(CLOSE_BLOCK_COMMENTS).append(SINGLE_LINE_BREAK);
+	
+		appendGettersAndSettersHook(context, fieldDescriptor, appendable);
+	}
 
-		appendComments(appendable, false, isKeyword);
-
+	@Override
+	protected void appendGettersAndSettersHook(ClassDescriptor context, FieldDescriptor fieldDescriptor, Appendable appendable)
+	{
+		// for derived classes to use.
 	}
 
 	/**
 	 * @param appendable
 	 * @throws IOException
 	 */
-	private void implementMappableMethods(Appendable appendable) throws IOException
+	private void implementMappable(Appendable appendable) throws IOException
 	{
 		appendable.append(SINGLE_LINE_BREAK);
 		appendable.append(DOUBLE_TAB);
@@ -964,9 +539,294 @@ public class DotNetTranslator implements DotNetTranslationConstants
 	 * @param appendable
 	 * @throws IOException
 	 */
-	private void closeClassFile(Appendable appendable) throws IOException
+	@Override
+	protected void closeClassBody(Appendable appendable) throws IOException
 	{
 		appendable.append(TAB);
+		appendable.append(CLOSING_CURLY_BRACE);
+		appendable.append(SINGLE_LINE_BREAK);
+	}
+
+	/**
+	 * @param appendable
+	 * @throws IOException
+	 */
+	@Override
+	protected void closeUnitScope(Appendable appendable) throws IOException
+	{
+		appendable.append(CLOSING_CURLY_BRACE);
+		appendable.append(SINGLE_LINE_BREAK);
+	}
+
+	/**
+	 * @param dependencies 
+	 * @param appendable
+	 * @throws IOException
+	 */
+	@Override
+	protected void appendDependencies(Collection<String> dependencies, Appendable appendable)
+			throws IOException
+	{
+		if (dependencies != null && dependencies.size() > 0)
+		{
+			List<String> sortedDependencies = new ArrayList<String>(dependencies);
+			Collections.sort(sortedDependencies);
+			for (String namespace : sortedDependencies)
+			{
+				// do not append if it belongs to current namespace
+				if (!namespace.equals(currentNamespace))
+				{
+					appendable.append(SINGLE_LINE_BREAK);
+					appendable.append(USING);
+					appendable.append(SPACE);
+					appendable.append(namespace);
+					appendable.append(END_LINE);
+				}
+			}
+		}
+		appendable.append(DOUBLE_LINE_BREAK);
+	}
+
+	/**
+	 * @param fieldDescriptor
+	 * @return  true if the name is a keyword, otherwise false.
+	 */
+	private boolean checkForKeywords(FieldDescriptor fieldDescriptor)
+	{
+		if (DotNetTranslationUtilities.isKeyword(fieldDescriptor.getName()))
+		{
+			Debug.warning(fieldDescriptor, "Field [" + fieldDescriptor.getName() + "]: This is a keyword in C#. Cannot translate.");
+			return true;
+		}
+		return false;
+	}
+
+	/**
+	 * Append comments (in C# style).
+	 * 
+	 * @param appendable
+	 * @param spacing
+	 * @param comments The array of comments, each element in a line.
+	 * @throws IOException
+	 */
+	@Override
+	protected void appendStructuredComments(Appendable appendable, String spacing, String... comments)
+			throws IOException
+	{
+		appendable.append(spacing).append(OPEN_COMMENTS).append(SINGLE_LINE_BREAK);
+		if (comments != null && comments.length > 0)
+			for (String comment : comments)
+				appendable.append(spacing).append(XML_COMMENTS).append(comment).append(SINGLE_LINE_BREAK);
+		else
+			appendable.append(spacing).append(XML_COMMENTS).append("(missing comments)").append(SINGLE_LINE_BREAK);
+		appendable.append(spacing).append(CLOSE_COMMENTS).append(SINGLE_LINE_BREAK);
+	}
+
+	@Override
+	protected void appendMetaInformation(MetaInformation metaInfo, Appendable appendable, String spacing)
+			throws IOException
+	{
+		appendable.append(spacing);
+		appendable.append(OPENING_SQUARE_BRACE);
+		appendable.append(DotNetTranslationUtilities.translateAnnotationName(metaInfo.simpleTypeName));
+		if (metaInfo.args != null && metaInfo.args.size() > 0)
+		{
+			appendable.append("(");
+			if (metaInfo.argsInArray)
+			{
+				String argType = metaInfo.args.get(0).simpleTypeName;
+				appendable.append("new ").append(argType).append("[] {");
+				for (int i = 0; i < metaInfo.args.size(); ++i)
+					appendable.append(i==0?"":", ").append(DotNetTranslationUtilities.translateMetaInfoArgValue(metaInfo.args.get(i).value));
+				appendable.append("}");
+			}
+			else
+			{
+				for (int i = 0; i < metaInfo.args.size(); ++i)
+				{
+					Argument a = metaInfo.args.get(i);
+					appendable.append(i==0?"":", ").append(metaInfo.args.size()>1?a.name+" = ":"").append(DotNetTranslationUtilities.translateMetaInfoArgValue(a.value));
+				}
+			}
+			appendable.append(")");
+		}
+		appendable.append(CLOSING_SQUARE_BRACE);
+	}
+	
+	@Override
+	public void addGlobalDependency(String name)
+	{
+		globalDependencies.add(name);
+	}
+
+	@Override
+	public void addCurrentClassDependency(String name)
+	{
+		currentClassDependencies.add(name);
+	}
+	
+	@Override
+	public void addTScopeDependency(String name)
+	{
+		libraryTScopeDependencies.add(name);
+	}
+
+	private File createCSharpFileWithDirectoryStructure(File directoryLocation, String packageName,
+			String className) throws IOException
+	{
+		String currentDirectory = directoryLocation.toString() + FILE_PATH_SEPARATOR;
+		String[] arrayPackageNames = packageName.split(PACKAGE_NAME_SEPARATOR);
+		for (String directoryName : arrayPackageNames)
+		{
+			currentDirectory += directoryName + FILE_PATH_SEPARATOR;
+		}
+	
+		File directory = new File(currentDirectory);
+		directory.mkdirs();
+	
+		File currentFile = new File(currentDirectory + className + FILE_EXTENSION);
+		if (currentFile.exists())
+		{
+			currentFile.delete();
+		}
+	
+		currentFile.createNewFile();
+		return currentFile;
+	}
+
+	/**
+	 * @param directoryLocation
+	 * @param tScope
+	 * @throws IOException
+	 */
+	@Override
+	protected void generateLibraryTScopeClass(File directoryLocation, TranslationScope tScope)
+			throws IOException
+	{
+		CodeTranslatorConfig config = CodeTranslatorConfig.getDefaultConfig(TargetLanguage.C_SHARP);
+		String packageName = config.getGeneratedTranslationScopeClassPackageName();
+		String tscopeClassName = config.getGeneratedTranslationScopeClassSimpleName();
+		
+		File sourceFile = createCSharpFileWithDirectoryStructure(directoryLocation, packageName, tscopeClassName);
+		BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(sourceFile));
+
+		// append global dependencies
+		appendDependencies(globalDependencies, bufferedWriter);
+		
+		// append all generated classes to the translation scope
+		if (libraryTScopeDependencies != null && libraryTScopeDependencies.size() > 0)
+		{
+			for (String namespace : libraryTScopeDependencies)
+			{
+				bufferedWriter.append(SINGLE_LINE_BREAK);
+				bufferedWriter.append(USING);
+				bufferedWriter.append(SPACE);
+				bufferedWriter.append(namespace);
+				bufferedWriter.append(END_LINE);
+			}
+		}
+		bufferedWriter.append(DOUBLE_LINE_BREAK);
+		
+		// append notice information
+		bufferedWriter.append("// Developer should proof-read this TranslationScope before using it for production.");
+		bufferedWriter.append(SINGLE_LINE_BREAK);
+		
+		// header
+		bufferedWriter.append(NAMESPACE);
+		bufferedWriter.append(SPACE);
+		bufferedWriter.append(packageName);
+		bufferedWriter.append(SPACE);
+		bufferedWriter.append(SINGLE_LINE_BREAK);
+		bufferedWriter.append(OPENING_CURLY_BRACE);
+		bufferedWriter.append(SINGLE_LINE_BREAK);
+		
+		// class body
+		openLibraryTScopeClassBody(tscopeClassName, bufferedWriter);
+		appendDefaultConstructor(tscopeClassName, bufferedWriter);
+		appendLibraryTScopeGetter(FGET, bufferedWriter, tScope);
+		closeClassBody(bufferedWriter);
+		closeUnitScope(bufferedWriter);
+		
+		bufferedWriter.close();
+	}
+
+	/**
+	 * @param className
+	 * @param appendable
+	 * @throws IOException
+	 */
+	@Override
+	protected void openLibraryTScopeClassBody(String className, Appendable appendable)
+			throws IOException
+	{
+		appendable.append(TAB);
+		appendable.append(PUBLIC);
+		appendable.append(SPACE);
+		appendable.append(CLASS);
+		appendable.append(SPACE);
+		appendable.append(className);
+	
+		appendable.append(SINGLE_LINE_BREAK);
+		appendable.append(TAB);
+		appendable.append(OPENING_CURLY_BRACE);
+		appendable.append(SINGLE_LINE_BREAK);
+	}
+
+	/**
+	 * @param functionName
+	 * @param appendable
+	 * @param tScope
+	 * @throws IOException
+	 */
+	@Override
+	protected void appendLibraryTScopeGetter(String functionName, Appendable appendable,
+			TranslationScope tScope) throws IOException
+	{
+		appendable.append(SINGLE_LINE_BREAK);
+		appendable.append(DOUBLE_TAB);
+		appendable.append(PUBLIC);
+		appendable.append(SPACE);
+		appendable.append(STATIC);
+		appendable.append(SPACE);
+		appendable.append(DOTNET_TRANSLATION_SCOPE);
+		appendable.append(SPACE);
+		appendable.append(functionName);
+		appendable.append(OPENING_BRACE);
+		appendable.append(CLOSING_BRACE);
+		appendable.append(SINGLE_LINE_BREAK);
+		appendable.append(DOUBLE_TAB);
+		appendable.append(OPENING_CURLY_BRACE);
+		appendable.append(SINGLE_LINE_BREAK);
+
+		appendable.append(DOUBLE_TAB);
+		appendable.append(TAB);
+		appendable.append(RETURN);
+		appendable.append(SPACE);
+		appendable.append(DOTNET_TRANSLATION_SCOPE);
+		appendable.append(DOT);
+		appendable.append(FGET);
+		appendable.append(OPENING_BRACE);
+		appendable.append(QUOTE);
+		appendable.append(tScope.getName());
+		appendable.append(QUOTE);
+
+		Collection<ClassDescriptor<? extends FieldDescriptor>> allClasses = tScope.entriesByClassName().values();
+		for (ClassDescriptor<? extends FieldDescriptor> myClass : allClasses)
+		{
+			appendable.append(COMMA);
+			appendable.append(SINGLE_LINE_BREAK);
+			appendable.append(DOUBLE_TAB);
+			appendable.append(DOUBLE_TAB);
+			appendable.append(TYPE_OF);
+			appendable.append(OPENING_BRACE);
+			appendable.append(myClass.getClassSimpleName());
+			appendable.append(CLOSING_BRACE);
+		}
+
+		appendable.append(CLOSING_BRACE);
+		appendable.append(END_LINE);
+		appendable.append(SINGLE_LINE_BREAK);
+		appendable.append(DOUBLE_TAB);
 		appendable.append(CLOSING_CURLY_BRACE);
 		appendable.append(SINGLE_LINE_BREAK);
 	}
@@ -978,125 +838,5 @@ public class DotNetTranslator implements DotNetTranslationConstants
 	{
 		excludeClassesFromTranslation.add(someClass);
 	}
-
-	/**
-	 * @param appendable
-	 * @throws IOException
-	 */
-	private void closeNameSpace(Appendable appendable) throws IOException
-	{
-		appendable.append(CLOSING_CURLY_BRACE);
-		appendable.append(SINGLE_LINE_BREAK);
-	}
-
-	/**
-	 * @param appendable
-	 * @throws IOException
-	 */
-	private void importNameSpaces(Appendable appendable) throws IOException
-	{
-		importDefaultNamespaces(appendable);
-
-		// append all the registered namespace
-		if (libraryNamespaces != null && libraryNamespaces.size() > 0)
-		{
-			for (String namespace : libraryNamespaces.values())
-			{
-				// do not append if it belogns to current namespace
-				if (!namespace.equals(currentNamespace))
-				{
-					appendable.append(SINGLE_LINE_BREAK);
-					appendable.append(USING);
-					appendable.append(SPACE);
-					appendable.append(namespace);
-					appendable.append(END_LINE);
-				}
-			}
-		}
-
-		appendable.append(DOUBLE_LINE_BREAK);
-	}
-
-	/**
-	 * @param appendable
-	 * @throws IOException
-	 */
-	private void importDefaultNamespaces(Appendable appendable) throws IOException
-	{
-		appendable.append(USING);
-		appendable.append(SPACE);
-		appendable.append(SYSTEM);
-		appendable.append(END_LINE);
-
-		appendable.append(SINGLE_LINE_BREAK);
-
-		appendable.append(USING);
-		appendable.append(SPACE);
-		appendable.append(SYSTEM);
-		appendable.append(DOT);
-		appendable.append(COLLECTIONS);
-		appendable.append(DOT);
-		appendable.append(GENERIC);
-		appendable.append(END_LINE);
-
-		appendable.append(SINGLE_LINE_BREAK);
-
-		appendable.append(USING);
-		appendable.append(SPACE);
-		appendable.append(ECOLOGYLAB_NAMESPACE);
-		appendable.append(END_LINE);
-	}
-
-	/**
-	 * @param additionalImportLines
-	 */
-	public void setAdditionalImportNamespaces(ArrayList<String> additionalImportLines)
-	{
-		if (additionalImportLines == null)
-			return;
-
-		for (String newImport : additionalImportLines)
-		{
-			libraryNamespaces.put(newImport, newImport);
-			allNamespaces.put(newImport, newImport);
-		}
-
-		this.additionalImportLines = additionalImportLines;
-	}
-
-	/**
-	 * @param inputClass
-	 * @param directoryLocation
-	 * @return
-	 * @throws IOException
-	 */
-	private File createCSharpFileWithDirectoryStructure(ClassDescriptor inputClass,
-			File directoryLocation) throws IOException
-	{
-		String packageName = inputClass.getDescribedClassPackageName();
-		String className = inputClass.getDescribedClassSimpleName();
-		String currentDirectory = directoryLocation.toString() + FILE_PATH_SEPARATOR;
-
-		String[] arrayPackageNames = packageName.split(PACKAGE_NAME_SEPARATOR);
-
-		for (String directoryName : arrayPackageNames)
-		{
-			currentDirectory += directoryName + FILE_PATH_SEPARATOR;
-		}
-
-		File directory = new File(currentDirectory);
-		directory.mkdirs();
-
-		File currentFile = new File(currentDirectory + className + FILE_EXTENSION);
-
-		if (currentFile.exists())
-		{
-			currentFile.delete();
-		}
-
-		currentFile.createNewFile();
-		return currentFile;
-	}
-
+	
 }
- 

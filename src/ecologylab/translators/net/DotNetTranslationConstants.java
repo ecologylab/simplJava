@@ -108,6 +108,10 @@ public interface DotNetTranslationConstants
 	public static final String	CLOSE_COMMENTS						= "/// </summary>";
 
 	public static final String	SINGLE_LINE_COMMENT				= "//";
+	
+	public static final String	OPEN_BLOCK_COMMENTS				= "/*";
+	
+	public static final String	CLOSE_BLOCK_COMMENTS			= "*/";
 
 	/*
 	 * Scalar types
@@ -166,5 +170,7 @@ public interface DotNetTranslationConstants
 	 * Other constants
 	 */
 	public static final String	FGET											= "Get";
+	
+	public static final String	NEW_OP										= "new";
 
 }

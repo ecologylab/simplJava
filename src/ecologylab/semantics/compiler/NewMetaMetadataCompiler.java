@@ -18,10 +18,17 @@ import ecologylab.semantics.namesandnums.SemanticsNames;
 import ecologylab.serialization.ClassDescriptor;
 import ecologylab.serialization.SIMPLTranslationException;
 import ecologylab.serialization.TranslationScope;
-import ecologylab.translators.java.JavaTranslationException;
+import ecologylab.translators.CodeTranslationException;
+import ecologylab.translators.CodeTranslator;
+import ecologylab.translators.CodeTranslator.TargetLanguage;
 import ecologylab.translators.java.JavaTranslationUtilities;
 
-public class NewMetaMetadataCompiler extends Debug
+/**
+ * 
+ * @author quyin
+ *
+ */
+public class NewMetaMetadataCompiler extends Debug // ApplicationEnvironment
 {
 
 	private static final String					REPOSITORY_METADATA_TRANSLATION_SCOPE_PACKAGE_NAME	= "ecologylab.semantics.generated.library";
@@ -29,10 +36,16 @@ public class NewMetaMetadataCompiler extends Debug
 	private static final String					REPOSITORY_METADATA_TRANSLATION_SCOPE_CLASS_NAME		= "RepositoryMetadataTranslationScope";
 
 	private static final String					META_METADATA_COMPILER_TSCOPE_NAME									= "meta-metadata-compiler-tscope";
+	
+	static
+	{
+		CompilerConfig.registerTranslator(TargetLanguage.JAVA, new MetaMetadataJavaTranslator());
+//		CompilerConfig.registerTranslator(TargetLanguage.C_SHARP, new MetaMetadataDotNetTranslator());
+	}
 
-	private MetaMetadataJavaTranslator	javaTranslator;
+	private CodeTranslator	translator;
 
-	public void compile(CompilerConfig config) throws IOException, SIMPLTranslationException, JavaTranslationException
+	public void compile(CompilerConfig config) throws IOException, SIMPLTranslationException, CodeTranslationException
 	{
 		debug("\n\nloading repository ...\n\n");
 		TranslationScope.enableGraphSerialization();
@@ -40,13 +53,13 @@ public class NewMetaMetadataCompiler extends Debug
 		TranslationScope tscope = repository.traverseAndGenerateTranslationScope(META_METADATA_COMPILER_TSCOPE_NAME);
 		TranslationScope metadataBuiltInTScope = MetadataBuiltinsTranslationScope.get();
 		
-		javaTranslator = config.createJavaTranslator();
+		translator = config.getCodeTranslator();
 		for (ClassDescriptor cd : metadataBuiltInTScope.getClassDescriptors())
-			javaTranslator.excludeClassFromTranslation(cd);
+			translator.excludeClassFromTranslation(cd);
 
-		String generatedSemanticsLocation = config.getGeneratedSemanticsLocation();
+		File generatedSemanticsLocation = config.getGeneratedSemanticsLocation();
 		debug("\n\ncompiling to " + generatedSemanticsLocation + " ...\n\n");
-		javaTranslator.translateToJava(new File(generatedSemanticsLocation), tscope);
+		translator.translate(generatedSemanticsLocation, tscope);
 		createTranslationScopeClass(generatedSemanticsLocation, REPOSITORY_METADATA_TRANSLATION_SCOPE_PACKAGE_NAME, repository);
 		
 		compilerHook(repository);
@@ -57,10 +70,10 @@ public class NewMetaMetadataCompiler extends Debug
 		
 	}
 
-	public void createTranslationScopeClass(String generatedSemanticsRootDir, String packageName,
+	public void createTranslationScopeClass(File generatedSemanticsRootDir, String packageName,
 			MetaMetadataRepository repository) throws IOException
 	{
-		File rootDir = PropertiesAndDirectories.createDirsAsNeeded(new File(generatedSemanticsRootDir));
+		File rootDir = PropertiesAndDirectories.createDirsAsNeeded(generatedSemanticsRootDir);
 		File packageDir = PropertiesAndDirectories.createDirsAsNeeded(new File(rootDir, packageName.replace('.', Files.sep)));
 		File file = new File(packageDir, REPOSITORY_METADATA_TRANSLATION_SCOPE_CLASS_NAME + ".java");
 		PrintWriter printWriter = new PrintWriter(new FileWriter(file));
@@ -115,14 +128,14 @@ public class NewMetaMetadataCompiler extends Debug
 
 	/**
 	 * @param args
+	 * 
 	 * @throws IOException
 	 * @throws SIMPLTranslationException
-	 * @throws JavaTranslationException
+	 * @throws CodeTranslationException 
 	 */
-	public static void main(String[] args) throws IOException, SIMPLTranslationException,
-			JavaTranslationException
+	public static void main(String[] args) throws IOException, SIMPLTranslationException, CodeTranslationException 
 	{
-		CompilerConfig config = new DefaultCompilerConfig();
+		CompilerConfig config = new CompilerConfig();
 		NewMetaMetadataCompiler compiler = new NewMetaMetadataCompiler();
 		compiler.compile(config);
 	}

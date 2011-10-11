@@ -22,7 +22,8 @@ import ecologylab.serialization.library.rss.RssState;
 import ecologylab.standalone.xmlpolymorph.BItem;
 import ecologylab.standalone.xmlpolymorph.SchmItem;
 import ecologylab.standalone.xmlpolymorph.Schmannel;
-import ecologylab.translators.java.JavaTranslationException;
+import ecologylab.translators.CodeTranslationException;
+import ecologylab.translators.CodeTranslator;
 import ecologylab.translators.java.JavaTranslator;
 import ecologylab.translators.parser.JavaDocParser;
 
@@ -105,13 +106,13 @@ extends Debug
 	{
 		println("testJavaCodeGeneration"+filename);
 		testSerialization(filename);
-		JavaTranslator c = new JavaTranslator();
+		CodeTranslator c = new JavaTranslator();
 		TranslationScope ts = TranslationScope.get("tscope_tscope2", TranslationScope.class,
 				ClassDescriptor.class, FieldDescriptor.class);
 		TranslationScope.enableGraphSerialization();
 		TranslationScope t = (TranslationScope) ts.deserialize(new File(filename), Format.XML);
 
-		c.translateToJava(new File(codeLocation), t);
+		c.translate(new File(codeLocation), t);
 	}
 
 	/**
@@ -125,13 +126,13 @@ extends Debug
 	{
 		testSerializationWithPolymorph(filename);
 		println("testJavaCodeGenerationWithPolymorphicInfo("+filename+", "+ codeLocation);
-		JavaTranslator c = new JavaTranslator();
+		CodeTranslator c = new JavaTranslator();
 		TranslationScope ts = TranslationScope.get("tscope_tscope_polymorphic", TranslationScope.class,
 				ClassDescriptor.class, FieldDescriptor.class);
 		TranslationScope.enableGraphSerialization();
 		TranslationScope t = (TranslationScope) ts.deserialize(new File(filename), Format.XML);
 
-		c.translateToJava(new File(codeLocation), t);
+		c.translate(new File(codeLocation), t);
 	}
 
 	@simpl_inherit
@@ -155,7 +156,7 @@ extends Debug
 	}
 
 	private static void testJavaCodeGenerationWithInheritance(String outputDir) throws IOException,
-			SIMPLTranslationException, JavaTranslationException
+			SIMPLTranslationException, CodeTranslationException
 	{
 		println("testJavaCodeGenerationWithInheritance(" + outputDir);
 		TranslationScope ts = TranslationScope.get("test_inheritance", Base.class, Sub.class);
@@ -163,8 +164,8 @@ extends Debug
 		
 		ClassDescriptor.serialize(ts, new File(outputDir + "ts.xml"), Format.XML);
 		
-		JavaTranslator jt = new JavaTranslator();
-		jt.translateToJava(new File(outputDir + "jt"), ts);
+		CodeTranslator jt = new JavaTranslator();
+		jt.translate(new File(outputDir + "jt"), ts);
 	}
 
 }

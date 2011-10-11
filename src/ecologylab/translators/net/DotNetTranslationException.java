@@ -1,13 +1,12 @@
 package ecologylab.translators.net;
 
-import ecologylab.generic.Debug;
-import ecologylab.net.ParsedURL;
+import ecologylab.translators.CodeTranslationException;
 
-public class DotNetTranslationException extends Exception implements
-		DotNetTranslationExceptionTypes
+public class DotNetTranslationException extends CodeTranslationException
 {
-	private static final long	serialVersionUID	= -8326348358064487418L;
 
+	private static final long	serialVersionUID	= -4177043416527275728L;
+	
 	private int								exceptionType			= 0;
 
 	public DotNetTranslationException()
@@ -22,61 +21,22 @@ public class DotNetTranslationException extends Exception implements
 
 	public DotNetTranslationException(String msg, Exception e)
 	{
-		super("CocoaTranslationException\n" + msg + "\n\tThe error is " + e.toString() + " in" + "\n\t"
-				+ e.getStackTrace()[0] + "\n\t" + e.getStackTrace()[1] + "\n\t" + e.getStackTrace()[2]
-				+ "\n\t" + e.getStackTrace()[3] + "\n\t");
+		super(msg, e);
 	}
 
 	public DotNetTranslationException(int exceptionType)
 	{
-		super();
-
-		this.exceptionType = exceptionType;
+		super(exceptionType);
 	}
 
 	public DotNetTranslationException(String msg, int exceptionType)
 	{
-		this(msg);
-
-		this.exceptionType = exceptionType;
+		super(msg, exceptionType);
 	}
 
 	public DotNetTranslationException(String msg, Exception e, int exceptionType)
 	{
-		this(msg, e);
-
-		this.exceptionType = exceptionType;
+		super(msg, e, exceptionType);
 	}
 
-	/**
-	 * Returns the type of exception that generated the XmlTranslationException. These can be
-	 * referenced from the interface XmlTranslationExceptionTypes.
-	 * 
-	 * @return
-	 */
-	public int getExceptionType()
-	{
-		return exceptionType;
-	}
-
-	public void printTraceOrMessage(Debug that, String msg, ParsedURL purl)
-	{
-		switch (getExceptionType())
-		{
-		case FILE_NOT_FOUND:
-			String purlMsg = (purl == null) ? "" : purl.toString();
-			that.warning("File not found - " + msg + " - " + purlMsg);
-			break;
-		case NULL_PURL:
-			Debug.weird(that, "\tCan't open " + msg + " - ParsedURL is null");
-			break;
-		case UNSUPPORTED_DATATYPE:
-			Debug
-					.weird(this,
-							"The datatype supplies is not supported by the cocoa.internaltranslator and ecologylab.serialization");
-		default:
-			this.printStackTrace();
-			break;
-		}
-	}
 }

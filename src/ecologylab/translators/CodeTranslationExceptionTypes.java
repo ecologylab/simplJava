@@ -1,4 +1,4 @@
-package ecologylab.translators.java;
+package ecologylab.translators;
 
 /**
  * Types of exceptions that occur during operation of the translation framework.
@@ -6,7 +6,7 @@ package ecologylab.translators.java;
  * @author Sumith
  */
 
-public interface JavaTranslationExceptionTypes {
+public interface CodeTranslationExceptionTypes {
 
 	static final int	UNKNOWN								= 0;
 
