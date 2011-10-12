@@ -8,7 +8,7 @@ package ecologylab.translators.sql.testing.ecologylabXmlTest;
 
 // import sun.awt.image.ImageWatched.Link;
 import ecologylab.semantics.generated.library.RepositoryMetadataTranslationScope;
-import ecologylab.serialization.TranslationScope;
+import ecologylab.serialization.SimplTypesScope;
 
 /**
  * This is the tranlation scope class for generated files .
@@ -18,9 +18,9 @@ public class GeneratedMetadataTranslationScopeTest
 {
 	protected static final Class	TRANSLATIONS[]	= {AcmProceedingTest.class,};
 
-	public static TranslationScope get()
+	public static SimplTypesScope get()
 	{
-		return TranslationScope.get("generated_metadata_translations_test",
+		return SimplTypesScope.get("generated_metadata_translations_test",
 				RepositoryMetadataTranslationScope.get(), TRANSLATIONS);
 	}
 }

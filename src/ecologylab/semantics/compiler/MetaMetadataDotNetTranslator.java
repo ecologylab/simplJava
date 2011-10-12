@@ -14,7 +14,7 @@ import ecologylab.semantics.metametadata.MmdCompilerService;
 import ecologylab.serialization.ClassDescriptor;
 import ecologylab.serialization.FieldDescriptor;
 import ecologylab.serialization.MetaInformation;
-import ecologylab.serialization.TranslationScope;
+import ecologylab.serialization.SimplTypesScope;
 import ecologylab.translators.net.DotNetTranslator;
 
 public class MetaMetadataDotNetTranslator extends DotNetTranslator implements MmdCompilerService
@@ -66,7 +66,7 @@ public class MetaMetadataDotNetTranslator extends DotNetTranslator implements Mm
 	}
 	
 	@Override
-	protected void appendLibraryTScopeGetter(TranslationScope tScope, Appendable appendable) throws IOException
+	protected void appendLibraryTScopeGetter(SimplTypesScope tScope, Appendable appendable) throws IOException
 	{
 		appendable.append(SINGLE_LINE_BREAK);
 		appendable.append(DOUBLE_TAB);

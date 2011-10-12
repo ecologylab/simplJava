@@ -20,7 +20,7 @@ import ecologylab.serialization.ClassDescriptor;
 import ecologylab.serialization.ElementState;
 import ecologylab.serialization.FieldDescriptor;
 import ecologylab.serialization.SIMPLTranslationException;
-import ecologylab.serialization.TranslationScope;
+import ecologylab.serialization.SimplTypesScope;
 import ecologylab.serialization.annotations.DbHint;
 import ecologylab.serialization.annotations.simpl_collection;
 import ecologylab.serialization.annotations.simpl_db;
@@ -62,7 +62,7 @@ public class SqlTranslator extends SqlTranslatorUtil
 	/*
 	 * this class automatically select candidate classes for defining composite type
 	 */
-	public void createSQLTableCompositeTypeSchema(TranslationScope translationScope)
+	public void createSQLTableCompositeTypeSchema(SimplTypesScope translationScope)
 			throws IOException
 	{
 		/*
@@ -72,7 +72,7 @@ public class SqlTranslator extends SqlTranslatorUtil
 		Class<?>[] thisTargetCompositeTypeClasses = getCompositeTypeClasses(translationScope);
 
 		/* new translationscope based on derived target composite class */
-		TranslationScope thisNewTranslationScope = TranslationScope.get("newTranslationScope",
+		SimplTypesScope thisNewTranslationScope = SimplTypesScope.get("newTranslationScope",
 				thisTargetCompositeTypeClasses);
 
 		/* call main function */
@@ -85,7 +85,7 @@ public class SqlTranslator extends SqlTranslatorUtil
 	public void testCreateSQLTableCompositeTypeSchema() throws IOException
 	{
 		/* Channel composite should be generated */
-		TranslationScope thisTranslationScope = TranslationScope.get("thisTranslationScope",
+		SimplTypesScope thisTranslationScope = SimplTypesScope.get("thisTranslationScope",
 				Channel.class, Item.class, RssState.class);
 		createSQLTableCompositeTypeSchema(thisTranslationScope);
 
@@ -94,7 +94,7 @@ public class SqlTranslator extends SqlTranslatorUtil
 	/*
 	 * core function for deriving composite type definition
 	 */
-	private Class<?>[] getCompositeTypeClasses(TranslationScope translationScope)
+	private Class<?>[] getCompositeTypeClasses(SimplTypesScope translationScope)
 	{
 		HashSet<String> thisClassNameSet = new HashSet<String>();
 		HashSet<String> thisTypeSet = new HashSet<String>();
@@ -166,12 +166,12 @@ public class SqlTranslator extends SqlTranslatorUtil
 	 * @param mode
 	 * @throws IOException
 	 */
-	public void createSQLTableSchema(TranslationScope translationScope, int mode) throws IOException
+	public void createSQLTableSchema(SimplTypesScope translationScope, int mode) throws IOException
 	{
 		/* set mode */
 		super.setDB_SCHEMA_GENERATOR_MODE(mode);
 
-		TranslationScope thisTranslationScope = null;
+		SimplTypesScope thisTranslationScope = null;
 		if (mode == DEFAULT_CREATE_TABLE_MODE)
 		{
 			thisTranslationScope = translationScope;
@@ -187,7 +187,7 @@ public class SqlTranslator extends SqlTranslatorUtil
 					.getCompositeTypeClasses(translationScope);
 
 			/* new translationscope based on derived target composite class */
-			thisTranslationScope = TranslationScope.get("newTranslationScope",
+			thisTranslationScope = SimplTypesScope.get("newTranslationScope",
 					thisTargetCompositeTypeClasses);
 
 		}
@@ -229,9 +229,9 @@ public class SqlTranslator extends SqlTranslatorUtil
 	public void testCreateSQLTableSchema() throws IOException
 	{
 
-		TranslationScope thisTranslationScope = null;  
+		SimplTypesScope thisTranslationScope = null;  
 			
-		thisTranslationScope = TranslationScope.get("thisTranslationScope",
+		thisTranslationScope = SimplTypesScope.get("thisTranslationScope",
 				RssStateTest.class, ItemTest.class, ChannelTest.class, PdfTest.class);
 		
 		/*test case for GeneratedMetadataTranslationScope*/ 
@@ -255,7 +255,7 @@ public class SqlTranslator extends SqlTranslatorUtil
 	@Test
 	public void testTranslationScope()
 	{
-		TranslationScope thisTranslationScope = TranslationScope.get("thisTranslationScope",
+		SimplTypesScope thisTranslationScope = SimplTypesScope.get("thisTranslationScope",
 				ChannelTest.class, ItemTest.class, RssStateTest.class);
 		
 //		thisTranslationScope = GeneratedMetadataTranslationScope.get(); 
@@ -508,7 +508,7 @@ public class SqlTranslator extends SqlTranslatorUtil
 	@Test
 	public void testCreateTableArrayListForMultiAttributes()
 	{
-		TranslationScope thisTranslationScope = TranslationScope.get("thisTranslationScope2",
+		SimplTypesScope thisTranslationScope = SimplTypesScope.get("thisTranslationScope2",
 				ChannelTest.class);
 		Collection<ClassDescriptor<? extends FieldDescriptor>> thisClassDescriptors = thisTranslationScope.getClassDescriptors();
 
@@ -578,7 +578,7 @@ public class SqlTranslator extends SqlTranslatorUtil
 			e.printStackTrace();
 		}
 
-		TranslationScope thisTranslationScope = null;  
+		SimplTypesScope thisTranslationScope = null;  
 			
 //		thisTranslationScope = TranslationScope.get("thisTranslationScope", RssStateTest.class, ItemTest.class, ChannelTest.class);
 		

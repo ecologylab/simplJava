@@ -13,12 +13,11 @@ import ecologylab.semantics.metametadata.MetaMetadataRepository;
 import ecologylab.semantics.metametadata.MetaMetadataScalarField;
 import ecologylab.semantics.metametadata.MetaMetadataTranslationScope;
 import ecologylab.semantics.metametadata.NestedMetaMetadataFieldTranslationScope;
-import ecologylab.serialization.ClassDescriptor;
 import ecologylab.serialization.Format;
 import ecologylab.serialization.SIMPLTranslationException;
 import ecologylab.serialization.StringFormat;
-import ecologylab.serialization.TranslationScope;
-import ecologylab.serialization.TranslationScope.GRAPH_SWITCH;
+import ecologylab.serialization.SimplTypesScope;
+import ecologylab.serialization.SimplTypesScope.GRAPH_SWITCH;
 
 /**
  * A (preliminary) class for converting repository format. Currently, from XML to JSON.
@@ -33,12 +32,12 @@ public class RepositoryConverter
 
 	private static File				destJsonRepoDir	= new File("../ecologylabSemantics/repositoryInJSON");
 
-	private TranslationScope	mmdTScope				= null;
+	private SimplTypesScope	mmdTScope				= null;
 
 	public void convertingRepositoryFromXmlToJson()
 	{
 		// replace MetaMetadataCollectionField with MetaMetadataCollectionFieldChildComposite
-		TranslationScope.get(NestedMetaMetadataFieldTranslationScope.NAME, new Class[] {
+		SimplTypesScope.get(NestedMetaMetadataFieldTranslationScope.NAME, new Class[] {
 				MetaMetadataField.class,
 				MetaMetadataScalarField.class,
 				MetaMetadataCompositeField.class,
@@ -74,7 +73,7 @@ public class RepositoryConverter
 			try
 			{
 				MetaMetadataRepository repo = (MetaMetadataRepository) mmdTScope.deserialize(f, Format.XML);
-				String json = ClassDescriptor.serialize(repo, StringFormat.JSON).toString();
+				String json = SimplTypesScope.serialize(repo, StringFormat.JSON).toString();
 				if (json != null && json.length() > 0)
 				{
 					File jsonRepoFile = new File(destDir, f.getName().replace((CharSequence) ".xml", (CharSequence) ".json"));
@@ -98,7 +97,7 @@ public class RepositoryConverter
 
 	public static void main(String[] args)
 	{
-		TranslationScope.graphSwitch	= GRAPH_SWITCH.ON;
+		SimplTypesScope.graphSwitch	= GRAPH_SWITCH.ON;
 		MetaMetadataRepository.initializeTypes();
 		new SemanticsTypes();
 		

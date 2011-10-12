@@ -11,7 +11,7 @@ import ecologylab.generic.Debug;
 import ecologylab.serialization.ClassDescriptor;
 import ecologylab.serialization.FieldDescriptor;
 import ecologylab.serialization.MetaInformation;
-import ecologylab.serialization.TranslationScope;
+import ecologylab.serialization.SimplTypesScope;
 
 /**
  * Define the abstract structure of a code translator.
@@ -106,8 +106,8 @@ public abstract class AbstractCodeTranslator extends Debug implements CodeTransl
 	protected abstract void addLibraryTScopeDependency(String name);
 
 	// - library translation scope class
-	protected abstract void generateLibraryTScopeClass(File directoryLocation, TranslationScope tScope) throws IOException;
+	protected abstract void generateLibraryTScopeClass(File directoryLocation, SimplTypesScope tScope) throws IOException;
 	protected abstract void openLibraryTScopeClassBody(String className, Appendable appendable) throws IOException;
-	protected abstract void appendLibraryTScopeGetter(TranslationScope tScope, Appendable appendable) throws IOException;
+	protected abstract void appendLibraryTScopeGetter(SimplTypesScope tScope, Appendable appendable) throws IOException;
 
 }

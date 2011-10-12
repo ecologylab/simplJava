@@ -3,9 +3,9 @@ package ecologylab.translators.sql.testing.ecologylabXmlTest;
 import java.util.ArrayList;
 
 import ecologylab.net.ParsedURL;
-import ecologylab.serialization.ClassDescriptor;
 import ecologylab.serialization.ElementState;
 import ecologylab.serialization.SIMPLTranslationException;
+import ecologylab.serialization.SimplTypesScope;
 import ecologylab.serialization.StringFormat;
 import ecologylab.serialization.annotations.DbHint;
 import ecologylab.serialization.annotations.Hint;
@@ -124,12 +124,12 @@ public @simpl_inherit class ChannelTest extends ElementState
 		{
 			StringBuilder buffy	= new StringBuilder();
 			
-			ClassDescriptor.serialize(c, buffy, StringFormat.XML);
+			SimplTypesScope.serialize(c, buffy, StringFormat.XML);
 			System.out.println(buffy);
 			System.out.println('\n');
 			ElementState c2	= (ElementState) RssTranslations.get().deserialize(buffy, StringFormat.XML);
 			
-			ClassDescriptor.serialize(c2, System.out, StringFormat.XML);
+			SimplTypesScope.serialize(c2, System.out, StringFormat.XML);
 //			println(c.translateToXML());
 		} catch (SIMPLTranslationException e)
 		{

@@ -12,7 +12,7 @@ import ecologylab.serialization.ElementState;
 import ecologylab.serialization.FieldDescriptor;
 import ecologylab.serialization.Format;
 import ecologylab.serialization.SIMPLTranslationException;
-import ecologylab.serialization.TranslationScope;
+import ecologylab.serialization.SimplTypesScope;
 import ecologylab.serialization.annotations.simpl_collection;
 import ecologylab.serialization.annotations.simpl_inherit;
 import ecologylab.serialization.annotations.simpl_scalar;
@@ -57,10 +57,10 @@ extends Debug
 	{
 		println("testSerialization("+filename);
 		DescriptorBase.setJavaParser(new JavaDocParser());
-		TranslationScope ts2 = TranslationScope.get("RSSTranslations5", RssState.class, Item.class,
+		SimplTypesScope ts2 = SimplTypesScope.get("RSSTranslations5", RssState.class, Item.class,
 				Channel.class);
-		TranslationScope.enableGraphSerialization();
-		ClassDescriptor.serialize(ts2, new File(filename), Format.XML);
+		SimplTypesScope.enableGraphSerialization();
+		SimplTypesScope.serialize(ts2, new File(filename), Format.XML);
 		
 	}
 
@@ -74,10 +74,10 @@ extends Debug
 	{
 		println("testSerializationWithPolymorph("+filename);
 		DescriptorBase.setJavaParser(new JavaDocParser());
-		TranslationScope ts2 = TranslationScope.get("RSSTranslations", Schmannel.class, BItem.class,
+		SimplTypesScope ts2 = SimplTypesScope.get("RSSTranslations", Schmannel.class, BItem.class,
 				SchmItem.class, RssState.class, Item.class, Channel.class);
-		TranslationScope.enableGraphSerialization();
-		ClassDescriptor.serialize(ts2, new File(filename), Format.XML);
+		SimplTypesScope.enableGraphSerialization();
+		SimplTypesScope.serialize(ts2, new File(filename), Format.XML);
 	}
 
 	/**
@@ -89,10 +89,10 @@ extends Debug
 	private static void testDeserialization(String filename) throws Exception
 	{
 		println("testDeserialization("+filename);
-		TranslationScope ts = TranslationScope.get("tscope_tscope2", TranslationScope.class,
+		SimplTypesScope ts = SimplTypesScope.get("tscope_tscope2", SimplTypesScope.class,
 				ClassDescriptor.class, FieldDescriptor.class);
-		TranslationScope.enableGraphSerialization();
-		TranslationScope t = (TranslationScope) ts.deserialize(new File(filename), Format.XML);
+		SimplTypesScope.enableGraphSerialization();
+		SimplTypesScope t = (SimplTypesScope) ts.deserialize(new File(filename), Format.XML);
 		System.out.println("Test");
 	}
 
@@ -107,10 +107,10 @@ extends Debug
 		println("testJavaCodeGeneration"+filename);
 		testSerialization(filename);
 		CodeTranslator c = new JavaTranslator();
-		TranslationScope ts = TranslationScope.get("tscope_tscope2", TranslationScope.class,
+		SimplTypesScope ts = SimplTypesScope.get("tscope_tscope2", SimplTypesScope.class,
 				ClassDescriptor.class, FieldDescriptor.class);
-		TranslationScope.enableGraphSerialization();
-		TranslationScope t = (TranslationScope) ts.deserialize(new File(filename), Format.XML);
+		SimplTypesScope.enableGraphSerialization();
+		SimplTypesScope t = (SimplTypesScope) ts.deserialize(new File(filename), Format.XML);
 
 		c.translate(new File(codeLocation), t, null);
 	}
@@ -127,10 +127,10 @@ extends Debug
 		testSerializationWithPolymorph(filename);
 		println("testJavaCodeGenerationWithPolymorphicInfo("+filename+", "+ codeLocation);
 		CodeTranslator c = new JavaTranslator();
-		TranslationScope ts = TranslationScope.get("tscope_tscope_polymorphic", TranslationScope.class,
+		SimplTypesScope ts = SimplTypesScope.get("tscope_tscope_polymorphic", SimplTypesScope.class,
 				ClassDescriptor.class, FieldDescriptor.class);
-		TranslationScope.enableGraphSerialization();
-		TranslationScope t = (TranslationScope) ts.deserialize(new File(filename), Format.XML);
+		SimplTypesScope.enableGraphSerialization();
+		SimplTypesScope t = (SimplTypesScope) ts.deserialize(new File(filename), Format.XML);
 
 		c.translate(new File(codeLocation), t, null);
 	}
@@ -159,10 +159,10 @@ extends Debug
 			SIMPLTranslationException, CodeTranslationException
 	{
 		println("testJavaCodeGenerationWithInheritance(" + outputDir);
-		TranslationScope ts = TranslationScope.get("test_inheritance", Base.class, Sub.class);
-		TranslationScope.enableGraphSerialization();
+		SimplTypesScope ts = SimplTypesScope.get("test_inheritance", Base.class, Sub.class);
+		SimplTypesScope.enableGraphSerialization();
 		
-		ClassDescriptor.serialize(ts, new File(outputDir + "ts.xml"), Format.XML);
+		SimplTypesScope.serialize(ts, new File(outputDir + "ts.xml"), Format.XML);
 		
 		CodeTranslator jt = new JavaTranslator();
 		jt.translate(new File(outputDir + "jt"), ts, null);

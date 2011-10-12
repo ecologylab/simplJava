@@ -20,7 +20,7 @@ import ecologylab.serialization.ClassDescriptor;
 import ecologylab.serialization.ElementState;
 import ecologylab.serialization.FieldDescriptor;
 import ecologylab.serialization.IJavaParser;
-import ecologylab.serialization.TranslationScope;
+import ecologylab.serialization.SimplTypesScope;
 
 /**
  * This class is used to parse java source file and mantain optimized datastructure to hold comments
@@ -221,7 +221,7 @@ public class JavaDocParser implements IJavaParser
 		return true;
 	}
 
-	public static void parseSourceFileIfExists(TranslationScope translationScope,
+	public static void parseSourceFileIfExists(SimplTypesScope translationScope,
 			File workSpaceLocation) throws IOException
 	{
 		try

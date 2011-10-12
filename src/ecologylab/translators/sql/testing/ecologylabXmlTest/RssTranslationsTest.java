@@ -2,11 +2,10 @@ package ecologylab.translators.sql.testing.ecologylabXmlTest;
 
 import ecologylab.generic.Debug;
 import ecologylab.net.ParsedURL;
-import ecologylab.serialization.ClassDescriptor;
 import ecologylab.serialization.ElementState;
 import ecologylab.serialization.SIMPLTranslationException;
 import ecologylab.serialization.StringFormat;
-import ecologylab.serialization.TranslationScope;
+import ecologylab.serialization.SimplTypesScope;
 
 /**
  * Translations for all RSS parsing.
@@ -51,9 +50,9 @@ extends Debug
    {
    }
    
-   public static TranslationScope get()
+   public static SimplTypesScope get()
    {
-	   return TranslationScope.get(TRANSLATION_SPACE_NAME, /* NAME_SPACE_DECLS,INHERITED_TRANSLATIONS, */
+	   return SimplTypesScope.get(TRANSLATION_SPACE_NAME, /* NAME_SPACE_DECLS,INHERITED_TRANSLATIONS, */
 	  		 TRANSLATIONS);
    }
    
@@ -63,21 +62,21 @@ extends Debug
 
 	public static void main(String[] args)
 	{
-		TranslationScope tScope	= get();
+		SimplTypesScope tScope	= get();
 		
 		try
 		{
 			StringBuilder buffy	= new StringBuilder();
 		
 			
-			ClassDescriptor.serialize(tScope, buffy, StringFormat.XML);
+			SimplTypesScope.serialize(tScope, buffy, StringFormat.XML);
 			System.out.println('\n');
 			
-			ElementState translated	= (ElementState) TranslationScope.getBasicTranslations().deserialize(buffy, StringFormat.XML);
+			ElementState translated	= (ElementState) SimplTypesScope.getBasicTranslations().deserialize(buffy, StringFormat.XML);
 				//ElementState.translateFromXMLCharSequence(OUT, TranslationScope.getBasicTranslations());
 			
 			
-			ClassDescriptor.serialize(translated, System.out, StringFormat.XML);
+			SimplTypesScope.serialize(translated, System.out, StringFormat.XML);
 			System.out.println('\n');
 		}
 		catch (SIMPLTranslationException e)

@@ -3,11 +3,10 @@ package ecologylab.translators.sql.testing.ecologylabXmlTest;
 import java.util.ArrayList;
 
 import ecologylab.net.ParsedURL;
-import ecologylab.serialization.ClassDescriptor;
 import ecologylab.serialization.ElementState;
 import ecologylab.serialization.SIMPLTranslationException;
 import ecologylab.serialization.StringFormat;
-import ecologylab.serialization.TranslationScope;
+import ecologylab.serialization.SimplTypesScope;
 
 public class _EcologylabXmlTestMain
 {
@@ -37,13 +36,13 @@ public class _EcologylabXmlTestMain
 		/*translate to xml*/
 		StringBuilder buffy	= new StringBuilder();
 		
-		ClassDescriptor.serialize(c, System.out, StringFormat.XML);
+		SimplTypesScope.serialize(c, System.out, StringFormat.XML);
 //		c.serialize(System.out);
 		
 		ChannelTest ct = new ChannelTest();
-		TranslationScope ts = TranslationScope.get("this", ChannelTest.class);
+		SimplTypesScope ts = SimplTypesScope.get("this", ChannelTest.class);
 		
-		ClassDescriptor.serialize(ts, System.out, StringFormat.XML);
+		SimplTypesScope.serialize(ts, System.out, StringFormat.XML);
 		
 		
 		

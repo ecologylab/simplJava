@@ -14,7 +14,7 @@ import ecologylab.serialization.FieldDescriptor;
 import ecologylab.serialization.FieldTypes;
 import ecologylab.serialization.SIMPLTranslationException;
 import ecologylab.serialization.StringFormat;
-import ecologylab.serialization.TranslationScope;
+import ecologylab.serialization.SimplTypesScope;
 import ecologylab.serialization.XMLTools;
 import ecologylab.translators.net.DotNetTranslationException;
 
@@ -26,8 +26,8 @@ public class JavascriptTranslator
 		String returnString = null;
 		try
 		{
-			ecologylab.serialization.TranslationScope.enableGraphSerialization();
-			returnString = ClassDescriptor.serialize(elementState, StringFormat.JSON).toString();
+			ecologylab.serialization.SimplTypesScope.enableGraphSerialization();
+			returnString = SimplTypesScope.serialize(elementState, StringFormat.JSON).toString();
 		}
 		catch (SIMPLTranslationException e)
 		{
@@ -58,8 +58,8 @@ public class JavascriptTranslator
 		String classDescriptorJSON = "";
 		try
 		{
-			ecologylab.serialization.TranslationScope.enableGraphSerialization();
-			classDescriptorJSON = ClassDescriptor.serialize(classDescriptor, StringFormat.JSON)
+			ecologylab.serialization.SimplTypesScope.enableGraphSerialization();
+			classDescriptorJSON = SimplTypesScope.serialize(classDescriptor, StringFormat.JSON)
 					.toString();
 			System.out.println();
 		}
@@ -253,11 +253,11 @@ public class JavascriptTranslator
 	 * @throws IOException
 	 * @throws DotNetTranslationException
 	 */
-	public void translateToJavascript(File fileLocation, TranslationScope tScope) throws IOException
+	public void translateToJavascript(File fileLocation, SimplTypesScope tScope) throws IOException
 	{
 		System.out.println("Translating...");
 		System.out.println("Parsing source files to extract comments... not yet really");
-		TranslationScope anotherScope = TranslationScope.augmentTranslationScope(tScope);// I'm not sure
+		SimplTypesScope anotherScope = SimplTypesScope.augmentTranslationScope(tScope);// I'm not sure
 		// what this
 		// does...
 		// Parse source files for javadocs

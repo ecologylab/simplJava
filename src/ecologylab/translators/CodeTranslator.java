@@ -5,7 +5,7 @@ import java.io.IOException;
 
 import ecologylab.serialization.ClassDescriptor;
 import ecologylab.serialization.SIMPLTranslationException;
-import ecologylab.serialization.TranslationScope;
+import ecologylab.serialization.SimplTypesScope;
 
 /**
  * 
@@ -32,7 +32,7 @@ public interface CodeTranslator
 	 * @throws SIMPLTranslationException
 	 * @throws CodeTranslationException
 	 */
-	void translate(File directoryLocation, TranslationScope tScope, CodeTranslatorConfig config)
+	void translate(File directoryLocation, SimplTypesScope tScope, CodeTranslatorConfig config)
 			throws IOException, SIMPLTranslationException, CodeTranslationException;
 
 	/**

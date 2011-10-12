@@ -6,9 +6,9 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 
-import ecologylab.serialization.ClassDescriptor;
 import ecologylab.serialization.ElementState;
 import ecologylab.serialization.SIMPLTranslationException;
+import ecologylab.serialization.SimplTypesScope;
 import ecologylab.serialization.StringFormat;
 import ecologylab.serialization.annotations.simpl_collection;
 import ecologylab.serialization.annotations.simpl_map;
@@ -89,7 +89,7 @@ public class CocaTestClass extends ElementState
 	public static void main(String args[]) throws SIMPLTranslationException, MalformedURLException
 	{
 		CocaTestClass test = new CocaTestClass();
-		ClassDescriptor.serialize(test, System.out, StringFormat.XML);		
+		SimplTypesScope.serialize(test, System.out, StringFormat.XML);		
 	}
 
 	public void setIntAttribute(int intAttribute)

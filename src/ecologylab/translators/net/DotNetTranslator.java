@@ -21,7 +21,7 @@ import ecologylab.serialization.FieldDescriptor;
 import ecologylab.serialization.MetaInformation;
 import ecologylab.serialization.MetaInformation.Argument;
 import ecologylab.serialization.SIMPLTranslationException;
-import ecologylab.serialization.TranslationScope;
+import ecologylab.serialization.SimplTypesScope;
 import ecologylab.serialization.types.CollectionType;
 import ecologylab.serialization.types.ScalarType;
 import ecologylab.serialization.types.element.IMappable;
@@ -77,7 +77,7 @@ public class DotNetTranslator extends AbstractCodeTranslator implements DotNetTr
 	}
 
 	@Override
-	public void translate(File directoryLocation, TranslationScope tScope, CodeTranslatorConfig config)
+	public void translate(File directoryLocation, SimplTypesScope tScope, CodeTranslatorConfig config)
 			throws IOException, SIMPLTranslationException, DotNetTranslationException
 	{
 		debug("Generating C# classes ...");
@@ -709,7 +709,7 @@ public class DotNetTranslator extends AbstractCodeTranslator implements DotNetTr
 	 * @throws IOException
 	 */
 	@Override
-	protected void generateLibraryTScopeClass(File directoryLocation, TranslationScope tScope)
+	protected void generateLibraryTScopeClass(File directoryLocation, SimplTypesScope tScope)
 			throws IOException
 	{
 		String packageName = config.getLibraryTScopeClassPackageName();
@@ -772,7 +772,7 @@ public class DotNetTranslator extends AbstractCodeTranslator implements DotNetTr
 	 * @throws IOException
 	 */
 	@Override
-	protected void appendLibraryTScopeGetter(TranslationScope tScope, Appendable appendable) throws IOException
+	protected void appendLibraryTScopeGetter(SimplTypesScope tScope, Appendable appendable) throws IOException
 	{
 		appendable.append(SINGLE_LINE_BREAK);
 		appendable.append(DOUBLE_TAB);

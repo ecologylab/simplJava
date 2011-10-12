@@ -8,7 +8,7 @@ import ecologylab.semantics.metadata.builtins.MetadataBuiltinsTranslationScope;
 import ecologylab.semantics.metametadata.MetaMetadataRepository;
 import ecologylab.serialization.ClassDescriptor;
 import ecologylab.serialization.SIMPLTranslationException;
-import ecologylab.serialization.TranslationScope;
+import ecologylab.serialization.SimplTypesScope;
 import ecologylab.translators.CodeTranslationException;
 import ecologylab.translators.CodeTranslator;
 
@@ -27,11 +27,11 @@ public class NewMetaMetadataCompiler extends Debug // ApplicationEnvironment
 			CodeTranslationException
 	{
 		debug("\n\n loading repository ...\n\n");
-		TranslationScope.enableGraphSerialization();
+		SimplTypesScope.enableGraphSerialization();
 		MetaMetadataRepository repository = config.loadRepository();
-		TranslationScope tscope = repository
+		SimplTypesScope tscope = repository
 				.traverseAndGenerateTranslationScope(META_METADATA_COMPILER_TSCOPE_NAME);
-		TranslationScope metadataBuiltInTScope = MetadataBuiltinsTranslationScope.get();
+		SimplTypesScope metadataBuiltInTScope = MetadataBuiltinsTranslationScope.get();
 
 		CodeTranslator translator = config.getCodeTranslator();
 		for (ClassDescriptor cd : metadataBuiltInTScope.getClassDescriptors())

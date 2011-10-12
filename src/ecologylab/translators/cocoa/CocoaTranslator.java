@@ -22,7 +22,7 @@ import ecologylab.serialization.ElementState;
 import ecologylab.serialization.FieldDescriptor;
 import ecologylab.serialization.Format;
 import ecologylab.serialization.SIMPLTranslationException;
-import ecologylab.serialization.TranslationScope;
+import ecologylab.serialization.SimplTypesScope;
 import ecologylab.serialization.XMLTools;
 import ecologylab.serialization.library.rss.Channel;
 import ecologylab.serialization.library.rss.Item;
@@ -435,7 +435,7 @@ public class CocoaTranslator
 	 * @throws CocoaTranslationException
 	 * @throws SIMPLTranslationException
 	 */
-	public void translateToObjC(File directoryLocation, TranslationScope tScope) throws IOException,
+	public void translateToObjC(File directoryLocation, SimplTypesScope tScope) throws IOException,
 			CocoaTranslationException, SIMPLTranslationException
 	{
 		// Generate header and implementation files
@@ -449,7 +449,7 @@ public class CocoaTranslator
 
 		// Serialize translation scope
 		
-		ClassDescriptor.serialize(tScope, new File(directoryLocation
+		SimplTypesScope.serialize(tScope, new File(directoryLocation
 				+ CocoaTranslationConstants.FILE_PATH_SEPARATOR + tScope.getName()
 				+ CocoaTranslationConstants.XML_FILE_EXTENSION), Format.XML);
 		
@@ -483,7 +483,7 @@ public class CocoaTranslator
 	 * @throws SIMPLTranslationException
 	 * @throws ParseException
 	 */
-	public void translateToObjC(File directoryLocation, TranslationScope tScope,
+	public void translateToObjC(File directoryLocation, SimplTypesScope tScope,
 			File workSpaceLocation) throws IOException, CocoaTranslationException,
 			SIMPLTranslationException, ParseException
 	{
@@ -499,7 +499,7 @@ public class CocoaTranslator
 	 * @param tScope
 	 * @throws IOException
 	 */
-	private void generateTranslationScopeGetterClass(File directoryLocation, TranslationScope tScope)
+	private void generateTranslationScopeGetterClass(File directoryLocation, SimplTypesScope tScope)
 			throws IOException
 	{
 		createTranslationScopeGetterClassHeader(directoryLocation, tScope);
@@ -513,7 +513,7 @@ public class CocoaTranslator
 	 * @throws IOException
 	 */
 	private void createTranslationScopeGetterClassImplementation(File directoryLocation,
-			TranslationScope tScope) throws IOException
+			SimplTypesScope tScope) throws IOException
 	{
 		File implementationFile = new File(directoryLocation
 				+ CocoaTranslationConstants.FILE_PATH_SEPARATOR + tScope.getName()
@@ -556,7 +556,7 @@ public class CocoaTranslator
 	 * @param appendable
 	 * @throws IOException
 	 */
-	private void generateGetterFunction(TranslationScope tScope, Appendable appendable)
+	private void generateGetterFunction(SimplTypesScope tScope, Appendable appendable)
 			throws IOException
 	{
 		appendable.append(CocoaTranslationConstants.PLUS);
@@ -611,7 +611,7 @@ public class CocoaTranslator
 	 * @throws IOException
 	 */
 	private void createTranslationScopeGetterClassHeader(File directoryLocation,
-			TranslationScope tScope) throws IOException
+			SimplTypesScope tScope) throws IOException
 	{
 		File headerFile = new File(directoryLocation + CocoaTranslationConstants.FILE_PATH_SEPARATOR
 				+ tScope.getName() + CocoaTranslationConstants.HEADER_FILE_EXTENSION);
@@ -952,7 +952,7 @@ public class CocoaTranslator
 		startImport(className, null, appendable);
 	}
 
-	private void startImport(String className, TranslationScope tScope, Appendable appendable)
+	private void startImport(String className, SimplTypesScope tScope, Appendable appendable)
 			throws IOException
 	{
 		importClass(className, appendable);
@@ -1706,7 +1706,7 @@ public class CocoaTranslator
 		//c.translateToObjC(Item.class, new ParsedURL(new File("/")));
 		c.translateToObjC(
 						new File("/output"),
-						TranslationScope.get("RSSTranslations", Schmannel.class, BItem.class, SchmItem.class,
+						SimplTypesScope.get("RSSTranslations", Schmannel.class, BItem.class, SchmItem.class,
 								RssState.class, Item.class, Channel.class),
 						new File(
 								"/Users/nabeelshahzad/Documents/workspace/ecologylabFundamental/ecologylab/xml/library/rss"));

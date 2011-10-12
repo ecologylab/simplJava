@@ -18,7 +18,7 @@ import ecologylab.semantics.metametadata.MetaMetadataRepositoryLoader;
 import ecologylab.semantics.metametadata.MetaMetadataScalarField;
 import ecologylab.serialization.Format;
 import ecologylab.serialization.SIMPLTranslationException;
-import ecologylab.serialization.TranslationScope;
+import ecologylab.serialization.SimplTypesScope;
 import ecologylab.translators.CodeTranslationException;
 
 public class TestNewMetaMetadataCompiler
@@ -142,7 +142,7 @@ public class TestNewMetaMetadataCompiler
 	{
 		MetaMetadataRepositoryLoader loader = new MetaMetadataRepositoryLoader();
 		MetaMetadataRepository repository = loader.loadFromFiles(Arrays.asList(new File("data/testRepository/testArticles.xml")), Format.XML);
-		TranslationScope tscope = repository.traverseAndGenerateTranslationScope("test-articles-inheritance");
+		SimplTypesScope tscope = repository.traverseAndGenerateTranslationScope("test-articles-inheritance");
 
 		MetaMetadata metadata = repository.getMMByName("metadata");
 		Assert.assertNull(metadata.getInheritedMmd());

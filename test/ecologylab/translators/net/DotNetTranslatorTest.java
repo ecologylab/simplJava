@@ -8,7 +8,7 @@ import org.junit.Test;
 import ecologylab.generic.Debug;
 import ecologylab.io.Files;
 import ecologylab.serialization.SIMPLTranslationException;
-import ecologylab.serialization.TranslationScope;
+import ecologylab.serialization.SimplTypesScope;
 import ecologylab.translators.AbstractCodeTranslator;
 import ecologylab.translators.CodeTranslationException;
 import ecologylab.translators.net.sub.TestSub;
@@ -20,7 +20,7 @@ public class DotNetTranslatorTest extends Debug
 	@Test
 	public void testBasics() throws IOException, SIMPLTranslationException, CodeTranslationException
 	{
-		TranslationScope tScope = TranslationScope.get("TestCSCodeGenBasics", new Class[] { TestBase.class, TestSub.class });
+		SimplTypesScope tScope = SimplTypesScope.get("TestCSCodeGenBasics", new Class[] { TestBase.class, TestSub.class });
 		AbstractCodeTranslator t = new DotNetTranslator();
 		t.translate(new File(OUTPUT_DIR + Files.sep + "Basics"), tScope, null);
 	}

@@ -9,12 +9,11 @@ import java.util.ArrayList;
 import ecologylab.semantics.metametadata.MetaMetadata;
 import ecologylab.semantics.metametadata.MetaMetadataRepository;
 import ecologylab.semantics.metametadata.MetaMetadataTranslationScope;
-import ecologylab.serialization.ClassDescriptor;
 import ecologylab.serialization.ElementState;
 import ecologylab.serialization.Format;
 import ecologylab.serialization.SIMPLTranslationException;
 import ecologylab.serialization.StringFormat;
-import ecologylab.serialization.TranslationScope;
+import ecologylab.serialization.SimplTypesScope;
 import ecologylab.serialization.annotations.simpl_collection;
 
 /**
@@ -37,7 +36,7 @@ public class MetadataScalarTypeTest extends ElementState
 	{
 		MetaMetadataRepository.initializeTypes();
 		
-		TranslationScope mmTS	= MetaMetadataTranslationScope.get();
+		SimplTypesScope mmTS	= MetaMetadataTranslationScope.get();
 		
 		File file	= new File("data/deserialization/simplMM.xml");
 		System.out.println(file.getAbsolutePath());
@@ -45,7 +44,7 @@ public class MetadataScalarTypeTest extends ElementState
 		try
 		{
 			ElementState	result = (ElementState) mmTS.deserialize(file, Format.XML);
-			ClassDescriptor.serialize(result, System.out, StringFormat.XML);
+			SimplTypesScope.serialize(result, System.out, StringFormat.XML);
 			
 			System.out.println();
 		}

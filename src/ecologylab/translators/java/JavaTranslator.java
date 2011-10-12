@@ -27,7 +27,7 @@ import ecologylab.serialization.FieldDescriptor;
 import ecologylab.serialization.FieldTypes;
 import ecologylab.serialization.Format;
 import ecologylab.serialization.SIMPLTranslationException;
-import ecologylab.serialization.TranslationScope;
+import ecologylab.serialization.SimplTypesScope;
 import ecologylab.serialization.XMLTools;
 import ecologylab.serialization.annotations.Hint;
 import ecologylab.serialization.annotations.simpl_classes;
@@ -236,7 +236,7 @@ public class JavaTranslator implements JavaTranslationConstants, CodeTranslator
 	}
 
 	@Override
-	public void translate(File directoryLocation, TranslationScope tScope, CodeTranslatorConfig config)
+	public void translate(File directoryLocation, SimplTypesScope tScope, CodeTranslatorConfig config)
 			throws IOException, SIMPLTranslationException, JavaTranslationException
 	{
 		System.out.println("Parsing source files to extract comments");
@@ -1099,7 +1099,7 @@ public class JavaTranslator implements JavaTranslationConstants, CodeTranslator
 
 		// Write the import statements
 		Class[] basicImports = {
-				TranslationScope.class,
+				SimplTypesScope.class,
 				SemanticsNames.class,
 				MetadataBuiltinsTranslationScope.class,
 		};
@@ -1148,17 +1148,17 @@ public class JavaTranslator implements JavaTranslationConstants, CodeTranslator
 	{
 		CodeTranslator c = new JavaTranslator();
 		
-		TranslationScope ts2 = TranslationScope.get("RSSTranslations", Schmannel.class, BItem.class, SchmItem.class,
+		SimplTypesScope ts2 = SimplTypesScope.get("RSSTranslations", Schmannel.class, BItem.class, SchmItem.class,
 				RssState.class, Item.class, Channel.class);
 		ts2.enableGraphSerialization();
 		
-		ClassDescriptor.serialize(ts2, new File("D:\\GSOC\\SIMPL\\GeneratedCode\\New\\tss3.xml"), Format.XML);
+		SimplTypesScope.serialize(ts2, new File("D:\\GSOC\\SIMPL\\GeneratedCode\\New\\tss3.xml"), Format.XML);
 		
 		//JavaDocParser.parseSourceFileIfExists(ts,new File("D:\\GSOC\\SIMPL"));
 
-		TranslationScope ts = TranslationScope.get("tscope_tscope", TranslationScope.class, ClassDescriptor.class, FieldDescriptor.class);
+		SimplTypesScope ts = SimplTypesScope.get("tscope_tscope", SimplTypesScope.class, ClassDescriptor.class, FieldDescriptor.class);
 		ts.enableGraphSerialization();
-		TranslationScope t = (TranslationScope)ts.deserialize(new File("D:\\GSOC\\SIMPL\\GeneratedCode\\New\\tss3.xml"), Format.XML);
+		SimplTypesScope t = (SimplTypesScope)ts.deserialize(new File("D:\\GSOC\\SIMPL\\GeneratedCode\\New\\tss3.xml"), Format.XML);
 		
 		//t.serialize(new File("D:\\GSOC\\SIMPL\\GeneratedCode\\New\\tss2.xml"));
 		t.enableGraphSerialization();
