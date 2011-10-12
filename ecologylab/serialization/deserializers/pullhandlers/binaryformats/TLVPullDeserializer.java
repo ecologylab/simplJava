@@ -146,6 +146,9 @@ public class TLVPullDeserializer extends BinaryPullDeserializer
 				case MAP_ELEMENT:
 					bytesRead += deserializeCompositeMap(root, currentFieldDescriptor);
 					break;
+				case COMPOSITE_ELEMENT:
+					//TODO: wrapped composites in tlv?
+					break;
 				}
 				break;
 			}
