@@ -9,10 +9,9 @@ import ecologylab.oodss.distributed.server.NIOServerProcessor;
 import ecologylab.oodss.messages.RequestMessage;
 import ecologylab.oodss.messages.ResponseMessage;
 import ecologylab.oodss.messages.UpdateMessage;
-import ecologylab.serialization.ClassDescriptor;
 import ecologylab.serialization.SIMPLTranslationException;
 import ecologylab.serialization.StringFormat;
-import ecologylab.serialization.TranslationScope;
+import ecologylab.serialization.SimplTypesScope;
 
 /**
  * Stores information about the connection context for the client on the server. Should be extended
@@ -41,7 +40,7 @@ public class ClientSessionManager<S extends Scope, PARENT extends Scope> extends
 	 * @param registry
 	 */
 	public ClientSessionManager(String sessionId, int maxPacketSize, NIOServerIOThread server,
-			NIOServerProcessor frontend, SelectionKey socketKey, TranslationScope translationScope,
+			NIOServerProcessor frontend, SelectionKey socketKey, SimplTypesScope translationScope,
 			PARENT registry)
 	{
 		super(sessionId, maxPacketSize, server, frontend, socketKey, translationScope, registry);
@@ -158,7 +157,7 @@ public class ClientSessionManager<S extends Scope, PARENT extends Scope> extends
 	{
 //		debug("serializing response to client...");
 //		long currentTime = System.currentTimeMillis();
-		ClassDescriptor.serialize(responseMessage, messageBuffer, StringFormat.XML);		
+		SimplTypesScope.serialize(responseMessage, messageBuffer, StringFormat.XML);		
 //		debug("...done ("+(System.currentTimeMillis()-currentTime)+"ms)");
 	}
 }

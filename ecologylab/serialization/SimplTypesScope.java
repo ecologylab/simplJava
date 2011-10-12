@@ -1,7 +1,9 @@
 package ecologylab.serialization;
 
 import java.io.File;
+import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.lang.annotation.Annotation;
 import java.net.URL;
 import java.util.ArrayList;
@@ -20,6 +22,8 @@ import ecologylab.serialization.annotations.simpl_tag;
 import ecologylab.serialization.deserializers.pullhandlers.PullDeserializer;
 import ecologylab.serialization.deserializers.pullhandlers.binaryformats.BinaryPullDeserializer;
 import ecologylab.serialization.deserializers.pullhandlers.stringformats.StringPullDeserializer;
+import ecologylab.serialization.serializers.FormatSerializer;
+import ecologylab.serialization.serializers.stringformats.StringSerializer;
 import ecologylab.serialization.types.ScalarType;
 import ecologylab.serialization.types.TypeRegistry;
 
@@ -27,7 +31,7 @@ import ecologylab.serialization.types.TypeRegistry;
  * A set of bindings between XML element names (tags) and associated simple (without package) class
  * names, and associated Java ElementState classes. Inheritance is supported.
  */
-public final class TranslationScope extends ElementState
+public final class SimplTypesScope extends ElementState
 {
 	/*
 	 * Cyclic graph handling fields, switches and maps
@@ -44,7 +48,7 @@ public final class TranslationScope extends ElementState
 	@simpl_scalar
 	private/* final */String																							name;
 
-	private TranslationScope[]																						inheritedTranslationScopes;
+	private SimplTypesScope[]																						inheritedTranslationScopes;
 
 	/**
 	 * Fundamentally, a TranslationScope consists of a set of class simple names. These are mapped to
@@ -69,7 +73,7 @@ public final class TranslationScope extends ElementState
 
 	private final Scope<Class<?>>																					nameSpaceClassesByURN			= new Scope<Class<?>>();
 
-	private static HashMap<String, TranslationScope>											allTranslationScopes			= new HashMap<String, TranslationScope>();
+	private static HashMap<String, SimplTypesScope>											allTranslationScopes			= new HashMap<String, SimplTypesScope>();
 
 	public static final String																						STATE											= "State";
 
@@ -83,7 +87,7 @@ public final class TranslationScope extends ElementState
 	/**
 	 * Default constructor only for use by translateFromXML().
 	 */
-	public TranslationScope()
+	public SimplTypesScope()
 	{
 
 	}
@@ -93,7 +97,7 @@ public final class TranslationScope extends ElementState
 	 * 
 	 * @param name
 	 */
-	private TranslationScope(String name)
+	private SimplTypesScope(String name)
 	{
 		this.name = name;
 	}
@@ -106,16 +110,16 @@ public final class TranslationScope extends ElementState
 	 * @param name
 	 * @param inheritedTranslationScope
 	 */
-	private TranslationScope(String name, TranslationScope inheritedTranslationScope)
+	private SimplTypesScope(String name, SimplTypesScope inheritedTranslationScope)
 	{
 		this(name);
 		addTranslations(inheritedTranslationScope);
-		TranslationScope[] inheritedTranslationScopes = new TranslationScope[1];
+		SimplTypesScope[] inheritedTranslationScopes = new SimplTypesScope[1];
 		inheritedTranslationScopes[0] = inheritedTranslationScope;
 		this.inheritedTranslationScopes = inheritedTranslationScopes;
 	}
 
-	private TranslationScope(String name, TranslationScope inheritedTranslationScope,
+	private SimplTypesScope(String name, SimplTypesScope inheritedTranslationScope,
 			Class<?> translation)
 	{
 		this(name, inheritedTranslationScope);
@@ -132,7 +136,7 @@ public final class TranslationScope extends ElementState
 	 * @param inheritedTranslationScope
 	 * @param translation
 	 */
-	private TranslationScope(String name, TranslationScope inheritedTranslationScope,
+	private SimplTypesScope(String name, SimplTypesScope inheritedTranslationScope,
 			ClassDescriptor translation)
 	{
 		this(name, inheritedTranslationScope);
@@ -148,7 +152,7 @@ public final class TranslationScope extends ElementState
 	 * @param name
 	 * @param baseTranslationSet
 	 */
-	private TranslationScope(String name, TranslationScope... inheritedTranslationScopes)
+	private SimplTypesScope(String name, SimplTypesScope... inheritedTranslationScopes)
 	{
 		this(name);
 
@@ -169,12 +173,12 @@ public final class TranslationScope extends ElementState
 	 * @param name
 	 * @param baseTranslationSet
 	 */
-	private TranslationScope(String name, Collection<TranslationScope> baseTranslationsSet)
+	private SimplTypesScope(String name, Collection<SimplTypesScope> baseTranslationsSet)
 	{
 		this(name);
-		for (TranslationScope thatTranslationScope : baseTranslationsSet)
+		for (SimplTypesScope thatTranslationScope : baseTranslationsSet)
 			addTranslations(thatTranslationScope);
-		inheritedTranslationScopes = (TranslationScope[]) baseTranslationsSet.toArray();
+		inheritedTranslationScopes = (SimplTypesScope[]) baseTranslationsSet.toArray();
 	}
 
 	/**
@@ -189,9 +193,9 @@ public final class TranslationScope extends ElementState
 	 *          Set of initially defined translations for this.
 	 * @param defaultPackgeName
 	 */
-	private TranslationScope(String name, Class<?>... translations)
+	private SimplTypesScope(String name, Class<?>... translations)
 	{
-		this(name, (TranslationScope[]) null, translations);
+		this(name, (SimplTypesScope[]) null, translations);
 		addTranslationScope(name);
 	}
 
@@ -206,9 +210,9 @@ public final class TranslationScope extends ElementState
 	 * @param translation
 	 *          Set of initially defined translations for this.
 	 */
-	private TranslationScope(String name, ClassDescriptor... translation)
+	private SimplTypesScope(String name, ClassDescriptor... translation)
 	{
-		this(name, (TranslationScope[]) null, translation);
+		this(name, (SimplTypesScope[]) null, translation);
 		addTranslationScope(name);
 	}
 
@@ -220,7 +224,7 @@ public final class TranslationScope extends ElementState
 	 * @param inheritedTranslationScopes
 	 * @param translations
 	 */
-	private TranslationScope(String name, TranslationScope[] inheritedTranslationScopes,
+	private SimplTypesScope(String name, SimplTypesScope[] inheritedTranslationScopes,
 			Class<?>[]... translations)
 	{
 		this(name, inheritedTranslationScopes);
@@ -235,7 +239,7 @@ public final class TranslationScope extends ElementState
 	 * @param inheritedTranslationScopes
 	 * @param translations
 	 */
-	private TranslationScope(String name, TranslationScope[] inheritedTranslationScopes,
+	private SimplTypesScope(String name, SimplTypesScope[] inheritedTranslationScopes,
 			ClassDescriptor[]... translations)
 	{
 		this(name, inheritedTranslationScopes);
@@ -250,7 +254,7 @@ public final class TranslationScope extends ElementState
 	 * @param translations
 	 * @param baseTranslations
 	 */
-	private TranslationScope(String name, Collection<TranslationScope> inheritedTranslationsSet,
+	private SimplTypesScope(String name, Collection<SimplTypesScope> inheritedTranslationsSet,
 			Class<?>[] translations)
 	{
 		this(name, inheritedTranslationsSet);
@@ -267,7 +271,7 @@ public final class TranslationScope extends ElementState
 	 * @param inheritedTranslationsSet
 	 * @param translations
 	 */
-	private TranslationScope(String name, Collection<TranslationScope> inheritedTranslationsSet,
+	private SimplTypesScope(String name, Collection<SimplTypesScope> inheritedTranslationsSet,
 			ClassDescriptor[] translations)
 	{
 		this(name, inheritedTranslationsSet);
@@ -284,7 +288,7 @@ public final class TranslationScope extends ElementState
 	 * @param inheritedTranslationScope
 	 * @param translations
 	 */
-	private TranslationScope(String name, TranslationScope inheritedTranslationScope,
+	private SimplTypesScope(String name, SimplTypesScope inheritedTranslationScope,
 			Class<?>[]... translations)
 	{
 		this(name, inheritedTranslationScope);
@@ -301,7 +305,7 @@ public final class TranslationScope extends ElementState
 	 * @param inheritedTranslationScope
 	 * @param translations
 	 */
-	private TranslationScope(String name, TranslationScope inheritedTranslationScope,
+	private SimplTypesScope(String name, SimplTypesScope inheritedTranslationScope,
 			ClassDescriptor[]... translations)
 	{
 		this(name, inheritedTranslationScope);
@@ -321,8 +325,8 @@ public final class TranslationScope extends ElementState
 	 * @param translations
 	 * @param defaultPackgeName
 	 */
-	private TranslationScope(String name, NameSpaceDecl[] nameSpaceDecls,
-			TranslationScope[] inheritedTranslationScopes, Class<?>[] translations)
+	private SimplTypesScope(String name, NameSpaceDecl[] nameSpaceDecls,
+			SimplTypesScope[] inheritedTranslationScopes, Class<?>[] translations)
 	{
 		this(name, inheritedTranslationScopes, translations);
 		addNameSpaceDecls(nameSpaceDecls);
@@ -340,8 +344,8 @@ public final class TranslationScope extends ElementState
 	 * @param inheritedTranslationScopes
 	 * @param translations
 	 */
-	private TranslationScope(String name, NameSpaceDecl[] nameSpaceDecls,
-			TranslationScope[] inheritedTranslationScopes, ClassDescriptor[] translations)
+	private SimplTypesScope(String name, NameSpaceDecl[] nameSpaceDecls,
+			SimplTypesScope[] inheritedTranslationScopes, ClassDescriptor[] translations)
 	{
 		this(name, inheritedTranslationScopes, translations);
 		addNameSpaceDecls(nameSpaceDecls);
@@ -435,7 +439,7 @@ public final class TranslationScope extends ElementState
 	 * 
 	 * @param inheritedTranslationScope
 	 */
-	private void addTranslations(TranslationScope inheritedTranslationScope)
+	private void addTranslations(SimplTypesScope inheritedTranslationScope)
 	{
 		if (inheritedTranslationScope != null)
 		{
@@ -687,7 +691,7 @@ public final class TranslationScope extends ElementState
 		Collection<ClassDescriptor<? extends FieldDescriptor>> classDescriptors = this
 				.getClassDescriptors();
 
-		for (TranslationScope translationScope : allTranslationScopes.values())
+		for (SimplTypesScope translationScope : allTranslationScopes.values())
 		{
 			for (ClassDescriptor<? extends FieldDescriptor> classDescriptor : translationScope.entriesByClassSimpleName
 					.values())
@@ -766,9 +770,9 @@ public final class TranslationScope extends ElementState
 	 * @param name
 	 * @return
 	 */
-	public static TranslationScope lookup(String name)
+	public static SimplTypesScope lookup(String name)
 	{
-		return (TranslationScope) allTranslationScopes.get(name);
+		return (SimplTypesScope) allTranslationScopes.get(name);
 	}
 
 	/**
@@ -778,7 +782,7 @@ public final class TranslationScope extends ElementState
 	 * @param name
 	 * @return
 	 */
-	public static TranslationScope get(String name)
+	public static SimplTypesScope get(String name)
 	{
 		return lookup(name);
 	}
@@ -793,16 +797,16 @@ public final class TranslationScope extends ElementState
 	 * @return
 	 */
 	@SuppressWarnings("unchecked")
-	public static TranslationScope get(String name, Class... translations)
+	public static SimplTypesScope get(String name, Class... translations)
 	{
-		TranslationScope result = lookup(name);
+		SimplTypesScope result = lookup(name);
 		if (result == null)
 		{
 			synchronized (name)
 			{
 				result = lookup(name);
 				if (result == null)
-					result = new TranslationScope(name, translations);
+					result = new SimplTypesScope(name, translations);
 			}
 		}
 		return result;
@@ -821,17 +825,17 @@ public final class TranslationScope extends ElementState
 	 * @return
 	 */
 	@SuppressWarnings("unchecked")
-	public static TranslationScope get(String name, TranslationScope inheritedTranslations,
+	public static SimplTypesScope get(String name, SimplTypesScope inheritedTranslations,
 			Class[]... translations)
 	{
-		TranslationScope result = lookup(name);
+		SimplTypesScope result = lookup(name);
 		if (result == null)
 		{
 			synchronized (name)
 			{
 				result = lookup(name);
 				if (result == null)
-					result = new TranslationScope(name, inheritedTranslations, translations);
+					result = new SimplTypesScope(name, inheritedTranslations, translations);
 			}
 		}
 		return result;
@@ -850,17 +854,17 @@ public final class TranslationScope extends ElementState
 	 * @return
 	 */
 	@SuppressWarnings("unchecked")
-	public static TranslationScope get(String name, TranslationScope inheritedTranslations,
+	public static SimplTypesScope get(String name, SimplTypesScope inheritedTranslations,
 			Class... translations)
 	{
-		TranslationScope result = lookup(name);
+		SimplTypesScope result = lookup(name);
 		if (result == null)
 		{
 			synchronized (name)
 			{
 				result = lookup(name);
 				if (result == null)
-					result = new TranslationScope(name, inheritedTranslations, translations);
+					result = new SimplTypesScope(name, inheritedTranslations, translations);
 			}
 		}
 		return result;
@@ -875,17 +879,17 @@ public final class TranslationScope extends ElementState
 	 * @param translation
 	 * @return
 	 */
-	public static TranslationScope get(String name, TranslationScope inheritedTranslations,
+	public static SimplTypesScope get(String name, SimplTypesScope inheritedTranslations,
 			Class<?> translation)
 	{
-		TranslationScope result = lookup(name);
+		SimplTypesScope result = lookup(name);
 		if (result == null)
 		{
 			synchronized (name)
 			{
 				result = lookup(name);
 				if (result == null)
-					result = new TranslationScope(name, inheritedTranslations, translation);
+					result = new SimplTypesScope(name, inheritedTranslations, translation);
 			}
 		}
 		return result;
@@ -899,7 +903,7 @@ public final class TranslationScope extends ElementState
 	 * @param translation
 	 * @return
 	 */
-	public static TranslationScope get(String name, Class<?> translation)
+	public static SimplTypesScope get(String name, Class<?> translation)
 	{
 		return get(name, null, translation);
 	}
@@ -917,17 +921,17 @@ public final class TranslationScope extends ElementState
 	 * @return
 	 */
 	@SuppressWarnings("unchecked")
-	public static TranslationScope get(String name, TranslationScope[] inheritedTranslationsSet,
+	public static SimplTypesScope get(String name, SimplTypesScope[] inheritedTranslationsSet,
 			Class... translations)
 	{
-		TranslationScope result = lookup(name);
+		SimplTypesScope result = lookup(name);
 		if (result == null)
 		{
 			synchronized (name)
 			{
 				result = lookup(name);
 				if (result == null)
-					result = new TranslationScope(name, inheritedTranslationsSet, translations);
+					result = new SimplTypesScope(name, inheritedTranslationsSet, translations);
 			}
 		}
 		return result;
@@ -946,32 +950,32 @@ public final class TranslationScope extends ElementState
 	 * @return
 	 */
 	@SuppressWarnings("unchecked")
-	public static TranslationScope get(String name, TranslationScope[] inheritedTranslationsSet,
+	public static SimplTypesScope get(String name, SimplTypesScope[] inheritedTranslationsSet,
 			Class[]... translations)
 	{
-		TranslationScope result = lookup(name);
+		SimplTypesScope result = lookup(name);
 		if (result == null)
 		{
 			synchronized (name)
 			{
 				result = lookup(name);
 				if (result == null)
-					result = new TranslationScope(name, inheritedTranslationsSet, translations);
+					result = new SimplTypesScope(name, inheritedTranslationsSet, translations);
 			}
 		}
 		return result;
 	}
 
-	public static TranslationScope get(String name, TranslationScope inheritedTranslations0,
-			TranslationScope inheritedTranslations1, Class... translations)
+	public static SimplTypesScope get(String name, SimplTypesScope inheritedTranslations0,
+			SimplTypesScope inheritedTranslations1, Class... translations)
 	{
-		TranslationScope[] inheritedArray = new TranslationScope[2];
+		SimplTypesScope[] inheritedArray = new SimplTypesScope[2];
 		inheritedArray[0] = inheritedTranslations0;
 		inheritedArray[1] = inheritedTranslations1;
 		return get(name, inheritedArray, translations);
 	}
 
-	public static TranslationScope get(String name, NameSpaceDecl[] nameSpaceDecls,
+	public static SimplTypesScope get(String name, NameSpaceDecl[] nameSpaceDecls,
 			Class... translations)
 	{
 		return get(name, nameSpaceDecls, null, translations);
@@ -990,17 +994,17 @@ public final class TranslationScope extends ElementState
 	 * @return
 	 */
 	@SuppressWarnings("unchecked")
-	public static TranslationScope get(String name, NameSpaceDecl[] nameSpaceDecls,
-			TranslationScope[] inheritedTranslationsSet, Class... translations)
+	public static SimplTypesScope get(String name, NameSpaceDecl[] nameSpaceDecls,
+			SimplTypesScope[] inheritedTranslationsSet, Class... translations)
 	{
-		TranslationScope result = lookup(name);
+		SimplTypesScope result = lookup(name);
 		if (result == null)
 		{
 			synchronized (name)
 			{
 				result = lookup(name);
 				if (result == null)
-					result = new TranslationScope(name, nameSpaceDecls, inheritedTranslationsSet,
+					result = new SimplTypesScope(name, nameSpaceDecls, inheritedTranslationsSet,
 							translations);
 			}
 		}
@@ -1015,7 +1019,7 @@ public final class TranslationScope extends ElementState
 	 * @param inheritedTranslations
 	 * @return
 	 */
-	public static TranslationScope get(String name, TranslationScope... inheritedTranslations)
+	public static SimplTypesScope get(String name, SimplTypesScope... inheritedTranslations)
 	{
 		return get(name, inheritedTranslations, null);
 	}
@@ -1030,17 +1034,17 @@ public final class TranslationScope extends ElementState
 	 * @return
 	 */
 	@SuppressWarnings("unchecked")
-	public static TranslationScope get(String name,
-			Collection<TranslationScope> inheritedTranslationsSet, Class... translations)
+	public static SimplTypesScope get(String name,
+			Collection<SimplTypesScope> inheritedTranslationsSet, Class... translations)
 	{
-		TranslationScope result = lookup(name);
+		SimplTypesScope result = lookup(name);
 		if (result == null)
 		{
 			synchronized (name)
 			{
 				result = lookup(name);
 				if (result == null)
-					result = new TranslationScope(name, inheritedTranslationsSet, translations);
+					result = new SimplTypesScope(name, inheritedTranslationsSet, translations);
 			}
 		}
 		return result;
@@ -1060,7 +1064,7 @@ public final class TranslationScope extends ElementState
 	{
 		if (inheritedTranslationScopes != null)
 		{
-			for (TranslationScope inheritedTScope : inheritedTranslationScopes)
+			for (SimplTypesScope inheritedTScope : inheritedTranslationScopes)
 			{
 				inheritedTScope.generateImports(hashSet);
 			}
@@ -1256,13 +1260,13 @@ public final class TranslationScope extends ElementState
 		return binaryPullDeserializer.parse(byteArray);
 	}
 
-	public static TranslationScope getBasicTranslations()
+	public static SimplTypesScope getBasicTranslations()
 	{
-		return get(BASIC_TRANSLATIONS, TranslationScope.class, FieldDescriptor.class,
+		return get(BASIC_TRANSLATIONS, SimplTypesScope.class, FieldDescriptor.class,
 				ClassDescriptor.class);
 	}
 
-	public static TranslationScope augmentTranslationScope(TranslationScope translationScope)
+	public static SimplTypesScope augmentTranslationScope(SimplTypesScope translationScope)
 	{
 		ArrayList<Class<?>> allClasses = translationScope.getAllClasses();
 		Collection<Class<?>> augmentedClasses = augmentTranslationScope(allClasses).values();
@@ -1270,7 +1274,7 @@ public final class TranslationScope extends ElementState
 		Class<?>[] augmentedClassesArray = (Class<?>[]) augmentedClasses
 				.toArray(new Class<?>[augmentedClasses.size()]);
 
-		return new TranslationScope(translationScope.getName(), augmentedClassesArray);
+		return new SimplTypesScope(translationScope.getName(), augmentedClassesArray);
 	}
 
 	private static HashMap<String, Class<?>> augmentTranslationScope(ArrayList<Class<?>> allClasses)
@@ -1353,7 +1357,7 @@ public final class TranslationScope extends ElementState
 		this.addTranslations(augmentedClassesArray);
 	}
 
-	private static Class<?>[] getClassesArray(TranslationScope translationScope)
+	private static Class<?>[] getClassesArray(SimplTypesScope translationScope)
 	{
 		ArrayList<Class<?>> allClasses = translationScope.getAllClasses();
 		Collection<Class<?>> augmentedClasses = augmentTranslationScope(allClasses).values();
@@ -1386,8 +1390,8 @@ public final class TranslationScope extends ElementState
 	 * @param translationScope
 	 * @return
 	 */
-	public static TranslationScope augmentTranslationScopeWithClassDescriptors(
-			TranslationScope translationScope)
+	public static SimplTypesScope augmentTranslationScopeWithClassDescriptors(
+			SimplTypesScope translationScope)
 	{
 		Collection<ClassDescriptor<? extends FieldDescriptor>> allClassDescriptors = translationScope
 				.getClassDescriptors();
@@ -1400,7 +1404,7 @@ public final class TranslationScope extends ElementState
 		ClassDescriptor<? extends FieldDescriptor>[] augmentedClassesArray = (ClassDescriptor[]) augmentedClasses
 				.toArray(new ClassDescriptor[augmentedClasses.size()]);
 
-		return new TranslationScope(translationScope.getName(), augmentedClassesArray);
+		return new SimplTypesScope(translationScope.getName(), augmentedClassesArray);
 	}
 
 	/**
@@ -1494,7 +1498,7 @@ public final class TranslationScope extends ElementState
 	{
 		ArrayList<ClassDescriptor<? extends FieldDescriptor>> classes = new ArrayList<ClassDescriptor<? extends FieldDescriptor>>();
 
-		for (TranslationScope translationScope : allTranslationScopes.values())
+		for (SimplTypesScope translationScope : allTranslationScopes.values())
 		{
 			for (ClassDescriptor<? extends FieldDescriptor> classDescriptor : translationScope.entriesByTag
 					.values())
@@ -1517,9 +1521,9 @@ public final class TranslationScope extends ElementState
 	 * @return New or existing TranslationScope with subset of classes in this, based on
 	 *         assignableCriterion.
 	 */
-	public TranslationScope getAssignableSubset(String newName, Class<?> superClassCriterion)
+	public SimplTypesScope getAssignableSubset(String newName, Class<?> superClassCriterion)
 	{
-		TranslationScope result = lookup(newName);
+		SimplTypesScope result = lookup(newName);
 		if (result == null)
 		{
 			synchronized (newName)
@@ -1527,7 +1531,7 @@ public final class TranslationScope extends ElementState
 				result = lookup(newName);
 				if (result == null)
 				{
-					result = new TranslationScope(newName);
+					result = new SimplTypesScope(newName);
 					addTranslationScope(newName);
 					for (ClassDescriptor classDescriptor : entriesByClassName.values())
 					{
@@ -1573,5 +1577,174 @@ public final class TranslationScope extends ElementState
 			warning("REPLACING another TranslationScope of the SAME NAME during deserialization!\t"
 					+ name);
 		allTranslationScopes.put(name, this);
+	}
+
+	/**
+	 * 
+	 * @param object
+	 * @param outputStream
+	 * @param bibtex
+	 * @throws SIMPLTranslationException 
+	 */
+	public static void serialize(Object object, OutputStream outputStream, Format format) throws SIMPLTranslationException
+	{
+		FormatSerializer serializer = FormatSerializer.getSerializer(format);
+		serializer.serialize(object, outputStream);
+	}
+
+	/**
+	 * Static method for serializing an object. accepts translation context which a user can supply to
+	 * pass in additional information for the serialization method to use
+	 * 
+	 * @param object
+	 * @param stringBuilder
+	 * @param format
+	 * @param translationContext
+	 * @throws SIMPLTranslationException
+	 * @throws IOException
+	 */
+	public static StringBuilder serialize(Object object, StringFormat stringFormat,
+			TranslationContext translationContext) throws SIMPLTranslationException
+	{
+		StringSerializer stringSerializer = FormatSerializer.getStringSerializer(stringFormat);
+		return stringSerializer.serialize(object, translationContext);
+	}
+
+	/**
+	 * Static method for serializing an object. accepts translation context which a user can supply to
+	 * pass in additional information for the serialization method to use
+	 * 
+	 * @param object
+	 * @param stringBuilder
+	 * @param format
+	 * @param translationContext
+	 * @throws SIMPLTranslationException
+	 * @throws IOException
+	 */
+	public static void serialize(Object object, StringBuilder stringBuilder,
+			StringFormat stringFormat, TranslationContext translationContext)
+			throws SIMPLTranslationException
+	{
+		StringSerializer stringSerializer = FormatSerializer.getStringSerializer(stringFormat);
+		stringSerializer.serialize(object, stringBuilder, translationContext);
+	}
+
+	/**
+	 * Static method for serializing an object. accepts translation context which a user can supply to
+	 * pass in additional information for the serialization method to use
+	 * 
+	 * @param object
+	 * @param appendable
+	 * @param format
+	 * @param translationContext
+	 * @throws SIMPLTranslationException
+	 * @throws IOException
+	 */
+	public static void serialize(Object object, Appendable appendable, StringFormat stringFormat,
+			TranslationContext translationContext) throws SIMPLTranslationException
+	{
+		StringSerializer stringSerializer = FormatSerializer.getStringSerializer(stringFormat);
+		stringSerializer.serialize(object, appendable, translationContext);
+	}
+
+	public static void serializeOut(Object object, String message, StringFormat stringFormat)
+	{
+		System.out.print(message);
+		System.out.print(':');
+		try
+		{
+			serialize(object, System.out, stringFormat);
+		}
+		catch (SIMPLTranslationException e)
+		{
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+
+	/**
+	 * Static method for serializing an object to the defined format. TranslationContext is
+	 * automatically initialized to handle graphs if enabled
+	 * 
+	 * @param object
+	 * @param appendable
+	 * @param format
+	 * @throws SIMPLTranslationException
+	 * @throws IOException
+	 */
+	public static void serialize(Object object, Appendable appendable, StringFormat stringFormat)
+			throws SIMPLTranslationException
+	{
+		TranslationContext translationContext = new TranslationContext();
+		serialize(object, appendable, stringFormat, translationContext);
+	}
+
+	/**
+	 * Static method for serializing an object to the defined format. TranslationContext is
+	 * automatically initialized to handle graphs if enabled
+	 * 
+	 * @param object
+	 * @param stringBuilder
+	 * @param stringFormat
+	 * @throws SIMPLTranslationException
+	 * @throws IOException
+	 */
+	public static StringBuilder serialize(Object object, StringFormat stringFormat)
+			throws SIMPLTranslationException
+	{
+		TranslationContext translationContext = new TranslationContext();
+		return serialize(object, stringFormat, translationContext);
+	}
+
+	/**
+	 * Static method for serializing an object to the defined format. TranslationContext is
+	 * automatically initialized to handle graphs if enabled
+	 * 
+	 * @param object
+	 * @param stringBuilder
+	 * @param stringFormat
+	 * @throws SIMPLTranslationException
+	 * @throws IOException
+	 */
+	public static void serialize(Object object, StringBuilder stringBuilder, StringFormat stringFormat)
+			throws SIMPLTranslationException
+	{
+		TranslationContext translationContext = new TranslationContext();
+		serialize(object, stringBuilder, stringFormat, translationContext);
+	}
+
+	/**
+	 * Static method for serializing an object. accepts translation context which a user can supply to
+	 * pass in additional information for the serialization method to use
+	 * 
+	 * @param object
+	 * @param appendable
+	 * @param format
+	 * @param translationContext
+	 * @throws SIMPLTranslationException
+	 * @throws IOException
+	 */
+	public static void serialize(Object object, File file, Format format,
+			TranslationContext translationContext) throws SIMPLTranslationException
+	{
+		FormatSerializer formatSerializer = FormatSerializer.getSerializer(format);
+		formatSerializer.serialize(object, file, translationContext);
+	}
+
+	/**
+	 * Static method for serializing an object to the defined format. TranslationContext is
+	 * automatically initialized to handle graphs if enabled
+	 * 
+	 * @param object
+	 * @param stringBuilder
+	 * @param stringFormat
+	 * @throws SIMPLTranslationException
+	 * @throws IOException
+	 */
+	public static void serialize(Object object, File file, Format format)
+			throws SIMPLTranslationException
+	{
+		TranslationContext translationContext = new TranslationContext();
+		serialize(object, file, format, translationContext);
 	}
 }

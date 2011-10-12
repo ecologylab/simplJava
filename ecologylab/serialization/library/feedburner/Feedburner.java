@@ -5,7 +5,7 @@ package ecologylab.serialization.library.feedburner;
 
 import ecologylab.net.ParsedURL;
 import ecologylab.serialization.ElementState;
-import ecologylab.serialization.TranslationScope;
+import ecologylab.serialization.SimplTypesScope;
 import ecologylab.serialization.annotations.Hint;
 import ecologylab.serialization.annotations.simpl_hints;
 import ecologylab.serialization.annotations.simpl_scalar;
@@ -35,9 +35,9 @@ public class Feedburner extends ElementState
 	{
 		this.origLink = origLink;
 	}
-	public static TranslationScope get()
+	public static SimplTypesScope get()
 	{
-		return TranslationScope.get("feedburner", Feedburner.class);
+		return SimplTypesScope.get("feedburner", Feedburner.class);
 	}
 
 }

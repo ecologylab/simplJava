@@ -8,7 +8,7 @@ import ecologylab.oodss.logging.LogueMessage;
 import ecologylab.oodss.logging.Prologue;
 import ecologylab.oodss.logging.SendEpilogue;
 import ecologylab.oodss.logging.SendPrologue;
-import ecologylab.serialization.TranslationScope;
+import ecologylab.serialization.SimplTypesScope;
 import ecologylab.serialization.types.element.ElementTypeTranslationsProvider;
 
 /**
@@ -20,7 +20,7 @@ public class LoggingTranslationsProvider
 {
 	public static final String							LOGGING_TRANSLATION_SCOPE	= "LOGGING_TRANSLATION_SCOPE";
 
-	private static final TranslationScope[]	OTHER_TRANSLATION_SCOPES	=
+	private static final SimplTypesScope[]	OTHER_TRANSLATION_SCOPES	=
 																																		{ ElementTypeTranslationsProvider
 																																				.get() };
 
@@ -34,9 +34,9 @@ public class LoggingTranslationsProvider
 	 * 
 	 * @return TranslationSpace for basic ecologylab.oodss
 	 */
-	public static TranslationScope get()
+	public static SimplTypesScope get()
 	{
-		return TranslationScope.get(LOGGING_TRANSLATION_SCOPE, OTHER_TRANSLATION_SCOPES, TRANSLATIONS,
+		return SimplTypesScope.get(LOGGING_TRANSLATION_SCOPE, OTHER_TRANSLATION_SCOPES, TRANSLATIONS,
 				MixedInitiativeOpClassesProvider.STATIC_INSTANCE.provideClasses());
 	}
 }

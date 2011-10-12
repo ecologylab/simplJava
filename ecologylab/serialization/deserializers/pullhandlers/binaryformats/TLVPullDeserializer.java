@@ -13,7 +13,7 @@ import ecologylab.serialization.ElementState;
 import ecologylab.serialization.FieldDescriptor;
 import ecologylab.serialization.SIMPLTranslationException;
 import ecologylab.serialization.TranslationContext;
-import ecologylab.serialization.TranslationScope;
+import ecologylab.serialization.SimplTypesScope;
 import ecologylab.serialization.types.element.IMappable;
 
 public class TLVPullDeserializer extends BinaryPullDeserializer
@@ -28,7 +28,7 @@ public class TLVPullDeserializer extends BinaryPullDeserializer
 
 	boolean										isEos				= false;
 
-	public TLVPullDeserializer(TranslationScope translationScope,
+	public TLVPullDeserializer(SimplTypesScope translationScope,
 			TranslationContext translationContext, DeserializationHookStrategy deserializationHookStrategy)
 	{
 		super(translationScope, translationContext);

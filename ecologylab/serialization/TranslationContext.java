@@ -11,7 +11,7 @@ import org.xml.sax.Attributes;
 import ecologylab.collections.MultiMap;
 import ecologylab.generic.Debug;
 import ecologylab.net.ParsedURL;
-import ecologylab.serialization.TranslationScope.GRAPH_SWITCH;
+import ecologylab.serialization.SimplTypesScope.GRAPH_SWITCH;
 
 /**
  * 
@@ -106,7 +106,7 @@ public class TranslationContext extends Debug implements ScalarUnmarshallingCont
 	 */
 	public void resolveGraph(Object elementState)
 	{
-		if (TranslationScope.graphSwitch == GRAPH_SWITCH.ON)
+		if (SimplTypesScope.graphSwitch == GRAPH_SWITCH.ON)
 		{
 			// this.visitedElements.put(System.identityHashCode(elementState), elementState);
 			this.visitedElements.put(elementState.hashCode(), elementState);
@@ -219,7 +219,7 @@ public class TranslationContext extends Debug implements ScalarUnmarshallingCont
 	 */
 	public void mapObject(Object object)
 	{
-		if (TranslationScope.graphSwitch == GRAPH_SWITCH.ON)
+		if (SimplTypesScope.graphSwitch == GRAPH_SWITCH.ON)
 		{
 			if (object != null)
 				this.marshalledObjects.put(object.hashCode(), object);

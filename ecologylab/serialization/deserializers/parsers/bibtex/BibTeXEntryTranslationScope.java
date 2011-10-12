@@ -1,6 +1,6 @@
 package ecologylab.serialization.deserializers.parsers.bibtex;
 
-import ecologylab.serialization.TranslationScope;
+import ecologylab.serialization.SimplTypesScope;
 import ecologylab.serialization.deserializers.parsers.bibtex.entrytypes.AbstractBibTeXEntry;
 import ecologylab.serialization.deserializers.parsers.bibtex.entrytypes.BibTeXArticle;
 import ecologylab.serialization.deserializers.parsers.bibtex.entrytypes.BibTeXBook;
@@ -22,9 +22,9 @@ public class BibTeXEntryTranslationScope
 		BibTeXTechReport.class,
 	};
 			
-	public static TranslationScope get()
+	public static SimplTypesScope get()
 	{
-		return TranslationScope.get("bibtex_entry_types", bibtexEntryTypes);
+		return SimplTypesScope.get("bibtex_entry_types", bibtexEntryTypes);
 	}
 	
 }

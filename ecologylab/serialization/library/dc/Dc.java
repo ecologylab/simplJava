@@ -2,7 +2,7 @@ package ecologylab.serialization.library.dc;
 
 import ecologylab.net.ParsedURL;
 import ecologylab.serialization.ElementState;
-import ecologylab.serialization.TranslationScope;
+import ecologylab.serialization.SimplTypesScope;
 import ecologylab.serialization.annotations.Hint;
 import ecologylab.serialization.annotations.simpl_hints;
 import ecologylab.serialization.annotations.simpl_scalar;
@@ -57,9 +57,9 @@ public class Dc extends ElementState
 		Dc.class,
 	};
 
-	public static TranslationScope get()
+	public static SimplTypesScope get()
 	{
-		return TranslationScope.get(TRANSLATION_SPACE_NAME, TRANSLATIONS);
+		return SimplTypesScope.get(TRANSLATION_SPACE_NAME, TRANSLATIONS);
 	}
 	
 	public Dc() {}

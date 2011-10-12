@@ -4,7 +4,7 @@ package ecologylab.oodss.messages;
 import ecologylab.collections.Scope;
 import ecologylab.generic.Debug;
 import ecologylab.serialization.SIMPLTranslationException;
-import ecologylab.serialization.TranslationScope;
+import ecologylab.serialization.SimplTypesScope;
 import ecologylab.serialization.annotations.Hint;
 import ecologylab.serialization.annotations.simpl_hints;
 import ecologylab.serialization.annotations.simpl_inherit;
@@ -15,7 +15,7 @@ public class CfCollaborationGetSurrogate extends RequestMessage {
 
 	@simpl_scalar @simpl_hints(Hint.XML_LEAF_CDATA) protected String surrogateSetString;
 	
-	TranslationScope translationScope;
+	SimplTypesScope translationScope;
 	
 	public CfCollaborationGetSurrogate()
 	{
@@ -40,7 +40,7 @@ public class CfCollaborationGetSurrogate extends RequestMessage {
 		return OkResponse.get();
 	}
 	
-	public CfCollaborationGetSurrogate (String surrogateSetString, TranslationScope translationScope) 
+	public CfCollaborationGetSurrogate (String surrogateSetString, SimplTypesScope translationScope) 
 	throws SIMPLTranslationException
 	{
 		this(surrogateSetString);

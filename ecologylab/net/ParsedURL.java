@@ -21,7 +21,7 @@ import ecologylab.io.Files;
 import ecologylab.serialization.ElementState;
 import ecologylab.serialization.Format;
 import ecologylab.serialization.SIMPLTranslationException;
-import ecologylab.serialization.TranslationScope;
+import ecologylab.serialization.SimplTypesScope;
 
 /**
  * Extends the URL with many features for the convenience and power of network programmers. New
@@ -327,7 +327,7 @@ public class ParsedURL extends Debug implements MimeType
 	 * @return ElementState object derived from XML at the InputStream of this.
 	 * @throws SIMPLTranslationException
 	 */
-	public Object translateFromXML(TranslationScope translationScope)
+	public Object translateFromXML(SimplTypesScope translationScope)
 			throws SIMPLTranslationException
 	{
 		return translationScope.deserialize(this, Format.XML);

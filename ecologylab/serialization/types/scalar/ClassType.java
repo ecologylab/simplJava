@@ -5,7 +5,7 @@ package ecologylab.serialization.types.scalar;
 
 import ecologylab.serialization.ScalarUnmarshallingContext;
 import ecologylab.serialization.TranslationContext;
-import ecologylab.serialization.TranslationScope;
+import ecologylab.serialization.SimplTypesScope;
 import ecologylab.serialization.annotations.simpl_inherit;
 import ecologylab.serialization.types.CrossLanguageTypeConstants;
 
@@ -39,7 +39,7 @@ implements CrossLanguageTypeConstants
 			String scopeName	= formatStrings[0];
 			if (scopeName != null && scopeName.length() > 0)
 			{
-				TranslationScope tScope	= TranslationScope.get(scopeName);
+				SimplTypesScope tScope	= SimplTypesScope.get(scopeName);
 				if (tScope != null)
 					result		= tScope.getClassByName(value);
 			}

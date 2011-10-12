@@ -3,12 +3,11 @@ package ecologylab.serialization.library.yahoo;
 import java.util.ArrayList;
 
 import ecologylab.net.ParsedURL;
-import ecologylab.serialization.ClassDescriptor;
 import ecologylab.serialization.ElementState;
 import ecologylab.serialization.Format;
 import ecologylab.serialization.SIMPLTranslationException;
 import ecologylab.serialization.StringFormat;
-import ecologylab.serialization.TranslationScope;
+import ecologylab.serialization.SimplTypesScope;
 import ecologylab.serialization.annotations.simpl_collection;
 import ecologylab.serialization.annotations.simpl_inherit;
 import ecologylab.serialization.annotations.simpl_nowrap;
@@ -61,9 +60,9 @@ public class ResultSet extends ElementState
 	public static final Class[]	YAHOO_CLASSES	=
 																						{ ResultSet.class, Result.class, ThumbnailState.class, };
 
-	public static TranslationScope getTranslationScope()
+	public static SimplTypesScope getTranslationScope()
 	{
-		return TranslationScope.get(YAHOO, YAHOO_CLASSES);
+		return SimplTypesScope.get(YAHOO, YAHOO_CLASSES);
 	}
 
 	public static String	SEOUL_SHOPPING	= "http://api.search.yahoo.com/WebSearchService/V1/webSearch?appid=yahoosearchwebrss&results=15&start=1&query=shopping+seoul";
@@ -76,7 +75,7 @@ public class ResultSet extends ElementState
 			ResultSet resultSet = (ResultSet) ResultSet.getTranslationScope().deserialize(purl,
 					Format.XML);
 
-			ClassDescriptor.serialize(resultSet, System.out, StringFormat.XML);
+			SimplTypesScope.serialize(resultSet, System.out, StringFormat.XML);
 		}
 		catch (SIMPLTranslationException e)
 		{

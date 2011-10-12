@@ -4,7 +4,7 @@
 package ecologylab.appframework.types.prefs;
 
 import ecologylab.generic.Debug;
-import ecologylab.serialization.TranslationScope;
+import ecologylab.serialization.SimplTypesScope;
 
 /**
  * Translations used inside of MetaPrefSet.
@@ -15,9 +15,9 @@ public class MetaPrefsTranslationScope extends Debug
 {
 	public static final String	NAME	= "meta_prefs_translations";
 
-	public static TranslationScope get()
+	public static SimplTypesScope get()
 	{
-		return TranslationScope.get(NAME, MetaPref.class, MetaPrefSet.class,  MetaPrefBoolean.class, MetaPrefFloat.class,
+		return SimplTypesScope.get(NAME, MetaPref.class, MetaPrefSet.class,  MetaPrefBoolean.class, MetaPrefFloat.class,
 				MetaPrefInt.class, MetaPrefString.class, MetaPrefColor.class);
 	}
 

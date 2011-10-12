@@ -3,11 +3,10 @@ package ecologylab.tests;
 import java.io.File;
 import java.io.IOException;
 
-import ecologylab.serialization.ClassDescriptor;
 import ecologylab.serialization.ElementState;
 import ecologylab.serialization.Format;
 import ecologylab.serialization.SIMPLTranslationException;
-import ecologylab.serialization.TranslationScope;
+import ecologylab.serialization.SimplTypesScope;
 import ecologylab.serialization.annotations.simpl_scalar;
 
 public class TestReferenceAndPrimitiveScalars extends ElementState
@@ -102,9 +101,9 @@ public class TestReferenceAndPrimitiveScalars extends ElementState
 
 		try
 		{
-			ClassDescriptor.serialize(t, new File("tes.xml"), Format.XML);
+			SimplTypesScope.serialize(t, new File("tes.xml"), Format.XML);
 
-			TestReferenceAndPrimitiveScalars tt = (TestReferenceAndPrimitiveScalars) TranslationScope
+			TestReferenceAndPrimitiveScalars tt = (TestReferenceAndPrimitiveScalars) SimplTypesScope
 					.get("test", TestReferenceAndPrimitiveScalars.class).deserialize(new File("tes.xml"),
 							Format.XML);
 			System.out.println("---------------------\nafter:\n" + tt);

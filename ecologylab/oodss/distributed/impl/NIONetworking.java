@@ -22,7 +22,7 @@ import ecologylab.io.ByteBufferPool;
 import ecologylab.oodss.exceptions.BadClientException;
 import ecologylab.oodss.exceptions.ClientOfflineException;
 import ecologylab.oodss.messages.DefaultServicesTranslations;
-import ecologylab.serialization.TranslationScope;
+import ecologylab.serialization.SimplTypesScope;
 
 /**
  * Handles backend, low-level communication between distributed programs, using NIO. This is the
@@ -49,7 +49,7 @@ public abstract class NIONetworking<S extends Scope> extends NIOCore
 	/**
 	 * Space that defines mappings between xml names, and Java class names, for request messages.
 	 */
-	protected TranslationScope										translationScope;
+	protected SimplTypesScope										translationScope;
 
 	/** Provides a context for request processing. */
 	protected S																		objectRegistry;
@@ -78,7 +78,7 @@ public abstract class NIONetworking<S extends Scope> extends NIOCore
 	 *           if an I/O error occurs while trying to open a Selector from the system.
 	 */
 	protected NIONetworking(String networkIdentifier, int portNumber,
-			TranslationScope translationScope, S objectRegistry, int maxMessageSizeChars)
+			SimplTypesScope translationScope, S objectRegistry, int maxMessageSizeChars)
 			throws IOException
 	{
 		super(networkIdentifier, portNumber);

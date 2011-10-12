@@ -4,7 +4,7 @@
 package ecologylab.appframework.types.prefs;
 
 import ecologylab.generic.Debug;
-import ecologylab.serialization.TranslationScope;
+import ecologylab.serialization.SimplTypesScope;
 import ecologylab.serialization.types.element.ElementTypeTranslationsProvider;
 
 /**
@@ -39,9 +39,9 @@ public class PrefsTranslationsProvider extends Debug
 	/**
 	 * Get the translation space
 	 */
-	public static TranslationScope get()
+	public static SimplTypesScope get()
 	{
-		return TranslationScope.get(PREFS_TRANSLATIONS_NAME, ElementTypeTranslationsProvider.get(),
+		return SimplTypesScope.get(PREFS_TRANSLATIONS_NAME, ElementTypeTranslationsProvider.get(),
 				translations, PrefSetBaseClassProvider.STATIC_INSTANCE.provideClasses());
 	}
 }

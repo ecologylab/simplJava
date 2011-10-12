@@ -5,11 +5,10 @@ package ecologylab.standalone.xmlpolymorph;
 
 import java.util.ArrayList;
 
-import ecologylab.serialization.ClassDescriptor;
 import ecologylab.serialization.ElementState;
 import ecologylab.serialization.SIMPLTranslationException;
 import ecologylab.serialization.StringFormat;
-import ecologylab.serialization.TranslationScope;
+import ecologylab.serialization.SimplTypesScope;
 import ecologylab.serialization.annotations.simpl_collection;
 import ecologylab.serialization.annotations.simpl_scope;
 import ecologylab.serialization.annotations.simpl_tag;
@@ -25,7 +24,7 @@ public class Schmannel2 extends ElementState
 {
 	private static final String						SCOPE_NAME				= "schm_rss";
 
-	private static final TranslationScope	TRANSLATION_SCOPE	= TranslationScope.get(SCOPE_NAME,
+	private static final SimplTypesScope	TRANSLATION_SCOPE	= SimplTypesScope.get(SCOPE_NAME,
 																															RssTranslations.get(),
 																															Schmannel2.class, SchmItem.class,
 																															BItem.class);
@@ -68,13 +67,13 @@ public class Schmannel2 extends ElementState
 		{
 			StringBuilder buffy = new StringBuilder();
 
-			ClassDescriptor.serialize(schmannel, buffy, StringFormat.XML);
+			SimplTypesScope.serialize(schmannel, buffy, StringFormat.XML);
 
 			System.out.println(buffy);
 			System.out.println('\n');
 			Object s2 = TRANSLATION_SCOPE.deserialize(buffy, StringFormat.XML);
 
-			ClassDescriptor.serialize(s2, System.out, StringFormat.XML);
+			SimplTypesScope.serialize(s2, System.out, StringFormat.XML);
 			// TRANSLATION_SCOPE.serialize(System.out);
 			// System.out.println('\n');
 		}
@@ -93,7 +92,7 @@ public class Schmannel2 extends ElementState
 		{
 			Object rap = TRANSLATION_SCOPE.deserialize(ITEMS, StringFormat.XML);
 
-			ClassDescriptor.serialize(rap, System.out, StringFormat.XML);
+			SimplTypesScope.serialize(rap, System.out, StringFormat.XML);
 			System.out.println('\n');
 			// println(c.translateToXML());
 		}

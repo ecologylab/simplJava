@@ -28,7 +28,7 @@ import ecologylab.oodss.messages.RequestMessage;
 import ecologylab.oodss.messages.ResponseMessage;
 import ecologylab.oodss.messages.ServiceMessage;
 import ecologylab.serialization.SIMPLTranslationException;
-import ecologylab.serialization.TranslationScope;
+import ecologylab.serialization.SimplTypesScope;
 
 /**
  * OODSS Datagram server.
@@ -74,7 +74,7 @@ public class NIODatagramServer<S extends Scope> extends NIODatagramCore<S> imple
 	 *          whether or not to use compression
 	 */
 	public NIODatagramServer(	int portNumber,
-														TranslationScope translationScope,
+														SimplTypesScope translationScope,
 														S objectRegistry,
 														boolean useCompression)
 	{
@@ -132,7 +132,7 @@ public class NIODatagramServer<S extends Scope> extends NIODatagramCore<S> imple
 	 * @param objectRegistry
 	 *          application scope
 	 */
-	public NIODatagramServer(int portNumber, TranslationScope translationScope, S objectRegistry)
+	public NIODatagramServer(int portNumber, SimplTypesScope translationScope, S objectRegistry)
 	{
 		this(portNumber, translationScope, objectRegistry, false);
 	}

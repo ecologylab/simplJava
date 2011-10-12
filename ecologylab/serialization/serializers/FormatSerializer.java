@@ -11,8 +11,8 @@ import ecologylab.serialization.Format;
 import ecologylab.serialization.SIMPLTranslationException;
 import ecologylab.serialization.StringFormat;
 import ecologylab.serialization.TranslationContext;
-import ecologylab.serialization.TranslationScope;
-import ecologylab.serialization.TranslationScope.GRAPH_SWITCH;
+import ecologylab.serialization.SimplTypesScope;
+import ecologylab.serialization.SimplTypesScope.GRAPH_SWITCH;
 import ecologylab.serialization.serializers.binaryformats.TLVSerializer;
 import ecologylab.serialization.serializers.stringformats.BibtexSerializer;
 import ecologylab.serialization.serializers.stringformats.JSONSerializer;
@@ -104,7 +104,7 @@ public abstract class FormatSerializer
 	 */
 	protected boolean alreadySerialized(Object object, TranslationContext translationContext)
 	{
-		return TranslationScope.graphSwitch == GRAPH_SWITCH.ON
+		return SimplTypesScope.graphSwitch == GRAPH_SWITCH.ON
 				&& translationContext.alreadyMarshalled(object);
 	}
 

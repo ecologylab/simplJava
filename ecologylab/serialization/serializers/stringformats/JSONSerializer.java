@@ -10,9 +10,9 @@ import ecologylab.serialization.FieldTypes;
 import ecologylab.serialization.Format;
 import ecologylab.serialization.SIMPLTranslationException;
 import ecologylab.serialization.TranslationContext;
-import ecologylab.serialization.TranslationScope;
+import ecologylab.serialization.SimplTypesScope;
 import ecologylab.serialization.XMLTools;
-import ecologylab.serialization.TranslationScope.GRAPH_SWITCH;
+import ecologylab.serialization.SimplTypesScope.GRAPH_SWITCH;
 
 /***
  * JSONSerializaton. Guides serialization of data in JSON. Contains code that is specific to
@@ -104,7 +104,7 @@ public class JSONSerializer extends StringSerializer implements FieldTypes
 	{
 		int numOfFields = 0;
 
-		if (TranslationScope.graphSwitch == GRAPH_SWITCH.ON)
+		if (SimplTypesScope.graphSwitch == GRAPH_SWITCH.ON)
 		{
 			if (translationContext.needsHashCode(object))
 			{

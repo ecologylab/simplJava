@@ -10,9 +10,9 @@ import ecologylab.serialization.FieldTypes;
 import ecologylab.serialization.Format;
 import ecologylab.serialization.SIMPLTranslationException;
 import ecologylab.serialization.TranslationContext;
-import ecologylab.serialization.TranslationScope;
+import ecologylab.serialization.SimplTypesScope;
 import ecologylab.serialization.XMLTools;
-import ecologylab.serialization.TranslationScope.GRAPH_SWITCH;
+import ecologylab.serialization.SimplTypesScope.GRAPH_SWITCH;
 
 /**
  * XML Specific serializer
@@ -141,7 +141,7 @@ public class XMLSerializer extends StringSerializer implements FieldTypes
 			}
 		}
 
-		if (TranslationScope.graphSwitch == GRAPH_SWITCH.ON)
+		if (SimplTypesScope.graphSwitch == GRAPH_SWITCH.ON)
 		{
 			if (translationContext.needsHashCode(object))
 			{

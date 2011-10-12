@@ -3,12 +3,11 @@
  */
 package ecologylab.tests;
 
-import ecologylab.serialization.ClassDescriptor;
 import ecologylab.serialization.ElementState;
 import ecologylab.serialization.Format;
 import ecologylab.serialization.SIMPLTranslationException;
 import ecologylab.serialization.StringFormat;
-import ecologylab.serialization.TranslationScope;
+import ecologylab.serialization.SimplTypesScope;
 import ecologylab.serialization.annotations.simpl_format;
 import ecologylab.serialization.annotations.simpl_scalar;
 
@@ -47,15 +46,15 @@ public class TestXMLFormat extends ElementState
 	{
 		TestXMLFormat t = new TestXMLFormat();
 
-		ClassDescriptor.serialize(t, System.out, StringFormat.XML);
+		SimplTypesScope.serialize(t, System.out, StringFormat.XML);
 
 		System.out.println();
 
-		TranslationScope translationScope = TranslationScope.get("test", TestXMLFormat.class);
-		ClassDescriptor.serialize(translationScope.deserialize(ClassDescriptor.serialize(t,
+		SimplTypesScope translationScope = SimplTypesScope.get("test", TestXMLFormat.class);
+		SimplTypesScope.serialize(translationScope.deserialize(SimplTypesScope.serialize(t,
 				StringFormat.XML).toString(), StringFormat.XML), System.out, StringFormat.XML);
 		System.out.println();
 
-		System.out.println(ClassDescriptor.serialize(t, StringFormat.XML));
+		System.out.println(SimplTypesScope.serialize(t, StringFormat.XML));
 	}
 }

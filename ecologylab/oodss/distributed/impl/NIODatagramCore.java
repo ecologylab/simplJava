@@ -26,10 +26,9 @@ import ecologylab.generic.ResourcePool;
 import ecologylab.oodss.distributed.common.NetworkingConstants;
 import ecologylab.oodss.distributed.exception.MessageTooLargeException;
 import ecologylab.oodss.messages.ServiceMessage;
-import ecologylab.serialization.ClassDescriptor;
 import ecologylab.serialization.SIMPLTranslationException;
 import ecologylab.serialization.StringFormat;
-import ecologylab.serialization.TranslationScope;
+import ecologylab.serialization.SimplTypesScope;
 
 /**
  * 
@@ -65,7 +64,7 @@ public abstract class NIODatagramCore<S extends Scope> extends Debug implements 
 
 	protected Selector																																selector;
 
-	protected TranslationScope																												translationScope;
+	protected SimplTypesScope																												translationScope;
 
 	protected S																																				objectRegistry;
 
@@ -92,7 +91,7 @@ public abstract class NIODatagramCore<S extends Scope> extends Debug implements 
 	 * @param objectRegistry
 	 * @param useCompression
 	 */
-	public NIODatagramCore(TranslationScope translationScope, S objectRegistry, boolean useCompression)
+	public NIODatagramCore(SimplTypesScope translationScope, S objectRegistry, boolean useCompression)
 	{
 		this.translationScope = translationScope;
 		this.objectRegistry = objectRegistry;
@@ -109,7 +108,7 @@ public abstract class NIODatagramCore<S extends Scope> extends Debug implements 
 		}
 	}
 
-	public NIODatagramCore(TranslationScope translationScope, S objectRegistry)
+	public NIODatagramCore(SimplTypesScope translationScope, S objectRegistry)
 	{
 		this(translationScope, objectRegistry, false);
 	}
@@ -373,7 +372,7 @@ public abstract class NIODatagramCore<S extends Scope> extends Debug implements 
 
 					buffer.putLong(mdataMessage.getUid());
 
-					ClassDescriptor.serialize(mdataMessage.getMessage(), builder, StringFormat.XML);
+					SimplTypesScope.serialize(mdataMessage.getMessage(), builder, StringFormat.XML);
 
 					builder.flip();
 
@@ -445,7 +444,7 @@ public abstract class NIODatagramCore<S extends Scope> extends Debug implements 
 					debug("Message was too large: " + e.getLocalizedMessage());
 					try
 					{
-						debug(ClassDescriptor.serialize(mdataMessage.getMessage(), StringFormat.XML));
+						debug(SimplTypesScope.serialize(mdataMessage.getMessage(), StringFormat.XML));
 					}
 					catch (SIMPLTranslationException e1)
 					{
@@ -457,7 +456,7 @@ public abstract class NIODatagramCore<S extends Scope> extends Debug implements 
 					debug("Message was too large: " + e.getActualMessageSize());
 					try
 					{
-						debug(ClassDescriptor.serialize(mdataMessage.getMessage(), StringFormat.XML));
+						debug(SimplTypesScope.serialize(mdataMessage.getMessage(), StringFormat.XML));
 					}
 					catch (SIMPLTranslationException e1)
 					{
@@ -474,7 +473,7 @@ public abstract class NIODatagramCore<S extends Scope> extends Debug implements 
 					debug("Failed to send message: " + e.getMessage());
 					try
 					{
-						debug(ClassDescriptor.serialize(mdataMessage.getMessage(), StringFormat.XML));
+						debug(SimplTypesScope.serialize(mdataMessage.getMessage(), StringFormat.XML));
 					}
 					catch (SIMPLTranslationException e1)
 					{

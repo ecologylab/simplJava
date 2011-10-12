@@ -3,9 +3,9 @@ package ecologylab.serialization.library.rss;
 import java.util.ArrayList;
 
 import ecologylab.net.ParsedURL;
-import ecologylab.serialization.ClassDescriptor;
 import ecologylab.serialization.ElementState;
 import ecologylab.serialization.SIMPLTranslationException;
+import ecologylab.serialization.SimplTypesScope;
 import ecologylab.serialization.StringFormat;
 import ecologylab.serialization.annotations.Hint;
 import ecologylab.serialization.annotations.simpl_collection;
@@ -139,7 +139,7 @@ class Channel2 extends ElementState // ArrayListState<Item>
 		try
 		{
 
-			ClassDescriptor.serialize(c, System.out, StringFormat.XML);
+			SimplTypesScope.serialize(c, System.out, StringFormat.XML);
 
 		}
 		catch (SIMPLTranslationException e)

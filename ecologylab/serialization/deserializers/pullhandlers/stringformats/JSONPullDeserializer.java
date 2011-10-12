@@ -20,7 +20,7 @@ import ecologylab.serialization.FieldTypes;
 import ecologylab.serialization.SIMPLTranslationException;
 import ecologylab.serialization.ScalarUnmarshallingContext;
 import ecologylab.serialization.TranslationContext;
-import ecologylab.serialization.TranslationScope;
+import ecologylab.serialization.SimplTypesScope;
 import ecologylab.serialization.deserializers.pullhandlers.PullDeserializer;
 import ecologylab.serialization.types.element.IMappable;
 
@@ -38,13 +38,13 @@ public class JSONPullDeserializer extends StringPullDeserializer
 	 */
 	JsonParser	jp	= null;
 
-	public JSONPullDeserializer(TranslationScope translationScope,
+	public JSONPullDeserializer(SimplTypesScope translationScope,
 			TranslationContext translationContext, DeserializationHookStrategy deserializationHookStrategy)
 	{
 		super(translationScope, translationContext, deserializationHookStrategy);
 	}
 
-	public JSONPullDeserializer(TranslationScope translationScope,
+	public JSONPullDeserializer(SimplTypesScope translationScope,
 			TranslationContext translationContext)
 	{
 		super(translationScope, translationContext);

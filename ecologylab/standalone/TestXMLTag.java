@@ -5,11 +5,10 @@ package ecologylab.standalone;
 
 import java.util.ArrayList;
 
-import ecologylab.serialization.ClassDescriptor;
 import ecologylab.serialization.ElementState;
 import ecologylab.serialization.SIMPLTranslationException;
 import ecologylab.serialization.StringFormat;
-import ecologylab.serialization.TranslationScope;
+import ecologylab.serialization.SimplTypesScope;
 import ecologylab.serialization.annotations.simpl_collection;
 import ecologylab.serialization.annotations.simpl_scalar;
 import ecologylab.serialization.annotations.simpl_tag;
@@ -58,9 +57,9 @@ class TestXMLTag extends ElementState
 			taggies.add(new TestXMLTag("asdf" + i));
 		}
 
-		System.out.println(ClassDescriptor.serialize(test, StringFormat.XML));
-		TranslationScope translationScope = TranslationScope.get("test", classes);
-		System.out.println(ClassDescriptor.serialize(translationScope.deserialize(ClassDescriptor
+		System.out.println(SimplTypesScope.serialize(test, StringFormat.XML));
+		SimplTypesScope translationScope = SimplTypesScope.get("test", classes);
+		System.out.println(SimplTypesScope.serialize(translationScope.deserialize(SimplTypesScope
 				.serialize(test, StringFormat.XML), StringFormat.XML), StringFormat.XML));
 
 		// System.out.println(taggies.translateToXML());

@@ -29,7 +29,7 @@ import ecologylab.generic.HashMapArrayList;
 import ecologylab.generic.ReflectionTools;
 import ecologylab.generic.StringTools;
 import ecologylab.serialization.MetaInformation.Argument;
-import ecologylab.serialization.TranslationScope.GRAPH_SWITCH;
+import ecologylab.serialization.SimplTypesScope.GRAPH_SWITCH;
 import ecologylab.serialization.annotations.Hint;
 import ecologylab.serialization.annotations.simpl_classes;
 import ecologylab.serialization.annotations.simpl_collection;
@@ -421,7 +421,7 @@ public class FieldDescriptor extends DescriptorBase implements FieldTypes, IMapp
 	 */
 	private boolean resolveScopeAnnotation(final String scopeAnnotation)
 	{
-		TranslationScope scope = TranslationScope.get(scopeAnnotation);
+		SimplTypesScope scope = SimplTypesScope.get(scopeAnnotation);
 		if (scope != null)
 		{
 			Collection<ClassDescriptor<? extends FieldDescriptor>> scopeClassDescriptors = scope
@@ -1561,7 +1561,7 @@ public class FieldDescriptor extends DescriptorBase implements FieldTypes, IMapp
 	{
 		Object result;
 
-		if (TranslationScope.graphSwitch == GRAPH_SWITCH.ON)
+		if (SimplTypesScope.graphSwitch == GRAPH_SWITCH.ON)
 		{
 			Object alreadyUnmarshalledObject = graphContext.getFromMap(attributes);
 

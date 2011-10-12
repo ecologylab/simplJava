@@ -4,7 +4,7 @@
 package ecologylab.appframework.types;
 
 import ecologylab.generic.Debug;
-import ecologylab.serialization.TranslationScope;
+import ecologylab.serialization.SimplTypesScope;
 
 /**
  * Simple translations used just for loading the assets.xml file.
@@ -28,8 +28,8 @@ public class AssetsTranslations extends Debug
 	 * 
 	 * @return	TranslationSpace with simple translations used just for loading the assets.xml file.
 	 */
-	public static TranslationScope get()
+	public static SimplTypesScope get()
 	{
-		return TranslationScope.get(PACKAGE_NAME, TRANSLATIONS);
+		return SimplTypesScope.get(PACKAGE_NAME, TRANSLATIONS);
 	}
 }

@@ -3,11 +3,10 @@ package ecologylab.tests.serialization.objectGraphTest;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
-import ecologylab.serialization.ClassDescriptor;
 import ecologylab.serialization.SIMPLTranslationException;
 import ecologylab.serialization.StringFormat;
-import ecologylab.serialization.TranslationScope;
-import ecologylab.serialization.TranslationScope.GRAPH_SWITCH;
+import ecologylab.serialization.SimplTypesScope;
+import ecologylab.serialization.SimplTypesScope.GRAPH_SWITCH;
 
 public class ObjectGraphTest
 {
@@ -49,7 +48,7 @@ public class ObjectGraphTest
 
 	public static void runTests()
 	{
-		TranslationScope.graphSwitch = GRAPH_SWITCH.ON;
+		SimplTypesScope.graphSwitch = GRAPH_SWITCH.ON;
 
 		for (Method m : ObjectGraphTest.class.getDeclaredMethods())
 		{
@@ -102,8 +101,8 @@ public class ObjectGraphTest
 		list.points.add(list.points.get(0)); // same reference
 		try
 		{
-			StringBuilder sb = ClassDescriptor.serialize(list, StringFormat.XML);
-			ListEqEq deserialized = (ListEqEq) TranslationScope.get("testEqualsEquals", ListEqEq.class,
+			StringBuilder sb = SimplTypesScope.serialize(list, StringFormat.XML);
+			ListEqEq deserialized = (ListEqEq) SimplTypesScope.get("testEqualsEquals", ListEqEq.class,
 					PointEqEq.class).deserialize(sb.toString(), StringFormat.XML);
 			PointEqEq first = deserialized.points.get(0);
 			PointEqEq last = deserialized.points.get(deserialized.points.size() - 1);
@@ -139,8 +138,8 @@ public class ObjectGraphTest
 		list.points.add(list.points.get(0)); // same reference
 		try
 		{
-			StringBuilder sb = ClassDescriptor.serialize(list, StringFormat.XML);
-			ListDotEquals deserialized = (ListDotEquals) TranslationScope.get("ListDotEquals",
+			StringBuilder sb = SimplTypesScope.serialize(list, StringFormat.XML);
+			ListDotEquals deserialized = (ListDotEquals) SimplTypesScope.get("ListDotEquals",
 					ListDotEquals.class, PointDotEquals.class).deserialize(sb.toString(), StringFormat.XML);
 			PointDotEquals first = deserialized.points.get(0);
 			PointDotEquals secondToLast = deserialized.points.get(deserialized.points.size() - 2);

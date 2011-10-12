@@ -6,7 +6,7 @@ package ecologylab.tests.serialization;
 import java.util.ArrayList;
 
 import ecologylab.serialization.ElementState;
-import ecologylab.serialization.TranslationScope;
+import ecologylab.serialization.SimplTypesScope;
 import ecologylab.serialization.annotations.simpl_collection;
 import ecologylab.serialization.annotations.simpl_scope;
 
@@ -21,8 +21,8 @@ public class Base extends ElementState
 	@simpl_collection	
 	ArrayList<RssPolyWrapTest>  			mixins;
 
-	public static final TranslationScope BASE_TRANSLATIONS	= 
-		TranslationScope.get("base_translations", Base.class);
+	public static final SimplTypesScope BASE_TRANSLATIONS	= 
+		SimplTypesScope.get("base_translations", Base.class);
 	/**
 	 * 
 	 */

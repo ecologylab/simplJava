@@ -5,10 +5,10 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import ecologylab.serialization.ClassDescriptor;
 import ecologylab.serialization.ElementState;
 import ecologylab.serialization.FieldTypes;
 import ecologylab.serialization.SIMPLTranslationException;
+import ecologylab.serialization.SimplTypesScope;
 import ecologylab.serialization.StringFormat;
 import ecologylab.serialization.deserializers.parsers.bibtex.entrytypes.AbstractBibTeXEntry;
 import ecologylab.serialization.deserializers.parsers.bibtex.entrytypes.BibTeXInProceedings;
@@ -369,7 +369,7 @@ public class BibTeXParser implements FieldTypes
 		List<BibTeXInProceedings> entities = parse(data.toCharArray());
 		for (BibTeXInProceedings entity : entities)
 		{
-			ClassDescriptor.serialize(entity, System.out, StringFormat.XML);
+			SimplTypesScope.serialize(entity, System.out, StringFormat.XML);
 		}
 	}
 
@@ -389,7 +389,7 @@ public class BibTeXParser implements FieldTypes
 		List<AbstractBibTeXEntry> entities = parse(sb.toString().toCharArray());
 		for (AbstractBibTeXEntry entity : entities)
 		{
-			ClassDescriptor.serialize(entity, System.out, StringFormat.XML);
+			SimplTypesScope.serialize(entity, System.out, StringFormat.XML);
 			System.out.println();
 			// entity.serialize(System.out, FORMAT.BIBTEX);
 		}

@@ -47,10 +47,9 @@ import ecologylab.oodss.messages.ResponseMessage;
 import ecologylab.oodss.messages.SendableRequest;
 import ecologylab.oodss.messages.ServiceMessage;
 import ecologylab.oodss.messages.UpdateMessage;
-import ecologylab.serialization.ClassDescriptor;
 import ecologylab.serialization.SIMPLTranslationException;
 import ecologylab.serialization.StringFormat;
-import ecologylab.serialization.TranslationScope;
+import ecologylab.serialization.SimplTypesScope;
 
 /**
  * Services Client using NIO; a major difference with the NIO version is state tracking. Since the
@@ -209,7 +208,7 @@ public class NIOClient<S extends Scope> extends NIONetworking<S> implements Runn
 
 	private List<ClientStatusListener>																clientStatusListeners					= null;
 
-	public NIOClient(String serverAddress, int portNumber, TranslationScope messageSpace,
+	public NIOClient(String serverAddress, int portNumber, SimplTypesScope messageSpace,
 			S objectRegistry, int maxMessageLengthChars) throws IOException
 	{
 		super("NIOClient", portNumber, messageSpace, objectRegistry, maxMessageLengthChars);
@@ -234,7 +233,7 @@ public class NIOClient<S extends Scope> extends NIONetworking<S> implements Runn
 		this.serverAddress = serverAddress;
 	}
 
-	public NIOClient(String serverAddress, int portNumber, TranslationScope messageSpace,
+	public NIOClient(String serverAddress, int portNumber, SimplTypesScope messageSpace,
 			S objectRegistry) throws IOException
 	{
 		this(serverAddress, portNumber, messageSpace, objectRegistry, DEFAULT_MAX_MESSAGE_LENGTH_CHARS);
@@ -329,7 +328,7 @@ public class NIOClient<S extends Scope> extends NIONetworking<S> implements Runn
 		synchronized (requestBuffer)
 		{
 			// fill requestBuffer
-			ClassDescriptor.serialize(requestBuffer, requestBuffer, StringFormat.XML);			
+			SimplTypesScope.serialize(requestBuffer, requestBuffer, StringFormat.XML);			
 
 			// TODO not convinced this is the most efficient workflow. Why do we need requestBuffer at all??? -ZODT
 			// drain requestBuffer and fill a prepped request

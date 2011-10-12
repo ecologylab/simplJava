@@ -11,7 +11,7 @@ import java.nio.channels.SelectionKey;
 import ecologylab.collections.Scope;
 import ecologylab.oodss.distributed.server.DoubleThreadedNIOServer;
 import ecologylab.oodss.distributed.server.clientsessionmanager.HTTPGetClientSessionManager;
-import ecologylab.serialization.TranslationScope;
+import ecologylab.serialization.SimplTypesScope;
 
 /**
  * @author Zachary O. Toups (zach@ecologylab.net)
@@ -30,7 +30,7 @@ public class HttpGetServer extends DoubleThreadedNIOServer
 	 * @throws BindException
 	 */
 	public HttpGetServer(int portNumber, InetAddress[] inetAddresses,
-			TranslationScope requestTranslationSpace, Scope objectRegistry, int idleConnectionTimeout,
+			SimplTypesScope requestTranslationSpace, Scope objectRegistry, int idleConnectionTimeout,
 			int maxPacketSize) throws IOException, BindException
 	{
 		super(portNumber, inetAddresses, requestTranslationSpace, objectRegistry,
@@ -48,7 +48,7 @@ public class HttpGetServer extends DoubleThreadedNIOServer
 	 * @throws BindException
 	 */
 	public HttpGetServer(int portNumber, InetAddress inetAddress,
-			TranslationScope requestTranslationSpace, Scope objectRegistry, int idleConnectionTimeout,
+			SimplTypesScope requestTranslationSpace, Scope objectRegistry, int idleConnectionTimeout,
 			int maxPacketSize) throws IOException, BindException
 	{
 		super(portNumber, inetAddress, requestTranslationSpace, objectRegistry, idleConnectionTimeout,
@@ -57,7 +57,7 @@ public class HttpGetServer extends DoubleThreadedNIOServer
 
 	@Override
 	protected HTTPGetClientSessionManager generateContextManager(String token, SelectionKey sk,
-			TranslationScope translationScopeIn, Scope registryIn)
+			SimplTypesScope translationScopeIn, Scope registryIn)
 	{
 		return new HTTPGetClientSessionManager(token, maxMessageSize, this.getBackend(), this, sk,
 				translationScopeIn, registryIn);

@@ -5,11 +5,10 @@ package ecologylab.standalone.xmlpolymorph;
 
 import java.util.ArrayList;
 
-import ecologylab.serialization.ClassDescriptor;
 import ecologylab.serialization.ElementState;
 import ecologylab.serialization.SIMPLTranslationException;
 import ecologylab.serialization.StringFormat;
-import ecologylab.serialization.TranslationScope;
+import ecologylab.serialization.SimplTypesScope;
 import ecologylab.serialization.annotations.simpl_classes;
 import ecologylab.serialization.annotations.simpl_collection;
 import ecologylab.serialization.annotations.simpl_composite;
@@ -22,7 +21,7 @@ import ecologylab.serialization.library.rss.RssTranslations;
  */
 public class Schmannel extends ElementState
 {
-	private static final TranslationScope	TRANSLATION_SPACE	= TranslationScope.get("schm_rss",
+	private static final SimplTypesScope	TRANSLATION_SPACE	= SimplTypesScope.get("schm_rss",
 																															RssTranslations.get(),
 																															Schmannel.class, SchmItem.class,
 																															BItem.class);
@@ -73,17 +72,17 @@ public class Schmannel extends ElementState
 		{
 			StringBuilder buffy = new StringBuilder();
 
-			ClassDescriptor.serialize(schmannel, buffy, StringFormat.XML);
+			SimplTypesScope.serialize(schmannel, buffy, StringFormat.XML);
 
 			System.out.println(buffy);
 			System.out.println('\n');
 
-			ClassDescriptor.serialize(TRANSLATION_SPACE, System.out, StringFormat.XML);
+			SimplTypesScope.serialize(TRANSLATION_SPACE, System.out, StringFormat.XML);
 
 			System.out.println('\n');
 			Object s2 = TRANSLATION_SPACE.deserialize(buffy, StringFormat.XML);
 
-			ClassDescriptor.serialize(s2, System.out, StringFormat.XML);
+			SimplTypesScope.serialize(s2, System.out, StringFormat.XML);
 
 		}
 		catch (SIMPLTranslationException e)
@@ -101,7 +100,7 @@ public class Schmannel extends ElementState
 		{
 			Object rap = TRANSLATION_SPACE.deserialize(ITEMS, StringFormat.XML);
 
-			ClassDescriptor.serialize(rap, System.out, StringFormat.XML);
+			SimplTypesScope.serialize(rap, System.out, StringFormat.XML);
 
 			System.out.println('\n');
 			// println(c.translateToXML());

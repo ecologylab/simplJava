@@ -10,7 +10,7 @@ import ecologylab.oodss.messages.HttpRequest;
 import ecologylab.oodss.messages.RequestMessage;
 import ecologylab.oodss.messages.ResponseMessage;
 import ecologylab.serialization.SIMPLTranslationException;
-import ecologylab.serialization.TranslationScope;
+import ecologylab.serialization.SimplTypesScope;
 
 public class HTTPPostClientSessionManager extends HTTPClientSessionManager
 {
@@ -27,7 +27,7 @@ public class HTTPPostClientSessionManager extends HTTPClientSessionManager
 	 * @param registry
 	 */
 	public HTTPPostClientSessionManager(String token, int maxPacketSize, NIOServerIOThread server,
-			NIOServerProcessor frontend, SelectionKey socketKey, TranslationScope translationScope,
+			NIOServerProcessor frontend, SelectionKey socketKey, SimplTypesScope translationScope,
 			Scope<?> registry)
 	{
 		super(token, maxPacketSize, server, frontend, socketKey, translationScope, registry);

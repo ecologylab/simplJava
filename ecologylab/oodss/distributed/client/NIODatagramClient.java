@@ -16,7 +16,7 @@ import ecologylab.oodss.messages.RequestMessage;
 import ecologylab.oodss.messages.ResponseMessage;
 import ecologylab.oodss.messages.ServiceMessage;
 import ecologylab.oodss.messages.UpdateMessage;
-import ecologylab.serialization.TranslationScope;
+import ecologylab.serialization.SimplTypesScope;
 
 /**
  * Client subclass of NIOCore. Connects with server address and only
@@ -55,7 +55,7 @@ public class NIODatagramClient<S extends Scope> extends NIODatagramCore<S>
 	 * @param timeout timeout of messages that are not responded to
 	 */
 	public NIODatagramClient(InetSocketAddress serverAddress, InetSocketAddress localAddress,
-			TranslationScope translationScope, S objectRegistry, boolean useCompression, int timeout)
+			SimplTypesScope translationScope, S objectRegistry, boolean useCompression, int timeout)
 	{
 		super(translationScope, objectRegistry, useCompression);
 
@@ -116,18 +116,18 @@ public class NIODatagramClient<S extends Scope> extends NIODatagramCore<S>
 	}
 
 	public NIODatagramClient(InetSocketAddress serverAddress, InetSocketAddress localAddress,
-			TranslationScope translationScope, S objectRegistry, int timeout)
+			SimplTypesScope translationScope, S objectRegistry, int timeout)
 	{
 		this(serverAddress, localAddress, translationScope, objectRegistry, false, timeout);
 	}
 
-	public NIODatagramClient(InetSocketAddress serverAddress, TranslationScope translationScope,
+	public NIODatagramClient(InetSocketAddress serverAddress, SimplTypesScope translationScope,
 			S objectRegistry, boolean useCompression, int timeout)
 	{
 		this(serverAddress, null, translationScope, objectRegistry, useCompression, timeout);
 	}
 
-	public NIODatagramClient(InetSocketAddress serverAddress, TranslationScope translationScope,
+	public NIODatagramClient(InetSocketAddress serverAddress, SimplTypesScope translationScope,
 			S objectRegistry, int timeout)
 	{
 		this(serverAddress, translationScope, objectRegistry, false, timeout);

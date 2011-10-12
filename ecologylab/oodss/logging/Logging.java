@@ -29,9 +29,9 @@ import ecologylab.oodss.distributed.common.ServicesHostsAndPorts;
 import ecologylab.oodss.distributed.exception.MessageTooLargeException;
 import ecologylab.oodss.messages.DefaultServicesTranslations;
 import ecologylab.oodss.messages.ResponseMessage;
-import ecologylab.serialization.ClassDescriptor;
 import ecologylab.serialization.ElementState;
 import ecologylab.serialization.SIMPLTranslationException;
+import ecologylab.serialization.SimplTypesScope;
 import ecologylab.serialization.StringFormat;
 import ecologylab.serialization.XMLTools;
 import ecologylab.serialization.annotations.simpl_collection;
@@ -467,7 +467,7 @@ public class Logging<T extends MixedInitiativeOp> extends ElementState implement
 			{
 				synchronized (incomingOpsBuffer)
 				{
-					ClassDescriptor.serialize(op, incomingOpsBuffer, StringFormat.XML);					
+					SimplTypesScope.serialize(op, incomingOpsBuffer, StringFormat.XML);					
 				}
 
 				// final int bufferLength = incomingOpsBuffer.length();
@@ -1061,7 +1061,7 @@ public class Logging<T extends MixedInitiativeOp> extends ElementState implement
 					debug(">> sending a normal log message (non-blocking): ");
 					try
 					{
-						debug(ClassDescriptor.serialize(message, StringFormat.XML).toString());
+						debug(SimplTypesScope.serialize(message, StringFormat.XML).toString());
 					}
 					catch (SIMPLTranslationException e)
 					{

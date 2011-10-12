@@ -5,10 +5,10 @@ import java.net.URL;
 import java.util.ArrayList;
 
 import ecologylab.net.ParsedURL;
-import ecologylab.serialization.ClassDescriptor;
 import ecologylab.serialization.ElementState;
 import ecologylab.serialization.Format;
 import ecologylab.serialization.SIMPLTranslationException;
+import ecologylab.serialization.SimplTypesScope;
 import ecologylab.serialization.StringFormat;
 import ecologylab.serialization.annotations.bibtex_key;
 import ecologylab.serialization.annotations.bibtex_tag;
@@ -304,7 +304,7 @@ public class Entry extends ElementState
 		e.setAddress("Piscataway, NJ, USA");
 		e.setKeywords(keywords);
 		
-		ClassDescriptor.serialize(e, System.out, StringFormat.BIBTEX);
+		SimplTypesScope.serialize(e, System.out, StringFormat.BIBTEX);
 	}
 
 

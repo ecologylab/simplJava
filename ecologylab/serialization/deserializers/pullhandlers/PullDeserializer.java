@@ -20,7 +20,7 @@ import ecologylab.serialization.Format;
 import ecologylab.serialization.SIMPLTranslationException;
 import ecologylab.serialization.StringFormat;
 import ecologylab.serialization.TranslationContext;
-import ecologylab.serialization.TranslationScope;
+import ecologylab.serialization.SimplTypesScope;
 import ecologylab.serialization.deserializers.ISimplDeserializationPre;
 import ecologylab.serialization.deserializers.ISimplDeserializationPost;
 import ecologylab.serialization.deserializers.pullhandlers.binaryformats.BinaryPullDeserializer;
@@ -34,7 +34,7 @@ import ecologylab.serialization.serializers.ISimplSerializationPre;
 public abstract class PullDeserializer extends Debug implements FieldTypes
 {
 
-	protected TranslationScope																													translationScope;
+	protected SimplTypesScope																													translationScope;
 
 	protected TranslationContext																												translationContext;
 
@@ -50,7 +50,7 @@ public abstract class PullDeserializer extends Debug implements FieldTypes
 	 * @param translationContext
 	 *          used for graph handling
 	 */
-	public PullDeserializer(TranslationScope translationScope, TranslationContext translationContext)
+	public PullDeserializer(SimplTypesScope translationScope, TranslationContext translationContext)
 	{
 		this.translationScope = translationScope;
 		this.translationContext = translationContext;
@@ -66,7 +66,7 @@ public abstract class PullDeserializer extends Debug implements FieldTypes
 	 *          used for graph handling
 	 */
 	public PullDeserializer(
-			TranslationScope translationScope,
+			SimplTypesScope translationScope,
 			TranslationContext translationContext,
 			DeserializationHookStrategy deserializationHookStrategy)
 	{
@@ -177,7 +177,7 @@ public abstract class PullDeserializer extends Debug implements FieldTypes
 	 * @return
 	 * @throws SIMPLTranslationException
 	 */
-	public static PullDeserializer getDeserializer(TranslationScope translationScope,
+	public static PullDeserializer getDeserializer(SimplTypesScope translationScope,
 			TranslationContext translationContext, Format format) throws SIMPLTranslationException
 	{
 		return getDeserializer(translationScope, translationContext, null, format);
@@ -193,7 +193,7 @@ public abstract class PullDeserializer extends Debug implements FieldTypes
 	 * @throws SIMPLTranslationException
 	 */
 	public static PullDeserializer getDeserializer(
-			TranslationScope translationScope,
+			SimplTypesScope translationScope,
 			TranslationContext translationContext,
 			DeserializationHookStrategy deserializationHookStrategy,
 			Format format) throws SIMPLTranslationException
@@ -223,7 +223,7 @@ public abstract class PullDeserializer extends Debug implements FieldTypes
 	 * @return
 	 * @throws SIMPLTranslationException
 	 */
-	public static StringPullDeserializer getStringDeserializer(TranslationScope translationScope,
+	public static StringPullDeserializer getStringDeserializer(SimplTypesScope translationScope,
 			TranslationContext translationContext, StringFormat stringFormat)
 			throws SIMPLTranslationException
 	{
@@ -240,7 +240,7 @@ public abstract class PullDeserializer extends Debug implements FieldTypes
 	 * @throws SIMPLTranslationException
 	 */
 	public static StringPullDeserializer getStringDeserializer(
-			TranslationScope translationScope,
+			SimplTypesScope translationScope,
 			TranslationContext translationContext,
 			DeserializationHookStrategy deserializationHookStrategy,
 			StringFormat stringFormat) throws SIMPLTranslationException
@@ -267,7 +267,7 @@ public abstract class PullDeserializer extends Debug implements FieldTypes
 	 * @return
 	 * @throws SIMPLTranslationException
 	 */
-	public static BinaryPullDeserializer getBinaryDeserializer(TranslationScope translationScope,
+	public static BinaryPullDeserializer getBinaryDeserializer(SimplTypesScope translationScope,
 			TranslationContext translationContext, BinaryFormat binaryFormat)
 			throws SIMPLTranslationException
 	{
@@ -284,7 +284,7 @@ public abstract class PullDeserializer extends Debug implements FieldTypes
 	 * @throws SIMPLTranslationException
 	 */
 	public static BinaryPullDeserializer getBinaryDeserializer(
-			TranslationScope translationScope,
+			SimplTypesScope translationScope,
 			TranslationContext translationContext,
 			DeserializationHookStrategy deserializationHookStrategy,
 			BinaryFormat binaryFormat) throws SIMPLTranslationException

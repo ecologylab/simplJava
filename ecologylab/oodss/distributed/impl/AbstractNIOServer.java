@@ -14,7 +14,7 @@ import ecologylab.oodss.distributed.common.SessionObjects;
 import ecologylab.oodss.distributed.server.NIOServerDataReader;
 import ecologylab.oodss.distributed.server.clientsessionmanager.BaseSessionManager;
 import ecologylab.oodss.messages.InitConnectionRequest;
-import ecologylab.serialization.TranslationScope;
+import ecologylab.serialization.SimplTypesScope;
 
 /**
  * Provides access to an NIOServerIOThread, which handles the details of network connections.
@@ -27,7 +27,7 @@ public abstract class AbstractNIOServer<S extends Scope> extends Manager impleme
 {
 	private NIOServerIOThread		backend;
 
-	protected TranslationScope	translationScope;
+	protected SimplTypesScope	translationScope;
 
 	protected S									applicationObjectScope;
 
@@ -45,7 +45,7 @@ public abstract class AbstractNIOServer<S extends Scope> extends Manager impleme
 	 * @throws BindException
 	 */
 	protected AbstractNIOServer(int portNumber, InetAddress[] inetAddress,
-			TranslationScope requestTranslationSpace, S objectRegistry, int idleConnectionTimeout,
+			SimplTypesScope requestTranslationSpace, S objectRegistry, int idleConnectionTimeout,
 			int maxMessageLength) throws IOException, BindException
 	{
 		backend = this.generateBackend(portNumber, inetAddress, composeTranslations(portNumber,
@@ -66,17 +66,17 @@ public abstract class AbstractNIOServer<S extends Scope> extends Manager impleme
 	static final Class[]	OUR_TRANSLATIONS	=
 																					{ InitConnectionRequest.class, };
 
-	public static TranslationScope composeTranslations(int portNumber, InetAddress inetAddress,
-			TranslationScope requestTranslationSpace)
+	public static SimplTypesScope composeTranslations(int portNumber, InetAddress inetAddress,
+			SimplTypesScope requestTranslationSpace)
 	{
 		return composeTranslations(OUR_TRANSLATIONS, "nio_server_base: ", portNumber, inetAddress
 				.toString(), requestTranslationSpace);
 	}
 
-	public static TranslationScope composeTranslations(Class[] newTranslations, String prefix,
-			int portNumber, String inetAddress, TranslationScope requestTranslationSpace)
+	public static SimplTypesScope composeTranslations(Class[] newTranslations, String prefix,
+			int portNumber, String inetAddress, SimplTypesScope requestTranslationSpace)
 	{
-		return TranslationScope.get(prefix + inetAddress.toString() + ":" + portNumber,
+		return SimplTypesScope.get(prefix + inetAddress.toString() + ":" + portNumber,
 				requestTranslationSpace, newTranslations);
 	}
 
@@ -94,7 +94,7 @@ public abstract class AbstractNIOServer<S extends Scope> extends Manager impleme
 	 * @throws BindException
 	 */
 	protected AbstractNIOServer(int portNumber, InetAddress inetAddress,
-			TranslationScope requestTranslationSpace, S objectRegistry, int idleConnectionTimeout,
+			SimplTypesScope requestTranslationSpace, S objectRegistry, int idleConnectionTimeout,
 			int maxMessageLength) throws IOException, BindException
 	{
 		this(portNumber, NetTools.wrapSingleAddress(inetAddress), requestTranslationSpace,
@@ -102,7 +102,7 @@ public abstract class AbstractNIOServer<S extends Scope> extends Manager impleme
 	}
 
 	protected NIOServerIOThread generateBackend(int portNumber, InetAddress[] inetAddresses,
-			TranslationScope requestTranslationSpace, S objectRegistry, int idleConnectionTimeout,
+			SimplTypesScope requestTranslationSpace, S objectRegistry, int idleConnectionTimeout,
 			int maxMessageLength) throws BindException, IOException
 	{
 		return NIOServerIOThread.getInstance(portNumber, inetAddresses, this, requestTranslationSpace,
@@ -110,7 +110,7 @@ public abstract class AbstractNIOServer<S extends Scope> extends Manager impleme
 	}
 
 	protected abstract BaseSessionManager generateContextManager(String sessionId, SelectionKey sk,
-			TranslationScope translationScope, Scope globalScope);
+			SimplTypesScope translationScope, Scope globalScope);
 
 	/**
 	 * @see ecologylab.generic.StartAndStoppable#start()
@@ -156,7 +156,7 @@ public abstract class AbstractNIOServer<S extends Scope> extends Manager impleme
 	/**
 	 * @return the translationScope
 	 */
-	public TranslationScope getTranslationSpace()
+	public SimplTypesScope getTranslationSpace()
 	{
 		return translationScope;
 	}

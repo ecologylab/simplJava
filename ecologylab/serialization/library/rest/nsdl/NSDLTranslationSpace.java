@@ -1,7 +1,7 @@
 package ecologylab.serialization.library.rest.nsdl;
 
 import ecologylab.generic.Debug;
-import ecologylab.serialization.TranslationScope;
+import ecologylab.serialization.SimplTypesScope;
 import ecologylab.serialization.library.rest.RESTTranslationSpace;
 import ecologylab.serialization.library.rest.SearchResults;
 
@@ -15,10 +15,10 @@ public class NSDLTranslationSpace extends Debug
 		SearchResults.class
 	};
 	
-	protected static final TranslationScope INHERITED[]= {RESTTranslationSpace.get()};
+	protected static final SimplTypesScope INHERITED[]= {RESTTranslationSpace.get()};
 	
-	public static TranslationScope get()
+	public static SimplTypesScope get()
 	{
-		return TranslationScope.get(PACKAGE_NAME, INHERITED, TRANSLATIONS);
+		return SimplTypesScope.get(PACKAGE_NAME, INHERITED, TRANSLATIONS);
 	}
 }

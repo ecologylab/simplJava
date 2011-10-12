@@ -20,7 +20,7 @@ import ecologylab.serialization.ElementState;
 import ecologylab.serialization.FieldDescriptor;
 import ecologylab.serialization.SIMPLTranslationException;
 import ecologylab.serialization.TranslationContext;
-import ecologylab.serialization.TranslationScope;
+import ecologylab.serialization.SimplTypesScope;
 import ecologylab.serialization.types.element.IMappable;
 
 /**
@@ -43,7 +43,7 @@ public class XMLPullDeserializer extends StringPullDeserializer
 	 * @param deserializationHookStrategy
 	 */
 	public XMLPullDeserializer(
-			TranslationScope translationScope,
+			SimplTypesScope translationScope,
 			TranslationContext translationContext,
 			DeserializationHookStrategy<? extends Object, ? extends FieldDescriptor> deserializationHookStrategy)
 	{
@@ -55,7 +55,7 @@ public class XMLPullDeserializer extends StringPullDeserializer
 	 * @param translationScope
 	 * @param translationContext
 	 */
-	public XMLPullDeserializer(TranslationScope translationScope,
+	public XMLPullDeserializer(SimplTypesScope translationScope,
 			TranslationContext translationContext)
 	{
 		super(translationScope, translationContext);

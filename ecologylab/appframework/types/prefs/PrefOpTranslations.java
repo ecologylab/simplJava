@@ -4,7 +4,7 @@
 package ecologylab.appframework.types.prefs;
 
 import ecologylab.generic.Debug;
-import ecologylab.serialization.TranslationScope;
+import ecologylab.serialization.SimplTypesScope;
 
 /**
  * @author andrew
@@ -27,8 +27,8 @@ public class PrefOpTranslations extends Debug
 	{
 	}
 	
-	public static TranslationScope get(TranslationScope inheritedScope)
+	public static SimplTypesScope get(SimplTypesScope inheritedScope)
 	{
-		return TranslationScope.get(SCOPE_NAME, inheritedScope, TRANSLATIONS);
+		return SimplTypesScope.get(SCOPE_NAME, inheritedScope, TRANSLATIONS);
 	}
 }
