@@ -7,8 +7,6 @@ import java.io.InputStream;
 import java.util.Collection;
 import java.util.Map;
 
-import javax.xml.stream.XMLStreamConstants;
-
 import ecologylab.serialization.ClassDescriptor;
 import ecologylab.serialization.DeserializationHookStrategy;
 import ecologylab.serialization.ElementState;
@@ -85,21 +83,34 @@ public class TLVPullDeserializer extends BinaryPullDeserializer
 		if (deserializationHookStrategy != null)
 			deserializationHookStrategy.deserializationPreHook(root, null);
 
-		createObjectModel(root, rootClassDescriptor, type(), length());
-
-		return root;
+		return createObjectModel(root, rootClassDescriptor, type(), length());
 	}
 
-	private void createObjectModel(Object root,
+	private Object createObjectModel(Object root,
 			ClassDescriptor<? extends FieldDescriptor> rootClassDescriptor, int type, int length)
 			throws IOException, SIMPLTranslationException
 	{
+
 		FieldDescriptor currentFieldDescriptor = new FieldDescriptor();
 		int bytesRead = 0;
 
 		while (!isEos && bytesRead < length)
 		{
 			bytesRead += nextHeader();
+
+			if (type() == TranslationContext.SIMPL_ID.hashCode())
+			{
+				Integer simplId = inputStream.readInt();
+				translationContext.markAsUnmarshalled(simplId.toString(), root);
+				bytesRead += 4;
+				continue;
+			}
+
+			if (type() == TranslationContext.SIMPL_REF.hashCode())
+			{
+				Integer simplRef = inputStream.readInt();
+				return translationContext.getFromMap(simplRef.toString());
+			}
 
 			currentFieldDescriptor = rootClassDescriptor.getFieldDescriptorByTLVId(type());
 
@@ -139,10 +150,11 @@ public class TLVPullDeserializer extends BinaryPullDeserializer
 				break;
 			}
 		}
-
+		return root;
 	}
 
-	private int deserializeCompositeMap(Object root, FieldDescriptor fd) throws SIMPLTranslationException, IOException
+	private int deserializeCompositeMap(Object root, FieldDescriptor fd)
+			throws SIMPLTranslationException, IOException
 	{
 		int bytesRead = 0;
 		int length = length();
@@ -241,9 +253,7 @@ public class TLVPullDeserializer extends BinaryPullDeserializer
 			}
 		}
 
-		createObjectModel(subRoot, subRootClassDescriptor, type(), length());
-
-		return subRoot;
+		return createObjectModel(subRoot, subRootClassDescriptor, type(), length());
 	}
 
 	private int deserializeScalarCollectionElement(Object root, FieldDescriptor fd)

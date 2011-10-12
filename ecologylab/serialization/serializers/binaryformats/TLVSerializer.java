@@ -15,8 +15,8 @@ import ecologylab.serialization.Format;
 import ecologylab.serialization.SIMPLTranslationException;
 import ecologylab.serialization.TranslationContext;
 import ecologylab.serialization.TranslationScope;
-import ecologylab.serialization.TranslationScope.GRAPH_SWITCH;
 import ecologylab.serialization.XMLTools;
+import ecologylab.serialization.TranslationScope.GRAPH_SWITCH;
 
 /**
  * 
@@ -37,6 +37,7 @@ public class TLVSerializer extends BinarySerializer implements FieldTypes
 	 * @param dataOutputStream
 	 * @param translationContext
 	 * @throws SIMPLTranslationException
+	 * @throws
 	 * @throws IOException
 	 */
 	public void serialize(Object object, DataOutputStream dataOutputStream,
@@ -47,8 +48,15 @@ public class TLVSerializer extends BinarySerializer implements FieldTypes
 		ClassDescriptor<? extends FieldDescriptor> rootObjectClassDescriptor = ClassDescriptor
 				.getClassDescriptor(object.getClass());
 
-		serialize(object, rootObjectClassDescriptor.pseudoFieldDescriptor(), dataOutputStream,
-				translationContext);
+		try
+		{
+			serialize(object, rootObjectClassDescriptor.pseudoFieldDescriptor(), dataOutputStream,
+					translationContext);
+		}
+		catch (IOException e)
+		{
+			throw new SIMPLTranslationException("IO Exception occurred", e);
+		}
 	}
 
 	/**
@@ -59,10 +67,11 @@ public class TLVSerializer extends BinarySerializer implements FieldTypes
 	 * @param translationContext
 	 * @throws SIMPLTranslationException
 	 * @throws IOException
+	 * @throws IOException
 	 */
 	private void serialize(Object object, FieldDescriptor rootObjectFieldDescriptor,
 			DataOutputStream dataOutputStream, TranslationContext translationContext)
-			throws SIMPLTranslationException
+			throws SIMPLTranslationException, IOException
 	{
 
 		if (alreadySerialized(object, translationContext))
@@ -117,10 +126,12 @@ public class TLVSerializer extends BinarySerializer implements FieldTypes
 	 * @param allFieldDescriptors
 	 * @throws IOException
 	 * @throws SIMPLTranslationException
+	 * @throws IOException
 	 */
 	private void serializeFields(Object object, DataOutputStream outputBuffer,
 			TranslationContext translationContext,
-			ArrayList<? extends FieldDescriptor> allFieldDescriptors) throws SIMPLTranslationException
+			ArrayList<? extends FieldDescriptor> allFieldDescriptors) throws SIMPLTranslationException,
+			IOException
 	{
 
 		if (TranslationScope.graphSwitch == GRAPH_SWITCH.ON)
@@ -179,9 +190,11 @@ public class TLVSerializer extends BinarySerializer implements FieldTypes
 	}
 
 	private void writeSimplIdAttribute(Object object, DataOutputStream outputBuffer)
+			throws IOException
 	{
-		// TODO Auto-generated method stub
-
+		outputBuffer.writeInt(TranslationContext.SIMPL_ID.hashCode());
+		outputBuffer.writeInt(4);
+		outputBuffer.writeInt(((Integer) object.hashCode()));
 	}
 
 	private void writeWrap(FieldDescriptor fd, DataOutputStream outputBuffer,
@@ -283,10 +296,18 @@ public class TLVSerializer extends BinarySerializer implements FieldTypes
 	 * @param object
 	 * @param rootObjectFieldDescriptor
 	 * @param dataOutputStream
+	 * @throws IOException
+	 * @throws SIMPLTranslationException
 	 */
-	private void writeSimplRef(Object object, FieldDescriptor fd, DataOutputStream dataOutputStream)
+	private void writeSimplRef(Object object, FieldDescriptor fd, DataOutputStream outputStream)
+			throws IOException, SIMPLTranslationException
 	{
-		// TODO Auto-generated method stub
+		ByteArrayOutputStream simplRefData = new ByteArrayOutputStream();
+		DataOutputStream outputBuffer = new DataOutputStream(simplRefData);
+		outputBuffer.writeInt(TranslationContext.SIMPL_REF.hashCode());
+		outputBuffer.writeInt(4);
+		outputBuffer.writeInt(((Integer) object.hashCode()));
 
+		writeHeader(outputStream, simplRefData, fd.getTLVId());
 	}
 }
