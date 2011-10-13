@@ -1800,7 +1800,7 @@ public class FieldDescriptor extends DescriptorBase implements FieldTypes, IMapp
 			// }
 		}
 
-		if (this.IsGeneric())
+		if (this.IsGeneric() && result.indexOf('<') < 0)
 		{
 			result += getGenericParametersString();
 		}
