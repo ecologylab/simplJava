@@ -48,7 +48,7 @@ public class DotNetTranslator extends AbstractCodeTranslator implements DotNetTr
 	/**
 	 * Dependencies of current class.
 	 */
-	private Set<String>									currentClassDependencies			= new HashSet<String>();
+	private Set<String>									currentClassDependencies;
 
 	/**
 	 * Dependencies of the encompassing TranslationScope class.
@@ -90,11 +90,10 @@ public class DotNetTranslator extends AbstractCodeTranslator implements DotNetTr
 				debug("Excluding " + classDesc + "from translation as requested.");
 				continue;
 			}
-			debug("Translating " + classDesc + "...");
 			translate(classDesc, directoryLocation, config);
 		}
 		generateLibraryTScopeClass(directoryLocation, tScope);
-		debug("DONE!");
+		debug("DONE !");
 	}
 
 	@Override
@@ -103,7 +102,12 @@ public class DotNetTranslator extends AbstractCodeTranslator implements DotNetTr
 	{
 		debug("Generating C# class" + inputClass.getDescribedClassName() + "...");
 		this.config = config;
-		File outputFile = createCSharpFileWithDirectoryStructure(directoryLocation, inputClass.getDescribedClassPackageName(), inputClass.getDescribedClassSimpleName());
+		File outputFile = createFileWithDirStructure(
+				directoryLocation,
+				inputClass.getDescribedClassPackageName().split(PACKAGE_NAME_SEPARATOR),
+				inputClass.getDescribedClassSimpleName(),
+				FILE_EXTENSION
+				);
 		BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(outputFile));
 		translate(inputClass, implementMappableInterface, bufferedWriter);
 		bufferedWriter.close();
@@ -114,6 +118,7 @@ public class DotNetTranslator extends AbstractCodeTranslator implements DotNetTr
 	 * The actual method converting a class descriptor into C# codes.
 	 * 
 	 * @param inputClass
+	 * @param implementMappable
 	 * @param appendable
 	 * @throws IOException
 	 * @throws DotNetTranslationException
@@ -174,13 +179,6 @@ public class DotNetTranslator extends AbstractCodeTranslator implements DotNetTr
 		StringBuilderUtils.release(classBody);
 	}
 
-	/**
-	 * Writes and opens the namespace
-	 * 
-	 * @param inputClass
-	 * @param appendable
-	 * @throws IOException
-	 */
 	@Override
 	protected void openUnitScope(ClassDescriptor inputClass, Appendable appendable) throws IOException
 	{
@@ -261,7 +259,7 @@ public class DotNetTranslator extends AbstractCodeTranslator implements DotNetTr
 	{
 		String comment = inputClass.getComment();
 		if (comment != null && comment.length() > 0)
-			appendStructuredComments(appendable, TAB, inputClass.getComment());
+			appendStructuredComments(appendable, TAB, comment);
 	}
 
 	@Override
@@ -680,29 +678,6 @@ public class DotNetTranslator extends AbstractCodeTranslator implements DotNetTr
 			libraryTScopeDependencies.add(name);
 	}
 
-	private File createCSharpFileWithDirectoryStructure(File directoryLocation, String packageName,
-			String className) throws IOException
-	{
-		String currentDirectory = directoryLocation.toString() + FILE_PATH_SEPARATOR;
-		String[] arrayPackageNames = packageName.split(PACKAGE_NAME_SEPARATOR);
-		for (String directoryName : arrayPackageNames)
-		{
-			currentDirectory += directoryName + FILE_PATH_SEPARATOR;
-		}
-	
-		File directory = new File(currentDirectory);
-		directory.mkdirs();
-	
-		File currentFile = new File(currentDirectory + className + FILE_EXTENSION);
-		if (currentFile.exists())
-		{
-			currentFile.delete();
-		}
-	
-		currentFile.createNewFile();
-		return currentFile;
-	}
-
 	/**
 	 * @param directoryLocation
 	 * @param tScope
@@ -715,7 +690,7 @@ public class DotNetTranslator extends AbstractCodeTranslator implements DotNetTr
 		String packageName = config.getLibraryTScopeClassPackageName();
 		String tscopeClassName = config.getLibraryTScopeClassSimpleName();
 		
-		File sourceFile = createCSharpFileWithDirectoryStructure(directoryLocation, packageName, tscopeClassName);
+		File sourceFile = createFileWithDirStructure(directoryLocation, packageName.split(PACKAGE_NAME_SEPARATOR), tscopeClassName, FILE_EXTENSION);
 		BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(sourceFile));
 
 		// append dependencies
@@ -735,74 +710,67 @@ public class DotNetTranslator extends AbstractCodeTranslator implements DotNetTr
 		bufferedWriter.append(OPENING_CURLY_BRACE);
 		bufferedWriter.append(SINGLE_LINE_BREAK);
 		
-		// class body
-		openLibraryTScopeClassBody(tscopeClassName, bufferedWriter);
+		// class: header
+		bufferedWriter.append(TAB);
+		bufferedWriter.append(PUBLIC);
+		bufferedWriter.append(SPACE);
+		bufferedWriter.append(CLASS);
+		bufferedWriter.append(SPACE);
+		bufferedWriter.append(tscopeClassName);
+		bufferedWriter.append(SINGLE_LINE_BREAK);
+		bufferedWriter.append(TAB);
+		bufferedWriter.append(OPENING_CURLY_BRACE);
+		bufferedWriter.append(SINGLE_LINE_BREAK);
+		
+		// class: constructor
 		appendDefaultConstructor(tscopeClassName, bufferedWriter);
-		appendLibraryTScopeGetter(tScope, bufferedWriter);
+		
+		// class: the Get() method
+		bufferedWriter.append(SINGLE_LINE_BREAK);
+		bufferedWriter.append(DOUBLE_TAB);
+		bufferedWriter.append(PUBLIC);
+		bufferedWriter.append(SPACE);
+		bufferedWriter.append(STATIC);
+		bufferedWriter.append(SPACE);
+		bufferedWriter.append(DOTNET_TRANSLATION_SCOPE);
+		bufferedWriter.append(SPACE);
+		bufferedWriter.append("Get");
+		bufferedWriter.append(OPENING_BRACE);
+		bufferedWriter.append(CLOSING_BRACE);
+		bufferedWriter.append(SINGLE_LINE_BREAK);
+		bufferedWriter.append(DOUBLE_TAB);
+		bufferedWriter.append(OPENING_CURLY_BRACE);
+		bufferedWriter.append(SINGLE_LINE_BREAK);
+		
+		bufferedWriter.append(DOUBLE_TAB);
+		bufferedWriter.append(TAB);
+		bufferedWriter.append(RETURN);
+		bufferedWriter.append(SPACE);
+		bufferedWriter.append(DOTNET_TRANSLATION_SCOPE);
+		bufferedWriter.append(DOT);
+		bufferedWriter.append(FGET);
+		bufferedWriter.append(OPENING_BRACE);
+		bufferedWriter.append(QUOTE);
+		bufferedWriter.append(tScope.getName());
+//		appendable.append("SemanticNames.REPOSITORY_METADATA_TRANSLATIONS"); // FIXME
+		bufferedWriter.append(QUOTE);
+		appendTranslatedClassList(tScope, bufferedWriter);
+		bufferedWriter.append(CLOSING_BRACE);
+		bufferedWriter.append(END_LINE);
+		bufferedWriter.append(SINGLE_LINE_BREAK);
+		bufferedWriter.append(DOUBLE_TAB);
+		bufferedWriter.append(CLOSING_CURLY_BRACE);
+		bufferedWriter.append(SINGLE_LINE_BREAK);
+		
 		closeClassBody(bufferedWriter);
 		closeUnitScope(bufferedWriter);
 		
 		bufferedWriter.close();
 	}
 
-	/**
-	 * @param className
-	 * @param appendable
-	 * @throws IOException
-	 */
 	@Override
-	protected void openLibraryTScopeClassBody(String className, Appendable appendable)
-			throws IOException
+	protected void appendTranslatedClassList(SimplTypesScope tScope, Appendable appendable) throws IOException
 	{
-		appendable.append(TAB);
-		appendable.append(PUBLIC);
-		appendable.append(SPACE);
-		appendable.append(CLASS);
-		appendable.append(SPACE);
-		appendable.append(className);
-		appendable.append(SINGLE_LINE_BREAK);
-		appendable.append(TAB);
-		appendable.append(OPENING_CURLY_BRACE);
-		appendable.append(SINGLE_LINE_BREAK);
-	}
-
-	/**
-	 * @param tScope
-	 * @param appendable
-	 * @throws IOException
-	 */
-	@Override
-	protected void appendLibraryTScopeGetter(SimplTypesScope tScope, Appendable appendable) throws IOException
-	{
-		appendable.append(SINGLE_LINE_BREAK);
-		appendable.append(DOUBLE_TAB);
-		appendable.append(PUBLIC);
-		appendable.append(SPACE);
-		appendable.append(STATIC);
-		appendable.append(SPACE);
-		appendable.append(DOTNET_TRANSLATION_SCOPE);
-		appendable.append(SPACE);
-		appendable.append("Get");
-		appendable.append(OPENING_BRACE);
-		appendable.append(CLOSING_BRACE);
-		appendable.append(SINGLE_LINE_BREAK);
-		appendable.append(DOUBLE_TAB);
-		appendable.append(OPENING_CURLY_BRACE);
-		appendable.append(SINGLE_LINE_BREAK);
-
-		appendable.append(DOUBLE_TAB);
-		appendable.append(TAB);
-		appendable.append(RETURN);
-		appendable.append(SPACE);
-		appendable.append(DOTNET_TRANSLATION_SCOPE);
-		appendable.append(DOT);
-		appendable.append(FGET);
-		appendable.append(OPENING_BRACE);
-		appendable.append(QUOTE);
-		appendable.append(tScope.getName());
-//		appendable.append("SemanticNames.REPOSITORY_METADATA_TRANSLATIONS"); // FIXME
-		appendable.append(QUOTE);
-		
 		Collection<ClassDescriptor<? extends FieldDescriptor>> allClasses = tScope.entriesByClassName().values();
 		for (ClassDescriptor<? extends FieldDescriptor> myClass : allClasses)
 		{
@@ -815,13 +783,6 @@ public class DotNetTranslator extends AbstractCodeTranslator implements DotNetTr
 			appendable.append(myClass.getDescribedClassSimpleName());
 			appendable.append(CLOSING_BRACE);
 		}
-
-		appendable.append(CLOSING_BRACE);
-		appendable.append(END_LINE);
-		appendable.append(SINGLE_LINE_BREAK);
-		appendable.append(DOUBLE_TAB);
-		appendable.append(CLOSING_CURLY_BRACE);
-		appendable.append(SINGLE_LINE_BREAK);
 	}
 
 	/**

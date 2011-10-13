@@ -1,16 +1,24 @@
 package ecologylab.semantics.compiler;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 import ecologylab.semantics.metadata.MetadataFieldDescriptor;
+import ecologylab.semantics.metadata.builtins.MetadataBuiltinsTranslationScope;
+import ecologylab.semantics.metametadata.MetaMetadata;
 import ecologylab.semantics.metametadata.MetaMetadataCompositeField;
 import ecologylab.semantics.metametadata.MetaMetadataField;
+import ecologylab.semantics.metametadata.MetaMetadataRepository;
 import ecologylab.semantics.metametadata.MetaMetadataScalarField;
 import ecologylab.semantics.metametadata.MmdCompilerService;
 import ecologylab.semantics.metametadata.exceptions.MetaMetadataException;
+import ecologylab.semantics.namesandnums.SemanticsNames;
 import ecologylab.serialization.ClassDescriptor;
 import ecologylab.serialization.FieldDescriptor;
 import ecologylab.serialization.FieldTypes;
+import ecologylab.serialization.SimplTypesScope;
 import ecologylab.serialization.types.ScalarType;
 import ecologylab.translators.java.JavaTranslator;
 
@@ -19,29 +27,35 @@ public class MetaMetadataJavaTranslator extends JavaTranslator implements MmdCom
 	
 	public static final String	SCALAR_GETTER_SETTER_SUFFIX	= "Metadata";
 
-	private static String[]			metaMetadataDefaultImports	= {
+	private static String[]			metaMetadataDefaultDependencies	= {
 		MetaMetadataCompositeField.class.getName(),
+		List.class.getName(),
+		SimplTypesScope.class.getName(),
+		SemanticsNames.class.getName(),
+		MetadataBuiltinsTranslationScope.class.getName(),
 	};
 
 	public MetaMetadataJavaTranslator()
 	{
-		for (String importTarget : metaMetadataDefaultImports)
-			this.addGlobalImportDependency(importTarget);
+		for (String dependency : metaMetadataDefaultDependencies)
+			this.addGlobalDependency(dependency);
 	}
 
 	@Override
-	protected void appendFieldAnnotationsHook(Appendable appendable, ClassDescriptor contextCd, FieldDescriptor fieldDesc, String spacing) throws IOException
+	protected void appendFieldMetaInformationHook(ClassDescriptor contextCd, FieldDescriptor fieldDesc, Appendable appendable) throws IOException
 	{
-		super.appendFieldAnnotationsHook(appendable, contextCd, fieldDesc, spacing);
-		
+		super.appendFieldMetaInformationHook(contextCd, fieldDesc, appendable);
 		MetadataFieldDescriptor fd = (MetadataFieldDescriptor) fieldDesc;
 		MetaMetadataField f = fd.getDefiningMmdField();
 		f.addAdditionalMetaInformation(fieldDesc.getMetaInformation(), this);
 	}
 
 	@Override
-	protected void appendConstructorHook(String className, Appendable appendable) throws IOException
+	protected void appendConstructorHook(ClassDescriptor inputClass, Appendable appendable) throws IOException
 	{
+		super.appendConstructorHook(inputClass, appendable);
+		
+		String className = inputClass.getDescribedClassSimpleName();
 		appendable.append("\n");
 		appendable.append("\tpublic ").append(className).append("(MetaMetadataCompositeField mmd) {\n");
 		appendable.append("\t\tsuper(mmd);\n");
@@ -146,6 +160,24 @@ public class MetaMetadataJavaTranslator extends JavaTranslator implements MmdCom
 		appendable.append("\t\tif (").append(fieldName).append(" != ").append(operativeScalarType.defaultValueString()).append(")\n");
 		appendable.append("\t\t\tthis.").append(fieldName).append("().setValue(").append(fieldName).append(");\n");
 		appendable.append("\t}\n");
+	}
+
+	@Override
+	protected void appendTranslatedClassList(SimplTypesScope tScope, Appendable appendable)
+			throws IOException
+	{
+		List<String> classes = new ArrayList<String>(); 
+		MetaMetadataRepository repository = ((CompilerConfig) config).loadRepository();
+		if (repository.values() != null)
+			for (MetaMetadata mmd : repository.values())
+				if (mmd.isNewMetadataClass())
+				{
+					ClassDescriptor cd = mmd.getMetadataClassDescriptor();
+					classes.add("\t\t" + cd.getDescribedClassName() + ".class,\n\n");
+				}
+		Collections.sort(classes);
+		for (String classDef : classes)
+			appendable.append(classDef);
 	}
 	
 }

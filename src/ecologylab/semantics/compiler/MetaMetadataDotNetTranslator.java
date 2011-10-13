@@ -1,7 +1,5 @@
 package ecologylab.semantics.compiler;
 
-import static ecologylab.translators.net.DotNetTranslationConstants.SPACE;
-
 import java.io.IOException;
 import java.util.Collection;
 import java.util.List;
@@ -39,17 +37,18 @@ public class MetaMetadataDotNetTranslator extends DotNetTranslator implements Mm
 	@Override
 	protected void appendFieldMetaInformationHook(ClassDescriptor contextCd, FieldDescriptor fieldDesc, Appendable appendable) throws IOException
 	{
+		super.appendFieldMetaInformationHook(contextCd, fieldDesc, appendable);
 		MetadataFieldDescriptor fd = (MetadataFieldDescriptor) fieldDesc;
 		List<MetaInformation> metaInfoBuf = fd.getMetaInformation();
 		MetaMetadataField f = fd.getDefiningMmdField();
 		f.addAdditionalMetaInformation(metaInfoBuf, this);
-		
-		super.appendFieldMetaInformationHook(contextCd, fieldDesc, appendable);
 	}
 
 	@Override
 	protected void appendConstructorHook(ClassDescriptor inputClass, Appendable appendable) throws IOException
 	{
+		super.appendConstructorHook(inputClass, appendable);
+		
 		// currently C# version Metadata has only one constructor. but we may need this later.
 		
 //		appendable.append("\n");
@@ -62,41 +61,13 @@ public class MetaMetadataDotNetTranslator extends DotNetTranslator implements Mm
 	@Override
 	protected void appendGettersAndSettersHook(ClassDescriptor context, FieldDescriptor fieldDescriptor, Appendable appendable)
 	{
+		super.appendGettersAndSettersHook(context, fieldDescriptor, appendable);
 		// don't need this right now.
 	}
 	
 	@Override
-	protected void appendLibraryTScopeGetter(SimplTypesScope tScope, Appendable appendable) throws IOException
+	protected void appendTranslatedClassList(SimplTypesScope tScope, Appendable appendable) throws IOException
 	{
-		appendable.append(SINGLE_LINE_BREAK);
-		appendable.append(DOUBLE_TAB);
-		appendable.append(PUBLIC);
-		appendable.append(SPACE);
-		appendable.append(STATIC);
-		appendable.append(SPACE);
-		appendable.append(DOTNET_TRANSLATION_SCOPE);
-		appendable.append(SPACE);
-		appendable.append("Get");
-		appendable.append(OPENING_BRACE);
-		appendable.append(CLOSING_BRACE);
-		appendable.append(SINGLE_LINE_BREAK);
-		appendable.append(DOUBLE_TAB);
-		appendable.append(OPENING_CURLY_BRACE);
-		appendable.append(SINGLE_LINE_BREAK);
-
-		appendable.append(DOUBLE_TAB);
-		appendable.append(TAB);
-		appendable.append(RETURN);
-		appendable.append(SPACE);
-		appendable.append(DOTNET_TRANSLATION_SCOPE);
-		appendable.append(DOT);
-		appendable.append(FGET);
-		appendable.append(OPENING_BRACE);
-		appendable.append(QUOTE);
-		appendable.append(tScope.getName());
-//		appendable.append("SemanticNames.REPOSITORY_METADATA_TRANSLATIONS"); // FIXME
-		appendable.append(QUOTE);
-		
 		appendable.append(", MetadataBuiltinsTranslationScope.Get(),\n");
 		
 		CompilerConfig config = (CompilerConfig) this.config;
@@ -117,14 +88,7 @@ public class MetaMetadataDotNetTranslator extends DotNetTranslator implements Mm
 				++i;
 			}
 		}
-
 		appendable.append("\n\t\t\t");
-		appendable.append(CLOSING_BRACE);
-		appendable.append(END_LINE);
-		appendable.append(SINGLE_LINE_BREAK);
-		appendable.append(DOUBLE_TAB);
-		appendable.append(CLOSING_CURLY_BRACE);
-		appendable.append(SINGLE_LINE_BREAK);
 	}
 	
 }

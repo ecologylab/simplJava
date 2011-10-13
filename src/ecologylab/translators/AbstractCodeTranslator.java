@@ -7,6 +7,7 @@ import java.text.SimpleDateFormat;
 import java.util.Collection;
 import java.util.Date;
 
+import ecologylab.appframework.PropertiesAndDirectories;
 import ecologylab.generic.Debug;
 import ecologylab.serialization.ClassDescriptor;
 import ecologylab.serialization.FieldDescriptor;
@@ -107,7 +108,24 @@ public abstract class AbstractCodeTranslator extends Debug implements CodeTransl
 
 	// - library translation scope class
 	protected abstract void generateLibraryTScopeClass(File directoryLocation, SimplTypesScope tScope) throws IOException;
-	protected abstract void openLibraryTScopeClassBody(String className, Appendable appendable) throws IOException;
-	protected abstract void appendLibraryTScopeGetter(SimplTypesScope tScope, Appendable appendable) throws IOException;
+	protected abstract void appendTranslatedClassList(SimplTypesScope tScope, Appendable appendable) throws IOException;
+
+	protected File createFileWithDirStructure(File parentDir, String[] dirStructure, String name, String extension)
+			throws IOException
+	{
+		File dir = parentDir;
+		for (String directoryName : dirStructure)
+		{
+			dir = new File(dir, directoryName);
+		}
+		PropertiesAndDirectories.createDirsAsNeeded(dir);
+	
+		File file = new File(dir, name + extension);
+		if (file.exists())
+			file.delete();
+		file.createNewFile();
+	
+		return file;
+	}
 
 }

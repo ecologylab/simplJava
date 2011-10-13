@@ -117,10 +117,14 @@ public interface JavaTranslationConstants
 
 	public static final String	OPEN_COMMENTS						= "/** ";
 
+	public static final String	OPEN_BLOCK_COMMENTS			= "/* ";
+	
 	public static final String	XML_COMMENTS						= " *";
 
 	public static final String	CLOSE_COMMENTS					= " */ ";
 
+	public static final String	CLOSE_BLOCK_COMMENTS		= " */ ";
+	
 	public static final String	SINGLE_LINE_COMMENT			= "//";
 
 	/*
