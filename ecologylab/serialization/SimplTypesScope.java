@@ -1152,20 +1152,29 @@ public final class SimplTypesScope extends ElementState
 
 	public Object deserialize(File file, Format format) throws SIMPLTranslationException
 	{
-		return deserialize(file, new TranslationContext(), null, format);
+		TranslationContext translationContext = TranslationContextPool.get().acquire();
+		Object obj = deserialize(file, translationContext, null, format);
+		TranslationContextPool.get().release(translationContext);
+		return obj;
 	}
 
 	public Object deserialize(File file, DeserializationHookStrategy deserializationHookStrategy,
 			Format format) throws SIMPLTranslationException
 	{
-		return deserialize(file, new TranslationContext(), deserializationHookStrategy, format);
+		TranslationContext translationContext = TranslationContextPool.get().acquire();
+		Object obj = deserialize(file, translationContext, deserializationHookStrategy, format);
+		TranslationContextPool.get().release(translationContext);
+		return obj;
 	}
 
 	public Object deserialize(ParsedURL parsedURL,
 			DeserializationHookStrategy deserializationHookStrategy, Format format)
 			throws SIMPLTranslationException
 	{
-		return deserialize(parsedURL, new TranslationContext(), deserializationHookStrategy, format);
+		TranslationContext translationContext = TranslationContextPool.get().acquire();
+		Object obj = deserialize(parsedURL, translationContext, deserializationHookStrategy, format);
+		TranslationContextPool.get().release(translationContext);
+		return obj;
 	}
 
 	public Object deserialize(ParsedURL parsedURL, TranslationContext translationContext,
@@ -1176,7 +1185,10 @@ public final class SimplTypesScope extends ElementState
 
 	public Object deserialize(ParsedURL parsedURL, Format format) throws SIMPLTranslationException
 	{
-		return deserialize(parsedURL, new TranslationContext(), null, format);
+		TranslationContext translationContext = TranslationContextPool.get().acquire();
+		Object obj = deserialize(parsedURL, translationContext, null, format);
+		TranslationContextPool.get().release(translationContext);
+		return obj;
 	}
 
 	public Object deserialize(ParsedURL parsedURL, TranslationContext translationContext,
@@ -1192,7 +1204,10 @@ public final class SimplTypesScope extends ElementState
 			DeserializationHookStrategy deserializationHookStrategy, Format format)
 			throws SIMPLTranslationException
 	{
-		return deserialize(inputStream, new TranslationContext(), deserializationHookStrategy, format);
+		TranslationContext translationContext = TranslationContextPool.get().acquire();
+		Object obj = deserialize(inputStream, translationContext, deserializationHookStrategy, format);
+		TranslationContextPool.get().release(translationContext);
+		return obj;
 	}
 
 	public Object deserialize(InputStream inputStream, TranslationContext translationContext,
@@ -1204,7 +1219,10 @@ public final class SimplTypesScope extends ElementState
 	public Object deserialize(InputStream inputStream, Format format)
 			throws SIMPLTranslationException
 	{
-		return deserialize(inputStream, new TranslationContext(), null, format);
+		TranslationContext translationContext = TranslationContextPool.get().acquire();
+		Object obj = deserialize(inputStream, translationContext, null, format);
+		TranslationContextPool.get().release(translationContext);
+		return obj;
 	}
 
 	public Object deserialize(InputStream inputStream, TranslationContext translationContext,
@@ -1218,7 +1236,10 @@ public final class SimplTypesScope extends ElementState
 
 	public Object deserialize(URL url, Format format) throws SIMPLTranslationException
 	{
-		return deserialize(new ParsedURL(url), new TranslationContext(), null, format);
+		TranslationContext translationContext = TranslationContextPool.get().acquire();
+		Object obj = deserialize(new ParsedURL(url), translationContext, null, format);
+		TranslationContextPool.get().release(translationContext);
+		return obj;
 	}
 
 	public Object deserialize(CharSequence charSequence, TranslationContext translationContext,
@@ -1234,8 +1255,10 @@ public final class SimplTypesScope extends ElementState
 			DeserializationHookStrategy deserializationHookStrategy, StringFormat stringFormat)
 			throws SIMPLTranslationException
 	{
+		TranslationContext translationContext = TranslationContextPool.get().acquire();
 		StringPullDeserializer pullDeserializer = PullDeserializer.getStringDeserializer(this,
-				new TranslationContext(), deserializationHookStrategy, stringFormat);
+				translationContext, deserializationHookStrategy, stringFormat);
+		TranslationContextPool.get().release(translationContext);
 		return pullDeserializer.parse(charSequence);
 	}
 
@@ -1248,7 +1271,10 @@ public final class SimplTypesScope extends ElementState
 	public Object deserialize(CharSequence charSequence, StringFormat stringFormat)
 			throws SIMPLTranslationException
 	{
-		return deserialize(charSequence, new TranslationContext(), null, stringFormat);
+		TranslationContext translationContext = TranslationContextPool.get().acquire();
+		Object obj = deserialize(charSequence, translationContext, null, stringFormat);
+		TranslationContextPool.get().release(translationContext);
+		return obj;
 	}
 
 	public Object deserialize(byte[] byteArray, TranslationContext translationContext,
