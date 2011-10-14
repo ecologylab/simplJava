@@ -119,4 +119,10 @@ public class MultiMap<T,S extends Object> {
 			return false;
 		}
 	}	
+	
+	public void clear()
+	{
+		map.clear();
+	}
+	
 }

@@ -12,6 +12,7 @@ import ecologylab.serialization.SIMPLTranslationException;
 import ecologylab.serialization.StringFormat;
 import ecologylab.serialization.TranslationContext;
 import ecologylab.serialization.SimplTypesScope;
+import ecologylab.serialization.TranslationContextPool;
 import ecologylab.serialization.SimplTypesScope.GRAPH_SWITCH;
 import ecologylab.serialization.serializers.binaryformats.TLVSerializer;
 import ecologylab.serialization.serializers.stringformats.BibtexSerializer;
@@ -39,7 +40,9 @@ public abstract class FormatSerializer
 	 */
 	public void serialize(Object object, OutputStream outputStream) throws SIMPLTranslationException
 	{
-		serialize(object, outputStream, new TranslationContext());
+		TranslationContext translationContext = TranslationContextPool.get().acquire();
+		serialize(object, outputStream, translationContext);
+		TranslationContextPool.get().release(translationContext);
 	}
 
 	public abstract void serialize(Object object, OutputStream outputStream,
@@ -54,7 +57,9 @@ public abstract class FormatSerializer
 	 */
 	public void serialize(Object object, File outputFile) throws SIMPLTranslationException
 	{		
-		serialize(object, outputFile, new TranslationContext());
+		TranslationContext translationContext = TranslationContextPool.get().acquire();
+		serialize(object, outputFile, translationContext);
+		TranslationContextPool.get().release(translationContext);
 	}
 
 	public abstract void serialize(Object object, File outputFile,

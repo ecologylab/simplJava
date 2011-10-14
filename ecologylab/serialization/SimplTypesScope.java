@@ -1675,8 +1675,9 @@ public final class SimplTypesScope extends ElementState
 	public static void serialize(Object object, Appendable appendable, StringFormat stringFormat)
 			throws SIMPLTranslationException
 	{
-		TranslationContext translationContext = new TranslationContext();
+		TranslationContext translationContext = TranslationContextPool.get().acquire();
 		serialize(object, appendable, stringFormat, translationContext);
+		TranslationContextPool.get().release(translationContext);
 	}
 
 	/**
@@ -1692,8 +1693,10 @@ public final class SimplTypesScope extends ElementState
 	public static StringBuilder serialize(Object object, StringFormat stringFormat)
 			throws SIMPLTranslationException
 	{
-		TranslationContext translationContext = new TranslationContext();
-		return serialize(object, stringFormat, translationContext);
+		TranslationContext translationContext = TranslationContextPool.get().acquire();
+		StringBuilder sb = serialize(object, stringFormat, translationContext);
+		TranslationContextPool.get().release(translationContext);
+		return sb;
 	}
 
 	/**
@@ -1709,8 +1712,9 @@ public final class SimplTypesScope extends ElementState
 	public static void serialize(Object object, StringBuilder stringBuilder, StringFormat stringFormat)
 			throws SIMPLTranslationException
 	{
-		TranslationContext translationContext = new TranslationContext();
+		TranslationContext translationContext = TranslationContextPool.get().acquire();
 		serialize(object, stringBuilder, stringFormat, translationContext);
+		TranslationContextPool.get().release(translationContext);
 	}
 
 	/**
@@ -1744,7 +1748,8 @@ public final class SimplTypesScope extends ElementState
 	public static void serialize(Object object, File file, Format format)
 			throws SIMPLTranslationException
 	{
-		TranslationContext translationContext = new TranslationContext();
+		TranslationContext translationContext = TranslationContextPool.get().acquire();
 		serialize(object, file, format, translationContext);
+		TranslationContextPool.get().release(translationContext);
 	}
 }

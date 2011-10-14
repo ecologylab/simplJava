@@ -735,7 +735,7 @@ public class ClassDescriptor<FD extends FieldDescriptor> extends DescriptorBase 
 		{
 			FD previousMapping = allFieldDescriptorsByTagNames.put(tagName, fdToMap);
 			allFieldDescriptorsByTLVIds.put(tagName.hashCode(), fdToMap);
-			if (previousMapping != null)
+			if (previousMapping != null && previousMapping != fdToMap)
 				warning(" tag <" + tagName + ">:\tfield[" + fdToMap.getName() + "] overrides field["
 						+ previousMapping.getName() + "]");
 		}

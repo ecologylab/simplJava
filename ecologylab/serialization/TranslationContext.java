@@ -324,4 +324,15 @@ public class TranslationContext extends Debug implements ScalarUnmarshallingCont
 		return delimiter;
 	}
 
+	void clean()
+	{
+		marshalledObjects.clear();
+		visitedElements.clear();
+		needsAttributeHashCode.clear();
+		unmarshalledObjects.clear();
+		baseDirPurl = null;
+		baseDirFile = null;
+		delimiter = ",";
+	}
+
 }
