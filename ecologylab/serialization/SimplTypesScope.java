@@ -1526,7 +1526,7 @@ public final class SimplTypesScope extends ElementState
 		SimplTypesScope result = lookup(newName);
 		if (result == null)
 		{
-			synchronized (newName)
+			synchronized (entriesByClassName)
 			{
 				result = lookup(newName);
 				if (result == null)
