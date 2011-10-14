@@ -146,6 +146,9 @@ public class ClassDescriptor<FD extends FieldDescriptor> extends DescriptorBase 
 
 	public Class<?>																																		fdClass;
 	
+	@simpl_collection("generic_type_var")
+	private ArrayList<GenericTypeVar>																									genericTypeVars;
+	
 	static
 	{
 		TypeRegistry.init();

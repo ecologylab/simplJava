@@ -95,6 +95,18 @@ public class FieldDescriptor extends DescriptorBase implements FieldTypes, IMapp
 
 	@simpl_scalar
 	protected boolean																	isGeneric;
+	
+	/**
+	 * For composite or collection fields declared with generic type variables,
+	 * this field stores the binding to the resolved generic type from the ClassDescriptor.
+	 * <p/>
+	 * Note: this will require cloning this during inheritance, when subtypes instantiate
+	 * the generic type var(s) with different values.
+	 */
+	@simpl_collection("generic_type_var")
+	private ArrayList<GenericTypeVar>								genericTypeVars;
+	
+
 
 	// ///////////////// next fields are for polymorphic fields
 	// ////////////////////////////////////////
