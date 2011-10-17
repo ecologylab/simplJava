@@ -147,7 +147,7 @@ public class ClassDescriptor<FD extends FieldDescriptor> extends DescriptorBase 
 	public Class<?>																																		fdClass;
 	
 	@simpl_collection("generic_type_var")
-	private ArrayList<GenericTypeVar>																									genericTypeVars;
+	private ArrayList<GenericTypeVar>																									genericTypeVars = new ArrayList<GenericTypeVar>();
 	
 	static
 	{
@@ -254,10 +254,19 @@ public class ClassDescriptor<FD extends FieldDescriptor> extends DescriptorBase 
 			for (TypeVariable<?> typeVariable : typeVariables)
 			{
 				String typeClassName = typeVariable.getName();
-
 				genericTypeVariables.add(typeClassName);
+				
+				//GenericTypeVar g = getGenericTypeVar(typeVariable);					
+				//this.genericTypeVars.add(g);
 			}
 		}
+	}
+
+	private GenericTypeVar getGenericTypeVar(TypeVariable<?> typeVariable)
+	{
+		GenericTypeVar g = new GenericTypeVar();
+		g.name = typeVariable.getName();
+		return g;
 	}
 
 	public ArrayList<String> getGenericTypeVariables()

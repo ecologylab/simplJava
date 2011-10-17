@@ -20,5 +20,5 @@ public class GenericTypeVar extends Debug
 		ClassDescriptor	classDescriptor;
 		
 		@simpl_scalar
-		GenericTypeVar	genericTypeVar;
+		GenericTypeVar	boundsGenericTypeVar;
 }

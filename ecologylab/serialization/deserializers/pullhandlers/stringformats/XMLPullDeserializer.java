@@ -168,7 +168,7 @@ public class XMLPullDeserializer extends StringPullDeserializer
 	}
 
 	/**
-	 * Recursive method that moves forward in the CharSequence through JsonParser to create a
+	 * Recursive method that moves forward in the CharSequence through XMLStreamReader to create a
 	 * corresponding object model
 	 * 
 	 * @param root
