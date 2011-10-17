@@ -155,7 +155,7 @@ public class BibtexSerializer extends StringSerializer implements FieldTypes
 	{
 		if (!fd.isDefaultValueFromContext(object))
 		{
-			if (fd.isBibtexKey())
+			if (!fd.isBibtexKey())
 			{
 				appendable.append(fd.getBibtexTagName());
 				appendable.append('=');
@@ -219,7 +219,8 @@ public class BibtexSerializer extends StringSerializer implements FieldTypes
 			TranslationContext translationContext, FieldDescriptor fd) throws IOException,
 			SIMPLTranslationException
 	{
-		Collection<?> scalarCollection = XMLTools.getCollection(object);
+		Object scalarCollectionObject = fd.getObject(object);
+		Collection<?> scalarCollection = XMLTools.getCollection(scalarCollectionObject);
 
 		String delim = "author".equals(fd.getBibtexTagName()) ? " and " : translationContext
 				.getDelimiter();
@@ -274,7 +275,7 @@ public class BibtexSerializer extends StringSerializer implements FieldTypes
 			Appendable appendable, TranslationContext translationContext)
 			throws SIMPLTranslationException
 	{
-		fd.appendValue(appendable, collectionObject, translationContext, Format.BIBTEX);
+		fd.appendCollectionScalarValue(appendable, collectionObject, translationContext, Format.BIBTEX);
 	}
 
 	/**
