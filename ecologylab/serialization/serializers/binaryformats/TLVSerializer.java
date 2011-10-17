@@ -102,6 +102,13 @@ public class TLVSerializer extends BinarySerializer implements FieldTypes
 
 	}
 
+	/**
+	 * 
+	 * @param dataOutputStream
+	 * @param buffer
+	 * @param tlvId
+	 * @throws SIMPLTranslationException
+	 */
 	private void writeHeader(DataOutputStream dataOutputStream, ByteArrayOutputStream buffer,
 			int tlvId) throws SIMPLTranslationException
 	{
@@ -189,6 +196,12 @@ public class TLVSerializer extends BinarySerializer implements FieldTypes
 		}
 	}
 
+	/**
+	 * 
+	 * @param object
+	 * @param outputBuffer
+	 * @throws IOException
+	 */
 	private void writeSimplIdAttribute(Object object, DataOutputStream outputBuffer)
 			throws IOException
 	{
@@ -197,6 +210,13 @@ public class TLVSerializer extends BinarySerializer implements FieldTypes
 		outputBuffer.writeInt(((Integer) object.hashCode()));
 	}
 
+	/**
+	 * 
+	 * @param fd
+	 * @param outputBuffer
+	 * @param collectionBuffy
+	 * @throws SIMPLTranslationException
+	 */
 	private void writeWrap(FieldDescriptor fd, DataOutputStream outputBuffer,
 			ByteArrayOutputStream collectionBuffy) throws SIMPLTranslationException
 	{
@@ -217,6 +237,14 @@ public class TLVSerializer extends BinarySerializer implements FieldTypes
 		}
 	}
 
+	/**
+	 * 
+	 * @param object
+	 * @param fd
+	 * @param outputBuffer
+	 * @param translationContext
+	 * @throws SIMPLTranslationException
+	 */
 	private void writeScalarCollectionLeaf(Object object, FieldDescriptor fd,
 			DataOutputStream outputBuffer, TranslationContext translationContext)
 			throws SIMPLTranslationException
@@ -255,6 +283,14 @@ public class TLVSerializer extends BinarySerializer implements FieldTypes
 		}
 	}
 
+	/**
+	 * 
+	 * @param object
+	 * @param fd
+	 * @param outputBuffer
+	 * @param translationContext
+	 * @throws SIMPLTranslationException
+	 */
 	private void writeValue(Object object, FieldDescriptor fd, DataOutputStream outputBuffer,
 			TranslationContext translationContext) throws SIMPLTranslationException
 	{

@@ -16,6 +16,11 @@ import ecologylab.serialization.TranslationContext;
 import ecologylab.serialization.SimplTypesScope;
 import ecologylab.serialization.types.element.IMappable;
 
+/**
+ * 
+ * @author nabeelshahzad
+ *
+ */
 public class TLVPullDeserializer extends BinaryPullDeserializer
 {
 	private static final int	HEADER_SIZE	= 8;
@@ -62,6 +67,12 @@ public class TLVPullDeserializer extends BinaryPullDeserializer
 		}
 	}
 
+	/**
+	 * 
+	 * @return
+	 * @throws SIMPLTranslationException
+	 * @throws IOException
+	 */
 	private Object parse() throws SIMPLTranslationException, IOException
 	{
 		Object root = null;
@@ -86,6 +97,16 @@ public class TLVPullDeserializer extends BinaryPullDeserializer
 		return createObjectModel(root, rootClassDescriptor, type(), length());
 	}
 
+	/**
+	 * 
+	 * @param root
+	 * @param rootClassDescriptor
+	 * @param type
+	 * @param length
+	 * @return
+	 * @throws IOException
+	 * @throws SIMPLTranslationException
+	 */
 	private Object createObjectModel(Object root,
 			ClassDescriptor<? extends FieldDescriptor> rootClassDescriptor, int type, int length)
 			throws IOException, SIMPLTranslationException
@@ -156,6 +177,14 @@ public class TLVPullDeserializer extends BinaryPullDeserializer
 		return root;
 	}
 
+	/**
+	 * 
+	 * @param root
+	 * @param fd
+	 * @return
+	 * @throws SIMPLTranslationException
+	 * @throws IOException
+	 */
 	private int deserializeCompositeMap(Object root, FieldDescriptor fd)
 			throws SIMPLTranslationException, IOException
 	{
@@ -170,6 +199,14 @@ public class TLVPullDeserializer extends BinaryPullDeserializer
 		return bytesRead;
 	}
 
+	/**
+	 * 
+	 * @param root
+	 * @param fd
+	 * @return
+	 * @throws SIMPLTranslationException
+	 * @throws IOException
+	 */
 	private int deserializeCompositeCollection(Object root, FieldDescriptor fd)
 			throws SIMPLTranslationException, IOException
 	{
@@ -184,6 +221,14 @@ public class TLVPullDeserializer extends BinaryPullDeserializer
 		return bytesRead;
 	}
 
+	/**
+	 * 
+	 * @param root
+	 * @param fd
+	 * @return
+	 * @throws SIMPLTranslationException
+	 * @throws IOException
+	 */
 	private int deserializeScalarCollection(Object root, FieldDescriptor fd)
 			throws SIMPLTranslationException, IOException
 	{
@@ -198,6 +243,14 @@ public class TLVPullDeserializer extends BinaryPullDeserializer
 		return bytesRead;
 	}
 
+	/**
+	 * 
+	 * @param root
+	 * @param fd
+	 * @return
+	 * @throws SIMPLTranslationException
+	 * @throws IOException
+	 */
 	private int deserializeCompositeMapElement(Object root, FieldDescriptor fd)
 			throws SIMPLTranslationException, IOException
 	{
@@ -215,6 +268,14 @@ public class TLVPullDeserializer extends BinaryPullDeserializer
 		return length;
 	}
 
+	/**
+	 * 
+	 * @param root
+	 * @param fd
+	 * @return
+	 * @throws SIMPLTranslationException
+	 * @throws IOException
+	 */
 	private int deserializeCompositeCollectionElement(Object root, FieldDescriptor fd)
 			throws SIMPLTranslationException, IOException
 	{
@@ -227,6 +288,14 @@ public class TLVPullDeserializer extends BinaryPullDeserializer
 		return length;
 	}
 
+	/**
+	 * 
+	 * @param root
+	 * @param currentFieldDescriptor
+	 * @return
+	 * @throws SIMPLTranslationException
+	 * @throws IOException
+	 */
 	private int deserializeComposite(Object root, FieldDescriptor currentFieldDescriptor)
 			throws SIMPLTranslationException, IOException
 	{
@@ -236,6 +305,14 @@ public class TLVPullDeserializer extends BinaryPullDeserializer
 		return length;
 	}
 
+	/**
+	 * 
+	 * @param currentFieldDescriptor
+	 * @param root
+	 * @return
+	 * @throws SIMPLTranslationException
+	 * @throws IOException
+	 */
 	private Object getSubRoot(FieldDescriptor currentFieldDescriptor, Object root)
 			throws SIMPLTranslationException, IOException
 	{
@@ -259,6 +336,14 @@ public class TLVPullDeserializer extends BinaryPullDeserializer
 		return createObjectModel(subRoot, subRootClassDescriptor, type(), length());
 	}
 
+	/**
+	 * 
+	 * @param root
+	 * @param fd
+	 * @return
+	 * @throws SIMPLTranslationException
+	 * @throws IOException
+	 */
 	private int deserializeScalarCollectionElement(Object root, FieldDescriptor fd)
 			throws SIMPLTranslationException, IOException
 	{
@@ -269,6 +354,13 @@ public class TLVPullDeserializer extends BinaryPullDeserializer
 		return length();
 	}
 
+	/**
+	 * 
+	 * @param root
+	 * @param currentFieldDescriptor
+	 * @return
+	 * @throws IOException
+	 */
 	private int deserializeScalar(Object root, FieldDescriptor currentFieldDescriptor)
 			throws IOException
 	{
@@ -279,11 +371,19 @@ public class TLVPullDeserializer extends BinaryPullDeserializer
 		return length();
 	}
 
+	/**
+	 * 
+	 * @param stream
+	 */
 	private void configure(InputStream stream)
 	{
 		inputStream = new DataInputStream(stream);
 	}
 
+	/**
+	 * 
+	 * @return
+	 */
 	private int nextHeader()
 	{
 		try
@@ -300,11 +400,19 @@ public class TLVPullDeserializer extends BinaryPullDeserializer
 
 	}
 
+	/**
+	 * 
+	 * @return
+	 */
 	private int length()
 	{
 		return blockLength;
 	}
 
+	/**
+	 * 
+	 * @return
+	 */
 	private int type()
 	{
 		return blockType;

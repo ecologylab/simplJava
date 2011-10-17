@@ -15,7 +15,8 @@ import ecologylab.serialization.XMLTools;
 import ecologylab.serialization.SimplTypesScope.GRAPH_SWITCH;
 
 /**
- * XML Specific serializer
+ * XML Specific serializer. contains functionalities specific to ouput syntax for XML from an objet
+ * model.
  * 
  * @author nabeel
  */

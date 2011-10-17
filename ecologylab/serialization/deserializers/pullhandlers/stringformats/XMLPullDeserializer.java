@@ -32,9 +32,9 @@ import ecologylab.serialization.types.element.IMappable;
 public class XMLPullDeserializer extends StringPullDeserializer
 {
 
-	private CharSequence	test;
+	// private CharSequence test;
 
-	XMLStreamReader				xmlStreamReader	= null;
+	XMLStreamReader	xmlStreamReader	= null;
 
 	/**
 	 * 
@@ -55,8 +55,7 @@ public class XMLPullDeserializer extends StringPullDeserializer
 	 * @param translationScope
 	 * @param translationContext
 	 */
-	public XMLPullDeserializer(SimplTypesScope translationScope,
-			TranslationContext translationContext)
+	public XMLPullDeserializer(SimplTypesScope translationScope, TranslationContext translationContext)
 	{
 		super(translationScope, translationContext);
 	}
@@ -100,6 +99,7 @@ public class XMLPullDeserializer extends StringPullDeserializer
 	}
 
 	/**
+	 * Configures the input stream. Creates an instance of XMLStreamReader on the input stream.
 	 * 
 	 * @param inputStream
 	 * @throws XMLStreamException
@@ -120,7 +120,7 @@ public class XMLPullDeserializer extends StringPullDeserializer
 	private void configure(CharSequence charSequence) throws XMLStreamException,
 			FactoryConfigurationError
 	{
-		test = charSequence;
+		// test = charSequence;
 		InputStream xmlStream = new StringInputStream(charSequence, StringInputStream.UTF8);
 		xmlStreamReader = XMLInputFactory.newInstance().createXMLStreamReader(xmlStream, "UTF-8");
 	}
@@ -272,6 +272,14 @@ public class XMLPullDeserializer extends StringPullDeserializer
 		}
 	}
 
+	/**
+	 * 
+	 * @param root
+	 * @param fd
+	 * @return
+	 * @throws SIMPLTranslationException
+	 * @throws XMLStreamException
+	 */
 	private int deserializeScalarCollection(Object root, FieldDescriptor fd)
 			throws SIMPLTranslationException, XMLStreamException
 	{
@@ -410,10 +418,10 @@ public class XMLPullDeserializer extends StringPullDeserializer
 			throws XMLStreamException
 	{
 
-		//nextEvent();
-		
+		// nextEvent();
+
 		StringBuilder text = new StringBuilder();
-		//text.append(xmlStreamReader.getText());
+		// text.append(xmlStreamReader.getText());
 
 		do
 		{
@@ -590,6 +598,9 @@ public class XMLPullDeserializer extends StringPullDeserializer
 		return eventType;
 	}
 
+	/**
+	 * 
+	 */
 	protected void debug()
 	{
 		int event = xmlStreamReader.getEventType();
@@ -610,6 +621,10 @@ public class XMLPullDeserializer extends StringPullDeserializer
 		} // end switch
 	}
 
+	/**
+	 * 
+	 * @return
+	 */
 	private String getTagName()
 	{
 		if (!(xmlStreamReader.getPrefix().length() == 0))
