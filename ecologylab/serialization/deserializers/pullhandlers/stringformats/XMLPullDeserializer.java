@@ -24,7 +24,7 @@ import ecologylab.serialization.SimplTypesScope;
 import ecologylab.serialization.types.element.IMappable;
 
 /**
- * Pull API implementation to transform XML documets to corresponding object models. Utilizes
+ * Pull API implementation to transform XML documents to corresponding object models. Utilizes
  * XMLStreamReader to get sequential access to tags in XML.
  * 
  * @author nabeel

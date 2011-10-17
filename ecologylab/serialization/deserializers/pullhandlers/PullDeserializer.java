@@ -34,13 +34,13 @@ import ecologylab.serialization.serializers.ISimplSerializationPre;
 public abstract class PullDeserializer extends Debug implements FieldTypes
 {
 
-	protected SimplTypesScope																													translationScope;
+	protected SimplTypesScope							translationScope;
 
-	protected TranslationContext																												translationContext;
+	protected TranslationContext					translationContext;
 
 	protected DeserializationHookStrategy	deserializationHookStrategy;
 
-	static final ConnectionAdapter																											connectionAdapter	= new ConnectionAdapter();
+	static final ConnectionAdapter				connectionAdapter	= new ConnectionAdapter();
 
 	/**
 	 * Constructs that creates a JSON deserialization handler
@@ -65,9 +65,7 @@ public abstract class PullDeserializer extends Debug implements FieldTypes
 	 * @param translationContext
 	 *          used for graph handling
 	 */
-	public PullDeserializer(
-			SimplTypesScope translationScope,
-			TranslationContext translationContext,
+	public PullDeserializer(SimplTypesScope translationScope, TranslationContext translationContext,
 			DeserializationHookStrategy deserializationHookStrategy)
 	{
 		this.translationScope = translationScope;
@@ -87,7 +85,7 @@ public abstract class PullDeserializer extends Debug implements FieldTypes
 		{
 			FileInputStream fileInputStream = new FileInputStream(file);
 			BufferedInputStream bufferedStream = new BufferedInputStream(fileInputStream);
-			
+
 			this.translationContext.setBaseDirFile(file.getParentFile());
 
 			Object object = parse(bufferedStream);
@@ -192,11 +190,10 @@ public abstract class PullDeserializer extends Debug implements FieldTypes
 	 * @return
 	 * @throws SIMPLTranslationException
 	 */
-	public static PullDeserializer getDeserializer(
-			SimplTypesScope translationScope,
+	public static PullDeserializer getDeserializer(SimplTypesScope translationScope,
 			TranslationContext translationContext,
-			DeserializationHookStrategy deserializationHookStrategy,
-			Format format) throws SIMPLTranslationException
+			DeserializationHookStrategy deserializationHookStrategy, Format format)
+			throws SIMPLTranslationException
 	{
 		switch (format)
 		{
@@ -239,11 +236,10 @@ public abstract class PullDeserializer extends Debug implements FieldTypes
 	 * @return
 	 * @throws SIMPLTranslationException
 	 */
-	public static StringPullDeserializer getStringDeserializer(
-			SimplTypesScope translationScope,
+	public static StringPullDeserializer getStringDeserializer(SimplTypesScope translationScope,
 			TranslationContext translationContext,
-			DeserializationHookStrategy deserializationHookStrategy,
-			StringFormat stringFormat) throws SIMPLTranslationException
+			DeserializationHookStrategy deserializationHookStrategy, StringFormat stringFormat)
+			throws SIMPLTranslationException
 	{
 		switch (stringFormat)
 		{
@@ -283,11 +279,10 @@ public abstract class PullDeserializer extends Debug implements FieldTypes
 	 * @return
 	 * @throws SIMPLTranslationException
 	 */
-	public static BinaryPullDeserializer getBinaryDeserializer(
-			SimplTypesScope translationScope,
+	public static BinaryPullDeserializer getBinaryDeserializer(SimplTypesScope translationScope,
 			TranslationContext translationContext,
-			DeserializationHookStrategy deserializationHookStrategy,
-			BinaryFormat binaryFormat) throws SIMPLTranslationException
+			DeserializationHookStrategy deserializationHookStrategy, BinaryFormat binaryFormat)
+			throws SIMPLTranslationException
 	{
 		switch (binaryFormat)
 		{
