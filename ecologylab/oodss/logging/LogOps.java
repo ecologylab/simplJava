@@ -2,9 +2,9 @@ package ecologylab.oodss.logging;
 
 import ecologylab.serialization.ElementState;
 import ecologylab.serialization.SIMPLTranslationException;
-import ecologylab.serialization.StringFormat;
 import ecologylab.serialization.SimplTypesScope;
 import ecologylab.serialization.annotations.simpl_inherit;
+import ecologylab.serialization.formatenums.StringFormat;
 
 /**
  * Bundle a sequence of {@link MixedInitiativeOp MixedInitiativeOp}s, and send them to the logging

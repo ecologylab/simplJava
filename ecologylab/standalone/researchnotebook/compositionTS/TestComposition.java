@@ -9,10 +9,10 @@ import java.util.ArrayList;
 import java.util.Calendar;
 
 import ecologylab.serialization.ElementState;
-import ecologylab.serialization.Format;
 import ecologylab.serialization.SIMPLTranslationException;
-import ecologylab.serialization.StringFormat;
 import ecologylab.serialization.SimplTypesScope;
+import ecologylab.serialization.formatenums.Format;
+import ecologylab.serialization.formatenums.StringFormat;
 import ecologylab.standalone.researchnotebook.testxml.Image;
 import ecologylab.standalone.researchnotebook.testxml.SiteSet;
 

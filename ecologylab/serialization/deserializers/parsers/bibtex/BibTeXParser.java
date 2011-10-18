@@ -9,9 +9,9 @@ import ecologylab.serialization.ElementState;
 import ecologylab.serialization.FieldTypes;
 import ecologylab.serialization.SIMPLTranslationException;
 import ecologylab.serialization.SimplTypesScope;
-import ecologylab.serialization.StringFormat;
 import ecologylab.serialization.deserializers.parsers.bibtex.entrytypes.AbstractBibTeXEntry;
 import ecologylab.serialization.deserializers.parsers.bibtex.entrytypes.BibTeXInProceedings;
+import ecologylab.serialization.formatenums.StringFormat;
 
 /**
  * The BibTeX parser class.

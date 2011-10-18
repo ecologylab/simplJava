@@ -40,8 +40,8 @@ import ecologylab.appframework.types.prefs.ValueChangedListener;
 import ecologylab.collections.Scope;
 import ecologylab.generic.Debug;
 import ecologylab.net.ParsedURL;
-import ecologylab.serialization.Format;
 import ecologylab.serialization.SimplTypesScope;
+import ecologylab.serialization.formatenums.Format;
 
 /**
  * Contains methods for creating widgets associated with Prefs.

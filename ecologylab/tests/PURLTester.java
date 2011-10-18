@@ -8,11 +8,11 @@ import java.net.URL;
 
 import ecologylab.net.ParsedURL;
 import ecologylab.serialization.ElementState;
-import ecologylab.serialization.Format;
 import ecologylab.serialization.SimplTypesScope;
 import ecologylab.serialization.annotations.Hint;
 import ecologylab.serialization.annotations.simpl_hints;
 import ecologylab.serialization.annotations.simpl_scalar;
+import ecologylab.serialization.formatenums.Format;
 
 public class PURLTester extends ElementState
 {

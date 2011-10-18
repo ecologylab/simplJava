@@ -6,15 +6,16 @@ import java.util.HashMap;
 import ecologylab.serialization.ClassDescriptor;
 import ecologylab.serialization.FieldDescriptor;
 
-public class MultiMap<T,S extends Object> {
+public class MultiMap<T, S extends Object>
+{
 
-	private HashMap<T,ArrayList<S>> map;
-	
+	private HashMap<T, ArrayList<S>>	map;
+
 	public MultiMap()
 	{
-		map = new HashMap<T,ArrayList<S>>();
+		map = new HashMap<T, ArrayList<S>>();
 	}
-	
+
 	/**
 	 * method to add the given key, value pair into the multimap
 	 * 
@@ -22,18 +23,19 @@ public class MultiMap<T,S extends Object> {
 	 * @param value
 	 * @return whether the item is successfully added to the collection
 	 */
-	public boolean put(T key,S value)
+	public boolean put(T key, S value)
 	{
-		if(!map.containsKey(key))
+		if (!map.containsKey(key))
 		{
 			ArrayList<S> collection = new ArrayList<S>(1);
 			collection.add(value);
-			map.put(key,collection);
+			map.put(key, collection);
 			return true;
-		}else
+		}
+		else
 		{
 			ArrayList<S> collection = map.get(key);
-			if(!containsValue(collection,value))
+			if (containsValue(collection, value) == -1)
 			{
 				collection.add(value);
 				return true;
@@ -41,26 +43,28 @@ public class MultiMap<T,S extends Object> {
 		}
 		return false;
 	}
-	
+
 	/**
 	 * method deciding whether the given key, value is present
-	 * 	
+	 * returns the ordered index in bucket array, else -1 
+	 * 
 	 * @param key
 	 * @param value
 	 * @return
 	 */
-	public boolean contains(T key,S value)
+	public int contains(T key, S value)
 	{
-		if(map.containsKey(key))
+		if (map.containsKey(key))
 		{
 			ArrayList<S> collection = map.get(key);
-			return containsValue(collection,value);
-		}else
+			return containsValue(collection, value);
+		}
+		else
 		{
-			return false;
+			return -1;
 		}
 	}
-	
+
 	/**
 	 * method return the size of the multimap
 	 * 
@@ -70,59 +74,65 @@ public class MultiMap<T,S extends Object> {
 	{
 		return map.size();
 	}
-	
+
 	/**
 	 * method returning the first item in the list corresponds to the given key
-	 * 	
+	 * 
 	 * @param key
 	 * @return
 	 */
 	public S get(T key)
 	{
-		if(map.containsKey(key))
+		if (map.containsKey(key))
 		{
 			return map.get(key).get(0);
 		}
 		return null;
 	}
-	
+
 	/**
 	 * method returns whether the given value is in the collection based on the equals operator
+	 * return -1 if not exists else the ordered index if it does. 
 	 * 
 	 * @param collection
 	 * @param value
 	 * @return
 	 */
-	private boolean containsValue(ArrayList<S> collection, S value)
+	private int containsValue(ArrayList<S> collection, S value)
 	{
-		ClassDescriptor<? extends FieldDescriptor> classDescriptor = ClassDescriptor.getClassDescriptor(value.getClass());
-		
-		if(classDescriptor.getStrictObjectGraphRequired())
+		ClassDescriptor<? extends FieldDescriptor> classDescriptor = ClassDescriptor
+				.getClassDescriptor(value.getClass());
+
+		int index = 0;
+		if (classDescriptor.getStrictObjectGraphRequired())
 		{
-			for(S item : collection)
+			for (S item : collection)
 			{
-				if(item == value)
+				if (item == value)
 				{
-					return true;
+					return index;
 				}
+				index ++;
 			}
-			return false;
-		}else
-		{
-			for(S item : collection)
-			{
-				if(item.equals(value))
-				{
-					return true;
-				}
-			}
-			return false;
+			return -1;
 		}
-	}	
-	
+		else
+		{
+			for (S item : collection)
+			{
+				if (item.equals(value))
+				{
+					return index;
+				}
+				index ++;
+			}
+			return -1;
+		}
+	}
+
 	public void clear()
 	{
 		map.clear();
 	}
-	
+
 }

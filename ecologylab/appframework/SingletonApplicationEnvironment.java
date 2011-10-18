@@ -24,9 +24,9 @@ import ecologylab.io.Files;
 import ecologylab.net.ParsedURL;
 import ecologylab.serialization.ClassDescriptor;
 import ecologylab.serialization.SIMPLTranslationException;
-import ecologylab.serialization.StringFormat;
 import ecologylab.serialization.SimplTypesScope;
 import ecologylab.serialization.XMLTranslationExceptionTypes;
+import ecologylab.serialization.formatenums.StringFormat;
 
 /**
  * An instance of Environment, which is an application, rather than an applet, or a servlet. The

@@ -6,9 +6,9 @@ package ecologylab.standalone;
 import java.io.File;
 
 import ecologylab.generic.Debug;
-import ecologylab.serialization.Format;
 import ecologylab.serialization.SIMPLTranslationException;
 import ecologylab.serialization.SimplTypesScope;
+import ecologylab.serialization.formatenums.Format;
 import ecologylab.serialization.library.jnlp.JnlpState;
 import ecologylab.serialization.library.jnlp.JnlpTranslations;
 

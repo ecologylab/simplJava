@@ -11,12 +11,12 @@ import ecologylab.appframework.types.prefs.PrefSet;
 import ecologylab.serialization.ElementState;
 import ecologylab.serialization.SIMPLTranslationException;
 import ecologylab.serialization.SimplTypesScope;
-import ecologylab.serialization.StringFormat;
 import ecologylab.serialization.TranslationContext;
 import ecologylab.serialization.annotations.simpl_collection;
 import ecologylab.serialization.annotations.simpl_nowrap;
 import ecologylab.serialization.annotations.simpl_scalar;
 import ecologylab.serialization.annotations.simpl_tag;
+import ecologylab.serialization.formatenums.StringFormat;
 
 /**
  * @author Zachary O. Toups (zach@ecologylab.net)

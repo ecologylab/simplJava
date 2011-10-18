@@ -6,10 +6,10 @@ package ecologylab.serialization.library.apple;
 import java.io.File;
 import java.io.IOException;
 
-import ecologylab.serialization.Format;
 import ecologylab.serialization.SIMPLTranslationException;
-import ecologylab.serialization.StringFormat;
 import ecologylab.serialization.SimplTypesScope;
+import ecologylab.serialization.formatenums.Format;
+import ecologylab.serialization.formatenums.StringFormat;
 
 /**
  * @author Zachary O. Toups (zach@ecologylab.net)

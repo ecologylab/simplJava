@@ -4,10 +4,10 @@ import java.io.File;
 import java.io.IOException;
 
 import ecologylab.serialization.ElementState;
-import ecologylab.serialization.Format;
 import ecologylab.serialization.SIMPLTranslationException;
 import ecologylab.serialization.SimplTypesScope;
 import ecologylab.serialization.annotations.simpl_scalar;
+import ecologylab.serialization.formatenums.Format;
 
 public class TestReferenceAndPrimitiveScalars extends ElementState
 {

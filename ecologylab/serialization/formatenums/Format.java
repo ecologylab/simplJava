@@ -1,4 +1,4 @@
-package ecologylab.serialization;
+package ecologylab.serialization.formatenums;
 
 public enum Format
 {

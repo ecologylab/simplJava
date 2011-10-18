@@ -7,6 +7,7 @@ import java.io.File;
 
 import ecologylab.oodss.exceptions.SaveFailedException;
 import ecologylab.serialization.annotations.simpl_inherit;
+import ecologylab.serialization.formatenums.Format;
 
 /**
  * This class is configured with a file path that serves as its backing store and provides a save()

@@ -5,9 +5,9 @@ package ecologylab.oodss.messages;
 
 import ecologylab.collections.Scope;
 import ecologylab.serialization.SIMPLTranslationException;
-import ecologylab.serialization.StringFormat;
 import ecologylab.serialization.SimplTypesScope;
 import ecologylab.serialization.annotations.simpl_scalar;
+import ecologylab.serialization.formatenums.StringFormat;
 
 /**
  * Request to start a new connection to a server. If the message has no sessionId value, then it is

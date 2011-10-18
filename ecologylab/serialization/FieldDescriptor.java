@@ -45,6 +45,7 @@ import ecologylab.serialization.annotations.simpl_scalar;
 import ecologylab.serialization.annotations.simpl_scope;
 import ecologylab.serialization.annotations.simpl_tag;
 import ecologylab.serialization.annotations.simpl_wrap;
+import ecologylab.serialization.formatenums.Format;
 import ecologylab.serialization.library.html.A;
 import ecologylab.serialization.library.html.Div;
 import ecologylab.serialization.library.html.Input;
@@ -1525,33 +1526,7 @@ public class FieldDescriptor extends DescriptorBase implements FieldTypes, IMapp
 		return collection;
 	}
 
-	/**
-	 * Based on the classOp in this, form a child element. Set it's parent field and elementByIdMap.
-	 * Look-up Optimizations for it, using the parent's Optimizations as the scope.
-	 * 
-	 * @param parent
-	 * @param tagName
-	 *          TODO
-	 * @param attributes
-	 * @return
-	 * @throws SIMPLTranslationException
-	 */
-	Object constructChildElementState(ElementState parent, String tagName, Attributes attributes,
-			TranslationContext graphContext) throws SIMPLTranslationException
-	{
-		ClassDescriptor childClassDescriptor = !isPolymorphic() ? elementClassDescriptor
-				: polymorphClassDescriptors.get(tagName);
-		Object result = null;
-		if (childClassDescriptor != null)
-		{
-			result = getInstance(attributes, childClassDescriptor, graphContext);
-			//
-			// if (result != null)
-			// result.setupInParent(parent, childClassDescriptor);
-		}
-		return result;
-	}
-
+	
 	public ClassDescriptor getChildClassDescriptor(String tagName)
 	{
 		ClassDescriptor childClassDescriptor = !isPolymorphic() ? elementClassDescriptor
@@ -1568,27 +1543,7 @@ public class FieldDescriptor extends DescriptorBase implements FieldTypes, IMapp
 		return childClassDescriptor;
 	}
 
-	private Object getInstance(Attributes attributes, ClassDescriptor childClassDescriptor,
-			TranslationContext graphContext) throws SIMPLTranslationException
-	{
-		Object result;
-
-		if (SimplTypesScope.graphSwitch == GRAPH_SWITCH.ON)
-		{
-			Object alreadyUnmarshalledObject = graphContext.getFromMap(attributes);
-
-			if (alreadyUnmarshalledObject != null)
-				result = alreadyUnmarshalledObject;
-			else
-				result = childClassDescriptor.getInstance();
-		}
-		else
-		{
-			result = childClassDescriptor.getInstance();
-		}
-
-		return result;
-	}
+	
 
 	Object constructChildElementState(ElementState parent, String tagName)
 			throws SIMPLTranslationException

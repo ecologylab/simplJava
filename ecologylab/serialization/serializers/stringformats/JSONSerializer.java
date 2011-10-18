@@ -7,12 +7,12 @@ import java.util.Collection;
 import ecologylab.serialization.ClassDescriptor;
 import ecologylab.serialization.FieldDescriptor;
 import ecologylab.serialization.FieldTypes;
-import ecologylab.serialization.Format;
 import ecologylab.serialization.SIMPLTranslationException;
 import ecologylab.serialization.TranslationContext;
 import ecologylab.serialization.SimplTypesScope;
 import ecologylab.serialization.XMLTools;
 import ecologylab.serialization.SimplTypesScope.GRAPH_SWITCH;
+import ecologylab.serialization.formatenums.Format;
 
 /***
  * JSONSerializaton. Guides serialization of data in JSON. Contains code that is specific to
@@ -68,7 +68,7 @@ public class JSONSerializer extends StringSerializer implements FieldTypes
 	{
 		if (alreadySerialized(object, translationContext))
 		{
-			writeSimplRef(object, rootObjectFieldDescriptor, withTag, appendable);
+			writeSimplRef(object, rootObjectFieldDescriptor, withTag, appendable, translationContext);
 			return;
 		}
 
@@ -421,21 +421,21 @@ public class JSONSerializer extends StringSerializer implements FieldTypes
 	 * @throws IOException
 	 */
 	private void writeSimplRef(Object object, FieldDescriptor fd, boolean withTag,
-			Appendable appendable) throws IOException
+			Appendable appendable, TranslationContext translationContext) throws IOException
 	{
 		writeObjectStart(fd, appendable, withTag);
-		writeSimplRefAttribute(object, appendable);
+		writeSimplRefAttribute(object, appendable, translationContext);
 		writeClose(appendable);
 	}
 
-	private void writeSimplRefAttribute(Object object, Appendable appendable) throws IOException
+	private void writeSimplRefAttribute(Object object, Appendable appendable, TranslationContext translationContext) throws IOException
 	{
 		appendable.append('"');
 		appendable.append(TranslationContext.JSON_SIMPL_REF);
 		appendable.append('"');
 		appendable.append(':');
 		appendable.append('"');
-		appendable.append(((Integer) object.hashCode()).toString());
+		appendable.append(translationContext.getSimplId(object));
 		appendable.append('"');
 	}
 
