@@ -13,9 +13,9 @@ import ecologylab.serialization.ElementState;
 import ecologylab.serialization.FieldDescriptor;
 import ecologylab.serialization.FieldTypes;
 import ecologylab.serialization.SIMPLTranslationException;
-import ecologylab.serialization.StringFormat;
 import ecologylab.serialization.SimplTypesScope;
 import ecologylab.serialization.XMLTools;
+import ecologylab.serialization.formatenums.StringFormat;
 import ecologylab.translators.net.DotNetTranslationException;
 
 public class JavascriptTranslator
