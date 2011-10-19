@@ -137,7 +137,16 @@ public class BibtexSerializer extends StringSerializer implements FieldTypes
 
 		if (compositeAsScalarFD != null)
 		{
-			writeBibtexAttribute(compositeObject, fd, appendable, translationContext);
+			writeScalarBibtexAttribute(compositeObject, compositeAsScalarFD, appendable, translationContext);
+		}
+	}
+
+	private void writeScalarBibtexAttribute(Object object, FieldDescriptor fd, Appendable appendable,
+			TranslationContext translationContext) throws SIMPLTranslationException
+	{
+		if (!fd.isDefaultValueFromContext(object))
+		{
+			fd.appendValue(appendable, object, translationContext, Format.BIBTEX);
 		}
 	}
 
@@ -182,7 +191,8 @@ public class BibtexSerializer extends StringSerializer implements FieldTypes
 			TranslationContext translationContext, FieldDescriptor fd) throws IOException,
 			SIMPLTranslationException
 	{
-		Collection<?> scalarCollection = XMLTools.getCollection(object);
+		Object scalarCollectionObject = fd.getObject(object);
+		Collection<?> scalarCollection = XMLTools.getCollection(scalarCollectionObject);
 
 		if (scalarCollection.size() > 0)
 		{
@@ -196,7 +206,8 @@ public class BibtexSerializer extends StringSerializer implements FieldTypes
 
 				if (compositeAsScalarFD != null)
 				{
-					writeBibtexAttribute(collectionObject, fd, appendable, translationContext);
+					writeScalarBibtexAttribute(collectionObject, compositeAsScalarFD, appendable,
+							translationContext);
 				}
 
 				if (++numberOfItems < scalarCollection.size())

@@ -207,6 +207,7 @@ public abstract class PullDeserializer extends Debug implements FieldTypes
 			return new TLVPullDeserializer(translationScope, translationContext,
 					deserializationHookStrategy);
 		case BIBTEX:
+			
 		default:
 			throw new SIMPLTranslationException(format + " format not supported");
 		}
