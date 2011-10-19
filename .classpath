@@ -6,7 +6,6 @@
 	<classpathentry combineaccessrules="false" kind="src" path="/ecologylabFundamental"/>
 	<classpathentry kind="lib" path="lib/javaparser-1.0.8.jar"/>
 	<classpathentry kind="lib" path="lib/junit.jar"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/jtidy"/>
 	<classpathentry kind="lib" path="lib/postgresql-8.4-701.jdbc4.jar"/>
 	<classpathentry kind="lib" path="lib/pg73jdbc3.jar"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/ecologylabGeneratedSemantics"/>
