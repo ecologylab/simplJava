@@ -278,9 +278,9 @@ public class JSONPullDeserializer extends StringPullDeserializer
 			jp.nextToken();
 		}
 
-		// root.deserializationPostHook();
-		// if (deserializationHookStrategy != null)
-		// deserializationHookStrategy.deserializationPostHook(root, currentFieldDescriptor);
+		deserializationPostHook(root, translationContext);
+		if (deserializationHookStrategy != null)
+			deserializationHookStrategy.deserializationPostHook(root, null);
 	}
 
 	/**
@@ -316,6 +316,10 @@ public class JSONPullDeserializer extends StringPullDeserializer
 						.getChildClassDescriptor(tagName);
 
 				subRoot = subRootClassDescriptor.getInstance();
+				
+				deserializationPreHook(subRoot, translationContext);
+				if (deserializationHookStrategy != null)
+					deserializationHookStrategy.deserializationPreHook(subRoot, currentFieldDescriptor);
 
 				createObjectModel(subRoot, subRootClassDescriptor);
 			}
