@@ -128,7 +128,7 @@ public class DotNetTranslator extends AbstractCodeTranslator implements DotNetTr
 	{
 		HashMapArrayList<String, ? extends FieldDescriptor> fieldDescriptors =
 				inputClass.getDeclaredFieldDescriptorsByFieldName();
-		inputClass.resolveUnresolvedScopeAnnotationFDs();
+		inputClass.resolvePolymorphicAnnotations();
 		currentClassDependencies = new HashSet<String>(globalDependencies);
 
 		StringBuilder classBody = StringBuilderUtils.acquire();

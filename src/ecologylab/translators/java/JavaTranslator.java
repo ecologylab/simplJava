@@ -127,7 +127,7 @@ public class JavaTranslator extends AbstractCodeTranslator implements JavaTransl
 	{
 		HashMapArrayList<String, ? extends FieldDescriptor> fieldDescriptors =
 				inputClass.getDeclaredFieldDescriptorsByFieldName();
-		inputClass.resolveUnresolvedScopeAnnotationFDs();
+		inputClass.resolvePolymorphicAnnotations();
 		currentClassDependencies = new HashSet<String>(globalDependencies);
 
 		StringBuilder classBody = StringBuilderUtils.acquire();

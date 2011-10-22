@@ -168,7 +168,7 @@ public class HibernateXmlMappingGenerator extends Debug
 		thatClass.setTable(dbNameGenerator.getTableName(cd));
 
 		thatClass.setProperties(new HashMapArrayList<String, HibernateFieldBase>());
-		cd.resolveUnresolvedScopeAnnotationFDs();
+		cd.resolvePolymorphicAnnotations();
 		for (Object fdObj : cd.getDeclaredFieldDescriptorsByFieldName().values())
 		{
 			FieldDescriptor fd = (FieldDescriptor) fdObj;

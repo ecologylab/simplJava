@@ -230,7 +230,7 @@ public class CocoaTranslator
 		
 		if (fieldDescriptors.size() > 0)
 		{
-			classDescriptor.resolveUnresolvedScopeAnnotationFDs();
+			classDescriptor.resolvePolymorphicAnnotations();
 
 			openFieldDeclartion(appendable);
 
