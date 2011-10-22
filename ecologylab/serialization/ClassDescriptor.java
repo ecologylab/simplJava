@@ -2,6 +2,7 @@ package ecologylab.serialization;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
+import java.lang.reflect.Type;
 import java.lang.reflect.TypeVariable;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -12,6 +13,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.Map.Entry;
 
+import sun.reflect.generics.reflectiveObjects.ParameterizedTypeImpl;
 import ecologylab.generic.HashMapArrayList;
 import ecologylab.generic.ReflectionTools;
 import ecologylab.serialization.annotations.Hint;
@@ -67,7 +69,8 @@ public class ClassDescriptor<FD extends FieldDescriptor> extends DescriptorBase 
 	private ClassDescriptor<? extends FieldDescriptor>																superClass;
 
 	@simpl_collection("interface")
-	@simpl_other_tags("inerface") // handle spelling error that was here
+	@simpl_other_tags("inerface")
+	// handle spelling error that was here
 	private ArrayList<String>																													interfaces;
 
 	/**
@@ -146,10 +149,10 @@ public class ClassDescriptor<FD extends FieldDescriptor> extends DescriptorBase 
 	private boolean																																		strictObjectGraphRequired						= false;
 
 	public Class<?>																																		fdClass;
-	
+
 	@simpl_collection("generic_type_var")
-	private ArrayList<GenericTypeVar>																									genericTypeVars = new ArrayList<GenericTypeVar>();
-	
+	private ArrayList<GenericTypeVar>																									genericTypeVars											= null;
+
 	static
 	{
 		TypeRegistry.init();
@@ -256,9 +259,40 @@ public class ClassDescriptor<FD extends FieldDescriptor> extends DescriptorBase 
 			{
 				String typeClassName = typeVariable.getName();
 				genericTypeVariables.add(typeClassName);
-				
-				//GenericTypeVar g = getGenericTypeVar(typeVariable);					
-				//this.genericTypeVars.add(g);
+			}
+		}
+	}
+
+	/**
+	 * lazy-evaluation method. 
+	 * @return
+	 */
+	public ArrayList<GenericTypeVar> getGenricTypeVars()
+	{
+		if (genericTypeVars == null)
+		{
+			synchronized (this)
+			{
+				if (genericTypeVars == null)
+				{
+					genericTypeVars = new ArrayList<GenericTypeVar>();
+					deriveGenericTypeVariables();
+				}				
+			}			
+		}
+		
+		return genericTypeVars;
+	}
+
+	private void deriveGenericTypeVariables()
+	{
+		TypeVariable<?>[] typeVariables = describedClass.getTypeParameters();
+		if (typeVariables != null && typeVariables.length > 0)
+		{
+			for (TypeVariable<?> typeVariable : typeVariables)
+			{
+				GenericTypeVar g = getGenericTypeVar(typeVariable);
+				this.genericTypeVars.add(g);
 			}
 		}
 	}
@@ -267,6 +301,32 @@ public class ClassDescriptor<FD extends FieldDescriptor> extends DescriptorBase 
 	{
 		GenericTypeVar g = new GenericTypeVar();
 		g.name = typeVariable.getName();
+		
+		//resolve constraints 
+		Type[] bounds = typeVariable.getBounds();
+		if (bounds != null)
+		{
+			Type bound = bounds[0];
+			if (bound instanceof Class<?>)
+			{
+				Class<?> boundClass = (Class<?>) bound;
+				g.classDescriptor = ClassDescriptor.getClassDescriptor(boundClass);
+			}
+			else
+			{
+				if (bound instanceof ParameterizedTypeImpl)
+				{
+					ParameterizedTypeImpl parmeterizedType = (ParameterizedTypeImpl) bound;
+					g.classDescriptor = ClassDescriptor.getClassDescriptor(parmeterizedType.getRawType());
+					Type[] typeVarialbes = parmeterizedType.getActualTypeArguments();
+					if (typeVariable != null && typeVarialbes.length > 0)
+					{
+						TypeVariable<?> t = (TypeVariable<?>) typeVarialbes[0];
+						g.boundsGenericTypeVar = getGenericTypeVar(t);
+					}
+				}
+			}
+		}
 		return g;
 	}
 
@@ -661,10 +721,10 @@ public class ClassDescriptor<FD extends FieldDescriptor> extends DescriptorBase 
 		{
 			elementFieldDescriptors.add(fieldDescriptor);
 		}
-		
-		if(superClassDescriptor.getUnresolvedScopeAnnotationFDs() != null)
+
+		if (superClassDescriptor.getUnresolvedScopeAnnotationFDs() != null)
 		{
-			for(FD fd : superClassDescriptor.getUnresolvedScopeAnnotationFDs())
+			for (FD fd : superClassDescriptor.getUnresolvedScopeAnnotationFDs())
 			{
 				this.registerUnresolvedScopeAnnotationFD(fd);
 			}
@@ -1047,7 +1107,8 @@ public class ClassDescriptor<FD extends FieldDescriptor> extends DescriptorBase 
 			if (fd.isNested() || (fd.isCollection()))
 			{
 				ClassDescriptor elementClassDescriptor = fd.getElementClassDescriptor();
-				if (elementClassDescriptor != null && TypeRegistry.getScalarTypeByName(elementClassDescriptor.getDescribedClassName()) == null)
+				if (elementClassDescriptor != null
+						&& TypeRegistry.getScalarTypeByName(elementClassDescriptor.getDescribedClassName()) == null)
 					result.add(elementClassDescriptor);
 
 				Collection<ClassDescriptor> polyClassDescriptors = fd.getPolymorphicClassDescriptors();
@@ -1119,16 +1180,16 @@ public class ClassDescriptor<FD extends FieldDescriptor> extends DescriptorBase 
 		if (metaInfo == null)
 		{
 			metaInfo = new ArrayList<MetaInformation>();
-			
+
 			// @simpl_inherit
 			if (superClass != null)
 				metaInfo.add(new MetaInformation(simpl_inherit.class));
-		
+
 			// @simpl_tag
 			String autoTagName = XMLTools.getXmlTagName(getDescribedClassSimpleName(), null);
 			if (tagName != null && !tagName.equals("") && !tagName.equals(autoTagName))
 				metaInfo.add(new MetaInformation(simpl_tag.class, false, tagName));
-			
+
 			// @simpl_other_tags
 			ArrayList<String> otherTags = otherTags();
 			if (otherTags != null && otherTags.size() > 0)
@@ -1136,5 +1197,5 @@ public class ClassDescriptor<FD extends FieldDescriptor> extends DescriptorBase 
 		}
 		return metaInfo;
 	}
-	
+
 }
