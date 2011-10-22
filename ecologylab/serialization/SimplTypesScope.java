@@ -1336,7 +1336,7 @@ public final class SimplTypesScope extends ElementState
 
 		if (fieldDescriptors.size() > 0)
 		{
-			thatClassDescriptor.resolveUnresolvedScopeAnnotationFDs();
+			thatClassDescriptor.resolvePolymorphicAnnotations();
 
 			for (FieldDescriptor fieldDescriptor : fieldDescriptors)
 			{
@@ -1476,7 +1476,7 @@ public final class SimplTypesScope extends ElementState
 
 		if (fieldDescriptors.size() > 0)
 		{
-			thatClass.resolveUnresolvedScopeAnnotationFDs();
+			thatClass.resolvePolymorphicAnnotations();
 
 			for (FieldDescriptor fieldDescriptor : fieldDescriptors)
 			{

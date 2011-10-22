@@ -136,6 +136,8 @@ public class ClassDescriptor<FD extends FieldDescriptor> extends DescriptorBase 
 
 	private ArrayList<FD>																															unresolvedScopeAnnotationFDs;
 
+	private ArrayList<FD>																															unresolvedClassesAnnotationFDs;
+
 	private String																																		bibtexType													= "";
 
 	@simpl_collection("generic_type_variable")
@@ -264,7 +266,8 @@ public class ClassDescriptor<FD extends FieldDescriptor> extends DescriptorBase 
 	}
 
 	/**
-	 * lazy-evaluation method. 
+	 * lazy-evaluation method.
+	 * 
 	 * @return
 	 */
 	public ArrayList<GenericTypeVar> getGenricTypeVars()
@@ -277,10 +280,10 @@ public class ClassDescriptor<FD extends FieldDescriptor> extends DescriptorBase 
 				{
 					genericTypeVars = new ArrayList<GenericTypeVar>();
 					deriveGenericTypeVariables();
-				}				
-			}			
+				}
+			}
 		}
-		
+
 		return genericTypeVars;
 	}
 
@@ -301,8 +304,8 @@ public class ClassDescriptor<FD extends FieldDescriptor> extends DescriptorBase 
 	{
 		GenericTypeVar g = new GenericTypeVar();
 		g.name = typeVariable.getName();
-		
-		//resolve constraints 
+
+		// resolve constraints
 		Type[] bounds = typeVariable.getBounds();
 		if (bounds != null)
 		{
@@ -466,6 +469,9 @@ public class ClassDescriptor<FD extends FieldDescriptor> extends DescriptorBase 
 	{
 		if (unresolvedScopeAnnotationFDs != null)
 			resolveUnresolvedScopeAnnotationFDs();
+		
+		if (unresolvedClassesAnnotationFDs != null)
+			resolveUnresolvedClassesAnnotationFDs();
 
 		return allFieldDescriptorsByTagNames.get(tag);
 	}
@@ -479,6 +485,9 @@ public class ClassDescriptor<FD extends FieldDescriptor> extends DescriptorBase 
 	{
 		if (unresolvedScopeAnnotationFDs != null)
 			resolveUnresolvedScopeAnnotationFDs();
+		
+		if (unresolvedClassesAnnotationFDs != null)
+			resolveUnresolvedClassesAnnotationFDs();
 
 		return allFieldDescriptorsByTLVIds.get(tlvId);
 	}
@@ -729,6 +738,14 @@ public class ClassDescriptor<FD extends FieldDescriptor> extends DescriptorBase 
 				this.registerUnresolvedScopeAnnotationFD(fd);
 			}
 		}
+		
+		if (superClassDescriptor.getUnresolvedClassesAnnotationFDs() != null)
+		{
+			for (FD fd : superClassDescriptor.getUnresolvedClassesAnnotationFDs())
+			{
+				this.registerUnresolvedClassesAnnotationFD(fd);
+			}
+		}
 	}
 
 	protected void mapOtherTagsToFdForDeserialize(FD fieldDescriptor, ArrayList<String> otherTags)
@@ -966,6 +983,11 @@ public class ClassDescriptor<FD extends FieldDescriptor> extends DescriptorBase 
 	{
 		return this.unresolvedScopeAnnotationFDs;
 	}
+	
+	public ArrayList<FD> getUnresolvedClassesAnnotationFDs()
+	{
+		return this.unresolvedClassesAnnotationFDs;
+	}
 
 	public String getSuperClassName()
 	{
@@ -1006,9 +1028,28 @@ public class ClassDescriptor<FD extends FieldDescriptor> extends DescriptorBase 
 		unresolvedScopeAnnotationFDs.add(fd);
 	}
 
+	void registerUnresolvedClassesAnnotationFD(FD fd)
+	{
+		if (unresolvedClassesAnnotationFDs == null)
+		{
+			synchronized (this)
+			{
+				if (unresolvedClassesAnnotationFDs == null)
+					unresolvedClassesAnnotationFDs = new ArrayList<FD>();
+			}
+		}
+		unresolvedClassesAnnotationFDs.add(fd);
+	}
+
 	/**
 	 * Late evaluation of @serial_scope, if it failed the first time around.
 	 */
+	public void resolvePolymorphicAnnotations()
+	{
+		resolveUnresolvedScopeAnnotationFDs();
+		resolveUnresolvedClassesAnnotationFDs();
+	}
+	
 	public void resolveUnresolvedScopeAnnotationFDs()
 	{
 		if (unresolvedScopeAnnotationFDs != null)
@@ -1021,6 +1062,23 @@ public class ClassDescriptor<FD extends FieldDescriptor> extends DescriptorBase 
 			}
 		}
 		unresolvedScopeAnnotationFDs = null;
+	}
+	
+	/**
+	 * Late evaluation of @serial_scope, if it failed the first time around.
+	 */
+	public void resolveUnresolvedClassesAnnotationFDs()
+	{
+		if (unresolvedClassesAnnotationFDs != null)
+		{
+			for (int i = unresolvedClassesAnnotationFDs.size() - 1; i >= 0; i--)
+			{
+				FieldDescriptor fd = unresolvedClassesAnnotationFDs.remove(i);
+				fd.resolveUnresolvedClassesAnnotation();
+				this.mapPolymorphicClassDescriptors((FD) fd);
+			}
+		}
+		unresolvedClassesAnnotationFDs = null;
 	}
 
 	/**

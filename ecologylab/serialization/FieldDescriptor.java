@@ -65,15 +65,17 @@ import ecologylab.serialization.types.element.IMappable;
  */
 @SuppressWarnings("rawtypes")
 @simpl_inherit
-public class FieldDescriptor extends DescriptorBase implements FieldTypes, IMappable<String>, Cloneable
+public class FieldDescriptor extends DescriptorBase implements FieldTypes, IMappable<String>,
+		Cloneable
 {
 
-	public static final String												NULL											= ScalarType.DEFAULT_VALUE_STRING;
+	public static final String												NULL												= ScalarType.DEFAULT_VALUE_STRING;
 
-	public static final Class[]												SET_METHOD_STRING_ARG			= { String.class };
+	public static final Class[]												SET_METHOD_STRING_ARG				=
+																																								{ String.class };
 
 	@simpl_scalar
-	protected Field																		field;																												// TODO
+	protected Field																		field;																													// TODO
 
 	/**
 	 * For nested elements, and collections or maps of nested elements. The class descriptor
@@ -96,18 +98,16 @@ public class FieldDescriptor extends DescriptorBase implements FieldTypes, IMapp
 
 	@simpl_scalar
 	protected boolean																	isGeneric;
-	
+
 	/**
-	 * For composite or collection fields declared with generic type variables,
-	 * this field stores the binding to the resolved generic type from the ClassDescriptor.
+	 * For composite or collection fields declared with generic type variables, this field stores the
+	 * binding to the resolved generic type from the ClassDescriptor.
 	 * <p/>
-	 * Note: this will require cloning this during inheritance, when subtypes instantiate
-	 * the generic type var(s) with different values.
+	 * Note: this will require cloning this during inheritance, when subtypes instantiate the generic
+	 * type var(s) with different values.
 	 */
 	@simpl_collection("generic_type_var")
-	private ArrayList<GenericTypeVar>								genericTypeVars;
-	
-
+	private ArrayList<GenericTypeVar>									genericTypeVars;
 
 	// ///////////////// next fields are for polymorphic fields
 	// ////////////////////////////////////////
@@ -129,9 +129,10 @@ public class FieldDescriptor extends DescriptorBase implements FieldTypes, IMapp
 	@simpl_map("polymorph_class")
 	private HashMap<String, Class>										polymorphClasses;
 
-	@Deprecated // we now use the package name to infer namespaces.
+	@Deprecated
+	// we now use the package name to infer namespaces.
 	@simpl_map("library_namespace")
-	private HashMap<String, String>										libraryNamespaces					= new HashMap<String, String>();
+	private HashMap<String, String>										libraryNamespaces						= new HashMap<String, String>();
 
 	@simpl_scalar
 	private int																				type;
@@ -175,8 +176,9 @@ public class FieldDescriptor extends DescriptorBase implements FieldTypes, IMapp
 
 	private HashMap<Integer, ClassDescriptor>					tlvClassDescriptors;
 
-	@simpl_scalar
-	private String																		unresolvedScopeAnnotation	= null;
+	private String																		unresolvedScopeAnnotation		= null;
+
+	private Class[]																		unresolvedClassesAnnotation	= null;
 
 	/**
  * 
@@ -196,9 +198,9 @@ public class FieldDescriptor extends DescriptorBase implements FieldTypes, IMapp
 
 	private Method																		setValueMethod;
 
-	private String																		bibtexTag									= "";
+	private String																		bibtexTag										= "";
 
-	private boolean																		isBibtexKey								= false;
+	private boolean																		isBibtexKey									= false;
 
 	@simpl_scalar
 	private String																		fieldType;
@@ -206,14 +208,14 @@ public class FieldDescriptor extends DescriptorBase implements FieldTypes, IMapp
 	@simpl_scalar
 	protected String																	genericParametersString;
 
-	private ArrayList<ClassDescriptor>								dependencies							= new ArrayList<ClassDescriptor>();
-	
+	private ArrayList<ClassDescriptor>								dependencies								= new ArrayList<ClassDescriptor>();
+
 	/**
 	 * if is null, this field is not a cloned one. <br />
 	 * if not null, refers to the descriptor that this field is cloned from.
 	 */
 	private FieldDescriptor														clonedFrom;
-	
+
 	/**
 	 * Default constructor only for use by translateFromXML().
 	 */
@@ -387,13 +389,15 @@ public class FieldDescriptor extends DescriptorBase implements FieldTypes, IMapp
 				.value();
 		if ((classesAnnotation != null) && (classesAnnotation.length > 0))
 		{
-			initPolymorphClassDescriptorsArrayList(classesAnnotation.length);
-			for (Class thatClass : classesAnnotation)
-			{
-				ClassDescriptor classDescriptor = ClassDescriptor.getClassDescriptor(thatClass);
-				registerPolymorphicDescriptor(classDescriptor);
-				polymorphClasses.put(classDescriptor.getTagName(), classDescriptor.getDescribedClass());
-			}
+			unresolvedClassesAnnotation = classesAnnotation;
+			declaringClassDescriptor.registerUnresolvedClassesAnnotationFD(this);
+			// initPolymorphClassDescriptorsArrayList(classesAnnotation.length);
+			// for (Class thatClass : classesAnnotation)
+			// {
+			// ClassDescriptor classDescriptor = ClassDescriptor.getClassDescriptor(thatClass);
+			// registerPolymorphicDescriptor(classDescriptor);
+			// polymorphClasses.put(classDescriptor.getTagName(), classDescriptor.getDescribedClass());
+			// }
 		}
 		return polymorphClassDescriptors != null;
 	}
@@ -452,6 +456,27 @@ public class FieldDescriptor extends DescriptorBase implements FieldTypes, IMapp
 	}
 
 	/**
+	 * Generate tag -> class mappings for a @serial_scope declaration.
+	 * 
+	 * @param scopeAnnotation
+	 *          Name of the scope to lookup in the global space. Must be non-null.
+	 * 
+	 * @return true if the scope annotation is successfully resolved to a TranslationScope.
+	 */
+	private boolean resolveClassesAnnotation(Class[] classesAnnotation)
+	{
+
+		initPolymorphClassDescriptorsArrayList(classesAnnotation.length);
+		for (Class thatClass : classesAnnotation)
+		{
+			ClassDescriptor classDescriptor = ClassDescriptor.getClassDescriptor(thatClass);
+			registerPolymorphicDescriptor(classDescriptor);
+			polymorphClasses.put(classDescriptor.getTagName(), classDescriptor.getDescribedClass());
+		}
+		return true;
+	}
+
+	/**
 	 * If there is an unresolvedScopeAnnotation, because a scope had not yet been declared when a
 	 * ClassDescriptor that uses it was constructed, try again.
 	 * 
@@ -466,7 +491,27 @@ public class FieldDescriptor extends DescriptorBase implements FieldTypes, IMapp
 		if (result)
 		{
 			unresolvedScopeAnnotation = null;
-			//declaringClassDescriptor.mapPolymorphicClassDescriptors(this);
+			// declaringClassDescriptor.mapPolymorphicClassDescriptors(this);
+		}
+		return result;
+	}
+
+	/**
+	 * If there is an unresolvedScopeAnnotation, because a scope had not yet been declared when a
+	 * ClassDescriptor that uses it was constructed, try again.
+	 * 
+	 * @return
+	 */
+	boolean resolveUnresolvedClassesAnnotation()
+	{
+		if (unresolvedClassesAnnotation == null)
+			return true;
+
+		boolean result = resolveClassesAnnotation(unresolvedClassesAnnotation);
+		if (result)
+		{
+			unresolvedClassesAnnotation = null;
+			// declaringClassDescriptor.mapPolymorphicClassDescriptors(this);
 		}
 		return result;
 	}
@@ -1035,8 +1080,6 @@ public class FieldDescriptor extends DescriptorBase implements FieldTypes, IMapp
 			return value == null;
 	}
 
-	
-
 	public Object getValue(Object context)
 	{
 		Object value = null;
@@ -1148,8 +1191,6 @@ public class FieldDescriptor extends DescriptorBase implements FieldTypes, IMapp
 		}
 	}
 
-	
-
 	public String getHtmlCompositeCollectionValue(Object instance, boolean isFirst)
 			throws IllegalArgumentException, IllegalAccessException, IOException
 	{
@@ -1181,8 +1222,6 @@ public class FieldDescriptor extends DescriptorBase implements FieldTypes, IMapp
 			appendable.append('"');
 		}
 	}
-
-	
 
 	public boolean isCDATA()
 	{
@@ -1239,8 +1278,6 @@ public class FieldDescriptor extends DescriptorBase implements FieldTypes, IMapp
 		else
 			return polymorphClasses;
 	}
-
-	
 
 	public void writeHtmlWrap(boolean close, int size, String displayLabel, Tr tr) throws IOException
 	{
@@ -1526,7 +1563,6 @@ public class FieldDescriptor extends DescriptorBase implements FieldTypes, IMapp
 		return collection;
 	}
 
-	
 	public ClassDescriptor getChildClassDescriptor(String tagName)
 	{
 		ClassDescriptor childClassDescriptor = !isPolymorphic() ? elementClassDescriptor
@@ -1534,7 +1570,7 @@ public class FieldDescriptor extends DescriptorBase implements FieldTypes, IMapp
 
 		return childClassDescriptor;
 	}
-	
+
 	public ClassDescriptor getChildClassDescriptor(int tlvId)
 	{
 		ClassDescriptor childClassDescriptor = !isPolymorphic() ? elementClassDescriptor
@@ -1542,8 +1578,6 @@ public class FieldDescriptor extends DescriptorBase implements FieldTypes, IMapp
 
 		return childClassDescriptor;
 	}
-
-	
 
 	Object constructChildElementState(ElementState parent, String tagName)
 			throws SIMPLTranslationException
@@ -1628,7 +1662,7 @@ public class FieldDescriptor extends DescriptorBase implements FieldTypes, IMapp
 	 */
 	public boolean isPolymorphic()
 	{
-		return (polymorphClassDescriptors != null) || (unresolvedScopeAnnotation != null);
+		return (polymorphClassDescriptors != null) || (unresolvedScopeAnnotation != null) || (unresolvedClassesAnnotation != null);
 		// else return true;
 		// return tagClassDescriptors != null;
 	}
@@ -1909,14 +1943,14 @@ public class FieldDescriptor extends DescriptorBase implements FieldTypes, IMapp
 	{
 		return dependencies;
 	}
-	
+
 	public void addDependency(ClassDescriptor dependedClassD)
 	{
 		if (dependencies == null)
 			dependencies = new ArrayList<ClassDescriptor>();
 		dependencies.add(dependedClassD);
 	}
-	
+
 	public void addDependency(Class dependedClass)
 	{
 		// for those classes not SIMPL-enabled, this creates a surrogate class descriptor.
@@ -1937,8 +1971,9 @@ public class FieldDescriptor extends DescriptorBase implements FieldTypes, IMapp
 	@Override
 	public String getCSharpTypeName()
 	{
-		
-		String cSharpTypeName = elementClassDescriptor == null ? null : elementClassDescriptor.getCSharpTypeName();
+
+		String cSharpTypeName = elementClassDescriptor == null ? null : elementClassDescriptor
+				.getCSharpTypeName();
 		if (cSharpTypeName == null)
 			return scalarType.getCSharpTypeName();
 		else
@@ -1949,9 +1984,9 @@ public class FieldDescriptor extends DescriptorBase implements FieldTypes, IMapp
 				return possibleMapScalarType.getCSharpTypeName();
 			else
 				return cSharpTypeName;
-		} 
+		}
 	}
-	
+
 	@Override
 	public String getCSharpNamespace()
 	{
@@ -1962,7 +1997,7 @@ public class FieldDescriptor extends DescriptorBase implements FieldTypes, IMapp
 		else
 			return this.getElementClassDescriptor().getCSharpNamespace();
 	}
-	
+
 	@Override
 	public String getObjectiveCTypeName()
 	{
@@ -2039,7 +2074,7 @@ public class FieldDescriptor extends DescriptorBase implements FieldTypes, IMapp
 		return isPolymorphic() ? polymorphClassDescriptors.containsKey(tagName)
 				: collectionOrMapTagName.equals(tagName);
 	}
-	
+
 	/**
 	 * make a SHALLOW copy of this descriptor.
 	 */
@@ -2058,12 +2093,12 @@ public class FieldDescriptor extends DescriptorBase implements FieldTypes, IMapp
 		}
 		return cloned;
 	}
-	
+
 	public FieldDescriptor getDescriptorClonedFrom()
 	{
 		return clonedFrom;
 	}
-	
+
 	/**
 	 * @return The list of meta-information (annotations, attributes, etc.) for this field.
 	 */
@@ -2155,5 +2190,5 @@ public class FieldDescriptor extends DescriptorBase implements FieldTypes, IMapp
 		}
 		return metaInfo;
 	}
-	
+
 }
