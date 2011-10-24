@@ -193,6 +193,9 @@ public class BibtexSerializer extends StringSerializer implements FieldTypes
 	{
 		Object scalarCollectionObject = fd.getObject(object);
 		Collection<?> scalarCollection = XMLTools.getCollection(scalarCollectionObject);
+		
+		String delim = "author".equals(fd.getBibtexTagName()) ? " and " : translationContext
+				.getDelimiter();
 
 		if (scalarCollection.size() > 0)
 		{
@@ -211,7 +214,7 @@ public class BibtexSerializer extends StringSerializer implements FieldTypes
 				}
 
 				if (++numberOfItems < scalarCollection.size())
-					appendable.append(',');
+					appendable.append(delim);
 			}
 			writeCollectionEnd(appendable);
 		}
