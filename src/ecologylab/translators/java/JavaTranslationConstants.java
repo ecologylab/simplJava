@@ -1,5 +1,7 @@
 package ecologylab.translators.java;
 
+import ecologylab.serialization.SimplTypesScope;
+
 /**
  * this file declares various constants used by the translators for generating the right output
  * files.
@@ -167,7 +169,7 @@ public interface JavaTranslationConstants
 
 	public static final String	JAVA_OBJECT							= "Object";
 
-	public static final String	JAVA_TRANSLATION_SCOPE	= "TranslationScope";
+	public static final String	JAVA_TRANSLATION_SCOPE	= SimplTypesScope.class.getSimpleName();
 
 	/*
 	 * Collection types

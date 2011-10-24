@@ -1,5 +1,7 @@
 package ecologylab.translators.net;
 
+import ecologylab.serialization.SimplTypesScope;
+
 /**
  * General class file declares various constants used by the translators for generating the right
  * output files.
@@ -153,7 +155,7 @@ public interface DotNetTranslationConstants
 
 	public static final String	DOTNET_OBJECT							= "Object";
 
-	public static final String	DOTNET_TRANSLATION_SCOPE	= "TranslationScope";
+	public static final String	DOTNET_TRANSLATION_SCOPE	= SimplTypesScope.class.getSimpleName();
 
 	/*
 	 * Collection types

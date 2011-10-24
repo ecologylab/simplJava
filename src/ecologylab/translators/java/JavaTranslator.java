@@ -777,8 +777,8 @@ public class JavaTranslator extends AbstractCodeTranslator implements JavaTransl
 		bufferedWriter.append("\t};\n\n");
 
 		// write get() method
-		bufferedWriter.append("\tpublic static SimplTypesScope get()\n\t{\n");
-		bufferedWriter.append("\t\treturn SimplTypesScope.get(SemanticsNames.REPOSITORY_METADATA_TRANSLATIONS, MetadataBuiltinsTranslationScope.get(), TRANSLATIONS);\n");
+		bufferedWriter.append("\tpublic static ").append(JAVA_TRANSLATION_SCOPE).append(" get()\n\t{\n");
+		bufferedWriter.append("\t\treturn ").append(JAVA_TRANSLATION_SCOPE).append(".get(SemanticsNames.REPOSITORY_METADATA_TRANSLATIONS, MetadataBuiltinsTranslationScope.get(), TRANSLATIONS);\n");
 		bufferedWriter.append("\t}\n\n");
 
 		// end the class

@@ -22,6 +22,7 @@ public class MetaMetadataDotNetTranslator extends DotNetTranslator implements Mm
 
 	private static String[]			metaMetadataDefaultImports	= {
 		"ecologylab.semantics.metametadata",
+		"ecologylab.semantics.metadata.builtins",
 	};
 
 	public MetaMetadataDotNetTranslator()
@@ -31,7 +32,7 @@ public class MetaMetadataDotNetTranslator extends DotNetTranslator implements Mm
 			addGlobalDependency(importTarget);
 		}
 		
-		addLibraryTScopeDependency("ecologylab.semantics.metadata.builtins");
+//		addLibraryTScopeDependency("ecologylab.semantics.metadata.builtins");
 	}
 
 	@Override
