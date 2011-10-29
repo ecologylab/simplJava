@@ -19,6 +19,6 @@ public class GenericTypeVar extends Debug
 		@simpl_composite	
 		ClassDescriptor	classDescriptor;
 		
-		@simpl_scalar
+		@simpl_composite
 		GenericTypeVar	boundsGenericTypeVar;
 }
