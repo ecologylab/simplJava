@@ -21,4 +21,14 @@ public class GenericTypeVar extends Debug
 		
 		@simpl_composite
 		GenericTypeVar	boundsGenericTypeVar;
+		
+		public String toString()
+		{
+			// for debug
+			return String.format("<%s : %s (%s)>",
+					name,
+					classDescriptor == null ? "" : classDescriptor.toString(),
+					boundsGenericTypeVar == null ? "" : boundsGenericTypeVar.toString()
+			);
+		}
 }

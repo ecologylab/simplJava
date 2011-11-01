@@ -270,7 +270,7 @@ public class ClassDescriptor<FD extends FieldDescriptor> extends DescriptorBase 
 	 * 
 	 * @return
 	 */
-	public ArrayList<GenericTypeVar> getGenricTypeVars()
+	public ArrayList<GenericTypeVar> getGenericTypeVars()
 	{
 		if (genericTypeVars == null)
 		{
