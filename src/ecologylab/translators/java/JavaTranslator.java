@@ -21,6 +21,7 @@ import ecologylab.generic.HashMapArrayList;
 import ecologylab.semantics.html.utils.StringBuilderUtils;
 import ecologylab.serialization.ClassDescriptor;
 import ecologylab.serialization.FieldDescriptor;
+import ecologylab.serialization.GenericTypeVar;
 import ecologylab.serialization.MetaInformation;
 import ecologylab.serialization.MetaInformation.Argument;
 import ecologylab.serialization.SIMPLTranslationException;
@@ -293,19 +294,20 @@ public class JavaTranslator extends AbstractCodeTranslator implements JavaTransl
 	protected void appendGenericTypeVariables(Appendable appendable, ClassDescriptor inputClass)
 			throws IOException
 	{
-		// TODO currently generic parameters can only be done through reflection!
-		ArrayList<String> typeVariables = inputClass.getGenericTypeVariables();
-		if (typeVariables != null && typeVariables.size() > 0)
+		ArrayList<GenericTypeVar> genericTypeVars = inputClass.getGenericTypeVars();
+		if (genericTypeVars != null && genericTypeVars.size() > 0)
 		{
 			appendable.append('<');
-			int i = 0;
-			for (String typeVariable : typeVariables)
+			for (int i = 0; i < genericTypeVars.size(); ++i)
 			{
-				if (i == 0)
-					appendable.append(typeVariable);
-				else
-					appendable.append(", ").append(typeVariable);
-				i++;
+				if (i > 0)
+					appendable.append(", ");
+				GenericTypeVar genericTypeVar = genericTypeVars.get(i);
+				appendable.append(genericTypeVar.getName());
+				
+				ClassDescriptor classBound = genericTypeVar.getClassDescriptor();
+				if (classBound != null)
+					appendable.append(" extends ").append(classBound.getDescribedClassSimpleName());
 			}
 			appendable.append('>');
 		}
