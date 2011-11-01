@@ -23,17 +23,17 @@ public class CodeTranslatorConfig extends ElementState
 	@simpl_hints({Hint.XML_LEAF})
 	private String libraryTScopeClassSimpleName;
 
-	protected CodeTranslatorConfig()
+	public CodeTranslatorConfig()
 	{
 		this("library_tscope", "LibraryTranslationScope");
 	}
 	
-	protected CodeTranslatorConfig(String packageName)
+	public CodeTranslatorConfig(String packageName)
 	{
 		this(packageName, "LibraryTranslationScope");
 	}
 	
-	protected CodeTranslatorConfig(String packageName, String simpleName)
+	public CodeTranslatorConfig(String packageName, String simpleName)
 	{
 		libraryTScopeClassPackage = packageName;
 		libraryTScopeClassSimpleName = simpleName;
