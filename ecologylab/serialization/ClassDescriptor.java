@@ -333,6 +333,7 @@ public class ClassDescriptor<FD extends FieldDescriptor> extends DescriptorBase 
 		return g;
 	}
 
+	@Deprecated
 	public ArrayList<String> getGenericTypeVariables()
 	{
 		return genericTypeVariables;
