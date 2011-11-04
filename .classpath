@@ -10,5 +10,6 @@
 	<classpathentry kind="lib" path="lib/pg73jdbc3.jar"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/ecologylabGeneratedSemantics"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/ecologylabSemantics"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/MetaMetadataRepository"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

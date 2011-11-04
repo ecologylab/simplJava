@@ -67,7 +67,7 @@ public class CompilerConfig extends CodeTranslatorConfig
 	 */
 	@simpl_scalar
 	@simpl_hints({ Hint.XML_LEAF })
-	private File													repositoryLocation	= new File(MetaMetadataRepositoryInit.DEFAULT_REPOSITORY_LOCATION);
+	private File													repositoryLocation = MetaMetadataRepositoryInit.findRepositoryLocation();
 
 	/**
 	 * The format in which repository is stored.
