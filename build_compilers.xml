@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- requires: (1) ant4eclipse installed as an eclipse plugin; (2) ant-contrib installed; (3) jarsigner.exe be on the path -->
+
+<project name="MetaMetadataCompilers" default="build_compilers">
+	
+	<!-- Version Number for the release if any -->
+	<property name="app.version" value="2.0" />
+	
+	<!-- declare ant4eclipse -->
+	<taskdef resource="org/ant4eclipse/antlib.xml">
+		<classpath>
+			<pathelement location="${basedir}/../ecologylabFundamental/lib/org.ant4eclipse_1931.jar" />
+			<pathelement location="${basedir}/../ecologylabFundamental/lib/ecj-3.6.jar" />
+			<pathelement location="${basedir}/../ecologylabFundamental/lib/org.eclipse.osgi_3.6.0.v20100517.jar" />
+		</classpath>
+	</taskdef>
+		
+	<taskdef name="antform" classname="com.sardak.antform.AntForm" classpath="${basedir}/../ecologylabFundamental/lib/antform.jar"/>
+
+	<!-- optional: declare ant-contrib -->
+	<taskdef resource="net/sf/antcontrib/antlib.xml">
+		<classpath>
+			<pathelement location="${basedir}/../ecologylabFundamental/lib/ant-contrib-1.0b3.jar" />
+		</classpath>
+	</taskdef>
+
+	<jdtClassPathLibrary name="org.eclipse.jdt.junit.JUNIT_CONTAINER/4">
+		<fileset file="${basedir}/../ecologylabFundamental/lib/org.eclipse.osgi_3.5.2.R35x_v20100126.jar"/>
+	</jdtClassPathLibrary>
+
+	
+	
+	
+	<!-- workspace directory -->
+	<property name="workspace.dir" value="${basedir}/.." />
+	<property name="repository.dir" value="${workspace.dir}/../MetaMetadataRepository" />
+	<property name="deploy.dir" value="${repository.dir}" />
+	
+	<property name="jar_file.csharp" value="${deploy.dir}/MetaMetadataCompilerForCSharp.jar" />
+	<property name="jar_file.java" value="${deploy.dir}/MetaMetadataCompilerForJava.jar" />
+	
+	<!-- targets -->
+	<target name="build_compilers">
+		<antcall target="configure.eclipse"/>
+		<antcall target="clean"/>
+		<antcall target="build-jars"/>
+		<antcall target="sign-jars"/>
+	</target>
+
+	<!-- configure eclipse -->
+	<target name="configure.eclipse" if="eclipse.running">
+		<property name="build.compiler" value="org.eclipse.jdt.core.JDTCompilerAdapter"/>
+		<echo message="Configuring compiler for Eclipse..."/>
+	</target>
+
+	<!-- Clean this project -->
+	<target name="clean">
+		<echo>cleaning: deleting jars...</echo>
+		<delete file="${jar_file.csharp}" />
+		<delete file="${jar_file.java}" />
+	</target>
+
+	<!-- Build other library projects specified by project.set -->
+	<target name="build-jars">
+		<!-- Get the build order for your projects according to their deps -->
+		<getBuildOrder buildOrderProperty="buildorder" teamProjectSet="${project.set}" workspaceDirectory="${workspace.dir}" />
+
+		<echo>List of projects to build: ${buildorder}</echo>
+
+		<!-- Build all projects (invoke 'build-project'-target for each project) -->
+		<foreach list="${buildorder}" target="jar-library" param="project.name" trim="yes" />
+	</target>
+
+	<target name="build-library">
+		<echo>building project ${project.name}</echo>
+
+		<!-- Get the sourcepath of your project -->
+		<getJdtSourcePath property="mySourcepath" workspaceDirectory="${basedir}/.." projectName="${project.name}" />
+
+		<!-- Get the outputpath of your project -->
+		<getJdtOutputPath property="myOutputpath" workspaceDirectory="${basedir}/.." projectName="${project.name}" />
+
+		<!-- Get classpath of your project -->
+		<getJdtClassPath pathId="myClasspath" workspaceDirectory="${basedir}/.." projectName="${project.name}" />
+
+		<!-- compile your project with the settings from Eclipse -->
+		<javac classpathref="myClasspath" srcdir="${mySourcepath}" destdir="${myOutputpath}" 
+		excludes="**/standalone/**, **/deprecated/**"/>
+	</target>
+
+	<!-- Jar a library and store it in dynlib.dir -->
+	<target name="jar-library" depends="build-library">
+		<echo>Jar'ing project ${project.name} from ${myOutputpath}</echo>
+
+		<!-- Get the outputpath of your project -->
+		<getJdtOutputPath property="myOutputpath" workspaceDirectory="${workspace.dir}" projectName="${project.name}" />
+
+		<jar destfile="${dynlib.dir}/${project.name}${app.version}.jar" basedir="${myOutputpath}" 
+		       	includes="**/*.class, **/*.properties"
+				excludes="**/standalone/**, **/deprecated/**"/>
+	</target>
+
+	<!-- signs all jars copied to the study -->
+	<target name="sign-jars">
+		<signjar alias="Interface Ecology Lab" storepass="ecologylab" keypass="ecology" keystore="${basedir}/../cf/chain" preservelastmodified="true">
+			<path>
+				<fileset dir="${dynlib.dir}" includes="**/*.jar" />
+			</path>
+		</signjar>
+	</target>
+	
+</project>
