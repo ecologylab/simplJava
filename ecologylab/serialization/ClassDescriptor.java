@@ -289,13 +289,16 @@ public class ClassDescriptor<FD extends FieldDescriptor> extends DescriptorBase 
 
 	private void deriveGenericTypeVariables()
 	{
-		TypeVariable<?>[] typeVariables = describedClass.getTypeParameters();
-		if (typeVariables != null && typeVariables.length > 0)
+		if (describedClass != null) // for generated descriptors, describedClass == null
 		{
-			for (TypeVariable<?> typeVariable : typeVariables)
+			TypeVariable<?>[] typeVariables = describedClass.getTypeParameters();
+			if (typeVariables != null && typeVariables.length > 0)
 			{
-				GenericTypeVar g = GenericTypeVar.getGenericTypeVar(typeVariable);
-				this.genericTypeVars.add(g);
+				for (TypeVariable<?> typeVariable : typeVariables)
+				{
+					GenericTypeVar g = GenericTypeVar.getGenericTypeVar(typeVariable);
+					this.genericTypeVars.add(g);
+				}
 			}
 		}
 	}
