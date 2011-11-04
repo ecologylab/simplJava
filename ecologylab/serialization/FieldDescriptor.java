@@ -515,6 +515,50 @@ public class FieldDescriptor extends DescriptorBase implements FieldTypes, IMapp
 		}
 		return result;
 	}
+	
+	/**
+	 * lazy-evaluation method.
+	 * 
+	 * @return
+	 */
+	public ArrayList<GenericTypeVar> getGenricTypeVars()
+	{
+		if (genericTypeVars == null)
+		{
+			synchronized (this)
+			{
+				if (genericTypeVars == null)
+				{
+					genericTypeVars = new ArrayList<GenericTypeVar>();
+					deriveGenericTypeVariables();
+				}
+			}
+		}
+
+		return genericTypeVars;
+	}
+
+	private void deriveGenericTypeVariables()
+	{
+		Type genericType = field.getGenericType();
+		
+		if(genericType instanceof ParameterizedTypeImpl)
+		{
+			ParameterizedTypeImpl parameterizedType = (ParameterizedTypeImpl) genericType;
+			
+			Type[] types = parameterizedType.getActualTypeArguments();
+	
+			if (types == null | types.length <= 0)
+				return;
+	
+			for (Type t : types)
+			{
+				GenericTypeVar g = GenericTypeVar.getGenericTypeVar(t);
+				genericTypeVars.add(g);
+			}
+		}
+	}	
+
 
 	private void initPolymorphClassDescriptorsArrayList(int initialSize)
 	{

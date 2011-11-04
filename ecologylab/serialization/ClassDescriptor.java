@@ -294,43 +294,10 @@ public class ClassDescriptor<FD extends FieldDescriptor> extends DescriptorBase 
 		{
 			for (TypeVariable<?> typeVariable : typeVariables)
 			{
-				GenericTypeVar g = getGenericTypeVar(typeVariable);
+				GenericTypeVar g = GenericTypeVar.getGenericTypeVar(typeVariable);
 				this.genericTypeVars.add(g);
 			}
 		}
-	}
-
-	private GenericTypeVar getGenericTypeVar(TypeVariable<?> typeVariable)
-	{
-		GenericTypeVar g = new GenericTypeVar();
-		g.name = typeVariable.getName();
-
-		// resolve constraints
-		Type[] bounds = typeVariable.getBounds();
-		if (bounds != null)
-		{
-			Type bound = bounds[0];
-			if (bound instanceof Class<?>)
-			{
-				Class<?> boundClass = (Class<?>) bound;
-				g.classDescriptor = ClassDescriptor.getClassDescriptor(boundClass);
-			}
-			else
-			{
-				if (bound instanceof ParameterizedTypeImpl)
-				{
-					ParameterizedTypeImpl parmeterizedType = (ParameterizedTypeImpl) bound;
-					g.classDescriptor = ClassDescriptor.getClassDescriptor(parmeterizedType.getRawType());
-					Type[] typeVarialbes = parmeterizedType.getActualTypeArguments();
-					if (typeVariable != null && typeVarialbes.length > 0)
-					{
-						TypeVariable<?> t = (TypeVariable<?>) typeVarialbes[0];
-						g.boundsGenericTypeVar = getGenericTypeVar(t);
-					}
-				}
-			}
-		}
-		return g;
 	}
 
 	@Deprecated
