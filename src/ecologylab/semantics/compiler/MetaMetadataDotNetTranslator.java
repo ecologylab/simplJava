@@ -6,6 +6,7 @@ import java.util.List;
 
 import ecologylab.semantics.metadata.MetadataFieldDescriptor;
 import ecologylab.semantics.metametadata.MetaMetadata;
+import ecologylab.semantics.metametadata.MetaMetadataCompositeField;
 import ecologylab.semantics.metametadata.MetaMetadataField;
 import ecologylab.semantics.metametadata.MetaMetadataRepository;
 import ecologylab.semantics.metametadata.MmdCompilerService;
@@ -50,13 +51,11 @@ public class MetaMetadataDotNetTranslator extends DotNetTranslator implements Mm
 	{
 		super.appendConstructorHook(inputClass, appendable);
 		
-		// currently C# version Metadata has only one constructor. but we may need this later.
-		
-//		appendable.append("\n");
-//		appendable.append("\tpublic ").append(inputClass.getDescribedClassSimpleName())
-//				.append("(MetaMetadataCompositeField mmd) : base(mmd) { }\n");
-//		appendable.append("\n");
-//		addCurrentClassDependency(MetaMetadataCompositeField.class.getPackage().getName());
+		appendable.append("\n");
+		appendable.append("\t\tpublic ").append(inputClass.getDescribedClassSimpleName())
+				.append("(MetaMetadataCompositeField mmd) : base(mmd) { }\n");
+		appendable.append("\n");
+		addCurrentClassDependency(MetaMetadataCompositeField.class.getPackage().getName());
 	}
 
 	@Override
