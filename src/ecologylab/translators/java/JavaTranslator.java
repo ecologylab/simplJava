@@ -305,7 +305,7 @@ public class JavaTranslator extends AbstractCodeTranslator implements JavaTransl
 				GenericTypeVar genericTypeVar = genericTypeVars.get(i);
 				appendable.append(genericTypeVar.getName());
 				
-				ClassDescriptor classBound = genericTypeVar.getClassDescriptor();
+				ClassDescriptor classBound = genericTypeVar.getConstraintClassDescriptor();
 				if (classBound != null)
 					appendable.append(" extends ").append(classBound.getDescribedClassSimpleName());
 			}
