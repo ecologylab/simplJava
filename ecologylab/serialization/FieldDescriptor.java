@@ -27,6 +27,7 @@ import sun.reflect.generics.reflectiveObjects.ParameterizedTypeImpl;
 import sun.reflect.generics.reflectiveObjects.TypeVariableImpl;
 import ecologylab.generic.HashMapArrayList;
 import ecologylab.generic.ReflectionTools;
+import ecologylab.generic.StringBuilderBaseUtils;
 import ecologylab.generic.StringTools;
 import ecologylab.serialization.MetaInformation.Argument;
 import ecologylab.serialization.SimplTypesScope.GRAPH_SWITCH;
@@ -521,7 +522,7 @@ public class FieldDescriptor extends DescriptorBase implements FieldTypes, IMapp
 	 * 
 	 * @return
 	 */
-	public ArrayList<GenericTypeVar> getGenricTypeVars()
+	public ArrayList<GenericTypeVar> getGenericTypeVars()
 	{
 		if (genericTypeVars == null)
 		{
@@ -1827,29 +1828,40 @@ public class FieldDescriptor extends DescriptorBase implements FieldTypes, IMapp
 
 	public String getJavaType()
 	{
-		String result = null;
-
+		StringBuilder sb = StringBuilderBaseUtils.acquire();
+		
 		if (collectionType != null)
 		{
-			result = collectionType.getJavaTypeName();
+			sb.append(collectionType.getJavaTypeName());
 		}
+		
 		if (scalarType != null && !isCollection())
 		{
-			result = scalarType.getSimpleName();
+			sb.append(scalarType.getSimpleName());
 		}
 		else
 		{
 			String name = fieldType;
 			if (name != null && !name.contains("$")) // FIXME:Dealing with inner classes is not done yet
-				result = name;
-			// }
+				sb.replace(0, sb.length(), name);
 		}
 
-		if (this.IsGeneric() && result.indexOf('<') < 0)
+		if (this.IsGeneric() && sb.indexOf("<") < 0)
 		{
-			result += getGenericParametersString();
+			List<GenericTypeVar> genericTypeVars = getGenericTypeVars();
+			if (genericTypeVars != null && genericTypeVars.size() > 0)
+			{
+				sb.append('<');
+				for (int i = 0; i < genericTypeVars.size(); ++i)
+				{
+					sb.append(i==0?"":", ").append(genericTypeVars.get(i).getName());
+				}
+				sb.append('>');
+			}
 		}
 
+		String result = sb.toString();
+		StringBuilderBaseUtils.release(sb);
 		return result;
 	}
 

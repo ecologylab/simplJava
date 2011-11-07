@@ -50,6 +50,11 @@ public class GenericTypeVar extends Debug
 	{
 		return classDescriptor;
 	}
+	
+	public ClassDescriptor getConstraintClassDescriptor()
+	{
+		return constraintClassDescriptor;
+	}
 
 	public void addGenericTypeVar(GenericTypeVar g)
 	{
