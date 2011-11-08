@@ -328,7 +328,7 @@ public class NIOClient<S extends Scope> extends NIONetworking<S> implements Runn
 		synchronized (requestBuffer)
 		{
 			// fill requestBuffer
-			SimplTypesScope.serialize(requestBuffer, requestBuffer, StringFormat.XML);			
+			SimplTypesScope.serialize(request, requestBuffer, StringFormat.XML);			
 
 			// TODO not convinced this is the most efficient workflow. Why do we need requestBuffer at all??? -ZODT
 			// drain requestBuffer and fill a prepped request

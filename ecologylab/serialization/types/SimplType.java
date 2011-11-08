@@ -85,7 +85,7 @@ implements CrossLanguageTypeConstants
 		this.cSharpTypeName			= cSharpTypeName;
 		this.objectiveCTypeName	= objectiveCTypeName;
 
-		if (!javaClass.isPrimitive())
+		if (!javaClass.isPrimitive() && javaClass.getPackage() != null)
 			this.packageName			= javaClass.getPackage().getName();
 		
 		this.dbTypeName					= dbTypeName;
