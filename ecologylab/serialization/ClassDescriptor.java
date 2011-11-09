@@ -155,6 +155,9 @@ public class ClassDescriptor<FD extends FieldDescriptor> extends DescriptorBase 
 	@simpl_collection("generic_type_var")
 	private ArrayList<GenericTypeVar>																									genericTypeVars											= null;
 
+	@simpl_collection("super_class_generic_type_var")
+	private ArrayList<GenericTypeVar>																									superClassGenericTypeVars						= null;
+
 	static
 	{
 		TypeRegistry.init();
@@ -285,6 +288,40 @@ public class ClassDescriptor<FD extends FieldDescriptor> extends DescriptorBase 
 		}
 
 		return genericTypeVars;
+	}
+
+	/**
+	 * lazy-evaluation method.
+	 * 
+	 * @return
+	 */
+	public ArrayList<GenericTypeVar> getSuperClassGenericTypeVars()
+	{
+		if (superClassGenericTypeVars == null)
+		{
+			synchronized (this)
+			{
+				if (superClassGenericTypeVars == null)
+				{
+					superClassGenericTypeVars = new ArrayList<GenericTypeVar>();
+					deriveSuperGenericTypeVariables();
+				}
+			}
+		}
+
+		return superClassGenericTypeVars;
+	}
+
+	private void deriveSuperGenericTypeVariables()
+	{
+
+		Type superClassType = describedClass.getGenericSuperclass();
+
+		if (superClassType instanceof ParameterizedTypeImpl)
+		{
+			ParameterizedTypeImpl superClassParameterizedType = (ParameterizedTypeImpl) superClassType;
+			superClassGenericTypeVars = GenericTypeVar.getGenericTypeVars(superClassParameterizedType);
+		}
 	}
 
 	private void deriveGenericTypeVariables()
@@ -440,7 +477,7 @@ public class ClassDescriptor<FD extends FieldDescriptor> extends DescriptorBase 
 	{
 		if (unresolvedScopeAnnotationFDs != null)
 			resolveUnresolvedScopeAnnotationFDs();
-		
+
 		if (unresolvedClassesAnnotationFDs != null)
 			resolveUnresolvedClassesAnnotationFDs();
 
@@ -456,7 +493,7 @@ public class ClassDescriptor<FD extends FieldDescriptor> extends DescriptorBase 
 	{
 		if (unresolvedScopeAnnotationFDs != null)
 			resolveUnresolvedScopeAnnotationFDs();
-		
+
 		if (unresolvedClassesAnnotationFDs != null)
 			resolveUnresolvedClassesAnnotationFDs();
 
@@ -709,7 +746,7 @@ public class ClassDescriptor<FD extends FieldDescriptor> extends DescriptorBase 
 				this.registerUnresolvedScopeAnnotationFD(fd);
 			}
 		}
-		
+
 		if (superClassDescriptor.getUnresolvedClassesAnnotationFDs() != null)
 		{
 			for (FD fd : superClassDescriptor.getUnresolvedClassesAnnotationFDs())
@@ -954,7 +991,7 @@ public class ClassDescriptor<FD extends FieldDescriptor> extends DescriptorBase 
 	{
 		return this.unresolvedScopeAnnotationFDs;
 	}
-	
+
 	public ArrayList<FD> getUnresolvedClassesAnnotationFDs()
 	{
 		return this.unresolvedClassesAnnotationFDs;
@@ -1020,7 +1057,7 @@ public class ClassDescriptor<FD extends FieldDescriptor> extends DescriptorBase 
 		resolveUnresolvedScopeAnnotationFDs();
 		resolveUnresolvedClassesAnnotationFDs();
 	}
-	
+
 	public void resolveUnresolvedScopeAnnotationFDs()
 	{
 		if (unresolvedScopeAnnotationFDs != null)
@@ -1034,7 +1071,7 @@ public class ClassDescriptor<FD extends FieldDescriptor> extends DescriptorBase 
 		}
 		unresolvedScopeAnnotationFDs = null;
 	}
-	
+
 	/**
 	 * Late evaluation of @serial_scope, if it failed the first time around.
 	 */

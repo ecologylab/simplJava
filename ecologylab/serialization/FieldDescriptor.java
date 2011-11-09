@@ -144,7 +144,7 @@ public class FieldDescriptor extends DescriptorBase implements FieldTypes, IMapp
 	@simpl_scalar
 	private ScalarType<?>															scalarType;
 
-	@simpl_composite
+	@simpl_scalar
 	private CollectionType														collectionType;
 
 	@simpl_scalar
