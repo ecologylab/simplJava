@@ -38,7 +38,7 @@ public class GenericTypeVar extends Debug
 
 	public GenericTypeVar()
 	{
-
+			//for simpl de/serialzation
 	}
 	
 	public String getName()
