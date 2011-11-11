@@ -235,6 +235,8 @@ public class ClassDescriptor<FD extends FieldDescriptor> extends DescriptorBase 
 	 */
 	private FieldDescriptor	scalarTextFD;
 
+	private Object SCOPE_ANNOTATION_LOCK = new Object();
+
 	public FieldDescriptor getScalarTextFD()
 	{
 		return scalarTextFD;
@@ -1062,14 +1064,20 @@ public class ClassDescriptor<FD extends FieldDescriptor> extends DescriptorBase 
 	{
 		if (unresolvedScopeAnnotationFDs != null)
 		{
-			for (int i = unresolvedScopeAnnotationFDs.size() - 1; i >= 0; i--)
+			synchronized (SCOPE_ANNOTATION_LOCK )
 			{
-				FieldDescriptor fd = unresolvedScopeAnnotationFDs.remove(i);
-				fd.resolveUnresolvedScopeAnnotation();
-				this.mapPolymorphicClassDescriptors((FD) fd);
+				if (unresolvedScopeAnnotationFDs != null)
+				{
+					for (int i = unresolvedScopeAnnotationFDs.size() - 1; i >= 0; i--)
+					{
+						FieldDescriptor fd = unresolvedScopeAnnotationFDs.remove(i);
+						fd.resolveUnresolvedScopeAnnotation();
+						this.mapPolymorphicClassDescriptors((FD) fd);
+					}
+					unresolvedScopeAnnotationFDs = null;
+				}
 			}
 		}
-		unresolvedScopeAnnotationFDs = null;
 	}
 
 	/**
