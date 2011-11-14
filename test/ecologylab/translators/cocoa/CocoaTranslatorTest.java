@@ -3,6 +3,8 @@ package ecologylab.translators.cocoa;
 import japa.parser.ParseException;
 
 import java.io.File;
+import java.io.FileOutputStream;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 
@@ -36,6 +38,7 @@ extends Debug
 	{
 		try
 		{
+			testSerialization(OUTPUT_DIR + "serialize2.xml");
 			testCocoaCodeGeneration(OUTPUT_DIR + "serialize.xml", OUTPUT_DIR + "test/");
 			testCocoaCodeGenerationWithPolymorphicInfo(OUTPUT_DIR + "polySerialize.xml", OUTPUT_DIR +"testpoly/");
 			testCocoaCodeGenerationWithInheritance(OUTPUT_DIR);
@@ -54,8 +57,12 @@ extends Debug
 	 */
 	private static void testSerialization(String filename) throws Exception
 	{
-		println("testSerialization("+filename);
-		DescriptorBase.setJavaParser(new JavaDocParser());
+		println("testSerialization("+filename+')');
+		File f = new File(filename);
+		f.createNewFile();
+		FileWriter fw = new FileWriter(f);
+		fw.write("TEST");
+		fw.flush();
 		SimplTypesScope ts2 = SimplTypesScope.get("RSSTranslations5", RssState.class, Item.class,
 				Channel.class);
 		SimplTypesScope.enableGraphSerialization();
@@ -72,7 +79,6 @@ extends Debug
 	private static void testSerializationWithPolymorph(String filename) throws Exception
 	{
 		println("testSerializationWithPolymorph("+filename);
-		DescriptorBase.setJavaParser(new JavaDocParser());
 		SimplTypesScope ts2 = SimplTypesScope.get("RSSTranslations", Schmannel.class, BItem.class,
 				SchmItem.class, RssState.class, Item.class, Channel.class);
 		SimplTypesScope.enableGraphSerialization();
