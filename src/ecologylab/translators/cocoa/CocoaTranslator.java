@@ -7,10 +7,10 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.lang.annotation.Annotation;
-import java.lang.reflect.Field;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 
@@ -65,7 +65,7 @@ public class CocoaTranslator
 		/**
 		 * Class on which this class will fire a hook method to generate Objective-C class.
 		 */
-		private Class<?>		inputClass;
+		private ClassDescriptor		inputClass;
 
 		/**
 		 * The appendable object on which the hook method will write the generated code.
@@ -84,7 +84,7 @@ public class CocoaTranslator
 		 * @param inputClass
 		 * @param appendable
 		 */
-		public NestedTranslationHook(Class<?> inputClass, Appendable appendable)
+		public NestedTranslationHook(ClassDescriptor inputClass, Appendable appendable)
 		{
 			this.inputClass = inputClass;
 			this.appendable = appendable;
@@ -94,7 +94,7 @@ public class CocoaTranslator
 		/**
 		 * Constructor for taking in the directory location
 		 */
-		public NestedTranslationHook(Class<?> inputClass, File directoryLocation)
+		public NestedTranslationHook(ClassDescriptor inputClass, File directoryLocation)
 		{
 			this.inputClass = inputClass;
 			this.directoryLocation = directoryLocation;
@@ -112,14 +112,15 @@ public class CocoaTranslator
 		public void execute() throws IOException, CocoaTranslationException
 		{
 			CocoaTranslator ct = new CocoaTranslator();
+			ClassDescriptor elementStateClassDescriptor = ClassDescriptor.getClassDescriptor(inputClass.getClass().asSubclass(ElementState.class));
 
 			if (directoryLocation == null)
 			{
-				ct.translateToObjCRecursive(inputClass.asSubclass(ElementState.class), appendable);
+				ct.translateToObjCRecursive(elementStateClassDescriptor, appendable);
 			}
 			else
 			{
-				ct.translateToObjCRecursive(inputClass.asSubclass(ElementState.class), directoryLocation);
+				ct.translateToObjCRecursive(elementStateClassDescriptor, directoryLocation);
 			}
 		}
 	}
@@ -175,7 +176,7 @@ public class CocoaTranslator
     * @throws IOException
     * @throws CocoaTranslationException 
     */
-	public void translateToObjC(Appendable appendable, Class<?>... classes) throws IOException,
+	public void translateToObjC(Appendable appendable, ClassDescriptor... classes) throws IOException,
 			CocoaTranslationException
 	{
 		int length = classes.length;
@@ -186,7 +187,7 @@ public class CocoaTranslator
 
 	}
 
-	public void translateToObjC(Class<?> thatClass, Appendable appendable) throws IOException,
+	public void translateToObjC(ClassDescriptor thatClass, Appendable appendable) throws IOException,
 			CocoaTranslationException
 	{
 		translateToObjCHeader(thatClass, appendable);
@@ -213,18 +214,16 @@ public class CocoaTranslator
     * @throws IOException
     * @throws CocoaTranslationException 
     */
-	private void translateToObjCHeader(Class<?> inputClass, Appendable appendable)
+	private void translateToObjCHeader(ClassDescriptor inputClass, Appendable appendable)
 			throws IOException, CocoaTranslationException
 	{
-		ClassDescriptor<? extends FieldDescriptor> classDescriptor = ClassDescriptor
-				.getClassDescriptor(inputClass);
 
-		if (classDescriptor.getSuperClassName().equals(JavaTranslationConstants.JAVA_OBJECT))
+		if (inputClass.getSuperClassName().equals(JavaTranslationConstants.JAVA_OBJECT))
 			CocoaTranslationConstants.INHERITENCE_OBJECT = CocoaTranslationConstants.OBJC_OBJECT;
 		else
-			CocoaTranslationConstants.INHERITENCE_OBJECT = classDescriptor.getSuperClassName();
+			CocoaTranslationConstants.INHERITENCE_OBJECT = inputClass.getSuperClassName();
 
-		HashMapArrayList<String, ? extends FieldDescriptor> fieldDescriptors = classDescriptor
+		HashMapArrayList<String, ? extends FieldDescriptor> fieldDescriptors = inputClass
 				.getFieldDescriptorsByFieldName();
 
 		appendHeaderComments(inputClass, appendable);
@@ -234,13 +233,13 @@ public class CocoaTranslator
 
 		if (fieldDescriptors.size() > 0)
 		{
-			classDescriptor.resolvePolymorphicAnnotations();
+			inputClass.resolvePolymorphicAnnotations();
 
 			openFieldDeclartion(appendable);
 
 			for (FieldDescriptor fieldDescriptor : fieldDescriptors)
 			{
-				if (fieldDescriptor.belongsTo(classDescriptor))
+				if (fieldDescriptor.belongsTo(inputClass))
 					appendFieldAsObjectiveCAttribute(fieldDescriptor, appendable);
 			}
 
@@ -248,13 +247,13 @@ public class CocoaTranslator
 
 			for (FieldDescriptor fieldAccessor : fieldDescriptors)
 			{
-				if (fieldAccessor.belongsTo(classDescriptor))
+				if (fieldAccessor.belongsTo(inputClass))
 					appendPropertyOfField(fieldAccessor, appendable);
 			}
 
 			for (FieldDescriptor fieldAccessor : fieldDescriptors)
 			{
-				if (fieldAccessor.belongsTo(classDescriptor) && fieldAccessor.isScalar()
+				if (fieldAccessor.belongsTo(inputClass) && fieldAccessor.isScalar()
 						&& fieldAccessor.getScalarType().isPrimitive()
 						&& fieldAccessor.getField().getType() != String.class)
 					appendFieldSetterFunctionDefinition(appendable, fieldAccessor);
@@ -272,18 +271,18 @@ public class CocoaTranslator
 		}
 	}
 
-	private void addHookForParentClassIfNotElementState(Class<?> inputClass, Appendable appendable)
+	private void addHookForParentClassIfNotElementState(ClassDescriptor inputClass, Appendable appendable)
 	{
-		if (ElementState.class != inputClass.getSuperclass())
+		if (inputClass.getSuperClass() == null || (!"ElementState".equals(inputClass.getSuperClass().getClassSimpleName())))
 		{
 			if (directoryLocation == null)
 			{
 				nestedTranslationHooks
-						.add(new NestedTranslationHook(inputClass.getSuperclass(), appendable));
+						.add(new NestedTranslationHook(inputClass.getSuperClass(), appendable));
 			}
 			else
 			{
-				nestedTranslationHooks.add(new NestedTranslationHook(inputClass.getSuperclass(),
+				nestedTranslationHooks.add(new NestedTranslationHook(inputClass.getSuperClass(),
 						directoryLocation));
 			}
 		}
@@ -309,15 +308,13 @@ public class CocoaTranslator
     * @throws IOException
     * @throws CocoaTranslationException 
     */
-	private void translateToObjCImplementation(Class<?> inputClass, Appendable appendable)
+	private void translateToObjCImplementation(ClassDescriptor inputClass, Appendable appendable)
 			throws IOException, CocoaTranslationException
 	{
 
-		ClassDescriptor<? extends FieldDescriptor> classDescriptor = ClassDescriptor
-				.getClassDescriptor(inputClass);
-		CocoaTranslationConstants.INHERITENCE_OBJECT = classDescriptor.getSuperClassName();
+		CocoaTranslationConstants.INHERITENCE_OBJECT = inputClass.getSuperClassName();
 
-		HashMapArrayList<String, ? extends FieldDescriptor> attributes = classDescriptor
+		HashMapArrayList<String, ? extends FieldDescriptor> attributes = inputClass
 				.getFieldDescriptorsByFieldName();
 
 		appendImplementationComments(inputClass, appendable);
@@ -329,7 +326,7 @@ public class CocoaTranslator
 		{
 			for (FieldDescriptor fieldAccessor : attributes)
 			{
-				if (fieldAccessor.belongsTo(classDescriptor))
+				if (fieldAccessor.belongsTo(inputClass))
 				{
 					appendSynthesizedField(fieldAccessor, appendable);
 				}
@@ -341,7 +338,7 @@ public class CocoaTranslator
 
 		for (FieldDescriptor fieldAccessor : attributes)
 		{
-			if (fieldAccessor.belongsTo(classDescriptor) && fieldAccessor.isScalar()
+			if (fieldAccessor.belongsTo(inputClass) && fieldAccessor.isScalar()
 					&& fieldAccessor.getScalarType().isPrimitive()
 					&& fieldAccessor.getField().getType() != String.class)
 				appendFieldSetterFunctionImplementation(appendable, fieldAccessor);
@@ -375,7 +372,7 @@ public class CocoaTranslator
     * @throws IOException
     * @throws CocoaTranslationException 
     */
-	public void translateToObjCRecursive(Class<?> inputClass, Appendable appendable)
+	public void translateToObjCRecursive(ClassDescriptor inputClass, Appendable appendable)
 			throws IOException, CocoaTranslationException
 	{
 		isRecursive = true;
@@ -395,7 +392,7 @@ public class CocoaTranslator
 	 * @throws IOException
 	 * @throws CocoaTranslationException
 	 */
-	public void translateToObjC(Class<?> inputClass, File directoryLocation) throws IOException,
+	public void translateToObjC(ClassDescriptor inputClass, File directoryLocation) throws IOException,
 			CocoaTranslationException
 	{
 		translateToObjCHeader(inputClass, directoryLocation);
@@ -415,7 +412,7 @@ public class CocoaTranslator
 	 * @throws IOException
 	 * @throws CocoaTranslationException
 	 */
-	public void translateToObjC(File directoryLocation, Class<?>... classes) throws IOException,
+	public void translateToObjC(File directoryLocation, ClassDescriptor... classes) throws IOException,
 			CocoaTranslationException
 	{
 		int length = classes.length;
@@ -444,12 +441,12 @@ public class CocoaTranslator
 			CocoaTranslationException, SIMPLTranslationException
 	{
 		// Generate header and implementation files
-		ArrayList<Class<?>> classes = tScope.getAllClasses();
+		ArrayList<ClassDescriptor<? extends FieldDescriptor>> classDescriptors = tScope.getAllClassDescriptors();
 
-		int length = classes.size();
+		int length = classDescriptors.size();
 		for (int i = 0; i < length; i++)
 		{
-			translateToObjC(classes.get(i), directoryLocation);
+			translateToObjC(classDescriptors.get(i), directoryLocation);
 		}
 
 		// Serialize translation scope
@@ -579,11 +576,11 @@ public class CocoaTranslator
 		appendable.append(CocoaTranslationConstants.SINGLE_LINE_BREAK);
 
 		// Generate header and implementation files
-		ArrayList<Class<?>> classes = tScope.getAllClasses();
-		int length = classes.size();
+		ArrayList<ClassDescriptor<? extends FieldDescriptor>> classDescriptors = tScope.getAllClassDescriptors();
+		int length = classDescriptors.size();
 		for (int i = 0; i < length; i++)
 		{
-			generateInitializeStatement(classes.get(i), appendable);
+			generateInitializeStatement(classDescriptors.get(i), appendable);
 		}
 
 		appendable.append(CocoaTranslationConstants.SINGLE_LINE_BREAK);
@@ -664,7 +661,7 @@ public class CocoaTranslator
 	 * @throws IOException
 	 * @throws CocoaTranslationException
 	 */
-	private void translateToObjCHeader(Class<?> inputClass, File directoryLocation)
+	private void translateToObjCHeader(ClassDescriptor inputClass, File directoryLocation)
 			throws IOException, CocoaTranslationException
 	{
 		File outputFile = createHeaderFileWithDirectoryStructure(inputClass, directoryLocation);
@@ -687,7 +684,7 @@ public class CocoaTranslator
 	 * @throws IOException
 	 * @throws CocoaTranslationException
 	 */
-	private void translateToObjCImplementation(Class<?> inputClass, File directoryLocation)
+	private void translateToObjCImplementation(ClassDescriptor inputClass, File directoryLocation)
 			throws IOException, CocoaTranslationException
 	{
 		File outputFile = createImplementationFileWithDirectoryStructure(inputClass, directoryLocation);
@@ -714,7 +711,7 @@ public class CocoaTranslator
 	 * @throws CocoaTranslationException
 	 * @throws Exception
 	 */
-	public void translateToObjCRecursive(Class<?> inputClass, File directoryLocation)
+	public void translateToObjCRecursive(ClassDescriptor inputClass, File directoryLocation)
 			throws IOException, CocoaTranslationException
 	{
 		this.isRecursive = true;
@@ -732,9 +729,9 @@ public class CocoaTranslator
 	 * @param appendable
 	 * @throws IOException
 	 */
-	private void openHeaderFile(Class<?> thatClass, Appendable appendable) throws IOException
+	private void openHeaderFile(ClassDescriptor thatClass, Appendable appendable) throws IOException
 	{
-		openHeaderFile(XMLTools.getClassSimpleName(thatClass), appendable, thatClass);
+		openHeaderFile(thatClass.getClassSimpleName(), appendable, thatClass);
 	}
 
 	/**
@@ -743,19 +740,12 @@ public class CocoaTranslator
 	 * 
 	 * @param className
 	 * @param appendable
-	 * @param inputClass
+	 * @param classDescriptor
 	 * @throws IOException
 	 */
-	private void openHeaderFile(String className, Appendable appendable, Class<?> inputClass)
+	private void openHeaderFile(String className, Appendable appendable, ClassDescriptor classDescriptor)
 			throws IOException
 	{
-
-		ClassDescriptor<? extends FieldDescriptor> classDescriptor = null;
-
-		if (inputClass != null)
-		{
-			classDescriptor = ClassDescriptor.getClassDescriptor(inputClass);
-		}
 
 		appendable.append(CocoaTranslationConstants.FOUNDATION_HEADER);
 		appendable.append(CocoaTranslationConstants.SINGLE_LINE_BREAK);
@@ -773,37 +763,36 @@ public class CocoaTranslator
 			HashMapArrayList<String, ? extends FieldDescriptor> fieldDescriptors = classDescriptor
 					.getFieldDescriptorsByFieldName();
 
-			HashMap<Class<?>, Boolean> importedFiles = new HashMap<Class<?>, Boolean>();
+			HashMap<ClassDescriptor, Boolean> importedFiles = new HashMap<ClassDescriptor, Boolean>();
 
 			for (FieldDescriptor fieldDescriptor : fieldDescriptors)
 			{
-				Class<?> classObj = classDescriptor.getDescribedClass();
-				Field field = fieldDescriptor.getField();
 
-				Boolean alreadyImported = importedFiles.get(field.getType()) == null ? false : true;
+				Boolean alreadyImported = importedFiles.get(fieldDescriptor.getType()) == null ? false : true;
 
-				if (field.getDeclaringClass() == classObj && !alreadyImported)
+				if (fieldDescriptor.getDeclaringClassDescriptor().getClassSimpleName() == classDescriptor.getClassSimpleName() && !alreadyImported)
 				{
 					if (fieldDescriptor.isNested())
 					{
 						appendable.append(CocoaTranslationConstants.INCLUDE_OBJECT.replace(
-								CocoaTranslationConstants.AT, XMLTools.getClassSimpleName(field.getType())));
+								CocoaTranslationConstants.AT, fieldDescriptor.getObjectiveCTypeName()));
 						appendable.append(CocoaTranslationConstants.SINGLE_LINE_BREAK);
 					}
-					else if (field.getType() == ParsedURL.class)
+					else if (fieldDescriptor.getFieldType() == ParsedURL.class)
 					{
 						appendable.append(CocoaTranslationConstants.INCLUDE_OBJECT.replace(
-								CocoaTranslationConstants.AT, XMLTools.getClassSimpleName(field.getType())));
+								CocoaTranslationConstants.AT, fieldDescriptor.getObjectiveCTypeName()));
 						appendable.append(CocoaTranslationConstants.SINGLE_LINE_BREAK);
 					}
-					importedFiles.put(field.getType(), true);
+					if (!fieldDescriptor.getFieldType().isPrimitive())
+						importedFiles.put(ClassDescriptor.getClassDescriptor(fieldDescriptor.getFieldType()), true);
 				}
 			}
 		}
 
 		appendable.append(CocoaTranslationConstants.DOUBLE_LINE_BREAK);
 
-		appendClassHeaderComments(className, appendable, inputClass);
+		appendClassHeaderComments(className, appendable, classDescriptor);
 
 		appendable.append(CocoaTranslationConstants.INTERFACE);
 		appendable.append(CocoaTranslationConstants.SPACE);
@@ -821,7 +810,7 @@ public class CocoaTranslator
 	}
 
 	private void appendClassHeaderComments(String className, Appendable appendable,
-			Class<?> inputClass) throws IOException
+			ClassDescriptor inputClass) throws IOException
 	{
 		appendable.append("/*!");
 		appendable.append(CocoaTranslationConstants.SINGLE_LINE_BREAK);
@@ -840,7 +829,7 @@ public class CocoaTranslator
 
 		if (inputClass != null)
 		{
-			Annotation[] annotations = inputClass.getAnnotations();
+			Annotation[] annotations = inputClass.getClass().getAnnotations();
 			if (annotations != null && annotations.length > 0)
 				appendable.append("Annotated as: ");
 
@@ -927,10 +916,10 @@ public class CocoaTranslator
 	 * @param appendable
 	 * @throws IOException
 	 */
-	private void openImplementationFile(Class<?> inputClass, Appendable appendable)
+	private void openImplementationFile(ClassDescriptor inputClass, Appendable appendable)
 			throws IOException
 	{
-		openImplementationFile(XMLTools.getClassSimpleName(inputClass), appendable);
+		openImplementationFile(inputClass.getClassSimpleName(), appendable);
 	}
 
 	/**
@@ -967,11 +956,11 @@ public class CocoaTranslator
 
 		if (tScope != null)
 		{
-			ArrayList<Class<?>> classes = tScope.getAllClasses();
+			ArrayList<ClassDescriptor<? extends FieldDescriptor>> classes = tScope.getAllClassDescriptors();
 			int length = classes.size();
 			for (int i = 0; i < length; i++)
 			{
-				importClass(XMLTools.getClassSimpleName(classes.get(i)), appendable);
+				importClass(classes.get(i).getClassSimpleName(), appendable);
 			}
 		}
 
@@ -1119,10 +1108,10 @@ public class CocoaTranslator
 
 			if (fieldDescriptor.isPolymorphic())
 			{
-				HashMap<String, Class> tagClasses = fieldDescriptor.getPolymorphicClasses();
+				Collection<ClassDescriptor> tagClasses = fieldDescriptor.getPolymorphicClassDescriptors();
 
 				if (tagClasses != null)
-					for (Class classObj : tagClasses.values())
+					for (ClassDescriptor classObj : tagClasses)
 					{
 						if (isRecursive)
 						{
@@ -1165,13 +1154,13 @@ public class CocoaTranslator
 
 				if (directoryLocation == null)
 				{
-					nestedTranslationHook = new NestedTranslationHook(fieldDescriptor.getFieldType(),
+					nestedTranslationHook = new NestedTranslationHook(ClassDescriptor.getClassDescriptor(fieldDescriptor.getFieldType()),
 							appendable);
 					nestedTranslationHooks.add(nestedTranslationHook);
 				}
 				else
 				{
-					nestedTranslationHook = new NestedTranslationHook(fieldDescriptor.getFieldType(),
+					nestedTranslationHook = new NestedTranslationHook(ClassDescriptor.getClassDescriptor(fieldDescriptor.getFieldType()),
 							directoryLocation);
 					nestedTranslationHooks.add(nestedTranslationHook);
 				}
@@ -1465,7 +1454,7 @@ public class CocoaTranslator
 	 * @param appendable
 	 * @throws IOException
 	 */
-	private void generateInitializationFunction(Class<?> inputClass, Appendable appendable)
+	private void generateInitializationFunction(ClassDescriptor inputClass, Appendable appendable)
 			throws IOException
 	{
 
@@ -1491,16 +1480,16 @@ public class CocoaTranslator
 
 	/**
 	 * 
-	 * @param class1
+	 * @param inputClass
 	 * @param appendable
 	 * @throws IOException
 	 */
-	private void generateInitializeStatement(Class<?> class1, Appendable appendable)
+	private void generateInitializeStatement(ClassDescriptor inputClass, Appendable appendable)
 			throws IOException
 	{
 		appendable.append(CocoaTranslationConstants.TAB);
 		appendable.append(CocoaTranslationConstants.OPENING_SQUARE_BRACE);
-		appendable.append(class1.getSimpleName());
+		appendable.append(inputClass.getClassSimpleName());
 		appendable.append(CocoaTranslationConstants.SPACE);
 		appendable.append(CocoaTranslationConstants.CLASS);
 		appendable.append(CocoaTranslationConstants.CLOSING_SQUARE_BRACE);
@@ -1516,12 +1505,11 @@ public class CocoaTranslator
 	 * @throws IOException
 	 * @throws CocoaTranslationException
 	 */
-	private void generateDeallocFunction(Class<?> inputClass,
+	private void generateDeallocFunction(ClassDescriptor inputClass,
 			HashMapArrayList<String, ? extends FieldDescriptor> attributes, Appendable appendable)
 			throws IOException, CocoaTranslationException
 	{
-		ClassDescriptor<? extends FieldDescriptor> classDescriptor = ClassDescriptor
-				.getClassDescriptor(inputClass);
+
 
 		appendable.append(CocoaTranslationConstants.RETURN_VOID);
 		appendable.append(CocoaTranslationConstants.DEALLOC);
@@ -1533,7 +1521,7 @@ public class CocoaTranslator
 		{
 			for (FieldDescriptor fieldDescriptor : attributes)
 			{
-				if (fieldDescriptor.belongsTo(classDescriptor)
+				if (fieldDescriptor.belongsTo(inputClass)
 						&& ((fieldDescriptor.getScalarType() != null && fieldDescriptor.getScalarType()
 								.isReference())
 								|| fieldDescriptor.isCollection() || fieldDescriptor.isNested()))
@@ -1576,7 +1564,7 @@ public class CocoaTranslator
 	 * @param appendable
 	 * @throws IOException
 	 */
-	private void appendHeaderComments(Class<?> inputClass, Appendable appendable) throws IOException
+	private void appendHeaderComments(ClassDescriptor inputClass, Appendable appendable) throws IOException
 	{
 		try
 		{
@@ -1584,7 +1572,7 @@ public class CocoaTranslator
 			DateFormat yearFormat = new SimpleDateFormat("yyyy");
 
 			Date date = new Date();
-			appendable.append("//\n//  " + inputClass.getSimpleName()
+			appendable.append("//\n//  " + inputClass.getClassSimpleName()
 					+ ".h\n//  ecologylabXML\n//\n//  Generated by CocoaTranslator on "
 					+ dateFormat.format(date) + ".\n//  Copyright " + yearFormat.format(date)
 					+ " Interface Ecology Lab. \n//\n\n");
@@ -1601,14 +1589,14 @@ public class CocoaTranslator
 	 * @param appendable
 	 * @throws IOException
 	 */
-	private void appendImplementationComments(Class<?> inputClass, Appendable appendable)
+	private void appendImplementationComments(ClassDescriptor inputClass, Appendable appendable)
 			throws IOException
 	{
 		DateFormat dateFormat = new SimpleDateFormat("MM/dd/yy");
 		DateFormat yearFormat = new SimpleDateFormat("yyyy");
 
 		Date date = new Date();
-		appendable.append("//\n//  " + inputClass.getSimpleName()
+		appendable.append("//\n//  " + inputClass.getClassSimpleName()
 				+ ".m\n//  ecologylabXML\n//\n//  Generated by CocoaTranslator on "
 				+ dateFormat.format(date) + ".\n//  Copyright " + yearFormat.format(date)
 				+ " Interface Ecology Lab. \n//\n\n");
@@ -1627,7 +1615,7 @@ public class CocoaTranslator
 	 * @return
 	 * @throws IOException
 	 */
-	private File createHeaderFileWithDirectoryStructure(Class<?> inputClass, File directoryLocation)
+	private File createHeaderFileWithDirectoryStructure(ClassDescriptor inputClass, File directoryLocation)
 			throws IOException
 	{
 		String packageName = XMLTools.getPackageName(inputClass);
@@ -1672,7 +1660,7 @@ public class CocoaTranslator
 	 * @return
 	 * @throws IOException
 	 */
-	private File createImplementationFileWithDirectoryStructure(Class<?> inputClass,
+	private File createImplementationFileWithDirectoryStructure(ClassDescriptor inputClass,
 			File directoryLocation) throws IOException
 	{
 		String packageName = XMLTools.getPackageName(inputClass);
