@@ -57,11 +57,18 @@ public class HibernateXmlMappingGenerator extends Debug
 
 	private DbNameGenerator													dbNameGenerator;
 
-	private SimplTypesScope												translationScope;
+	private SimplTypesScope													translationScope;
 
+	/**
+	 * this is the map from (full) class names to ORM ID field names. each root class should be in
+	 * this map as a key, and the value is the name of the field that will be used as the primary key.
+	 * if a root class isn't in this map, we will try to find the ID field using a default name
+	 * specified in DbNameGenerator. typically, surrogate keys are recommended, so this could just be
+	 * a long integer field.
+	 */
 	private Map<String, String>											idFieldNameByClass;
 
-	private Map<String, HibernateMapping>						allMapping							= new HashMap<String, HibernateMapping>();
+	private Map<String, HibernateClass>							allMappings							= new HashMap<String, HibernateClass>();
 
 	public HibernateXmlMappingGenerator()
 	{
@@ -112,26 +119,23 @@ public class HibernateXmlMappingGenerator extends Debug
 
 		for (ClassDescriptor cd : translationScope.entriesByClassName().values())
 		{
-			HibernateMapping mapping = new HibernateMapping();
-			mapping.setMappingPackageName(cd.getDescribedClassPackageName());
-			HibernateClass currentClass = generateClassMapping(cd);
-			if (currentClass != null)
-			{
-				mapping.getMappedClasses().put(currentClass.getName(), currentClass);
-				allMapping.put(currentClass.getName(), mapping);
-			}
+			generateClassMapping(cd);
 			this.dbNameGenerator.clearCache();
 		}
 
-		for (HibernateMapping mapping : allMapping.values())
+		for (HibernateClass classMapping : allMappings.values())
 		{
-			HibernateClass currentClass = mapping.getMappedClasses().get(0);
-			String entityClassName = currentClass.getName().replace('$', '_');
+			HibernateMapping mappingUnit = new HibernateMapping();
+			mappingUnit.setMappingPackageName(classMapping.getMappedClassDescriptor().getDescribedClassPackageName());
+			mappingUnit.getMappedClasses().put(classMapping.getName(), classMapping);
+			
+			String entityClassName = classMapping.getName().replace('$', '_');
 			File newHbmFile = new File(hbmDir, entityClassName + ".hbm.xml");
 			mappingImports.add(String.format("<mapping file=\"%s\" />", newHbmFile.getPath()));
+			
 			PrintWriter writer = new PrintWriter(newHbmFile);
 			writer.println(XML_HEAD);
-			SimplTypesScope.serialize(mapping, writer, StringFormat.XML);			
+			SimplTypesScope.serialize(mappingUnit, writer, StringFormat.XML);			
 			writer.println();
 			writer.close();
 		}
@@ -142,6 +146,12 @@ public class HibernateXmlMappingGenerator extends Debug
 
 	protected HibernateClass generateClassMapping(ClassDescriptor cd)
 	{
+		if (cd == null)
+			return null;
+		
+		if (allMappings.containsKey(cd.getDescribedClassName()))
+			return null; // this class has been mapped before or being mapped. prevent infinite loops.
+		
 		HibernateClass thatClass = null;
 
 		ClassDescriptor superCd = cd.getSuperClass();
@@ -156,27 +166,37 @@ public class HibernateXmlMappingGenerator extends Debug
 			// this is optional. if second level cache is disabled this will cause an error
 //			thatClass.setCache(new HibernateClassCache());
 			
-			// thatClass.setDiscriminatorValue(cd.getDescribedClassName());
-			// thatClass.setDiscriminator(new HibernateClassDiscriminator(DISCRIMINATOR_COLUMN_NAME));
+			// discriminator isn't working in hibernate in my experiments :(
+//			 thatClass.setDiscriminatorValue(cd.getDescribedClassName());
+//			 thatClass.setDiscriminator(new HibernateClassDiscriminator(DISCRIMINATOR_COLUMN_NAME));
 		}
 		else
 		{
 			String idColName = findIdColName(cd);
 			thatClass = new HibernateJoinedSubclass(superCd.getDescribedClassName(), new HibernateKey(idColName));
 		}
-		thatClass.setName(cd.getDescribedClassName());
-		thatClass.setTable(dbNameGenerator.getTableName(cd));
-
-		thatClass.setProperties(new HashMapArrayList<String, HibernateFieldBase>());
-		cd.resolvePolymorphicAnnotations();
-		for (Object fdObj : cd.getDeclaredFieldDescriptorsByFieldName().values())
+		if (thatClass != null)
 		{
-			FieldDescriptor fd = (FieldDescriptor) fdObj;
-			if (fd.getName().equals(findIdFieldName(cd)))
-				continue;
-			HibernateFieldBase currentField = generateFieldMapping(cd, fd);
-			if (currentField != null)
-				thatClass.getProperties().put(currentField.getName(), currentField);
+			// put it in the bookkeeping map early to prevent infinite loop
+			allMappings.put(cd.getDescribedClassName(), thatClass);
+			
+			thatClass.setMappedClassDescriptor(cd);
+			thatClass.setName(cd.getDescribedClassName());
+			thatClass.setTable(dbNameGenerator.getTableName(cd));
+			thatClass.setProperties(new HashMapArrayList<String, HibernateFieldBase>());
+			cd.resolvePolymorphicAnnotations();
+			for (Object fdObj : cd.getDeclaredFieldDescriptorsByFieldName().values())
+			{
+				FieldDescriptor fd = (FieldDescriptor) fdObj;
+				if (fd.getName().equals(findIdFieldName(cd)))
+					continue;
+				if (fd.getDeclaringClassDescriptor().equals(cd))
+				{
+					HibernateFieldBase currentField = generateFieldMapping(cd, fd);
+					if (currentField != null)
+						thatClass.getProperties().put(currentField.getName(), currentField);
+				}
+			}
 		}
 
 		return thatClass;
@@ -268,6 +288,10 @@ public class HibernateXmlMappingGenerator extends Debug
 			warning("Cannot find or determine element ClassDescriptor: " + fd);
 			return null;
 		}
+		else
+		{
+			generateClassMapping(elementCd);
+		}
 		
 		HibernateComposite comp = new HibernateComposite();
 		comp.setName(fd.getName());
@@ -302,6 +326,10 @@ public class HibernateXmlMappingGenerator extends Debug
 		{
 			warning("Cannot find or determine element ClassDescriptor: " + fd);
 			return null;
+		}
+		else
+		{
+			generateClassMapping(elementCd);
 		}
 		
 		HibernateList coll = new HibernateList();

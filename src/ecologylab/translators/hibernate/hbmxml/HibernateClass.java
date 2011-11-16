@@ -1,6 +1,7 @@
 package ecologylab.translators.hibernate.hbmxml;
 
 import ecologylab.generic.HashMapArrayList;
+import ecologylab.serialization.ClassDescriptor;
 import ecologylab.serialization.annotations.simpl_classes;
 import ecologylab.serialization.annotations.simpl_composite;
 import ecologylab.serialization.annotations.simpl_inherit;
@@ -45,6 +46,8 @@ public class HibernateClass extends HibernateBasic
 			HibernateMap.class })
 	@simpl_serialization_order(8)
 	private HashMapArrayList<String, HibernateFieldBase>	properties;
+	
+	private ClassDescriptor																mappedClassDescriptor;
 
 	public HibernateClass()
 	{
@@ -119,6 +122,16 @@ public class HibernateClass extends HibernateBasic
 	public HashMapArrayList<String, HibernateFieldBase> getProperties()
 	{
 		return properties;
+	}
+
+	public ClassDescriptor getMappedClassDescriptor()
+	{
+		return mappedClassDescriptor;
+	}
+
+	public void setMappedClassDescriptor(ClassDescriptor mappedClassDescriptor)
+	{
+		this.mappedClassDescriptor = mappedClassDescriptor;
 	}
 
 }

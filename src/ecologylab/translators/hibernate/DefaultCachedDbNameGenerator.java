@@ -379,6 +379,10 @@ public class DefaultCachedDbNameGenerator extends Debug implements DbNameGenerat
 		"year",
 	}));
 
+	private static final String	TABLE_MAGIC_PREFIX	= "simpl_table__";
+
+	private static final String	COLUMN_MAGIC_PREFIX	= "simpl_column__";
+
 	public static final String	ASSOCIATION_TABLE_SEP	= "__";
 
 	private Map<Object, String>	cachedNames						= new HashMap<Object, String>();
@@ -387,7 +391,7 @@ public class DefaultCachedDbNameGenerator extends Debug implements DbNameGenerat
 	{
 		String name = XMLTools.getXmlTagName(cd.getDescribedClassSimpleName(), null).toLowerCase();
 		if (SQL_RESERVED.contains(name))
-			name = "mmd_table__" + name;
+			name = TABLE_MAGIC_PREFIX + name;
 		return name;
 	}
 
@@ -400,7 +404,7 @@ public class DefaultCachedDbNameGenerator extends Debug implements DbNameGenerat
 	{
 		String name = XMLTools.getXmlTagName(fieldName, null);
 		if (SQL_RESERVED.contains(name))
-			name = "mmd_column__" + name;
+			name = COLUMN_MAGIC_PREFIX + name;
 		return name;
 	}
 
