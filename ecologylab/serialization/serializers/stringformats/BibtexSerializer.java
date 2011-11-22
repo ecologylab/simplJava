@@ -7,6 +7,7 @@ import java.util.Collection;
 import ecologylab.serialization.ClassDescriptor;
 import ecologylab.serialization.FieldDescriptor;
 import ecologylab.serialization.FieldTypes;
+import ecologylab.serialization.FieldValueRetriever;
 import ecologylab.serialization.SIMPLTranslationException;
 import ecologylab.serialization.TranslationContext;
 import ecologylab.serialization.XMLTools;
@@ -131,7 +132,15 @@ public class BibtexSerializer extends StringSerializer implements FieldTypes
 			TranslationContext translationContext, FieldDescriptor fd) throws SIMPLTranslationException,
 			IOException
 	{
-		Object compositeObject = fd.getObject(object);
+		FieldValueRetriever fieldValueRetriever =
+			translationContext == null ? null : translationContext.getFieldValueRetriever();
+		
+		Object compositeObject = null;
+		if (fieldValueRetriever == null)
+			compositeObject = fd.getValue(object);
+		else
+			compositeObject = fieldValueRetriever.getValue(fd, object);
+		
 		FieldDescriptor compositeAsScalarFD = getClassDescriptor(compositeObject)
 				.getScalarValueFieldDescripotor();
 
@@ -191,7 +200,7 @@ public class BibtexSerializer extends StringSerializer implements FieldTypes
 			TranslationContext translationContext, FieldDescriptor fd) throws IOException,
 			SIMPLTranslationException
 	{
-		Object scalarCollectionObject = fd.getObject(object);
+		Object scalarCollectionObject = fd.getValue(object);
 		Collection<?> scalarCollection = XMLTools.getCollection(scalarCollectionObject);
 		
 		String delim = "author".equals(fd.getBibtexTagName()) ? " and " : translationContext
@@ -233,7 +242,7 @@ public class BibtexSerializer extends StringSerializer implements FieldTypes
 			TranslationContext translationContext, FieldDescriptor fd) throws IOException,
 			SIMPLTranslationException
 	{
-		Object scalarCollectionObject = fd.getObject(object);
+		Object scalarCollectionObject = fd.getValue(object);
 		Collection<?> scalarCollection = XMLTools.getCollection(scalarCollectionObject);
 
 		String delim = "author".equals(fd.getBibtexTagName()) ? " and " : translationContext

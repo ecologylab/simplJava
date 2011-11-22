@@ -48,7 +48,7 @@ public class TranslationContext extends Debug implements ScalarUnmarshallingCont
 	protected File										baseDirFile;
 
 	protected String									delimiter				= ",";
-
+	
 	/**
 	 * 
 	 */
@@ -184,7 +184,7 @@ public class TranslationContext extends Debug implements ScalarUnmarshallingCont
 					{
 						if (next instanceof Object)
 						{
-							Object compositeElement = (Object) next;
+							Object compositeElement = next;
 
 							if (this.alreadyVisited(compositeElement))
 							{
@@ -201,7 +201,7 @@ public class TranslationContext extends Debug implements ScalarUnmarshallingCont
 				}
 				else if (thatReferenceObject instanceof Object)
 				{
-					Object compositeElement = (Object) thatReferenceObject;
+					Object compositeElement = thatReferenceObject;
 
 					if (this.alreadyVisited(compositeElement))
 					{
@@ -299,7 +299,7 @@ public class TranslationContext extends Debug implements ScalarUnmarshallingCont
 
 	public String getSimplId(Object object)
 	{
-		Integer objectHashCode = ((Integer) object.hashCode());
+		Integer objectHashCode = object.hashCode();
 		Integer orderedIndex = marshalledObjects.contains(objectHashCode, object);
 
 		if (orderedIndex > 0)
@@ -341,4 +341,16 @@ public class TranslationContext extends Debug implements ScalarUnmarshallingCont
 		baseDirFile = null;
 		delimiter = ",";
 	}
+
+	/**
+	 * Subclasses should override this method to customize the process of retrieving field values
+	 * using FieldDescriptor.
+	 * 
+	 * @return
+	 */
+	public FieldValueRetriever getFieldValueRetriever()
+	{
+		return null;
+	}
+
 }

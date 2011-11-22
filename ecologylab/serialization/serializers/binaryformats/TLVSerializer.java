@@ -11,11 +11,12 @@ import java.util.Collection;
 import ecologylab.serialization.ClassDescriptor;
 import ecologylab.serialization.FieldDescriptor;
 import ecologylab.serialization.FieldTypes;
+import ecologylab.serialization.FieldValueRetriever;
 import ecologylab.serialization.SIMPLTranslationException;
-import ecologylab.serialization.TranslationContext;
 import ecologylab.serialization.SimplTypesScope;
-import ecologylab.serialization.XMLTools;
 import ecologylab.serialization.SimplTypesScope.GRAPH_SWITCH;
+import ecologylab.serialization.TranslationContext;
+import ecologylab.serialization.XMLTools;
 import ecologylab.serialization.formatenums.Format;
 
 /**
@@ -40,6 +41,7 @@ public class TLVSerializer extends BinarySerializer implements FieldTypes
 	 * @throws
 	 * @throws IOException
 	 */
+	@Override
 	public void serialize(Object object, DataOutputStream dataOutputStream,
 			TranslationContext translationContext) throws SIMPLTranslationException
 	{
@@ -160,7 +162,15 @@ public class TLVSerializer extends BinarySerializer implements FieldTypes
 				writeValue(object, childFd, outputBuffer, translationContext);
 				break;
 			case COMPOSITE_ELEMENT:
-				Object compositeObject = childFd.getObject(object);
+				FieldValueRetriever fieldValueRetriever =
+					translationContext == null ? null : translationContext.getFieldValueRetriever();
+				
+				Object compositeObject = null;
+				if (fieldValueRetriever == null)
+					compositeObject = childFd.getValue(object);
+				else
+					compositeObject = fieldValueRetriever.getValue(childFd, object);
+					
 				FieldDescriptor compositeObjectFieldDescriptor = childFd.isPolymorphic() ? getClassDescriptor(
 						compositeObject).pseudoFieldDescriptor()
 						: childFd;
@@ -170,7 +180,7 @@ public class TLVSerializer extends BinarySerializer implements FieldTypes
 				break;
 			case COLLECTION_SCALAR:
 			case MAP_SCALAR:
-				Object scalarCollectionObject = childFd.getObject(object);
+				Object scalarCollectionObject = childFd.getValue(object);
 				Collection<?> scalarCollection = XMLTools.getCollection(scalarCollectionObject);
 				for (Object collectionObject : scalarCollection)
 				{
@@ -180,7 +190,7 @@ public class TLVSerializer extends BinarySerializer implements FieldTypes
 				break;
 			case COLLECTION_ELEMENT:
 			case MAP_ELEMENT:
-				Object compositeCollectionObject = childFd.getObject(object);
+				Object compositeCollectionObject = childFd.getValue(object);
 				Collection<?> compositeCollection = XMLTools.getCollection(compositeCollectionObject);
 				for (Object collectionComposite : compositeCollection)
 				{
@@ -207,7 +217,7 @@ public class TLVSerializer extends BinarySerializer implements FieldTypes
 	{
 		outputBuffer.writeInt(TranslationContext.SIMPL_ID.hashCode());
 		outputBuffer.writeInt(4);
-		outputBuffer.writeInt(((Integer) object.hashCode()));
+		outputBuffer.writeInt(object.hashCode());
 	}
 
 	/**
@@ -342,7 +352,7 @@ public class TLVSerializer extends BinarySerializer implements FieldTypes
 		DataOutputStream outputBuffer = new DataOutputStream(simplRefData);
 		outputBuffer.writeInt(TranslationContext.SIMPL_REF.hashCode());
 		outputBuffer.writeInt(4);
-		outputBuffer.writeInt(((Integer) object.hashCode()));
+		outputBuffer.writeInt(object.hashCode());
 
 		writeHeader(outputStream, simplRefData, fd.getTLVId());
 	}

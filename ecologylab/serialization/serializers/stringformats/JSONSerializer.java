@@ -7,11 +7,12 @@ import java.util.Collection;
 import ecologylab.serialization.ClassDescriptor;
 import ecologylab.serialization.FieldDescriptor;
 import ecologylab.serialization.FieldTypes;
+import ecologylab.serialization.FieldValueRetriever;
 import ecologylab.serialization.SIMPLTranslationException;
-import ecologylab.serialization.TranslationContext;
 import ecologylab.serialization.SimplTypesScope;
-import ecologylab.serialization.XMLTools;
 import ecologylab.serialization.SimplTypesScope.GRAPH_SWITCH;
+import ecologylab.serialization.TranslationContext;
+import ecologylab.serialization.XMLTools;
 import ecologylab.serialization.formatenums.Format;
 
 /***
@@ -164,13 +165,13 @@ public class JSONSerializer extends StringSerializer implements FieldTypes
 		case COMPOSITE_ELEMENT:
 		case COLLECTION_ELEMENT:
 		case MAP_ELEMENT:
-			Object obj = childFd.getObject(object);
+			Object obj = childFd.getValue(object);
 			if (obj == null)
 				return false;
 			break;
 		case COLLECTION_SCALAR:
 		case MAP_SCALAR:
-			Object scalarCollectionObject = childFd.getObject(object);
+			Object scalarCollectionObject = childFd.getValue(object);
 			Collection<?> scalarCollection = XMLTools.getCollection(scalarCollectionObject);
 			if (scalarCollection == null || scalarCollection.size() <= 0)
 				return false;
@@ -193,7 +194,15 @@ public class JSONSerializer extends StringSerializer implements FieldTypes
 			TranslationContext translationContext, FieldDescriptor childFd)
 			throws SIMPLTranslationException, IOException
 	{
-		Object compositeObject = childFd.getObject(object);
+		FieldValueRetriever fieldValueRetriever =
+		translationContext == null ? null : translationContext.getFieldValueRetriever();
+		
+		Object compositeObject = null;
+		if (fieldValueRetriever == null)
+			compositeObject = childFd.getValue(object);
+		else
+			compositeObject = fieldValueRetriever.getValue(childFd, object);
+				
 		FieldDescriptor compositeObjectFieldDescriptor = childFd.isPolymorphic() ? getClassDescriptor(
 				compositeObject).pseudoFieldDescriptor() : childFd;
 		serialize(compositeObject, compositeObjectFieldDescriptor, appendable, translationContext, true);
@@ -212,7 +221,7 @@ public class JSONSerializer extends StringSerializer implements FieldTypes
 			TranslationContext translationContext, FieldDescriptor childFd) throws IOException,
 			SIMPLTranslationException
 	{
-		Object collectionObject = childFd.getObject(object);
+		Object collectionObject = childFd.getValue(object);
 		Collection<?> compositeCollection = XMLTools.getCollection(collectionObject);
 		int numberOfItems = 0;
 
@@ -247,7 +256,7 @@ public class JSONSerializer extends StringSerializer implements FieldTypes
 			TranslationContext translationContext, FieldDescriptor childFd) throws IOException,
 			SIMPLTranslationException
 	{
-		Object collectionObject = childFd.getObject(object);
+		Object collectionObject = childFd.getValue(object);
 		Collection<?> compositeCollection = XMLTools.getCollection(collectionObject);
 		int numberOfItems = 0;
 
@@ -283,7 +292,7 @@ public class JSONSerializer extends StringSerializer implements FieldTypes
 			TranslationContext translationContext, FieldDescriptor childFd) throws IOException,
 			SIMPLTranslationException
 	{
-		Object scalarCollectionObject = childFd.getObject(object);
+		Object scalarCollectionObject = childFd.getValue(object);
 		Collection<?> scalarCollection = XMLTools.getCollection(scalarCollectionObject);
 		int numberOfItems = 0;
 

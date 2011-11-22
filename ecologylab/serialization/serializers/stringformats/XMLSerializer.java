@@ -7,11 +7,12 @@ import java.util.Collection;
 import ecologylab.serialization.ClassDescriptor;
 import ecologylab.serialization.FieldDescriptor;
 import ecologylab.serialization.FieldTypes;
+import ecologylab.serialization.FieldValueRetriever;
 import ecologylab.serialization.SIMPLTranslationException;
-import ecologylab.serialization.TranslationContext;
 import ecologylab.serialization.SimplTypesScope;
-import ecologylab.serialization.XMLTools;
 import ecologylab.serialization.SimplTypesScope.GRAPH_SWITCH;
+import ecologylab.serialization.TranslationContext;
+import ecologylab.serialization.XMLTools;
 import ecologylab.serialization.formatenums.Format;
 
 /**
@@ -179,7 +180,15 @@ public class XMLSerializer extends StringSerializer implements FieldTypes
 				writeValueAsLeaf(object, childFd, appendable, translationContext);
 				break;
 			case COMPOSITE_ELEMENT:
-				Object compositeObject = childFd.getObject(object);
+				FieldValueRetriever fieldValueRetriever =
+					translationContext == null ? null : translationContext.getFieldValueRetriever();
+				
+				Object compositeObject = null;
+				if (fieldValueRetriever == null)
+					compositeObject = childFd.getValue(object);
+				else
+					compositeObject = fieldValueRetriever.getValue(childFd, object);
+					
 				if (compositeObject != null)
 				{
 					FieldDescriptor compositeObjectFieldDescriptor = childFd.isPolymorphic() ? getClassDescriptor(
@@ -192,7 +201,7 @@ public class XMLSerializer extends StringSerializer implements FieldTypes
 				break;
 			case COLLECTION_SCALAR:
 			case MAP_SCALAR:
-				Object scalarCollectionObject = childFd.getObject(object);
+				Object scalarCollectionObject = childFd.getValue(object);
 				Collection<?> scalarCollection = XMLTools.getCollection(scalarCollectionObject);
 				if (scalarCollection != null && scalarCollection.size() > 0)
 				{
@@ -207,7 +216,7 @@ public class XMLSerializer extends StringSerializer implements FieldTypes
 				break;
 			case COLLECTION_ELEMENT:
 			case MAP_ELEMENT:
-				Object compositeCollectionObject = childFd.getObject(object);
+				Object compositeCollectionObject = childFd.getValue(object);
 				Collection<?> compositeCollection = XMLTools.getCollection(compositeCollectionObject);
 				if (compositeCollection != null && compositeCollection.size() > 0)
 				{

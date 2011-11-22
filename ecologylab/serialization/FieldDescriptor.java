@@ -21,7 +21,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.w3c.dom.Node;
-import org.xml.sax.Attributes;
 
 import sun.reflect.generics.reflectiveObjects.ParameterizedTypeImpl;
 import sun.reflect.generics.reflectiveObjects.TypeVariableImpl;
@@ -30,7 +29,6 @@ import ecologylab.generic.ReflectionTools;
 import ecologylab.generic.StringBuilderBaseUtils;
 import ecologylab.generic.StringTools;
 import ecologylab.serialization.MetaInformation.Argument;
-import ecologylab.serialization.SimplTypesScope.GRAPH_SWITCH;
 import ecologylab.serialization.annotations.Hint;
 import ecologylab.serialization.annotations.simpl_classes;
 import ecologylab.serialization.annotations.simpl_collection;
@@ -72,8 +70,17 @@ public class FieldDescriptor extends DescriptorBase implements FieldTypes, IMapp
 
 	public static final String												NULL												= ScalarType.DEFAULT_VALUE_STRING;
 
-	public static final Class[]												SET_METHOD_STRING_ARG				=
-																																								{ String.class };
+	public static final Class[]												SET_METHOD_STRING_ARG				= { String.class };
+	
+	public FieldValueRetriever												valueRetriever							= new FieldValueRetriever()
+	{
+		@Override
+		public Object getValue(FieldDescriptor fd, Object context)
+		{
+			// TODO Auto-generated method stub
+			return null;
+		}
+	};
 
 	@simpl_scalar
 	protected Field																		field;																													// TODO
@@ -216,7 +223,7 @@ public class FieldDescriptor extends DescriptorBase implements FieldTypes, IMapp
 	 * if not null, refers to the descriptor that this field is cloned from.
 	 */
 	private FieldDescriptor														clonedFrom;
-
+	
 	/**
 	 * Default constructor only for use by translateFromXML().
 	 */
@@ -1125,36 +1132,6 @@ public class FieldDescriptor extends DescriptorBase implements FieldTypes, IMapp
 			return value == null;
 	}
 
-	public Object getValue(Object context)
-	{
-		Object value = null;
-		try
-		{
-			if (context != null)
-				value = this.field.get(context);
-		}
-		catch (IllegalArgumentException e)
-		{
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		catch (IllegalAccessException e)
-		{
-			debugA("WARNING re-trying access! " + e.getStackTrace()[0]);
-			this.field.setAccessible(true);
-			try
-			{
-				value = this.field.get(this);
-			}
-			catch (IllegalAccessException e1)
-			{
-				error("Can't access " + this.field.getName());
-				e1.printStackTrace();
-			}
-		}
-		return value;
-	}
-
 	/**
 	 * Appends the label and value of a metadata field to HTML elements, including anchors where
 	 * appropriate
@@ -1283,6 +1260,7 @@ public class FieldDescriptor extends DescriptorBase implements FieldTypes, IMapp
 		return format;
 	}
 
+	@Override
 	public String toString()
 	{
 		String name = (field != null) ? field.getName() : "NO_FIELD";
@@ -1757,6 +1735,7 @@ public class FieldDescriptor extends DescriptorBase implements FieldTypes, IMapp
 		// return this.getDeclaringClassDescriptor().getDescribedClass() == c.getDescribedClass();
 	}
 
+	@Override
 	public ArrayList<String> otherTags()
 	{
 		ArrayList<String> result = this.otherTags;
@@ -2068,13 +2047,13 @@ public class FieldDescriptor extends DescriptorBase implements FieldTypes, IMapp
 				.getDbTypeName();
 	}
 
-	public Object getObject(Object object)
+	public Object getValue(Object context)
 	{
-		Object thatReferenceObject = null;
+		Object resultObject = null;
 		Field childField = this.getField();
 		try
 		{
-			thatReferenceObject = childField.get(object);
+			resultObject = childField.get(context);
 		}
 		catch (IllegalAccessException e)
 		{
@@ -2082,7 +2061,7 @@ public class FieldDescriptor extends DescriptorBase implements FieldTypes, IMapp
 			childField.setAccessible(true);
 			try
 			{
-				thatReferenceObject = childField.get(this);
+				resultObject = childField.get(this);
 			}
 			catch (IllegalAccessException e1)
 			{
@@ -2090,7 +2069,7 @@ public class FieldDescriptor extends DescriptorBase implements FieldTypes, IMapp
 				e1.printStackTrace();
 			}
 		}
-		return thatReferenceObject;
+		return resultObject;
 	}
 
 	public void appendValue(Appendable appendable, Object object,
@@ -2134,6 +2113,7 @@ public class FieldDescriptor extends DescriptorBase implements FieldTypes, IMapp
 	/**
 	 * make a SHALLOW copy of this descriptor.
 	 */
+	@Override
 	public FieldDescriptor clone()
 	{
 		FieldDescriptor cloned = null;
@@ -2246,5 +2226,5 @@ public class FieldDescriptor extends DescriptorBase implements FieldTypes, IMapp
 		}
 		return metaInfo;
 	}
-
+	
 }
