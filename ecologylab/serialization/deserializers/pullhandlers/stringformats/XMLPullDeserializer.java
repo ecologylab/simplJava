@@ -19,8 +19,8 @@ import ecologylab.serialization.DeserializationHookStrategy;
 import ecologylab.serialization.ElementState;
 import ecologylab.serialization.FieldDescriptor;
 import ecologylab.serialization.SIMPLTranslationException;
-import ecologylab.serialization.TranslationContext;
 import ecologylab.serialization.SimplTypesScope;
+import ecologylab.serialization.TranslationContext;
 import ecologylab.serialization.types.element.IMappable;
 
 /**
@@ -85,6 +85,7 @@ public class XMLPullDeserializer extends StringPullDeserializer
 	 * @throws SIMPLTranslationException
 	 * @throws IOException
 	 */
+	@Override
 	public Object parse(CharSequence charSequence) throws SIMPLTranslationException
 	{
 		try
@@ -189,7 +190,6 @@ public class XMLPullDeserializer extends StringPullDeserializer
 
 		try
 		{
-
 			int event = 0;
 			event = nextEvent();
 
