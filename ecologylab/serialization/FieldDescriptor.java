@@ -72,16 +72,6 @@ public class FieldDescriptor extends DescriptorBase implements FieldTypes, IMapp
 
 	public static final Class[]												SET_METHOD_STRING_ARG				= { String.class };
 	
-	public FieldValueRetriever												valueRetriever							= new FieldValueRetriever()
-	{
-		@Override
-		public Object getValue(FieldDescriptor fd, Object context)
-		{
-			// TODO Auto-generated method stub
-			return null;
-		}
-	};
-
 	@simpl_scalar
 	protected Field																		field;																													// TODO
 

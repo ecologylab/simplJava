@@ -15,6 +15,15 @@ public interface FieldValueRetriever
 	 * @param context
 	 * @return
 	 */
-	Object getValue(FieldDescriptor fd, Object context);
+	Object getFieldValue(FieldDescriptor fd, Object context);
+	
+	/**
+	 * This method returns the true value from a proxy object. If the input is not a proxy object,
+	 * this method should return it untouched.
+	 * 
+	 * @param proxy
+	 * @return
+	 */
+	Object getTrueValueFromProxy(Object proxy);
 	
 }

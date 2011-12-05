@@ -187,7 +187,7 @@ public class XMLSerializer extends StringSerializer implements FieldTypes
 				if (fieldValueRetriever == null)
 					compositeObject = childFd.getValue(object);
 				else
-					compositeObject = fieldValueRetriever.getValue(childFd, object);
+					compositeObject = fieldValueRetriever.getFieldValue(childFd, object);
 					
 				if (compositeObject != null)
 				{
@@ -223,10 +223,14 @@ public class XMLSerializer extends StringSerializer implements FieldTypes
 					writeWrap(childFd, appendable, false);
 					for (Object collectionComposite : compositeCollection)
 					{
+						Object trueValue = collectionComposite;
+						if (translationContext != null && translationContext.getFieldValueRetriever() != null)
+							trueValue = translationContext.getFieldValueRetriever().getTrueValueFromProxy(collectionComposite);
+						
 						FieldDescriptor collectionObjectFieldDescriptor = childFd.isPolymorphic() ? getClassDescriptor(
-								collectionComposite).pseudoFieldDescriptor()
+								trueValue).pseudoFieldDescriptor()
 								: childFd;
-						serialize(collectionComposite, collectionObjectFieldDescriptor, appendable,
+						serialize(trueValue, collectionObjectFieldDescriptor, appendable,
 								translationContext);
 					}
 					writeWrap(childFd, appendable, true);

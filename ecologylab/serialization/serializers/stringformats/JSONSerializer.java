@@ -201,7 +201,7 @@ public class JSONSerializer extends StringSerializer implements FieldTypes
 		if (fieldValueRetriever == null)
 			compositeObject = childFd.getValue(object);
 		else
-			compositeObject = fieldValueRetriever.getValue(childFd, object);
+			compositeObject = fieldValueRetriever.getFieldValue(childFd, object);
 				
 		FieldDescriptor compositeObjectFieldDescriptor = childFd.isPolymorphic() ? getClassDescriptor(
 				compositeObject).pseudoFieldDescriptor() : childFd;
@@ -229,11 +229,15 @@ public class JSONSerializer extends StringSerializer implements FieldTypes
 		writeCollectionStart(childFd, appendable);
 		for (Object collectionComposite : compositeCollection)
 		{
+			Object trueValue = collectionComposite;
+			if (translationContext != null && translationContext.getFieldValueRetriever() != null)
+				trueValue = translationContext.getFieldValueRetriever().getTrueValueFromProxy(collectionComposite);
+						
 			FieldDescriptor collectionObjectFieldDescriptor = childFd.isPolymorphic() ? getClassDescriptor(
-					collectionComposite).pseudoFieldDescriptor()
+					trueValue).pseudoFieldDescriptor()
 					: childFd;
 
-			serialize(collectionComposite, collectionObjectFieldDescriptor, appendable,
+			serialize(trueValue, collectionObjectFieldDescriptor, appendable,
 					translationContext, false);
 
 			if (++numberOfItems < compositeCollection.size())

@@ -49,6 +49,8 @@ public class TranslationContext extends Debug implements ScalarUnmarshallingCont
 
 	protected String									delimiter				= ",";
 	
+	private FieldValueRetriever				fieldValueRetriever;
+	
 	/**
 	 * 
 	 */
@@ -342,15 +344,14 @@ public class TranslationContext extends Debug implements ScalarUnmarshallingCont
 		delimiter = ",";
 	}
 
-	/**
-	 * Subclasses should override this method to customize the process of retrieving field values
-	 * using FieldDescriptor.
-	 * 
-	 * @return
-	 */
 	public FieldValueRetriever getFieldValueRetriever()
 	{
-		return null;
+		return fieldValueRetriever;
+	}
+	
+	public void setFieldValueRetriever(FieldValueRetriever fieldValueRetriever)
+	{
+		this.fieldValueRetriever = fieldValueRetriever;
 	}
 
 }

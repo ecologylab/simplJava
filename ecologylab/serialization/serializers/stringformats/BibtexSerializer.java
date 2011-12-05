@@ -139,7 +139,7 @@ public class BibtexSerializer extends StringSerializer implements FieldTypes
 		if (fieldValueRetriever == null)
 			compositeObject = fd.getValue(object);
 		else
-			compositeObject = fieldValueRetriever.getValue(fd, object);
+			compositeObject = fieldValueRetriever.getFieldValue(fd, object);
 		
 		FieldDescriptor compositeAsScalarFD = getClassDescriptor(compositeObject)
 				.getScalarValueFieldDescripotor();
@@ -213,12 +213,16 @@ public class BibtexSerializer extends StringSerializer implements FieldTypes
 			writeCollectionStart(fd, appendable);
 			for (Object collectionObject : scalarCollection)
 			{
-				FieldDescriptor compositeAsScalarFD = getClassDescriptor(collectionObject)
+				Object trueValue = collectionObject;
+				if (translationContext != null && translationContext.getFieldValueRetriever() != null)
+					trueValue = translationContext.getFieldValueRetriever().getTrueValueFromProxy(collectionObject);
+						
+				FieldDescriptor compositeAsScalarFD = getClassDescriptor(trueValue)
 						.getScalarValueFieldDescripotor();
 
 				if (compositeAsScalarFD != null)
 				{
-					writeScalarBibtexAttribute(collectionObject, compositeAsScalarFD, appendable,
+					writeScalarBibtexAttribute(trueValue, compositeAsScalarFD, appendable,
 							translationContext);
 				}
 

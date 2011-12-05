@@ -108,6 +108,12 @@ public class ImageTools extends Debug
 
 	public static void writeFile(RenderedImage rendImage, File outfile, String formatName)
 	{
+		if (rendImage == null)
+		{
+			error(ImageTools.class, "rendered image is NULL! cannot save image file.");
+			return;
+		}
+		
 		try
 		{
 			// Find a png writer
@@ -258,6 +264,7 @@ public class ImageTools extends Debug
 		// it to a range between 0 and 256; this is not a correct conversion algorithm.
 		// However, a proper alternative is a lot more complicated.
 		// This should do until the bug is fixed.
+		@Override
 		public void setCompressionQuality(float quality)
 		{
 			if (quality < 0.0F || quality > 1.0F)

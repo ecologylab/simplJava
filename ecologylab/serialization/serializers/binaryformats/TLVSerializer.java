@@ -169,7 +169,7 @@ public class TLVSerializer extends BinarySerializer implements FieldTypes
 				if (fieldValueRetriever == null)
 					compositeObject = childFd.getValue(object);
 				else
-					compositeObject = fieldValueRetriever.getValue(childFd, object);
+					compositeObject = fieldValueRetriever.getFieldValue(childFd, object);
 					
 				FieldDescriptor compositeObjectFieldDescriptor = childFd.isPolymorphic() ? getClassDescriptor(
 						compositeObject).pseudoFieldDescriptor()
@@ -194,10 +194,14 @@ public class TLVSerializer extends BinarySerializer implements FieldTypes
 				Collection<?> compositeCollection = XMLTools.getCollection(compositeCollectionObject);
 				for (Object collectionComposite : compositeCollection)
 				{
+					Object trueValue = collectionComposite;
+					if (translationContext != null && translationContext.getFieldValueRetriever() != null)
+						trueValue = translationContext.getFieldValueRetriever().getTrueValueFromProxy(collectionComposite);
+						
 					FieldDescriptor collectionObjectFieldDescriptor = childFd.isPolymorphic() ? getClassDescriptor(
-							collectionComposite).pseudoFieldDescriptor()
+							trueValue).pseudoFieldDescriptor()
 							: childFd;
-					serialize(collectionComposite, collectionObjectFieldDescriptor, collectionBuffer,
+					serialize(trueValue, collectionObjectFieldDescriptor, collectionBuffer,
 							translationContext);
 				}
 				writeWrap(childFd, outputBuffer, byteArrayOutputStreamCollection);
