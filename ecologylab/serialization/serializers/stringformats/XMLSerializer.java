@@ -7,7 +7,6 @@ import java.util.Collection;
 import ecologylab.serialization.ClassDescriptor;
 import ecologylab.serialization.FieldDescriptor;
 import ecologylab.serialization.FieldTypes;
-import ecologylab.serialization.FieldValueRetriever;
 import ecologylab.serialization.SIMPLTranslationException;
 import ecologylab.serialization.SimplTypesScope;
 import ecologylab.serialization.SimplTypesScope.GRAPH_SWITCH;
@@ -180,15 +179,7 @@ public class XMLSerializer extends StringSerializer implements FieldTypes
 				writeValueAsLeaf(object, childFd, appendable, translationContext);
 				break;
 			case COMPOSITE_ELEMENT:
-				FieldValueRetriever fieldValueRetriever =
-					translationContext == null ? null : translationContext.getFieldValueRetriever();
-				
-				Object compositeObject = null;
-				if (fieldValueRetriever == null)
-					compositeObject = childFd.getValue(object);
-				else
-					compositeObject = fieldValueRetriever.getFieldValue(childFd, object);
-					
+				Object compositeObject = childFd.getValue(object);
 				if (compositeObject != null)
 				{
 					FieldDescriptor compositeObjectFieldDescriptor = childFd.isPolymorphic() ? getClassDescriptor(
@@ -223,14 +214,10 @@ public class XMLSerializer extends StringSerializer implements FieldTypes
 					writeWrap(childFd, appendable, false);
 					for (Object collectionComposite : compositeCollection)
 					{
-						Object trueValue = collectionComposite;
-						if (translationContext != null && translationContext.getFieldValueRetriever() != null)
-							trueValue = translationContext.getFieldValueRetriever().getTrueValueFromProxy(collectionComposite);
-						
 						FieldDescriptor collectionObjectFieldDescriptor = childFd.isPolymorphic() ? getClassDescriptor(
-								trueValue).pseudoFieldDescriptor()
+								collectionComposite).pseudoFieldDescriptor()
 								: childFd;
-						serialize(trueValue, collectionObjectFieldDescriptor, appendable,
+						serialize(collectionComposite, collectionObjectFieldDescriptor, appendable,
 								translationContext);
 					}
 					writeWrap(childFd, appendable, true);

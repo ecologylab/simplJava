@@ -7,7 +7,6 @@ import java.util.Collection;
 import ecologylab.serialization.ClassDescriptor;
 import ecologylab.serialization.FieldDescriptor;
 import ecologylab.serialization.FieldTypes;
-import ecologylab.serialization.FieldValueRetriever;
 import ecologylab.serialization.SIMPLTranslationException;
 import ecologylab.serialization.SimplTypesScope;
 import ecologylab.serialization.SimplTypesScope.GRAPH_SWITCH;
@@ -194,15 +193,7 @@ public class JSONSerializer extends StringSerializer implements FieldTypes
 			TranslationContext translationContext, FieldDescriptor childFd)
 			throws SIMPLTranslationException, IOException
 	{
-		FieldValueRetriever fieldValueRetriever =
-		translationContext == null ? null : translationContext.getFieldValueRetriever();
-		
-		Object compositeObject = null;
-		if (fieldValueRetriever == null)
-			compositeObject = childFd.getValue(object);
-		else
-			compositeObject = fieldValueRetriever.getFieldValue(childFd, object);
-				
+		Object compositeObject = childFd.getValue(object);
 		FieldDescriptor compositeObjectFieldDescriptor = childFd.isPolymorphic() ? getClassDescriptor(
 				compositeObject).pseudoFieldDescriptor() : childFd;
 		serialize(compositeObject, compositeObjectFieldDescriptor, appendable, translationContext, true);
@@ -229,15 +220,11 @@ public class JSONSerializer extends StringSerializer implements FieldTypes
 		writeCollectionStart(childFd, appendable);
 		for (Object collectionComposite : compositeCollection)
 		{
-			Object trueValue = collectionComposite;
-			if (translationContext != null && translationContext.getFieldValueRetriever() != null)
-				trueValue = translationContext.getFieldValueRetriever().getTrueValueFromProxy(collectionComposite);
-						
 			FieldDescriptor collectionObjectFieldDescriptor = childFd.isPolymorphic() ? getClassDescriptor(
-					trueValue).pseudoFieldDescriptor()
+					collectionComposite).pseudoFieldDescriptor()
 					: childFd;
 
-			serialize(trueValue, collectionObjectFieldDescriptor, appendable,
+			serialize(collectionComposite, collectionObjectFieldDescriptor, appendable,
 					translationContext, false);
 
 			if (++numberOfItems < compositeCollection.size())

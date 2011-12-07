@@ -11,7 +11,6 @@ import java.util.Collection;
 import ecologylab.serialization.ClassDescriptor;
 import ecologylab.serialization.FieldDescriptor;
 import ecologylab.serialization.FieldTypes;
-import ecologylab.serialization.FieldValueRetriever;
 import ecologylab.serialization.SIMPLTranslationException;
 import ecologylab.serialization.SimplTypesScope;
 import ecologylab.serialization.SimplTypesScope.GRAPH_SWITCH;
@@ -162,14 +161,7 @@ public class TLVSerializer extends BinarySerializer implements FieldTypes
 				writeValue(object, childFd, outputBuffer, translationContext);
 				break;
 			case COMPOSITE_ELEMENT:
-				FieldValueRetriever fieldValueRetriever =
-					translationContext == null ? null : translationContext.getFieldValueRetriever();
-				
-				Object compositeObject = null;
-				if (fieldValueRetriever == null)
-					compositeObject = childFd.getValue(object);
-				else
-					compositeObject = fieldValueRetriever.getFieldValue(childFd, object);
+				Object compositeObject = childFd.getValue(object);
 					
 				FieldDescriptor compositeObjectFieldDescriptor = childFd.isPolymorphic() ? getClassDescriptor(
 						compositeObject).pseudoFieldDescriptor()
@@ -194,14 +186,10 @@ public class TLVSerializer extends BinarySerializer implements FieldTypes
 				Collection<?> compositeCollection = XMLTools.getCollection(compositeCollectionObject);
 				for (Object collectionComposite : compositeCollection)
 				{
-					Object trueValue = collectionComposite;
-					if (translationContext != null && translationContext.getFieldValueRetriever() != null)
-						trueValue = translationContext.getFieldValueRetriever().getTrueValueFromProxy(collectionComposite);
-						
 					FieldDescriptor collectionObjectFieldDescriptor = childFd.isPolymorphic() ? getClassDescriptor(
-							trueValue).pseudoFieldDescriptor()
+							collectionComposite).pseudoFieldDescriptor()
 							: childFd;
-					serialize(trueValue, collectionObjectFieldDescriptor, collectionBuffer,
+					serialize(collectionComposite, collectionObjectFieldDescriptor, collectionBuffer,
 							translationContext);
 				}
 				writeWrap(childFd, outputBuffer, byteArrayOutputStreamCollection);

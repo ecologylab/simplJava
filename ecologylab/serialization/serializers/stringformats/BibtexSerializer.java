@@ -7,7 +7,6 @@ import java.util.Collection;
 import ecologylab.serialization.ClassDescriptor;
 import ecologylab.serialization.FieldDescriptor;
 import ecologylab.serialization.FieldTypes;
-import ecologylab.serialization.FieldValueRetriever;
 import ecologylab.serialization.SIMPLTranslationException;
 import ecologylab.serialization.TranslationContext;
 import ecologylab.serialization.XMLTools;
@@ -132,14 +131,7 @@ public class BibtexSerializer extends StringSerializer implements FieldTypes
 			TranslationContext translationContext, FieldDescriptor fd) throws SIMPLTranslationException,
 			IOException
 	{
-		FieldValueRetriever fieldValueRetriever =
-			translationContext == null ? null : translationContext.getFieldValueRetriever();
-		
-		Object compositeObject = null;
-		if (fieldValueRetriever == null)
-			compositeObject = fd.getValue(object);
-		else
-			compositeObject = fieldValueRetriever.getFieldValue(fd, object);
+		Object compositeObject = fd.getValue(object);
 		
 		FieldDescriptor compositeAsScalarFD = getClassDescriptor(compositeObject)
 				.getScalarValueFieldDescripotor();
@@ -213,16 +205,12 @@ public class BibtexSerializer extends StringSerializer implements FieldTypes
 			writeCollectionStart(fd, appendable);
 			for (Object collectionObject : scalarCollection)
 			{
-				Object trueValue = collectionObject;
-				if (translationContext != null && translationContext.getFieldValueRetriever() != null)
-					trueValue = translationContext.getFieldValueRetriever().getTrueValueFromProxy(collectionObject);
-						
-				FieldDescriptor compositeAsScalarFD = getClassDescriptor(trueValue)
+				FieldDescriptor compositeAsScalarFD = getClassDescriptor(collectionObject)
 						.getScalarValueFieldDescripotor();
 
 				if (compositeAsScalarFD != null)
 				{
-					writeScalarBibtexAttribute(trueValue, compositeAsScalarFD, appendable,
+					writeScalarBibtexAttribute(collectionObject, compositeAsScalarFD, appendable,
 							translationContext);
 				}
 

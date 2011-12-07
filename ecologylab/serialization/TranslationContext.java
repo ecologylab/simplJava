@@ -49,8 +49,6 @@ public class TranslationContext extends Debug implements ScalarUnmarshallingCont
 
 	protected String									delimiter				= ",";
 	
-	private FieldValueRetriever				fieldValueRetriever;
-	
 	/**
 	 * 
 	 */
@@ -163,7 +161,7 @@ public class TranslationContext extends Debug implements ScalarUnmarshallingCont
 				// ignore null reference objects
 				if (thatReferenceObject == null)
 					continue;
-
+				
 				int childFdType = elementFieldDescriptor.getType();
 
 				Collection thatCollection;
@@ -187,7 +185,7 @@ public class TranslationContext extends Debug implements ScalarUnmarshallingCont
 						if (next instanceof Object)
 						{
 							Object compositeElement = next;
-
+							
 							if (this.alreadyVisited(compositeElement))
 							{
 								// this.needsAttributeHashCode.put(System.identityHashCode(compositeElement),
@@ -342,16 +340,6 @@ public class TranslationContext extends Debug implements ScalarUnmarshallingCont
 		baseDirPurl = null;
 		baseDirFile = null;
 		delimiter = ",";
-	}
-
-	public FieldValueRetriever getFieldValueRetriever()
-	{
-		return fieldValueRetriever;
-	}
-	
-	public void setFieldValueRetriever(FieldValueRetriever fieldValueRetriever)
-	{
-		this.fieldValueRetriever = fieldValueRetriever;
 	}
 
 }
