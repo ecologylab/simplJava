@@ -29,8 +29,6 @@ public class MetaMetadataJavaTranslator extends JavaTranslator implements MmdCom
 
 	private static String[]			metaMetadataDefaultDependencies	= {
 		MetaMetadataCompositeField.class.getName(),
-		List.class.getName(),
-		SimplTypesScope.class.getName(),
 		SemanticsNames.class.getName(),
 		MetadataBuiltinsTranslationScope.class.getName(),
 	};
@@ -180,4 +178,12 @@ public class MetaMetadataJavaTranslator extends JavaTranslator implements MmdCom
 			appendable.append(classDef);
 	}
 	
+	@Override
+	protected void generateLibraryTScopeGetter(Appendable appendable) throws IOException
+	{
+		appendable.append("\tpublic static ").append(JAVA_TRANSLATION_SCOPE).append(" get()\n\t{\n");
+		appendable.append("\t\treturn ").append(JAVA_TRANSLATION_SCOPE).append(".get(SemanticsNames.REPOSITORY_METADATA_TRANSLATIONS, MetadataBuiltinsTranslationScope.get(), TRANSLATIONS);\n");
+		appendable.append("\t}\n\n");
+	}
+
 }

@@ -42,4 +42,14 @@ public class JavaTranslatorGenericTest
 		jt.translate(new File("../testJavaTranslator/src/"), scope, ctc);
 	}
 	
+	@Test
+	public void testAdvGenerics1() throws JavaTranslationException, IOException, SIMPLTranslationException
+	{
+		SimplTypesScope scope = SimplTypesScope.get("test-adv-generics-1", SearchResult.class, Search.class, SocialSearchResult.class, SocialSearch.class, TypedSocialSearch.class);
+		
+		CodeTranslatorConfig ctc = new CodeTranslatorConfig();
+		JavaTranslator jt = new JavaTranslator();
+		jt.translate(new File("../testJavaTranslator/src/"), scope, ctc);
+	}
+	
 }
