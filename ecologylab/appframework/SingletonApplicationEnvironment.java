@@ -60,6 +60,9 @@ public class SingletonApplicationEnvironment extends ApplicationEnvironment impl
 	{
 		PASS_PARAMS, QUARTER_SCREEN, ALMOST_HALF, NEAR_FULL, FULL_SCREEN
 	}
+	
+  public static final String	TOP_LEVEL_HEIGHT	= "topheight";
+  public static final String	TOP_LEVEL_WIDTH		= "topwidth";
 
 	/**
 	 * Create an ApplicationEnvironment. Create an empty properties object for application parameters.
@@ -449,6 +452,25 @@ public class SingletonApplicationEnvironment extends ApplicationEnvironment impl
 		catch (IllegalArgumentException e)
 		{
 			argStack.push(arg);
+		}
+		if (Pref.lookupInt(SCREEN_SIZE) == 0)
+		{
+			try
+			{
+				arg = pop(argStack);
+				if (arg == null)
+					return;
+				Pref.useAndSetPrefInt(TOP_LEVEL_WIDTH, Integer.parseInt(arg));
+				
+				arg = pop(argStack);
+				if (arg == null)
+					return;
+				Pref.useAndSetPrefInt(TOP_LEVEL_HEIGHT, Integer.parseInt(arg));
+			}
+			catch (IllegalArgumentException e)
+			{
+				argStack.push(arg);
+			}
 		}
 	}
 
