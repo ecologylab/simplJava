@@ -319,7 +319,7 @@ public class CocoaTranslator
 
 		appendImplementationComments(inputClass, appendable);
 
-		startImport(XMLTools.getClassSimpleName(inputClass), appendable);
+		startImport(inputClass.getDescribedClassSimpleName(), appendable);
 		openImplementationFile(inputClass, appendable);
 
 		if (attributes.size() > 0)
@@ -919,7 +919,7 @@ public class CocoaTranslator
 	private void openImplementationFile(ClassDescriptor inputClass, Appendable appendable)
 			throws IOException
 	{
-		openImplementationFile(inputClass.getClassSimpleName(), appendable);
+		openImplementationFile(inputClass.getDescribedClassSimpleName(), appendable);
 	}
 
 	/**
@@ -1514,6 +1514,7 @@ public class CocoaTranslator
 		appendable.append(CocoaTranslationConstants.RETURN_VOID);
 		appendable.append(CocoaTranslationConstants.DEALLOC);
 		appendable.append(CocoaTranslationConstants.SPACE);
+		appendable.append(CocoaTranslationConstants.SINGLE_LINE_BREAK);
 		appendable.append(CocoaTranslationConstants.OPENING_CURLY_BRACE);
 		appendable.append(CocoaTranslationConstants.SINGLE_LINE_BREAK);
 
