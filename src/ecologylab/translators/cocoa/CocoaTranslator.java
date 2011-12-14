@@ -441,7 +441,7 @@ public class CocoaTranslator
 			CocoaTranslationException, SIMPLTranslationException
 	{
 		// Generate header and implementation files
-		ArrayList<ClassDescriptor<? extends FieldDescriptor>> classDescriptors = tScope.getAllClassDescriptors();
+		ArrayList<ClassDescriptor<? extends FieldDescriptor>> classDescriptors = tScope.getClassDescriptors();
 
 		int length = classDescriptors.size();
 		for (int i = 0; i < length; i++)
@@ -576,7 +576,7 @@ public class CocoaTranslator
 		appendable.append(CocoaTranslationConstants.SINGLE_LINE_BREAK);
 
 		// Generate header and implementation files
-		ArrayList<ClassDescriptor<? extends FieldDescriptor>> classDescriptors = tScope.getAllClassDescriptors();
+		ArrayList<ClassDescriptor<? extends FieldDescriptor>> classDescriptors = tScope.getClassDescriptors();
 		int length = classDescriptors.size();
 		for (int i = 0; i < length; i++)
 		{
@@ -731,7 +731,7 @@ public class CocoaTranslator
 	 */
 	private void openHeaderFile(ClassDescriptor thatClass, Appendable appendable) throws IOException
 	{
-		openHeaderFile(thatClass.getClassSimpleName(), appendable, thatClass);
+		openHeaderFile(thatClass.getDescribedClassSimpleName(), appendable, thatClass);
 	}
 
 	/**
@@ -956,11 +956,11 @@ public class CocoaTranslator
 
 		if (tScope != null)
 		{
-			ArrayList<ClassDescriptor<? extends FieldDescriptor>> classes = tScope.getAllClassDescriptors();
+			ArrayList<ClassDescriptor<? extends FieldDescriptor>> classes = tScope.getClassDescriptors();
 			int length = classes.size();
 			for (int i = 0; i < length; i++)
 			{
-				importClass(classes.get(i).getClassSimpleName(), appendable);
+				importClass(classes.get(i).getDescribedClassSimpleName(), appendable);
 			}
 		}
 
@@ -1489,7 +1489,7 @@ public class CocoaTranslator
 	{
 		appendable.append(CocoaTranslationConstants.TAB);
 		appendable.append(CocoaTranslationConstants.OPENING_SQUARE_BRACE);
-		appendable.append(inputClass.getClassSimpleName());
+		appendable.append(inputClass.getDescribedClassSimpleName());
 		appendable.append(CocoaTranslationConstants.SPACE);
 		appendable.append(CocoaTranslationConstants.CLASS);
 		appendable.append(CocoaTranslationConstants.CLOSING_SQUARE_BRACE);
@@ -1618,8 +1618,8 @@ public class CocoaTranslator
 	private File createHeaderFileWithDirectoryStructure(ClassDescriptor inputClass, File directoryLocation)
 			throws IOException
 	{
-		String packageName = XMLTools.getPackageName(inputClass);
-		String className = XMLTools.getClassSimpleName(inputClass);
+		String packageName = inputClass.getDescribedClassPackageName();
+		String className = inputClass.getDescribedClassSimpleName();
 		String currentDirectory = directoryLocation.toString()
 				+ CocoaTranslationConstants.FILE_PATH_SEPARATOR;
 
@@ -1663,8 +1663,8 @@ public class CocoaTranslator
 	private File createImplementationFileWithDirectoryStructure(ClassDescriptor inputClass,
 			File directoryLocation) throws IOException
 	{
-		String packageName = XMLTools.getPackageName(inputClass);
-		String className = XMLTools.getClassSimpleName(inputClass);
+		String packageName = inputClass.getDescribedClassPackageName();
+		String className = inputClass.getDescribedClassSimpleName();
 		String currentDirectory = directoryLocation.toString()
 				+ CocoaTranslationConstants.FILE_PATH_SEPARATOR;
 
