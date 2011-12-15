@@ -1084,16 +1084,16 @@ public final class SimplTypesScope extends ElementState
 		}
 	}
 
-	private Collection<ClassDescriptor<? extends FieldDescriptor>>	classDescriptors;
+	private ArrayList<ClassDescriptor<? extends FieldDescriptor>>	classDescriptors;
 
 	// FIXME -- implement this!
-	public Collection<ClassDescriptor<? extends FieldDescriptor>> getClassDescriptors()
+	public ArrayList<ClassDescriptor<? extends FieldDescriptor>> getClassDescriptors()
 	{
-		Collection<ClassDescriptor<? extends FieldDescriptor>> result = classDescriptors;
+		ArrayList<ClassDescriptor<? extends FieldDescriptor>> result = classDescriptors;
 		if (result == null)
 		{
 			// result = entriesByClassSimpleName.values();
-			result = entriesByTag.values(); // we use entriesByTag so that overriding works well.
+			result = new ArrayList<ClassDescriptor<? extends FieldDescriptor>>(entriesByTag.values()); // we use entriesByTag so that overriding works well.
 			this.classDescriptors = result;
 		}
 		return result;
