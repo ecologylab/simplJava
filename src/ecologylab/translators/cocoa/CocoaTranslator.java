@@ -798,7 +798,7 @@ public class CocoaTranslator
 		appendable.append(CocoaTranslationConstants.SPACE);
 		appendable.append(className);
 		
-		if(!CocoaTranslationConstants.INHERITENCE_OBJECT.equals(CocoaTranslationConstants.OBJC_OBJECT))
+		//if(!CocoaTranslationConstants.INHERITENCE_OBJECT.equals(CocoaTranslationConstants.OBJC_OBJECT))
 		{
 			appendable.append(CocoaTranslationConstants.SPACE);
 			appendable.append(CocoaTranslationConstants.INHERITENCE_OPERATOR);
@@ -1510,7 +1510,7 @@ public class CocoaTranslator
 			throws IOException, CocoaTranslationException
 	{
 
-
+		appendable.append(CocoaTranslationConstants.SINGLE_LINE_BREAK);
 		appendable.append(CocoaTranslationConstants.RETURN_VOID);
 		appendable.append(CocoaTranslationConstants.DEALLOC);
 		appendable.append(CocoaTranslationConstants.SPACE);
