@@ -15,27 +15,44 @@ import ecologylab.serialization.annotations.simpl_composite;
 import ecologylab.serialization.annotations.simpl_scalar;
 
 /**
+ * This class encapsulates generic type variables declarations on classes and fields 
+ * 
  * @author quyin
  * 
  */
 public class GenericTypeVar extends Debug
 {
+	// The declared name of the generic type variable. such as 'M' for Media<M> test;
+	// Wild card operator '?' will also be populated in this field. 
+	// The classDescriptor will be null if this parameter is populated. 
 	@simpl_scalar
 	String										name;
 
+	// ClassDescriptor of the declared generic type variable. Such as ClassDescriptor of class Media in MediaSearchResult<Media>; 
+	// The name field of the Generic type variable would be null if this field is populated. 
 	@simpl_composite
 	ClassDescriptor						classDescriptor							= null;
 
+	// If the declared generic type var is also generic. for example. MediaSearchResult<Media<M,T>> 
+	// then this collection will hold the generic type variables (such as M & T in example).
 	@simpl_collection
 	ArrayList<GenericTypeVar>	genericTypeVars							= null;
 
+	// This variable holds the ClassDecriptor of the class declared as a constraint to the generic type variable. 
+	// For example this variable will hold ClassDescriptor of class Media if generic type is declared as MediaSearchResult<M extends Media>
 	@simpl_composite
 	ClassDescriptor						constraintClassDescriptor		= null;
 
+	// This variable holds the collection of generic type variables of a class declared as the constraint to the generic type variable. 
+	// For example this variable will hold R & S if generic type variable is declared as MediaSearchResult<M extends Media<R,S>>
 	@simpl_collection
 	ArrayList<GenericTypeVar>	constraintedGenericTypeVars	= null;
 	
-	GenericTypeVar						referredGenericTypeVar;
+	// If a declared generic type variable is used, then this variable holds the reference of the decalared generic type var. 
+	// for example in case of MediaSearchResult<M extends Media, M> the use of generic type var M will refer to generic type var of its declaration M extends Media. 
+	// this variable will refer to M extends Media in the example. (the name field will contain M). 
+	@simpl_composite
+	GenericTypeVar						referredGenericTypeVar			= null;
 
 	public GenericTypeVar()
 	{
