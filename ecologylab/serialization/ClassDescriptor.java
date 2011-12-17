@@ -10,8 +10,8 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Set;
 import java.util.Map.Entry;
+import java.util.Set;
 
 import sun.reflect.generics.reflectiveObjects.ParameterizedTypeImpl;
 import ecologylab.generic.HashMapArrayList;
@@ -157,6 +157,9 @@ public class ClassDescriptor<FD extends FieldDescriptor> extends DescriptorBase 
 
 	@simpl_collection("super_class_generic_type_var")
 	private ArrayList<GenericTypeVar>																									superClassGenericTypeVars						= null;
+	
+	@simpl_scalar
+	private String																																		explictObjectiveCTypeName;
 
 	static
 	{
@@ -348,6 +351,7 @@ public class ClassDescriptor<FD extends FieldDescriptor> extends DescriptorBase 
 		return genericTypeVariables;
 	}
 
+	@Override
 	public String getTagName()
 	{
 		return tagName;
@@ -517,6 +521,7 @@ public class ClassDescriptor<FD extends FieldDescriptor> extends DescriptorBase 
 		return fieldDescriptorsByFieldName.get(fieldName);
 	}
 
+	@Override
 	public Iterator<FD> iterator()
 	{
 		return fieldDescriptorsByFieldName.iterator();
@@ -801,7 +806,7 @@ public class ClassDescriptor<FD extends FieldDescriptor> extends DescriptorBase 
 		args[1] = thatField;
 		args[2] = annotationType;
 
-		return (FD) ReflectionTools.getInstance(fieldDescriptorClass, FIELD_DESCRIPTOR_ARGS, args);
+		return ReflectionTools.getInstance(fieldDescriptorClass, FIELD_DESCRIPTOR_ARGS, args);
 	}
 
 	static final Class[]	WRAPPER_FIELD_DESCRIPTOR_ARGS	=
@@ -818,7 +823,7 @@ public class ClassDescriptor<FD extends FieldDescriptor> extends DescriptorBase 
 		args[1] = wrappedFD;
 		args[2] = wrapperTag;
 
-		return (FD) ReflectionTools.getInstance(fieldDescriptorClass, WRAPPER_FIELD_DESCRIPTOR_ARGS,
+		return ReflectionTools.getInstance(fieldDescriptorClass, WRAPPER_FIELD_DESCRIPTOR_ARGS,
 				args);
 	}
 
@@ -864,6 +869,7 @@ public class ClassDescriptor<FD extends FieldDescriptor> extends DescriptorBase 
 		declaredFieldDescriptorsByFieldName.put(fieldDescriptor.getName(), fieldDescriptor);
 	}
 
+	@Override
 	public String toString()
 	{
 		return getClassSimpleName() + "[" + this.name + "]";
@@ -937,7 +943,7 @@ public class ClassDescriptor<FD extends FieldDescriptor> extends DescriptorBase 
 	@Override
 	public String getObjectiveCTypeName()
 	{
-		return this.getDescribedClassSimpleName();
+		return explictObjectiveCTypeName != null ? explictObjectiveCTypeName : this.getDescribedClassSimpleName();
 	}
 
 	@Override
@@ -959,6 +965,7 @@ public class ClassDescriptor<FD extends FieldDescriptor> extends DescriptorBase 
 	/**
 	 * The tagName.
 	 */
+	@Override
 	public String key()
 	{
 		return tagName;
@@ -1103,6 +1110,7 @@ public class ClassDescriptor<FD extends FieldDescriptor> extends DescriptorBase 
 	 * 
 	 * @return The array of old tags, or null, if there is no @simpl_other_tags annotation.
 	 */
+	@Override
 	public ArrayList<String> otherTags()
 	{
 		ArrayList<String> result = this.otherTags;

@@ -9,7 +9,6 @@ import java.util.ArrayList;
 
 import sun.reflect.generics.reflectiveObjects.ParameterizedTypeImpl;
 import sun.reflect.generics.reflectiveObjects.WildcardTypeImpl;
-
 import ecologylab.generic.Debug;
 import ecologylab.serialization.annotations.simpl_collection;
 import ecologylab.serialization.annotations.simpl_composite;
@@ -33,8 +32,10 @@ public class GenericTypeVar extends Debug
 	@simpl_composite
 	ClassDescriptor						constraintClassDescriptor		= null;
 
-	@simpl_composite
+	@simpl_collection
 	ArrayList<GenericTypeVar>	constraintedGenericTypeVars	= null;
+	
+	GenericTypeVar						referredGenericTypeVar;
 
 	public GenericTypeVar()
 	{
@@ -181,6 +182,7 @@ public class GenericTypeVar extends Debug
 		return g;
 	}
 
+	@Override
 	public String toString()
 	{
 		String outputString = new String();
