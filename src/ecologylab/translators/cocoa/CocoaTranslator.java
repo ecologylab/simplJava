@@ -57,7 +57,7 @@ public class CocoaTranslator
     * @xml_nested} attribute from the {@code ecologylab.serialization} When ever we find
     * an {@code @xml_nested} attribute we want to generate the Objective-C
     * header file for the nested class as well
-    * 
+    * s
     * @author Nabeel Shahzad
     */
 	private class NestedTranslationHook
