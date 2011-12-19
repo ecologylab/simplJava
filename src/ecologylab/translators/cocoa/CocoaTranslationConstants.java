@@ -170,7 +170,7 @@ public class CocoaTranslationConstants
 
 	public static final String	IF_TRANSLATIONTION_SCOPE_NULL				= "if (simplTypesScope == nil)";
 
-	public static final String	TRANSLATION_INIT_WITH_XML_FILE_PATH	= "simplTypesScope = [[SimplTypesScope alloc] initWithXMLFilePath: path];";
+	public static final String	TRANSLATION_INIT_WITH_XML_FILE_PATH	= "simplTypesScope = [BootStrap deserializeSimplTypesFromFile: path];";
 
 	public static final String	FILE_NAME_PLACEHOLDER								= "&fileName&";
 
