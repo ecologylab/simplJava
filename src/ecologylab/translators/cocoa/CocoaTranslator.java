@@ -57,7 +57,7 @@ public class CocoaTranslator
     * @xml_nested} attribute from the {@code ecologylab.serialization} When ever we find
     * an {@code @xml_nested} attribute we want to generate the Objective-C
     * header file for the nested class as well
-    * s
+    * 
     * @author Nabeel Shahzad
     */
 	private class NestedTranslationHook
@@ -524,6 +524,8 @@ public class CocoaTranslator
 
 		startImport(tScope.getName(), null, bufferedWriter);
 
+		importClass("BootStrap", bufferedWriter);
+		
 		declareStaticTranslationScope(bufferedWriter);
 
 		openImplementationFile(tScope.getName(), bufferedWriter);
@@ -542,6 +544,8 @@ public class CocoaTranslator
 	 */
 	private void declareStaticTranslationScope(Appendable appendable) throws IOException
 	{
+		appendable.append(CocoaTranslationConstants.SINGLE_LINE_BREAK);
+		
 		appendable.append(CocoaTranslationConstants.STATIC);
 		appendable.append(CocoaTranslationConstants.SPACE);
 		appendable.append(CocoaTranslationConstants.TRANSLATIONSCOPE);
