@@ -22,6 +22,11 @@ import ecologylab.serialization.types.ScalarType;
 abstract public class ReferenceType<T> extends ScalarType<T>
 {
 
+	public ReferenceType()
+	{
+		
+	}
+	
 	/**
 	 * @param thatClass
 	 * @param javaTypeName

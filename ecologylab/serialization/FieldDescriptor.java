@@ -55,6 +55,7 @@ import ecologylab.serialization.types.FundamentalTypes;
 import ecologylab.serialization.types.ScalarType;
 import ecologylab.serialization.types.TypeRegistry;
 import ecologylab.serialization.types.element.IMappable;
+import ecologylab.serialization.types.scalar.EnumeratedType;
 
 /**
  * Used to provide convenient access for setting and getting values, using the
@@ -140,6 +141,9 @@ public class FieldDescriptor extends DescriptorBase implements FieldTypes, IMapp
 	 */
 	@simpl_scalar
 	private ScalarType<?>															scalarType;
+	
+	@simpl_composite("enumerated_type")
+	private EnumeratedType 														enumType;
 
 	@simpl_scalar
 	private CollectionType														collectionType;
@@ -203,7 +207,7 @@ public class FieldDescriptor extends DescriptorBase implements FieldTypes, IMapp
 	@simpl_scalar
 	private String																		fieldType;
 
-	@simpl_scalar
+//	@simpl_scalar
 	protected String																	genericParametersString;
 
 	private ArrayList<ClassDescriptor>								dependencies								= new ArrayList<ClassDescriptor>();
@@ -605,6 +609,11 @@ public class FieldDescriptor extends DescriptorBase implements FieldTypes, IMapp
 		isEnum = XMLTools.isEnum(field);
 		xmlHint = XMLTools.simplHint(field); // TODO -- confirm that default case is acceptable
 		scalarType = TypeRegistry.getScalarType(thatClass);
+		
+		if(isEnum)
+		{
+			enumType = new EnumeratedType(field);
+		}
 
 		if (scalarType == null)
 		{

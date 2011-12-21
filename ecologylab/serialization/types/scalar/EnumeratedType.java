@@ -1,18 +1,41 @@
 package ecologylab.serialization.types.scalar;
 
 import java.lang.reflect.Field;
+import java.util.ArrayList;
+import java.util.HashMap;
 
 import ecologylab.serialization.ScalarUnmarshallingContext;
 import ecologylab.serialization.XMLTools;
+import ecologylab.serialization.annotations.simpl_collection;
 import ecologylab.serialization.annotations.simpl_inherit;
+import ecologylab.serialization.annotations.simpl_map;
+import ecologylab.serialization.annotations.simpl_nowrap;
 
-@simpl_inherit
 public class EnumeratedType extends ReferenceType<Enum>
-{
+{		
+	@simpl_nowrap
+	@simpl_collection("enum_string_constants")
+	ArrayList<String> enumStringConstants = new ArrayList<String>();
 
 	public EnumeratedType()
 	{
 		super(Enum.class, null, null, null, null);
+	}
+	
+	public EnumeratedType(Field field)
+	{
+		if (field.getType().isEnum())
+		{
+			Object[] enumArray = field.getType().getEnumConstants();
+			for (Object enumObj : enumArray)
+			{
+				if (enumObj instanceof Enum<?>)
+				{
+					Enum<?> enumeratedType = ((Enum<?>) enumObj);
+					enumStringConstants.add(enumeratedType.toString());
+				}
+			}
+		}
 	}
 
 	@Override
