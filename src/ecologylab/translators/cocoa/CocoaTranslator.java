@@ -65,17 +65,22 @@ public class CocoaTranslator
 		/**
 		 * Class on which this class will fire a hook method to generate Objective-C class.
 		 */
-		private ClassDescriptor	inputClass;
+		private ClassDescriptor						inputClass;
 
 		/**
 		 * The appendable object on which the hook method will write the generated code.
 		 */
-		private Appendable			appendable;
+		private Appendable								appendable;
+
+		/*
+		 * The map that maintains which enumerated type wrappers have been generated
+		 */
+		private HashMap<String, Boolean>	generatedEnumWrappers	= new HashMap<String, Boolean>();
 
 		/**
 		 * The directory location to generate the nested file
 		 */
-		private File						directoryLocation;
+		private File											directoryLocation;
 
 		/**
 		 * Constructor method. Takes the {@code Class} for which it will generate the Objective-C header
@@ -454,7 +459,6 @@ public class CocoaTranslator
 		}
 
 		// Serialize translation scope
-
 		SimplTypesScope.enableGraphSerialization();
 		SimplTypesScope.serialize(tScope, new File(directoryLocation
 				+ CocoaTranslationConstants.FILE_PATH_SEPARATOR + tScope.getName()
@@ -780,23 +784,44 @@ public class CocoaTranslator
 				{
 					if (fieldDescriptor.isScalar())
 					{
-						if (!fieldDescriptor.getScalarType().getSimpleName().equals("String") && (fieldDescriptor.getScalarType().isReference() || fieldDescriptor.isEnum()))
+						if (!fieldDescriptor.getScalarType().getSimpleName().equals("String")
+								&& (fieldDescriptor.getScalarType().isReference() || fieldDescriptor.isEnum()))
 						{
-							Boolean alreadyImported = importedFiles.get(fieldDescriptor.getObjectiveCTypeName()) == null ? false
-									: true;
-							
-							if (!alreadyImported)
+							if (fieldDescriptor.isEnum())
 							{
-								try
+								generateEnumWrapper(fieldDescriptor);
+
+								Boolean alreadyImported = importedFiles.get(fieldDescriptor.getObjectiveCTypeName()
+										+ "Enum") == null ? false : true;
+
+								if (!alreadyImported)
 								{
+
 									appendable.append(CocoaTranslationConstants.INCLUDE_OBJECT.replace(
-											CocoaTranslationConstants.AT, fieldDescriptor.getObjectiveCTypeName()));
+											CocoaTranslationConstants.AT, fieldDescriptor.getObjectiveCTypeName()
+													+ "Enum"));
 									appendable.append(CocoaTranslationConstants.SINGLE_LINE_BREAK);
-									importedFiles.put(fieldDescriptor.getObjectiveCTypeName(), true);
+									importedFiles.put(fieldDescriptor.getObjectiveCTypeName() + "Enum", true);
 								}
-								catch (Exception ex)
+							}
+							else
+							{
+								Boolean alreadyImported = importedFiles
+										.get(fieldDescriptor.getObjectiveCTypeName()) == null ? false : true;
+
+								if (!alreadyImported)
 								{
-									System.out.println(fieldDescriptor);
+									try
+									{
+										appendable.append(CocoaTranslationConstants.INCLUDE_OBJECT.replace(
+												CocoaTranslationConstants.AT, fieldDescriptor.getObjectiveCTypeName()));
+										appendable.append(CocoaTranslationConstants.SINGLE_LINE_BREAK);
+										importedFiles.put(fieldDescriptor.getObjectiveCTypeName(), true);
+									}
+									catch (Exception ex)
+									{
+										System.out.println(fieldDescriptor);
+									}
 								}
 							}
 						}
@@ -839,6 +864,12 @@ public class CocoaTranslator
 		}
 
 		appendable.append(CocoaTranslationConstants.SINGLE_LINE_BREAK);
+	}
+
+	private void generateEnumWrapper(FieldDescriptor fieldDescriptor)
+	{
+		//fieldDescriptor.getScalarType()
+		
 	}
 
 	private void appendClassHeaderComments(String className, Appendable appendable,
