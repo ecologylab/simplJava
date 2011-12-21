@@ -917,6 +917,11 @@ public class FieldDescriptor extends DescriptorBase implements FieldTypes, IMapp
 	{
 		return type == COMPOSITE_ELEMENT;
 	}
+	
+	public boolean isEnum()
+	{
+		return isEnum;
+	}
 
 	public Hint getXmlHint()
 	{
@@ -2025,9 +2030,10 @@ public class FieldDescriptor extends DescriptorBase implements FieldTypes, IMapp
 
 	@Override
 	public String getObjectiveCTypeName()
-	{
-		return elementClassDescriptor != null ? elementClassDescriptor.getObjectiveCTypeName()
-				: scalarType.getObjectiveCTypeName();
+	{		
+	
+		return elementClassDescriptor != null ? elementClassDescriptor.getObjectiveCTypeName() 
+				: isPolymorphic() || isEnum ? this.fieldType : scalarType.getObjectiveCTypeName();
 	}
 
 	@Override

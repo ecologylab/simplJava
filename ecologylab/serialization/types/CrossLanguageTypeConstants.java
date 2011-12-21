@@ -170,5 +170,8 @@ public interface CrossLanguageTypeConstants
 	public static final String	JAVA_PATTERN					= "Pattern";
 	
 	public static final String	DOTNET_PATTERN				= "System.Text.RegularExpressions.Regex";
+	
+	public static final String	OBJC_PATTERN					= "NSRegularExpression";
+	
 
 }
