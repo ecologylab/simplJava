@@ -65,17 +65,17 @@ public class CocoaTranslator
 		/**
 		 * Class on which this class will fire a hook method to generate Objective-C class.
 		 */
-		private ClassDescriptor		inputClass;
+		private ClassDescriptor	inputClass;
 
 		/**
 		 * The appendable object on which the hook method will write the generated code.
 		 */
-		private Appendable	appendable;
+		private Appendable			appendable;
 
 		/**
 		 * The directory location to generate the nested file
 		 */
-		private File				directoryLocation;
+		private File						directoryLocation;
 
 		/**
 		 * Constructor method. Takes the {@code Class} for which it will generate the Objective-C header
@@ -112,7 +112,8 @@ public class CocoaTranslator
 		public void execute() throws IOException, CocoaTranslationException
 		{
 			CocoaTranslator ct = new CocoaTranslator();
-			ClassDescriptor elementStateClassDescriptor = ClassDescriptor.getClassDescriptor(inputClass.getClass().asSubclass(ElementState.class));
+			ClassDescriptor elementStateClassDescriptor = ClassDescriptor.getClassDescriptor(inputClass
+					.getClass().asSubclass(ElementState.class));
 
 			if (directoryLocation == null)
 			{
@@ -176,8 +177,8 @@ public class CocoaTranslator
     * @throws IOException
     * @throws CocoaTranslationException 
     */
-	public void translateToObjC(Appendable appendable, ClassDescriptor... classes) throws IOException,
-			CocoaTranslationException
+	public void translateToObjC(Appendable appendable, ClassDescriptor... classes)
+			throws IOException, CocoaTranslationException
 	{
 		int length = classes.length;
 		for (int i = 0; i < length; i++)
@@ -271,9 +272,11 @@ public class CocoaTranslator
 		}
 	}
 
-	private void addHookForParentClassIfNotElementState(ClassDescriptor inputClass, Appendable appendable)
+	private void addHookForParentClassIfNotElementState(ClassDescriptor inputClass,
+			Appendable appendable)
 	{
-		if (inputClass.getSuperClass() == null || (!"ElementState".equals(inputClass.getSuperClass().getClassSimpleName())))
+		if (inputClass.getSuperClass() == null
+				|| (!"ElementState".equals(inputClass.getSuperClass().getClassSimpleName())))
 		{
 			if (directoryLocation == null)
 			{
@@ -392,8 +395,8 @@ public class CocoaTranslator
 	 * @throws IOException
 	 * @throws CocoaTranslationException
 	 */
-	public void translateToObjC(ClassDescriptor inputClass, File directoryLocation) throws IOException,
-			CocoaTranslationException
+	public void translateToObjC(ClassDescriptor inputClass, File directoryLocation)
+			throws IOException, CocoaTranslationException
 	{
 		translateToObjCHeader(inputClass, directoryLocation);
 		translateToObjCImplementation(inputClass, directoryLocation);
@@ -412,8 +415,8 @@ public class CocoaTranslator
 	 * @throws IOException
 	 * @throws CocoaTranslationException
 	 */
-	public void translateToObjC(File directoryLocation, ClassDescriptor... classes) throws IOException,
-			CocoaTranslationException
+	public void translateToObjC(File directoryLocation, ClassDescriptor... classes)
+			throws IOException, CocoaTranslationException
 	{
 		int length = classes.length;
 		for (int i = 0; i < length; i++)
@@ -441,7 +444,8 @@ public class CocoaTranslator
 			CocoaTranslationException, SIMPLTranslationException
 	{
 		// Generate header and implementation files
-		ArrayList<ClassDescriptor<? extends FieldDescriptor>> classDescriptors = tScope.getClassDescriptors();
+		ArrayList<ClassDescriptor<? extends FieldDescriptor>> classDescriptors = tScope
+				.getClassDescriptors();
 
 		int length = classDescriptors.size();
 		for (int i = 0; i < length; i++)
@@ -455,7 +459,7 @@ public class CocoaTranslator
 		SimplTypesScope.serialize(tScope, new File(directoryLocation
 				+ CocoaTranslationConstants.FILE_PATH_SEPARATOR + tScope.getName()
 				+ CocoaTranslationConstants.XML_FILE_EXTENSION), Format.XML);
-		SimplTypesScope.enableGraphSerialization();
+		SimplTypesScope.disableGraphSerialization();
 
 		// create a folder to put the translation scope getter class
 		File tScopeDirectory = createGetTranslationScopeFolder(directoryLocation);
@@ -525,7 +529,7 @@ public class CocoaTranslator
 		startImport(tScope.getName(), null, bufferedWriter);
 
 		importClass("BootStrap", bufferedWriter);
-		
+
 		declareStaticTranslationScope(bufferedWriter);
 
 		openImplementationFile(tScope.getName(), bufferedWriter);
@@ -545,7 +549,7 @@ public class CocoaTranslator
 	private void declareStaticTranslationScope(Appendable appendable) throws IOException
 	{
 		appendable.append(CocoaTranslationConstants.SINGLE_LINE_BREAK);
-		
+
 		appendable.append(CocoaTranslationConstants.STATIC);
 		appendable.append(CocoaTranslationConstants.SPACE);
 		appendable.append(CocoaTranslationConstants.TRANSLATIONSCOPE);
@@ -580,7 +584,8 @@ public class CocoaTranslator
 		appendable.append(CocoaTranslationConstants.SINGLE_LINE_BREAK);
 
 		// Generate header and implementation files
-		ArrayList<ClassDescriptor<? extends FieldDescriptor>> classDescriptors = tScope.getClassDescriptors();
+		ArrayList<ClassDescriptor<? extends FieldDescriptor>> classDescriptors = tScope
+				.getClassDescriptors();
 		int length = classDescriptors.size();
 		for (int i = 0; i < length; i++)
 		{
@@ -747,8 +752,8 @@ public class CocoaTranslator
 	 * @param classDescriptor
 	 * @throws IOException
 	 */
-	private void openHeaderFile(String className, Appendable appendable, ClassDescriptor classDescriptor)
-			throws IOException
+	private void openHeaderFile(String className, Appendable appendable,
+			ClassDescriptor classDescriptor) throws IOException
 	{
 
 		appendable.append(CocoaTranslationConstants.FOUNDATION_HEADER);
@@ -767,29 +772,52 @@ public class CocoaTranslator
 			HashMapArrayList<String, ? extends FieldDescriptor> fieldDescriptors = classDescriptor
 					.getFieldDescriptorsByFieldName();
 
-			HashMap<ClassDescriptor, Boolean> importedFiles = new HashMap<ClassDescriptor, Boolean>();
+			HashMap<String, Boolean> importedFiles = new HashMap<String, Boolean>();
 
 			for (FieldDescriptor fieldDescriptor : fieldDescriptors)
 			{
-
-				Boolean alreadyImported = importedFiles.get(fieldDescriptor.getType()) == null ? false : true;
-
-				if (fieldDescriptor.getDeclaringClassDescriptor().getClassSimpleName() == classDescriptor.getClassSimpleName() && !alreadyImported)
+				if (fieldDescriptor.belongsTo(classDescriptor))
 				{
-					if (fieldDescriptor.isNested())
+					if (fieldDescriptor.isScalar())
 					{
-						appendable.append(CocoaTranslationConstants.INCLUDE_OBJECT.replace(
-								CocoaTranslationConstants.AT, fieldDescriptor.getObjectiveCTypeName()));
-						appendable.append(CocoaTranslationConstants.SINGLE_LINE_BREAK);
+						if (!fieldDescriptor.getScalarType().getSimpleName().equals("String") && (fieldDescriptor.getScalarType().isReference() || fieldDescriptor.isEnum()))
+						{
+							Boolean alreadyImported = importedFiles.get(fieldDescriptor.getObjectiveCTypeName()) == null ? false
+									: true;
+							
+							if (!alreadyImported)
+							{
+								try
+								{
+									appendable.append(CocoaTranslationConstants.INCLUDE_OBJECT.replace(
+											CocoaTranslationConstants.AT, fieldDescriptor.getObjectiveCTypeName()));
+									appendable.append(CocoaTranslationConstants.SINGLE_LINE_BREAK);
+									importedFiles.put(fieldDescriptor.getObjectiveCTypeName(), true);
+								}
+								catch (Exception ex)
+								{
+									System.out.println(fieldDescriptor);
+								}
+							}
+						}
 					}
-					else if (fieldDescriptor.getFieldType() == ParsedURL.class)
+					else if (fieldDescriptor.isNested())
 					{
-						appendable.append(CocoaTranslationConstants.INCLUDE_OBJECT.replace(
-								CocoaTranslationConstants.AT, fieldDescriptor.getObjectiveCTypeName()));
-						appendable.append(CocoaTranslationConstants.SINGLE_LINE_BREAK);
+						String fieldTypeClassName = CocoaTranslationUtilities.classSimpleName(fieldDescriptor
+								.getFieldType());
+
+						Boolean alreadyImported = importedFiles.get(fieldDescriptor.getObjectiveCTypeName()) == null ? false
+								: true;
+
+						if (!alreadyImported)
+						{
+							appendable.append(CocoaTranslationConstants.INCLUDE_OBJECT.replace(
+									CocoaTranslationConstants.AT, fieldTypeClassName));
+							appendable.append(CocoaTranslationConstants.SINGLE_LINE_BREAK);
+
+							importedFiles.put(fieldTypeClassName, true);
+						}
 					}
-					if (!fieldDescriptor.getFieldType().isPrimitive())
-						importedFiles.put(ClassDescriptor.getClassDescriptor(fieldDescriptor.getFieldType()), true);
 				}
 			}
 		}
@@ -801,15 +829,15 @@ public class CocoaTranslator
 		appendable.append(CocoaTranslationConstants.INTERFACE);
 		appendable.append(CocoaTranslationConstants.SPACE);
 		appendable.append(className);
-		
-		//if(!CocoaTranslationConstants.INHERITENCE_OBJECT.equals(CocoaTranslationConstants.OBJC_OBJECT))
+
+		// if(!CocoaTranslationConstants.INHERITENCE_OBJECT.equals(CocoaTranslationConstants.OBJC_OBJECT))
 		{
 			appendable.append(CocoaTranslationConstants.SPACE);
 			appendable.append(CocoaTranslationConstants.INHERITENCE_OPERATOR);
 			appendable.append(CocoaTranslationConstants.SPACE);
 			appendable.append(CocoaTranslationConstants.INHERITENCE_OBJECT);
 		}
-		
+
 		appendable.append(CocoaTranslationConstants.SINGLE_LINE_BREAK);
 	}
 
@@ -1137,8 +1165,8 @@ public class CocoaTranslator
 		}
 		else if (fieldDescriptor.isScalar())
 		{
-			if (fieldDescriptor.getScalarType().isPrimitive()
-					&& fieldDescriptor.getField().getType() != String.class)
+			if ((fieldDescriptor.getScalarType().isPrimitive() && fieldDescriptor.getField().getType() != String.class)
+					|| fieldDescriptor.isEnum())
 			{
 				appendFieldAsPrimitive(fieldDescriptor, appendable);
 			}
@@ -1158,14 +1186,14 @@ public class CocoaTranslator
 
 				if (directoryLocation == null)
 				{
-					nestedTranslationHook = new NestedTranslationHook(ClassDescriptor.getClassDescriptor(fieldDescriptor.getFieldType()),
-							appendable);
+					nestedTranslationHook = new NestedTranslationHook(ClassDescriptor
+							.getClassDescriptor(fieldDescriptor.getFieldType()), appendable);
 					nestedTranslationHooks.add(nestedTranslationHook);
 				}
 				else
 				{
-					nestedTranslationHook = new NestedTranslationHook(ClassDescriptor.getClassDescriptor(fieldDescriptor.getFieldType()),
-							directoryLocation);
+					nestedTranslationHook = new NestedTranslationHook(ClassDescriptor
+							.getClassDescriptor(fieldDescriptor.getFieldType()), directoryLocation);
 					nestedTranslationHooks.add(nestedTranslationHook);
 				}
 			}
@@ -1257,8 +1285,8 @@ public class CocoaTranslator
 		}
 		else if (fieldDescriptor.isScalar())
 		{
-			if (fieldDescriptor.getScalarType().isPrimitive()
-					&& fieldDescriptor.getField().getType() != String.class)
+			if ((fieldDescriptor.getScalarType().isPrimitive() && fieldDescriptor.getField().getType() != String.class)
+					|| fieldDescriptor.isEnum())
 			{
 				appendPropertyAsPrimitive(fieldDescriptor, appendable);
 			}
@@ -1344,7 +1372,32 @@ public class CocoaTranslator
 		fieldDeclaration.append(CocoaTranslationConstants.TAB);
 		// fieldDeclaration.append(CocoaTranslationUtilities.getObjectiveCType(fieldAccessor.getField()
 		// .getType()));
-		fieldDeclaration.append(fieldDescriptor.getScalarType().deriveObjectiveCTypeName());
+		fieldDeclaration.append(fieldDescriptor.getObjectiveCTypeName());
+		fieldDeclaration.append(CocoaTranslationConstants.SPACE);
+		fieldDeclaration.append(fieldDescriptor.getName());
+		fieldDeclaration.append(CocoaTranslationConstants.TERMINATOR);
+		fieldDeclaration.append(CocoaTranslationConstants.DOUBLE_LINE_BREAK);
+
+		appendable.append(fieldDeclaration);
+	}
+
+	/**
+	 * Appends a primitive type field in the output Objective-C header file
+	 * 
+	 * @param fieldDescriptor
+	 * @param appendable
+	 * @throws IOException
+	 * @throws CocoaTranslationException
+	 */
+	private void appendFieldAsEnumeratedType(FieldDescriptor fieldDescriptor, Appendable appendable)
+			throws IOException, CocoaTranslationException
+	{
+		StringBuilder fieldDeclaration = new StringBuilder();
+
+		fieldDeclaration.append(CocoaTranslationConstants.TAB);
+		// fieldDeclaration.append(CocoaTranslationUtilities.getObjectiveCType(fieldAccessor.getField()
+		// .getType()));
+		fieldDeclaration.append(fieldDescriptor.getObjectiveCTypeName());
 		fieldDeclaration.append(CocoaTranslationConstants.SPACE);
 		fieldDeclaration.append(fieldDescriptor.getName());
 		fieldDeclaration.append(CocoaTranslationConstants.TERMINATOR);
@@ -1443,7 +1496,7 @@ public class CocoaTranslator
 
 		propertyDeclaration.append(CocoaTranslationConstants.PROPERTY_PRIMITIVE);
 		propertyDeclaration.append(CocoaTranslationConstants.SPACE);
-		propertyDeclaration.append(fieldAccessor.getObjectiveCType());
+		propertyDeclaration.append(fieldAccessor.getObjectiveCTypeName());
 		propertyDeclaration.append(CocoaTranslationConstants.SPACE);
 		propertyDeclaration.append(fieldAccessor.getName());
 		propertyDeclaration.append(CocoaTranslationConstants.TERMINATOR);
@@ -1529,7 +1582,8 @@ public class CocoaTranslator
 				if (fieldDescriptor.belongsTo(inputClass)
 						&& ((fieldDescriptor.getScalarType() != null && fieldDescriptor.getScalarType()
 								.isReference())
-								|| fieldDescriptor.isCollection() || fieldDescriptor.isNested()))
+								|| fieldDescriptor.isCollection() || fieldDescriptor.isNested())
+						&& !fieldDescriptor.isEnum())
 				{
 					appendDeallocStatement(fieldDescriptor, appendable);
 				}
@@ -1569,7 +1623,8 @@ public class CocoaTranslator
 	 * @param appendable
 	 * @throws IOException
 	 */
-	private void appendHeaderComments(ClassDescriptor inputClass, Appendable appendable) throws IOException
+	private void appendHeaderComments(ClassDescriptor inputClass, Appendable appendable)
+			throws IOException
 	{
 		try
 		{
@@ -1620,8 +1675,8 @@ public class CocoaTranslator
 	 * @return
 	 * @throws IOException
 	 */
-	private File createHeaderFileWithDirectoryStructure(ClassDescriptor inputClass, File directoryLocation)
-			throws IOException
+	private File createHeaderFileWithDirectoryStructure(ClassDescriptor inputClass,
+			File directoryLocation) throws IOException
 	{
 		String packageName = inputClass.getDescribedClassPackageName();
 		String className = inputClass.getDescribedClassSimpleName();
