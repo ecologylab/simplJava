@@ -900,11 +900,9 @@ public class Logging<T extends MixedInitiativeOp> extends ElementState implement
 				if (remaining < incoming.remaining())
 				{ // we want to write more than will fit; so we just write
 					// what we can first...
-					debug("not enough space in the buffer: " + remaining + " remaining, "
-							+ incoming.remaining() + " needed.");
-					debug("last range file range: " + (endOfMappedBytes - LOG_FILE_INCREMENT) + "-"
-							+ endOfMappedBytes);
-					debug("new range will be: " + (endOfMappedBytes) + "-"
+					debug("not enough space in the buffer: " + remaining + "/"
+							+ incoming.remaining() + "; old range: " + (endOfMappedBytes - LOG_FILE_INCREMENT) + "-"
+							+ endOfMappedBytes+"; new range: " + (endOfMappedBytes) + "-"
 							+ (endOfMappedBytes + LOG_FILE_INCREMENT));
 
 					byte[] temp = new byte[remaining];

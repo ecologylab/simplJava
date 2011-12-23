@@ -73,15 +73,11 @@ public class ClassDescriptor<FD extends FieldDescriptor> extends DescriptorBase 
 	// handle spelling error that was here
 	private ArrayList<String>																													interfaces;
 
-	/**
-	 * Class object that we are describing.
-	 */
+	/** Class object that we are describing. */
 	@simpl_scalar
 	private Class<? extends ClassDescriptor>																					classDescriptorClass;
 
-	/**
-	 * Class object that we are describing.
-	 */
+	/** Class object that we are describing. */
 	@simpl_scalar
 	private Class<? extends FieldDescriptor>																					fieldDescriptorClass;
 
@@ -157,7 +153,7 @@ public class ClassDescriptor<FD extends FieldDescriptor> extends DescriptorBase 
 
 	@simpl_collection("super_class_generic_type_var")
 	private ArrayList<GenericTypeVar>																									superClassGenericTypeVars						= null;
-	
+
 	@simpl_scalar
 	private String																																		explictObjectiveCTypeName;
 
@@ -187,14 +183,11 @@ public class ClassDescriptor<FD extends FieldDescriptor> extends DescriptorBase 
 		this.describedClassSimpleName = thatClass.getSimpleName();
 		this.describedClassPackageName = thatClass.getPackage().getName();
 
-		final simpl_descriptor_classes descriptorsClassesAnnotation = thatClass
-				.getAnnotation(simpl_descriptor_classes.class);
+		final simpl_descriptor_classes descriptorsClassesAnnotation = thatClass.getAnnotation(simpl_descriptor_classes.class);
 		if (descriptorsClassesAnnotation != null)
 		{
-			classDescriptorClass = (Class<? extends ClassDescriptor>) descriptorsClassesAnnotation
-					.value()[0];
-			fieldDescriptorClass = (Class<? extends FieldDescriptor>) descriptorsClassesAnnotation
-					.value()[1];
+			classDescriptorClass = (Class<? extends ClassDescriptor>) descriptorsClassesAnnotation.value()[0];
+			fieldDescriptorClass = (Class<? extends FieldDescriptor>) descriptorsClassesAnnotation.value()[1];
 		}
 
 		if (thatClass.isAnnotationPresent(simpl_inherit.class))
@@ -221,11 +214,16 @@ public class ClassDescriptor<FD extends FieldDescriptor> extends DescriptorBase 
 	 * @param superClass
 	 * @param interfaces
 	 */
-	protected ClassDescriptor(String tagName, String comment, String describedClassPackageName,
-			String describedClassSimpleName, ClassDescriptor<FD> superClass, ArrayList<String> interfaces)
+	protected ClassDescriptor(String tagName,
+														String comment,
+														String describedClassPackageName,
+														String describedClassSimpleName,
+														ClassDescriptor<FD> superClass,
+														ArrayList<String> interfaces)
 	{
-		super(tagName, describedClassPackageName + PACKAGE_CLASS_SEP + describedClassSimpleName,
-				comment);
+		super(tagName,
+					describedClassPackageName + PACKAGE_CLASS_SEP + describedClassSimpleName,
+					comment);
 
 		this.describedClassPackageName = describedClassPackageName;
 		this.describedClassSimpleName = describedClassSimpleName;
@@ -238,7 +236,7 @@ public class ClassDescriptor<FD extends FieldDescriptor> extends DescriptorBase 
 	 */
 	private FieldDescriptor	scalarTextFD;
 
-	private Object SCOPE_ANNOTATION_LOCK = new Object();
+	private Object					SCOPE_ANNOTATION_LOCK	= new Object();
 
 	public FieldDescriptor getScalarTextFD()
 	{
@@ -410,8 +408,7 @@ public class ClassDescriptor<FD extends FieldDescriptor> extends DescriptorBase 
 				result = globalClassDescriptorsMap.get(className);
 				if (result == null)
 				{
-					final simpl_descriptor_classes descriptorsClassesAnnotation = thatClass
-							.getAnnotation(simpl_descriptor_classes.class);
+					final simpl_descriptor_classes descriptorsClassesAnnotation = thatClass.getAnnotation(simpl_descriptor_classes.class);
 					if (descriptorsClassesAnnotation == null)
 						result = new ClassDescriptor<FieldDescriptor>(thatClass);
 					else
@@ -420,8 +417,9 @@ public class ClassDescriptor<FD extends FieldDescriptor> extends DescriptorBase 
 						Object[] args = new Object[1];
 						args[0] = thatClass;
 
-						result = (ClassDescriptor<? extends FieldDescriptor>) ReflectionTools.getInstance(
-								aClass, CONSTRUCTOR_ARGS, args);
+						result = (ClassDescriptor<? extends FieldDescriptor>) ReflectionTools.getInstance(aClass,
+																																															CONSTRUCTOR_ARGS,
+																																															args);
 					}
 					globalClassDescriptorsMap.put(className, result);
 
@@ -540,8 +538,7 @@ public class ClassDescriptor<FD extends FieldDescriptor> extends DescriptorBase 
 
 	private Class<FieldDescriptor> fieldDescriptorAnnotationValue(Class<? extends Object> thatClass)
 	{
-		final simpl_descriptor_classes fieldDescriptorsClassAnnotation = thatClass
-				.getAnnotation(simpl_descriptor_classes.class);
+		final simpl_descriptor_classes fieldDescriptorsClassAnnotation = thatClass.getAnnotation(simpl_descriptor_classes.class);
 		Class<FieldDescriptor> result = null;
 		if (fieldDescriptorsClassAnnotation != null)
 		{
@@ -568,8 +565,7 @@ public class ClassDescriptor<FD extends FieldDescriptor> extends DescriptorBase 
 
 		if (classWithFields.isAnnotationPresent(simpl_inherit.class))
 		{
-			ClassDescriptor<FD> superClassDescriptor = (ClassDescriptor<FD>) ClassDescriptor
-					.getClassDescriptor(classWithFields.getSuperclass());
+			ClassDescriptor<FD> superClassDescriptor = (ClassDescriptor<FD>) ClassDescriptor.getClassDescriptor(classWithFields.getSuperclass());
 
 			referFieldDescriptorsFrom(superClassDescriptor);
 		}
@@ -627,8 +623,9 @@ public class ClassDescriptor<FD extends FieldDescriptor> extends DescriptorBase 
 			if (fieldType == UNSET_TYPE)
 				continue; // not a simpl serialization annotated field
 
-			FD fieldDescriptor = newFieldDescriptor(thatField, fieldType,
-					(Class<FD>) fieldDescriptorClass);
+			FD fieldDescriptor = newFieldDescriptor(thatField,
+																							fieldType,
+																							(Class<FD>) fieldDescriptorClass);
 			// create indexes for serialize
 			if (fieldDescriptor.getType() == SCALAR)
 			{
@@ -678,8 +675,9 @@ public class ClassDescriptor<FD extends FieldDescriptor> extends DescriptorBase 
 			final String fieldTagName = fieldDescriptor.getTagName();
 			if (fieldDescriptor.isWrapped())
 			{
-				FD wrapper = newFieldDescriptor(fieldDescriptor, fieldTagName,
-						(Class<FD>) fieldDescriptorClass);
+				FD wrapper = newFieldDescriptor(fieldDescriptor,
+																				fieldTagName,
+																				(Class<FD>) fieldDescriptorClass);
 				mapTagToFdForDeserialize(fieldTagName, wrapper);
 				mapOtherTagsToFdForDeserialize(wrapper, fieldDescriptor.otherTags());
 			}
@@ -701,39 +699,39 @@ public class ClassDescriptor<FD extends FieldDescriptor> extends DescriptorBase 
 
 	private void referFieldDescriptorsFrom(ClassDescriptor<FD> superClassDescriptor)
 	{
-		for (Entry<String, FD> fieldDescriptorEntry : superClassDescriptor
-				.getFieldDescriptorsByFieldName().entrySet())
+		for (Entry<String, FD> fieldDescriptorEntry : superClassDescriptor.getFieldDescriptorsByFieldName()
+																																			.entrySet())
 		{
-			fieldDescriptorsByFieldName.put(fieldDescriptorEntry.getKey(), fieldDescriptorEntry
-					.getValue());
+			fieldDescriptorsByFieldName.put(fieldDescriptorEntry.getKey(),
+																			fieldDescriptorEntry.getValue());
 		}
 
-		for (Entry<String, FD> fieldDescriptorEntry : superClassDescriptor
-				.getDeclaredFieldDescriptorsByFieldName().entrySet())
+		for (Entry<String, FD> fieldDescriptorEntry : superClassDescriptor.getDeclaredFieldDescriptorsByFieldName()
+																																			.entrySet())
 		{
-			declaredFieldDescriptorsByFieldName.put(fieldDescriptorEntry.getKey(), fieldDescriptorEntry
-					.getValue());
+			declaredFieldDescriptorsByFieldName.put(fieldDescriptorEntry.getKey(),
+																							fieldDescriptorEntry.getValue());
 		}
 
-		for (Entry<String, FD> fieldDescriptorEntry : superClassDescriptor
-				.getAllFieldDescriptorsByTagNames().entrySet())
+		for (Entry<String, FD> fieldDescriptorEntry : superClassDescriptor.getAllFieldDescriptorsByTagNames()
+																																			.entrySet())
 		{
-			allFieldDescriptorsByTagNames.put(fieldDescriptorEntry.getKey(), fieldDescriptorEntry
-					.getValue());
+			allFieldDescriptorsByTagNames.put(fieldDescriptorEntry.getKey(),
+																				fieldDescriptorEntry.getValue());
 		}
 
-		for (Entry<Integer, FD> fieldDescriptorEntry : superClassDescriptor
-				.getAllFieldDescriptorsByTLVIds().entrySet())
+		for (Entry<Integer, FD> fieldDescriptorEntry : superClassDescriptor.getAllFieldDescriptorsByTLVIds()
+																																				.entrySet())
 		{
-			allFieldDescriptorsByTLVIds.put(fieldDescriptorEntry.getKey(), fieldDescriptorEntry
-					.getValue());
+			allFieldDescriptorsByTLVIds.put(fieldDescriptorEntry.getKey(),
+																			fieldDescriptorEntry.getValue());
 		}
 
-		for (Entry<String, FD> fieldDescriptorEntry : superClassDescriptor
-				.getAllFieldDescriptorsByBibTeXTag().entrySet())
+		for (Entry<String, FD> fieldDescriptorEntry : superClassDescriptor.getAllFieldDescriptorsByBibTeXTag()
+																																			.entrySet())
 		{
-			allFieldDescriptorsByBibTeXTag.put(fieldDescriptorEntry.getKey(), fieldDescriptorEntry
-					.getValue());
+			allFieldDescriptorsByBibTeXTag.put(	fieldDescriptorEntry.getKey(),
+																					fieldDescriptorEntry.getValue());
 		}
 
 		for (FD fieldDescriptor : superClassDescriptor.attributeFieldDescriptors())
@@ -744,6 +742,12 @@ public class ClassDescriptor<FD extends FieldDescriptor> extends DescriptorBase 
 		for (FD fieldDescriptor : superClassDescriptor.elementFieldDescriptors())
 		{
 			elementFieldDescriptors.add(fieldDescriptor);
+		}
+		
+		FieldDescriptor scalarTextFD = superClassDescriptor.getScalarTextFD();
+		if (scalarTextFD != null)
+		{ // added by Zach -- doesn't seem to be covered otherwise
+			this.setScalarTextFD(scalarTextFD);
 		}
 
 		if (superClassDescriptor.getUnresolvedScopeAnnotationFDs() != null)
@@ -823,8 +827,7 @@ public class ClassDescriptor<FD extends FieldDescriptor> extends DescriptorBase 
 		args[1] = wrappedFD;
 		args[2] = wrapperTag;
 
-		return ReflectionTools.getInstance(fieldDescriptorClass, WRAPPER_FIELD_DESCRIPTOR_ARGS,
-				args);
+		return ReflectionTools.getInstance(fieldDescriptorClass, WRAPPER_FIELD_DESCRIPTOR_ARGS, args);
 	}
 
 	/**
@@ -943,7 +946,8 @@ public class ClassDescriptor<FD extends FieldDescriptor> extends DescriptorBase 
 	@Override
 	public String getObjectiveCTypeName()
 	{
-		return explictObjectiveCTypeName != null ? explictObjectiveCTypeName : this.getDescribedClassSimpleName();
+		return explictObjectiveCTypeName != null ? explictObjectiveCTypeName
+				: this.getDescribedClassSimpleName();
 	}
 
 	@Override
@@ -1014,7 +1018,9 @@ public class ClassDescriptor<FD extends FieldDescriptor> extends DescriptorBase 
 	public static void main(String[] s)
 	{
 		SimplTypesScope mostBasicTranslations = SimplTypesScope.get("most_basic",
-				ClassDescriptor.class, FieldDescriptor.class, SimplTypesScope.class);
+																																ClassDescriptor.class,
+																																FieldDescriptor.class,
+																																SimplTypesScope.class);
 
 		try
 		{
@@ -1071,7 +1077,7 @@ public class ClassDescriptor<FD extends FieldDescriptor> extends DescriptorBase 
 	{
 		if (unresolvedScopeAnnotationFDs != null)
 		{
-			synchronized (SCOPE_ANNOTATION_LOCK )
+			synchronized (SCOPE_ANNOTATION_LOCK)
 			{
 				if (unresolvedScopeAnnotationFDs != null)
 				{
@@ -1121,8 +1127,7 @@ public class ClassDescriptor<FD extends FieldDescriptor> extends DescriptorBase 
 			Class<?> thisClass = getDescribedClass();
 			if (thisClass != null)
 			{
-				final simpl_other_tags otherTagsAnnotation = thisClass
-						.getAnnotation(simpl_other_tags.class);
+				final simpl_other_tags otherTagsAnnotation = thisClass.getAnnotation(simpl_other_tags.class);
 
 				// commented out since getAnnotation also includes inherited annotations
 				// ElementState.xml_other_tags otherTagsAnnotation =

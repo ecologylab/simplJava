@@ -44,4 +44,17 @@ public class PListTranslations
 //															new File("/Users/toupsz/Dropbox/ttecBibForBill/tecNewTutMap2.xml"),
 //															Format.XML);
 	}
+	
+	public static final String		KEY_NAME						= "KeyTrans";
+
+	@SuppressWarnings("unchecked")
+	protected static final Class	KEY_TRANSLATIONS[]	=
+																								{
+			KeyProperty.class,
+			Property.class, StringProperty.class	};
+
+	public static SimplTypesScope getKey()
+	{
+		return SimplTypesScope.get(KEY_NAME, KEY_TRANSLATIONS);
+	}
 }

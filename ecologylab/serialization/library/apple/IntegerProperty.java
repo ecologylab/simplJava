@@ -30,4 +30,9 @@ public class IntegerProperty extends Property
 		// TODO Auto-generated constructor stub
 	}
 
+	@Override
+	public String toString()
+	{
+		return "IntegerProperty: "+contents;
+	}
 }
