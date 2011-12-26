@@ -2231,5 +2231,10 @@ public class FieldDescriptor extends DescriptorBase implements FieldTypes, IMapp
 		}
 		return metaInfo;
 	}
+
+	public EnumeratedType getEnumerateType()
+	{
+		return enumType;
+	}
 	
 }

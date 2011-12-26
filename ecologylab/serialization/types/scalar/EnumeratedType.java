@@ -16,6 +16,8 @@ public class EnumeratedType extends ReferenceType<Enum>
 	@simpl_nowrap
 	@simpl_collection("enum_string_constants")
 	ArrayList<String> enumStringConstants = new ArrayList<String>();
+	
+	String enumTypeSimpleName = ""; 
 
 	public EnumeratedType()
 	{
@@ -36,6 +38,8 @@ public class EnumeratedType extends ReferenceType<Enum>
 				}
 			}
 		}
+		
+		enumTypeSimpleName = field.getType().getSimpleName();
 	}
 
 	@Override
@@ -62,6 +66,16 @@ public class EnumeratedType extends ReferenceType<Enum>
        }
        return result;
    }
+	
+	public String getSimpleName()
+	{
+		return enumTypeSimpleName;
+	}
+	
+	public ArrayList<String> getEnumStringConstants()
+	{
+		return enumStringConstants;
+	}
 
 	@Override
 	public Enum getInstance(String value, String[] formatStrings,
