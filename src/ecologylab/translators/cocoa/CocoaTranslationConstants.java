@@ -183,5 +183,7 @@ public class CocoaTranslationConstants
 	public static final String	SUPER_DEALLOC												= "[super dealloc];";
 
 	public static final String	TRANSATIONSCOPE_FOLDER							= "tscope";
+	
+	public static final String  ENUM_TEMPLATE 											= "typedef enum @name \n{\n@types\n} @name;";
 
 }

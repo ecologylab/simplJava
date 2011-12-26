@@ -27,6 +27,7 @@ import ecologylab.serialization.formatenums.Format;
 import ecologylab.serialization.library.rss.Channel;
 import ecologylab.serialization.library.rss.Item;
 import ecologylab.serialization.library.rss.RssState;
+import ecologylab.serialization.types.scalar.EnumeratedType;
 import ecologylab.standalone.xmlpolymorph.BItem;
 import ecologylab.standalone.xmlpolymorph.SchmItem;
 import ecologylab.standalone.xmlpolymorph.Schmannel;
@@ -148,6 +149,11 @@ public class CocoaTranslator
 	 * Location of the directory where the output header and implementation will be put
 	 */
 	private File															directoryLocation;
+
+	/**
+	 * Enumerated types found during code generation saved by their name and the
+	 */
+	private HashMap<String, EnumeratedType>		enumeratedTypes = new HashMap<String, EnumeratedType>();
 
 	/**
 	 * Constructor method
@@ -388,8 +394,8 @@ public class CocoaTranslator
 	}
 
 	/**
-	 * Takes an input class to generate an Objective-C version of the file. Takes the {@code
-	 * directoryLocation} of the files where the file needs to be generated.
+	 * Takes an input class to generate an Objective-C version of the file. Takes the
+	 * {@code directoryLocation} of the files where the file needs to be generated.
 	 * <p>
 	 * This function internally calls the {@code translateToObjC} main entry function to generate the
 	 * required files
@@ -408,8 +414,8 @@ public class CocoaTranslator
 	}
 
 	/**
-	 * Takes an input class to generate an Objective-C version of the file. Takes the {@code
-	 * directoryLocation} of the files where the file needs to be generated.
+	 * Takes an input class to generate an Objective-C version of the file. Takes the
+	 * {@code directoryLocation} of the files where the file needs to be generated.
 	 * <p>
 	 * This function internally calls the {@code translateToObjC} main entry function to generate the
 	 * required files
@@ -432,8 +438,8 @@ public class CocoaTranslator
 	}
 
 	/**
-	 * Takes an input class to generate an Objective-C version of the file. Takes the {@code
-	 * directoryLocation} of the files where the file needs to be generated.
+	 * Takes an input class to generate an Objective-C version of the file. Takes the
+	 * {@code directoryLocation} of the files where the file needs to be generated.
 	 * <p>
 	 * This function internally calls the {@code translateToObjC} main entry function to generate the
 	 * required files
@@ -468,8 +474,60 @@ public class CocoaTranslator
 		// create a folder to put the translation scope getter class
 		File tScopeDirectory = createGetTranslationScopeFolder(directoryLocation);
 
+		// create a folder to put enums in
+		File enumDirectory = createEnumeratedTypesFolder(directoryLocation);
+
 		// generate translation scope getter class
 		generateTranslationScopeGetterClass(tScopeDirectory, tScope);
+		
+		// generate enumerate types 
+		generateEnumeratedTypes(enumDirectory);
+	}	
+
+	private File createEnumeratedTypesFolder(File directoryLocation)
+	{
+		String enumDirectoryPath = directoryLocation.toString()
+				+ CocoaTranslationConstants.FILE_PATH_SEPARATOR;
+
+		enumDirectoryPath += "enums" + CocoaTranslationConstants.FILE_PATH_SEPARATOR;
+		File enumDirectory = new File(enumDirectoryPath);
+		enumDirectory.mkdir();
+		return enumDirectory;
+	}
+	
+	private void generateEnumeratedTypes(File directoryLocation) throws IOException
+	{
+		for(EnumeratedType enumeratedType : enumeratedTypes.values())
+		{
+			generateEnumeratedType(directoryLocation, enumeratedType);
+		}
+		
+	}
+
+	private void generateEnumeratedType(File directoryLocation, EnumeratedType enumeratedType) throws IOException
+	{
+		File headerFile = new File(directoryLocation + CocoaTranslationConstants.FILE_PATH_SEPARATOR
+				+ enumeratedType.getSimpleName() + CocoaTranslationConstants.HEADER_FILE_EXTENSION);
+		BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(headerFile));
+
+		String enumBody = CocoaTranslationConstants.ENUM_TEMPLATE;
+		
+		ArrayList<String> enumStringConstants = enumeratedType.getEnumStringConstants();
+		String stringConstantsDeclarations = ""; 
+		for(int i = 0; i < enumStringConstants.size(); i++)
+		{
+			stringConstantsDeclarations += CocoaTranslationConstants.TAB + enumStringConstants.get(i);
+			stringConstantsDeclarations += " = " + i;
+			if(i != enumStringConstants.size() - 1)
+				stringConstantsDeclarations += ", \n";
+		}
+		
+		enumBody = enumBody.replace("@name", enumeratedType.getSimpleName());
+		enumBody = enumBody.replace("@types", stringConstantsDeclarations);
+		
+		bufferedWriter.write(enumBody);
+		
+		bufferedWriter.close();
 	}
 
 	private File createGetTranslationScopeFolder(File directoryLocation)
@@ -479,6 +537,7 @@ public class CocoaTranslator
 
 		tScopeDirectoryPath += CocoaTranslationConstants.TRANSATIONSCOPE_FOLDER
 				+ CocoaTranslationConstants.FILE_PATH_SEPARATOR;
+		
 		File tScopeDirectory = new File(tScopeDirectoryPath);
 		tScopeDirectory.mkdir();
 		return tScopeDirectory;
@@ -662,8 +721,8 @@ public class CocoaTranslator
 	}
 
 	/**
-	 * Takes an input class to generate an Objective-C version of the file. Takes the {@code
-	 * directoryLocation} of the files where the file needs to be generated.
+	 * Takes an input class to generate an Objective-C version of the file. Takes the
+	 * {@code directoryLocation} of the files where the file needs to be generated.
 	 * <p>
 	 * This function internally calls the {@code translateToObjC} main entry function to generate the
 	 * required files
@@ -685,8 +744,8 @@ public class CocoaTranslator
 	}
 
 	/**
-	 * Takes an input class to generate an Objective-C version of the file. Takes the {@code
-	 * directoryLocation} of the files where the file needs to be generated.
+	 * Takes an input class to generate an Objective-C version of the file. Takes the
+	 * {@code directoryLocation} of the files where the file needs to be generated.
 	 * <p>
 	 * This function internally calls the {@code translateToObjC} main entry function to generate the
 	 * required files
@@ -710,8 +769,8 @@ public class CocoaTranslator
 	/**
 	 * Recursive function to generate output files of the {@code @xml_nested} objects
 	 * <p>
-	 * Takes an input class to generate an Objective-C version of the file. Takes the {@code
-	 * directoryLocation} of the files where the file needs to be generated.
+	 * Takes an input class to generate an Objective-C version of the file. Takes the
+	 * {@code directoryLocation} of the files where the file needs to be generated.
 	 * </p>
 	 * <p>
 	 * This function internally calls the {@code translateToObjC} main entry function to generate the
@@ -789,19 +848,16 @@ public class CocoaTranslator
 						{
 							if (fieldDescriptor.isEnum())
 							{
-								generateEnumWrapper(fieldDescriptor);
-
-								Boolean alreadyImported = importedFiles.get(fieldDescriptor.getObjectiveCTypeName()
-										+ "Enum") == null ? false : true;
+								Boolean alreadyImported = enumeratedTypes.get(fieldDescriptor
+										.getObjectiveCTypeName()) == null ? false : true;
 
 								if (!alreadyImported)
 								{
-
 									appendable.append(CocoaTranslationConstants.INCLUDE_OBJECT.replace(
-											CocoaTranslationConstants.AT, fieldDescriptor.getObjectiveCTypeName()
-													+ "Enum"));
+											CocoaTranslationConstants.AT, fieldDescriptor.getObjectiveCTypeName()));
 									appendable.append(CocoaTranslationConstants.SINGLE_LINE_BREAK);
-									importedFiles.put(fieldDescriptor.getObjectiveCTypeName() + "Enum", true);
+									enumeratedTypes.put(fieldDescriptor.getObjectiveCTypeName(),
+											fieldDescriptor.getEnumerateType());
 								}
 							}
 							else
@@ -866,10 +922,10 @@ public class CocoaTranslator
 		appendable.append(CocoaTranslationConstants.SINGLE_LINE_BREAK);
 	}
 
-	private void generateEnumWrapper(FieldDescriptor fieldDescriptor)
+	private void generateEnumTypeDefinition(FieldDescriptor fieldDescriptor)
 	{
-		//fieldDescriptor.getScalarType()
-		
+		// fieldDescriptor.getScalarType()
+
 	}
 
 	private void appendClassHeaderComments(String className, Appendable appendable,
@@ -1217,14 +1273,14 @@ public class CocoaTranslator
 
 				if (directoryLocation == null)
 				{
-					nestedTranslationHook = new NestedTranslationHook(ClassDescriptor
-							.getClassDescriptor(fieldDescriptor.getFieldType()), appendable);
+					nestedTranslationHook = new NestedTranslationHook(
+							ClassDescriptor.getClassDescriptor(fieldDescriptor.getFieldType()), appendable);
 					nestedTranslationHooks.add(nestedTranslationHook);
 				}
 				else
 				{
-					nestedTranslationHook = new NestedTranslationHook(ClassDescriptor
-							.getClassDescriptor(fieldDescriptor.getFieldType()), directoryLocation);
+					nestedTranslationHook = new NestedTranslationHook(
+							ClassDescriptor.getClassDescriptor(fieldDescriptor.getFieldType()), directoryLocation);
 					nestedTranslationHooks.add(nestedTranslationHook);
 				}
 			}
@@ -1612,8 +1668,7 @@ public class CocoaTranslator
 			{
 				if (fieldDescriptor.belongsTo(inputClass)
 						&& ((fieldDescriptor.getScalarType() != null && fieldDescriptor.getScalarType()
-								.isReference())
-								|| fieldDescriptor.isCollection() || fieldDescriptor.isNested())
+								.isReference()) || fieldDescriptor.isCollection() || fieldDescriptor.isNested())
 						&& !fieldDescriptor.isEnum())
 				{
 					appendDeallocStatement(fieldDescriptor, appendable);
@@ -1793,13 +1848,12 @@ public class CocoaTranslator
 	{
 		CocoaTranslator c = new CocoaTranslator();
 		// c.translateToObjC(Item.class, new ParsedURL(new File("/")));
-		c
-				.translateToObjC(
-						new File("/output"),
-						SimplTypesScope.get("RSSTranslations", Schmannel.class, BItem.class, SchmItem.class,
-								RssState.class, Item.class, Channel.class),
-						new File(
-								"/Users/nabeelshahzad/Documents/workspace/ecologylabFundamental/ecologylab/xml/library/rss"));
+		c.translateToObjC(
+				new File("/output"),
+				SimplTypesScope.get("RSSTranslations", Schmannel.class, BItem.class, SchmItem.class,
+						RssState.class, Item.class, Channel.class),
+				new File(
+						"/Users/nabeelshahzad/Documents/workspace/ecologylabFundamental/ecologylab/xml/library/rss"));
 
 		// c.translateToObjCRecursive(RssState.class, System.out);
 
