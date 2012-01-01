@@ -317,7 +317,9 @@ public class ClassDescriptor<FD extends FieldDescriptor> extends DescriptorBase 
 
 	private void deriveSuperGenericTypeVariables()
 	{
-
+		if (describedClass == null)
+			return;
+		
 		Type superClassType = describedClass.getGenericSuperclass();
 
 		if (superClassType instanceof ParameterizedTypeImpl)
