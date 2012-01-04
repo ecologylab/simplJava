@@ -937,7 +937,7 @@ public class FieldDescriptor extends DescriptorBase implements FieldTypes, IMapp
 		return xmlHint;
 	}
 
-	public boolean set(ElementState context, String valueString)
+	public boolean set(Object context, String valueString)
 	{
 		return set(context, valueString, null);
 	}
@@ -955,7 +955,7 @@ public class FieldDescriptor extends DescriptorBase implements FieldTypes, IMapp
 	 *          The value to set, which this method will use with the ScalarType, to create the value
 	 *          that will be set.
 	 */
-	public boolean set(ElementState context, String valueString,
+	public boolean set(Object context, String valueString,
 			ScalarUnmarshallingContext scalarUnMarshallingContext)
 	{
 		boolean result = false;
@@ -977,7 +977,7 @@ public class FieldDescriptor extends DescriptorBase implements FieldTypes, IMapp
 	 * @param value
 	 *          An ElementState, or a Collection, or a Map.
 	 */
-	public void set(ElementState context, Object value)
+	public void set(Object context, Object value)
 	{
 		if (!isScalar())
 		{
@@ -985,7 +985,7 @@ public class FieldDescriptor extends DescriptorBase implements FieldTypes, IMapp
 		}
 	}
 
-	public void setField(ElementState context, Object value)
+	public void setField(Object context, Object value)
 	{
 		try
 		{
@@ -1065,17 +1065,17 @@ public class FieldDescriptor extends DescriptorBase implements FieldTypes, IMapp
 		return type;
 	}
 
-	public ElementState getNested(ElementState context)
+	public Object getNested(Object context)
 	{
-		return (ElementState) ReflectionTools.getFieldValue(context, field);
+		return ReflectionTools.getFieldValue(context, field);
 	}
 
-	public Map getMap(ElementState context)
+	public Map getMap(Object context)
 	{
 		return (Map) ReflectionTools.getFieldValue(context, field);
 	}
 
-	public Collection getCollection(ElementState context)
+	public Collection getCollection(Object context)
 	{
 		return (Collection) ReflectionTools.getFieldValue(context, field);
 	}
@@ -1085,13 +1085,13 @@ public class FieldDescriptor extends DescriptorBase implements FieldTypes, IMapp
 		return false;
 	}
 
-	public ElementState getAndPerhapsCreateNested(ElementState context)
+	public Object getAndPerhapsCreateNested(Object context)
 	{
-		ElementState result = getNested(context);
+		Object result = getNested(context);
 
 		if (result == null)
 		{
-			result = (ElementState) ReflectionTools.getInstance(field.getType());
+			result = ReflectionTools.getInstance(field.getType());
 			ReflectionTools.setFieldValue(context, field, result);
 		}
 		return result;
