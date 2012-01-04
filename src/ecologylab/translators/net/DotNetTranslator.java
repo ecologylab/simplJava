@@ -462,6 +462,8 @@ public class DotNetTranslator extends AbstractCodeTranslator implements DotNetTr
 	
 		appendable.append(SINGLE_LINE_BREAK);
 	
+		String fieldName = fieldDescriptor.getName();
+		String propertyName = DotNetTranslationUtilities.getPropertyName(context, fieldDescriptor);
 		boolean isKeyword = checkForKeywords(fieldDescriptor);
 		if (isKeyword)
 				appendable.append(OPEN_BLOCK_COMMENTS).append(SINGLE_LINE_BREAK);
@@ -470,7 +472,7 @@ public class DotNetTranslator extends AbstractCodeTranslator implements DotNetTr
 		appendable.append(SPACE);
 		appendable.append(cSharpType);
 		appendable.append(SPACE);
-		appendable.append(DotNetTranslationUtilities.getPropertyName(context, fieldDescriptor));
+		appendable.append(propertyName);
 		appendable.append(SINGLE_LINE_BREAK);
 		appendable.append(DOUBLE_TAB);
 		appendable.append(OPENING_CURLY_BRACE);
@@ -481,22 +483,21 @@ public class DotNetTranslator extends AbstractCodeTranslator implements DotNetTr
 		appendable.append(OPENING_CURLY_BRACE);
 		appendable.append(RETURN);
 		appendable.append(SPACE);
-		appendable.append(fieldDescriptor.getName());
+		appendable.append(fieldName);
 		appendable.append(END_LINE);
 		appendable.append(CLOSING_CURLY_BRACE);
 		appendable.append(SINGLE_LINE_BREAK);
 		appendable.append(DOUBLE_TAB);
 		appendable.append(TAB);
 		appendable.append(SET);
-		appendable.append(OPENING_CURLY_BRACE);
-		appendable.append(fieldDescriptor.getName());
-		appendable.append(SPACE);
-		appendable.append(ASSIGN);
-		appendable.append(SPACE);
-		appendable.append(VALUE);
-		appendable.append(END_LINE);
-		appendable.append(CLOSING_CURLY_BRACE);
 		appendable.append(SINGLE_LINE_BREAK);
+		appendable.append("\t\t\t{\n");
+		appendable.append("\t\t\t\tif (this.").append(fieldName).append(" != value)\n");
+		appendable.append("\t\t\t\t{\n");
+		appendable.append("\t\t\t\t\tthis.").append(fieldName).append(" = value;\n");
+		appendable.append("\t\t\t\t\tthis.RaisePropertyChanged( () => this.").append(propertyName).append(" );\n");
+		appendable.append("\t\t\t\t}\n");
+		appendable.append("\t\t\t}\n");
 		appendable.append(DOUBLE_TAB);
 		appendable.append(CLOSING_CURLY_BRACE);
 		appendable.append(SINGLE_LINE_BREAK);
@@ -507,9 +508,11 @@ public class DotNetTranslator extends AbstractCodeTranslator implements DotNetTr
 	}
 
 	@Override
-	protected void appendGettersAndSettersHook(ClassDescriptor context, FieldDescriptor fieldDescriptor, Appendable appendable)
+	protected void appendGettersAndSettersHook(ClassDescriptor context,
+			FieldDescriptor fieldDescriptor, Appendable appendable)
 	{
-		// for derived classes to use.
+		// TODO Auto-generated method stub
+		
 	}
 
 	/**
@@ -788,6 +791,7 @@ public class DotNetTranslator extends AbstractCodeTranslator implements DotNetTr
 	/**
 	 * @param someClass
 	 */
+	@Override
 	public void excludeClassFromTranslation(ClassDescriptor someClass)
 	{
 		excludeClassesFromTranslation.add(someClass);
