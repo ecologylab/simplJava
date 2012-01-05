@@ -18,7 +18,6 @@ import ecologylab.generic.Debug;
 import ecologylab.generic.IntSlot;
 import ecologylab.generic.StringTools;
 import ecologylab.io.Files;
-import ecologylab.serialization.ElementState;
 import ecologylab.serialization.SIMPLTranslationException;
 import ecologylab.serialization.SimplTypesScope;
 import ecologylab.serialization.formatenums.Format;
@@ -358,6 +357,7 @@ public class ParsedURL extends Debug implements MimeType
 	 * 
 	 * @return The URL as a String.
 	 */
+	@Override
 	public String toString()
 	{
 		String result = string;
@@ -1051,7 +1051,7 @@ public class ParsedURL extends Debug implements MimeType
 		if (mimeIndex == -1)
 		{
 			String suffix = suffix();
-			IntSlot mimeSlot = (IntSlot) suffixesToMap.get(suffix);
+			IntSlot mimeSlot = suffixesToMap.get(suffix);
 			mimeIndex = (mimeSlot != null) ? mimeSlot.value : UNKNOWN_MIME;
 			return mimeIndex;
 		}
@@ -1066,7 +1066,7 @@ public class ParsedURL extends Debug implements MimeType
 		if ((afterLastDot > 0) && (location.length() > afterLastDot))
 		{
 			String suffix = location.substring(afterLastDot);
-			IntSlot mimeSlot = (IntSlot) suffixesToMap.get(suffix);
+			IntSlot mimeSlot = suffixesToMap.get(suffix);
 			if (mimeSlot != null)
 				result = mimeSlot.value;
 		}
@@ -1148,6 +1148,7 @@ public class ParsedURL extends Debug implements MimeType
 	 * as this. Note: this is our own implementation. It is *much* faster and slightly less careful
 	 * than JavaSoft's. Checks port, host, file, protocol, and query. Ignores ref = hash.
 	 */
+	@Override
 	public boolean equals(Object other)
 	{
 		if (other == null)
@@ -1206,6 +1207,7 @@ public class ParsedURL extends Debug implements MimeType
 	/**
 	 * Hash this by its URL.
 	 */
+	@Override
 	public int hashCode()
 	{
 		if (url == null && file == null)
@@ -1521,7 +1523,7 @@ public class ParsedURL extends Debug implements MimeType
 			//TODO -- check to see if args are the same or different.
 			result						= getAbsolute(noArgsNoQuery + '?' + newArgString);
 		}
-		else if (oldParamMap.size() != 0)
+		else if (oldParamMap != null && oldParamMap.size() != 0)
 		{
 			result						= getAbsolute(noArgsNoQuery);
 		}
