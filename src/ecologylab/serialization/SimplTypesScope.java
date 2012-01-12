@@ -6,6 +6,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.lang.annotation.Annotation;
 import java.net.URL;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -1208,7 +1209,19 @@ public final class SimplTypesScope extends ElementState
 			throws SIMPLTranslationException
 	{
 		TranslationContext translationContext = TranslationContextPool.get().acquire();
-		Object obj = deserialize(inputStream, translationContext, deserializationHookStrategy, format);
+		Object obj = deserialize(inputStream, translationContext, deserializationHookStrategy, format,
+				null);
+		TranslationContextPool.get().release(translationContext);
+		return obj;
+	}
+
+	public Object deserialize(InputStream inputStream,
+			DeserializationHookStrategy deserializationHookStrategy, Format format, Charset charSet)
+			throws SIMPLTranslationException
+	{
+		TranslationContext translationContext = TranslationContextPool.get().acquire();
+		Object obj = deserialize(inputStream, translationContext, deserializationHookStrategy, format,
+				charSet);
 		TranslationContextPool.get().release(translationContext);
 		return obj;
 	}
@@ -1216,26 +1229,48 @@ public final class SimplTypesScope extends ElementState
 	public Object deserialize(InputStream inputStream, TranslationContext translationContext,
 			Format format) throws SIMPLTranslationException
 	{
-		return deserialize(inputStream, translationContext, null, format);
+		return deserialize(inputStream, translationContext, null, format, null);
+	}
+
+	public Object deserialize(InputStream inputStream, TranslationContext translationContext,
+			Format format, Charset charSet) throws SIMPLTranslationException
+	{
+		return deserialize(inputStream, translationContext, null, format, charSet);
 	}
 
 	public Object deserialize(InputStream inputStream, Format format)
 			throws SIMPLTranslationException
 	{
 		TranslationContext translationContext = TranslationContextPool.get().acquire();
-		Object obj = deserialize(inputStream, translationContext, null, format);
+		Object obj = deserialize(inputStream, translationContext, null, format, null);
 		TranslationContextPool.get().release(translationContext);
 		return obj;
 	}
 
-	public Object deserialize(InputStream inputStream, TranslationContext translationContext,
-			DeserializationHookStrategy deserializationHookStrategy, Format format)
+	public Object deserialize(InputStream inputStream, Format format, Charset charSet)
 			throws SIMPLTranslationException
 	{
-		PullDeserializer pullDeserializer = PullDeserializer.getDeserializer(this, translationContext,
-				deserializationHookStrategy, format);
+		TranslationContext translationContext = TranslationContextPool.get().acquire();
+		Object obj = deserialize(inputStream, translationContext, null, format, charSet);
+		TranslationContextPool.get().release(translationContext);
+		return obj;
+	}
+
+public Object deserialize(InputStream inputStream, TranslationContext translationContext,
+		DeserializationHookStrategy deserializationHookStrategy, Format format, Charset charSet)
+		throws SIMPLTranslationException
+{
+	PullDeserializer pullDeserializer = PullDeserializer.getDeserializer(this, translationContext,
+			deserializationHookStrategy, format);
+	if(charSet != null)
+	{
+		return pullDeserializer.parse(inputStream, charSet);
+	}
+	else
+	{
 		return pullDeserializer.parse(inputStream);
 	}
+}
 
 	public Object deserialize(URL url, Format format) throws SIMPLTranslationException
 	{

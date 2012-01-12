@@ -2,6 +2,7 @@ package ecologylab.serialization.deserializers.pullhandlers.stringformats;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.charset.Charset;
 import java.util.Collection;
 import java.util.Map;
 
@@ -61,6 +62,20 @@ public class XMLPullDeserializer extends StringPullDeserializer
 	}
 
 	@Override
+	public Object parse(InputStream inputStream, Charset charSet) throws SIMPLTranslationException
+	{
+		try
+		{
+			configure(inputStream, charSet);
+			return parse();
+		}
+		catch (Exception ex)
+		{
+			throw new SIMPLTranslationException("exception occurred in deserialzation ", ex);
+		}
+	}
+	
+	@Override
 	public Object parse(InputStream inputStream) throws SIMPLTranslationException
 	{
 		try
@@ -101,6 +116,19 @@ public class XMLPullDeserializer extends StringPullDeserializer
 
 	/**
 	 * Configures the input stream. Creates an instance of XMLStreamReader on the input stream.
+	 * 
+	 * @param inputStream
+	 * @param charSet
+	 * @throws XMLStreamException
+	 * @throws FactoryConfigurationError
+	 */
+	private void configure(InputStream inputStream, Charset charSet) throws XMLStreamException,
+			FactoryConfigurationError
+	{
+		xmlStreamReader = XMLInputFactory.newInstance().createXMLStreamReader(inputStream, charSet.name());
+	}
+	
+	/**
 	 * 
 	 * @param inputStream
 	 * @throws XMLStreamException

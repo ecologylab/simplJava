@@ -65,6 +65,7 @@ import ecologylab.serialization.types.scalar.EnumeratedType;
  */
 @SuppressWarnings("rawtypes")
 @simpl_inherit
+
 public class FieldDescriptor extends DescriptorBase implements FieldTypes, IMappable<String>,
 		Cloneable
 {
@@ -211,7 +212,7 @@ public class FieldDescriptor extends DescriptorBase implements FieldTypes, IMapp
 	protected String																	genericParametersString;
 
 	private ArrayList<ClassDescriptor>								dependencies								= new ArrayList<ClassDescriptor>();
-
+	
 	/**
 	 * if is null, this field is not a cloned one. <br />
 	 * if not null, refers to the descriptor that this field is cloned from.
@@ -493,6 +494,7 @@ public class FieldDescriptor extends DescriptorBase implements FieldTypes, IMapp
 		if (result)
 		{
 			unresolvedScopeAnnotation = null;
+
 			// declaringClassDescriptor.mapPolymorphicClassDescriptors(this);
 		}
 		return result;

@@ -2,6 +2,7 @@ package ecologylab.serialization.deserializers.pullhandlers.stringformats;
 
 import java.io.File;
 import java.io.InputStream;
+import java.nio.charset.Charset;
 import java.util.Collection;
 
 import ecologylab.generic.Debug;
@@ -193,6 +194,13 @@ public class BibTeXPullDeserializer extends StringPullDeserializer implements Bi
 
 	@Override
 	public Object parse(InputStream inputStream) throws SIMPLTranslationException
+	{
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Object parse(InputStream inputStream, Charset charSet) throws SIMPLTranslationException
 	{
 		// TODO Auto-generated method stub
 		return null;

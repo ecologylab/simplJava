@@ -3,6 +3,8 @@ package ecologylab.serialization.deserializers.pullhandlers.stringformats;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.nio.charset.Charset;
 import java.util.Collection;
 import java.util.Map;
 
@@ -51,6 +53,20 @@ public class JSONPullDeserializer extends StringPullDeserializer
 	}
 
 	@Override
+	public Object parse(InputStream inputStream, Charset charSet) throws SIMPLTranslationException
+	{
+		try
+		{
+			configure(inputStream, charSet);
+			return parse();
+		}
+		catch (Exception ex)
+		{
+			throw new SIMPLTranslationException("exception occurred in deserialzation ", ex);
+		}
+	}
+
+	@Override
 	public Object parse(InputStream inputStream) throws SIMPLTranslationException
 	{
 		try
@@ -63,7 +79,7 @@ public class JSONPullDeserializer extends StringPullDeserializer
 			throw new SIMPLTranslationException("exception occurred in deserialzation ", ex);
 		}
 	}
-
+	
 	/**
 	 * The main parse method accepts a CharSequence and creates a corresponding object model. Sets up
 	 * the root object and creates instances of the root object before calling a recursive method that
@@ -89,6 +105,14 @@ public class JSONPullDeserializer extends StringPullDeserializer
 		}
 	}
 
+	private void configure(InputStream inputStream, Charset charSet) throws IOException, JsonParseException
+	{
+		// configure the json parser
+		JsonFactory f = new JsonFactory();
+		InputStreamReader tmpReader = new InputStreamReader(inputStream, charSet);
+		jp = f.createJsonParser(tmpReader);
+	}
+	
 	private void configure(InputStream inputStream) throws IOException, JsonParseException
 	{
 		// configure the json parser

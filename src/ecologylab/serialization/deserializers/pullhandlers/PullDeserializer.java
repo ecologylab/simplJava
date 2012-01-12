@@ -7,6 +7,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
+import java.nio.charset.Charset;
 
 import ecologylab.generic.Debug;
 import ecologylab.net.ConnectionAdapter;
@@ -21,6 +22,7 @@ import ecologylab.serialization.SimplTypesScope;
 import ecologylab.serialization.deserializers.ISimplDeserializationPre;
 import ecologylab.serialization.deserializers.ISimplDeserializationPost;
 import ecologylab.serialization.deserializers.pullhandlers.binaryformats.BinaryPullDeserializer;
+import ecologylab.serialization.deserializers.pullhandlers.stringformats.BaseXmlPullDeserializerFactory;
 import ecologylab.serialization.deserializers.pullhandlers.binaryformats.TLVPullDeserializer;
 import ecologylab.serialization.deserializers.pullhandlers.stringformats.JSONPullDeserializer;
 import ecologylab.serialization.deserializers.pullhandlers.stringformats.StringPullDeserializer;
@@ -134,6 +136,16 @@ public abstract class PullDeserializer extends Debug implements FieldTypes
 	/**
 	 * 
 	 * @param inputStream
+	 * @param charSet
+	 * @return
+	 * @throws SIMPLTranslationException
+	 */
+	public abstract Object parse(InputStream inputStream, Charset charSet)
+			throws SIMPLTranslationException;
+
+	/**
+	 * 
+	 * @param inputStream
 	 * @return
 	 * @throws SIMPLTranslationException
 	 */
@@ -190,6 +202,7 @@ public abstract class PullDeserializer extends Debug implements FieldTypes
 	 * @return
 	 * @throws SIMPLTranslationException
 	 */
+
 	public static PullDeserializer getDeserializer(SimplTypesScope translationScope,
 			TranslationContext translationContext,
 			DeserializationHookStrategy deserializationHookStrategy, Format format)
@@ -198,8 +211,8 @@ public abstract class PullDeserializer extends Debug implements FieldTypes
 		switch (format)
 		{
 		case XML:
-			return new XMLPullDeserializer(translationScope, translationContext,
-					deserializationHookStrategy);
+			return BaseXmlPullDeserializerFactory.getXMLPullDeserializerFactory().getFormatSerializer(
+					translationScope, translationContext, deserializationHookStrategy);
 		case JSON:
 			return new JSONPullDeserializer(translationScope, translationContext,
 					deserializationHookStrategy);
@@ -245,8 +258,8 @@ public abstract class PullDeserializer extends Debug implements FieldTypes
 		switch (stringFormat)
 		{
 		case XML:
-			return new XMLPullDeserializer(translationScope, translationContext,
-					deserializationHookStrategy);
+			return BaseXmlPullDeserializerFactory.getXMLPullDeserializerFactory().getFormatSerializer(
+					translationScope, translationContext, deserializationHookStrategy);
 		case JSON:
 			return new JSONPullDeserializer(translationScope, translationContext,
 					deserializationHookStrategy);

@@ -4,6 +4,7 @@ import java.io.ByteArrayInputStream;
 import java.io.DataInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.charset.Charset;
 import java.util.Collection;
 import java.util.Map;
 
@@ -416,5 +417,12 @@ public class TLVPullDeserializer extends BinaryPullDeserializer
 	private int type()
 	{
 		return blockType;
+	}
+
+	@Override
+	public Object parse(InputStream inputStream, Charset charSet) throws SIMPLTranslationException
+	{
+		// TODO Auto-generated method stub
+		return parse(inputStream);
 	}
 }

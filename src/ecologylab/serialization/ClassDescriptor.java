@@ -73,11 +73,15 @@ public class ClassDescriptor<FD extends FieldDescriptor> extends DescriptorBase 
 	// handle spelling error that was here
 	private ArrayList<String>																													interfaces;
 
-	/** Class object that we are describing. */
+	/**
+	 * Class object that we are describing.
+	 */
 	@simpl_scalar
 	private Class<? extends ClassDescriptor>																					classDescriptorClass;
 
-	/** Class object that we are describing. */
+	/**
+	 * Class object that we are describing.
+	 */
 	@simpl_scalar
 	private Class<? extends FieldDescriptor>																					fieldDescriptorClass;
 
@@ -182,6 +186,7 @@ public class ClassDescriptor<FD extends FieldDescriptor> extends DescriptorBase 
 		this.describedClass = thatClass;
 		this.describedClassSimpleName = thatClass.getSimpleName();
 		this.describedClassPackageName = thatClass.getPackage().getName();
+
 
 		final simpl_descriptor_classes descriptorsClassesAnnotation = thatClass.getAnnotation(simpl_descriptor_classes.class);
 		if (descriptorsClassesAnnotation != null)
@@ -566,6 +571,7 @@ public class ClassDescriptor<FD extends FieldDescriptor> extends DescriptorBase 
 	{
 
 		if (classWithFields.isAnnotationPresent(simpl_inherit.class))
+
 		{
 			ClassDescriptor<FD> superClassDescriptor = (ClassDescriptor<FD>) ClassDescriptor.getClassDescriptor(classWithFields.getSuperclass());
 
@@ -677,6 +683,7 @@ public class ClassDescriptor<FD extends FieldDescriptor> extends DescriptorBase 
 			final String fieldTagName = fieldDescriptor.getTagName();
 			if (fieldDescriptor.isWrapped())
 			{
+
 				FD wrapper = newFieldDescriptor(fieldDescriptor,
 																				fieldTagName,
 																				(Class<FD>) fieldDescriptorClass);
@@ -1106,6 +1113,7 @@ public class ClassDescriptor<FD extends FieldDescriptor> extends DescriptorBase 
 			{
 				FieldDescriptor fd = unresolvedClassesAnnotationFDs.remove(i);
 				fd.resolveUnresolvedClassesAnnotation();
+				this.mapPolymorphicClassDescriptors((FD) fd);
 				this.mapPolymorphicClassDescriptors((FD) fd);
 			}
 		}

@@ -390,8 +390,7 @@ public class Logging<T extends MixedInitiativeOp> extends ElementState implement
 					loggingClient = new NIOClient(loggingHost,
 																				loggingPort,
 																				DefaultServicesTranslations.get(),
-																				new Scope(),
-																				NIOLoggingServer.MAX_MESSAGE_SIZE_CHARS_LOGGING);
+																				new Scope());
 
 					// CONNECT TO SERVER
 					if (loggingClient.connect())
@@ -1011,9 +1010,7 @@ public class Logging<T extends MixedInitiativeOp> extends ElementState implement
 	protected class NetworkLogWriter extends LogWriter
 	{
 		NIOClient			loggingClient;
-
-		final int			maxMessageLengthChars;
-
+		
 		/** Object for sending a batch of ops to the LoggingServer. */
 		final LogOps	logOps;
 
@@ -1033,7 +1030,6 @@ public class Logging<T extends MixedInitiativeOp> extends ElementState implement
 			// logOps = new LogOps(maxBufferSizeToWrite);
 			logOps = new LogOps();
 
-			this.maxMessageLengthChars = loggingClient.getMaxMessageLengthChars();
 			this.loggingParent = loggingParent;
 		}
 
