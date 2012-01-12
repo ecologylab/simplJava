@@ -44,6 +44,7 @@ public class DictionaryProperty extends Property implements ISimplDeserializatio
 	@Override
 	public void deserializationPostHook(TranslationContext translationContext, Object object)
 	{
+		debug("deser post hook!");
 		propertyMap = new HashMap<String, Property>();
 
 		Iterator<Property> propertyIter = properties.iterator();
@@ -52,9 +53,13 @@ public class DictionaryProperty extends Property implements ISimplDeserializatio
 		{
 			KeyProperty key = (KeyProperty) propertyIter.next();
 			Property value = propertyIter.next();
+			
+			String temp = key.getContents();
 
 			propertyMap.put(key.getContents(), value);
 		}
+		
+		debug("done desr");
 	}
 
 	public Property getProperty(String key)

@@ -3,9 +3,12 @@
  */
 package ecologylab.serialization.types;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Map;
 
+import ecologylab.serialization.GenericTypeVar;
+import ecologylab.serialization.annotations.simpl_collection;
 import ecologylab.serialization.annotations.simpl_inherit;
 import ecologylab.serialization.annotations.simpl_scalar;
 
@@ -20,6 +23,12 @@ implements CrossLanguageTypeConstants
 {
 	@simpl_scalar
 	private boolean			isMap;
+	
+	/**
+	 * Represent the generic type vars that a Collection or Map type is defined with.
+	 */
+	@simpl_collection("generic_type_var")
+	private ArrayList<GenericTypeVar>																					genericTypeVars;
 
 	/**
 	 * 

@@ -3,16 +3,16 @@ package ecologylab.serialization.library.rss;
 import java.util.ArrayList;
 
 import ecologylab.net.ParsedURL;
-import ecologylab.serialization.ClassDescriptor;
 import ecologylab.serialization.ElementState;
 import ecologylab.serialization.SIMPLTranslationException;
-import ecologylab.serialization.StringFormat;
+import ecologylab.serialization.SimplTypesScope;
 import ecologylab.serialization.annotations.Hint;
 import ecologylab.serialization.annotations.simpl_collection;
 import ecologylab.serialization.annotations.simpl_hints;
 import ecologylab.serialization.annotations.simpl_inherit;
 import ecologylab.serialization.annotations.simpl_nowrap;
 import ecologylab.serialization.annotations.simpl_scalar;
+import ecologylab.serialization.formatenums.StringFormat;
 
 /**
  * RSS parser <code>channel</code> element {@link ecologylab.serialization.ElementState
@@ -139,7 +139,7 @@ class Channel2 extends ElementState // ArrayListState<Item>
 		try
 		{
 
-			ClassDescriptor.serialize(c, System.out, StringFormat.XML);
+			SimplTypesScope.serialize(c, System.out, StringFormat.XML);
 
 		}
 		catch (SIMPLTranslationException e)

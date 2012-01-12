@@ -85,7 +85,7 @@ implements CrossLanguageTypeConstants
 		this.cSharpTypeName			= cSharpTypeName;
 		this.objectiveCTypeName	= objectiveCTypeName;
 
-		if (!javaClass.isPrimitive())
+		if (!javaClass.isPrimitive() && javaClass.getPackage() != null)
 			this.packageName			= javaClass.getPackage().getName();
 		
 		this.dbTypeName					= dbTypeName;
@@ -113,6 +113,24 @@ implements CrossLanguageTypeConstants
 	{
 		return cSharpTypeName != null ? cSharpTypeName : javaTypeName;
 	}
+	
+	/**
+	 * The namespace to use in C# cross-compilation.
+	 */
+	@Override
+	public String getCSharpNamespace()
+	{
+		String csTypeName = this.getCSharpTypeName();
+		if (csTypeName != null)
+		{
+			// TODO use a look-up table to handle specific built-in types, 
+			int pos = csTypeName.lastIndexOf('.');
+			return pos > 0 ? csTypeName.substring(0, pos) : CSHARP_PRIMITIVE_NAMESPACE;
+		}
+		else
+			return null;
+	}
+
 	/**
 	 * The name to use when declaring a field in Objective C cross-compilation.
 	 * 

@@ -115,6 +115,6 @@ implements CrossLanguageTypeConstants
 	
 	public static final ScalarType<Field> FIELD_TYPE 					= new FieldType();
 	
-	public static final ScalarType COMPOSITE_AS_SCALAR_TYPE = new CompositeAsScalarType();
+	public static final ScalarType COMPOSITE_AS_SCALAR_TYPE = new CompositeAsScalarType(); 
 	
 }

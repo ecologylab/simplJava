@@ -13,29 +13,31 @@ import ecologylab.generic.Debug;
 import ecologylab.net.ConnectionAdapter;
 import ecologylab.net.PURLConnection;
 import ecologylab.net.ParsedURL;
-import ecologylab.serialization.BinaryFormat;
 import ecologylab.serialization.DeserializationHookStrategy;
 import ecologylab.serialization.FieldDescriptor;
 import ecologylab.serialization.FieldTypes;
-import ecologylab.serialization.Format;
 import ecologylab.serialization.SIMPLTranslationException;
-import ecologylab.serialization.StringFormat;
 import ecologylab.serialization.TranslationContext;
-import ecologylab.serialization.TranslationScope;
+import ecologylab.serialization.SimplTypesScope;
 import ecologylab.serialization.deserializers.ISimplDeserializationPre;
 import ecologylab.serialization.deserializers.ISimplDeserializationPost;
 import ecologylab.serialization.deserializers.pullhandlers.binaryformats.BinaryPullDeserializer;
+
+import ecologylab.serialization.deserializers.pullhandlers.binaryformats.TLVPullDeserializer;
 import ecologylab.serialization.deserializers.pullhandlers.stringformats.BaseXmlPullDeserializerFactory;
 import ecologylab.serialization.deserializers.pullhandlers.stringformats.JSONPullDeserializer;
 import ecologylab.serialization.deserializers.pullhandlers.stringformats.StringPullDeserializer;
 import ecologylab.serialization.deserializers.pullhandlers.stringformats.XMLPullDeserializer;
+import ecologylab.serialization.formatenums.BinaryFormat;
+import ecologylab.serialization.formatenums.Format;
+import ecologylab.serialization.formatenums.StringFormat;
 import ecologylab.serialization.serializers.ISimplSerializationPost;
 import ecologylab.serialization.serializers.ISimplSerializationPre;
 
 public abstract class PullDeserializer extends Debug implements FieldTypes
 {
 
-	protected TranslationScope						translationScope;
+	protected SimplTypesScope							translationScope;
 
 	protected TranslationContext					translationContext;
 
@@ -51,7 +53,7 @@ public abstract class PullDeserializer extends Debug implements FieldTypes
 	 * @param translationContext
 	 *          used for graph handling
 	 */
-	public PullDeserializer(TranslationScope translationScope, TranslationContext translationContext)
+	public PullDeserializer(SimplTypesScope translationScope, TranslationContext translationContext)
 	{
 		this.translationScope = translationScope;
 		this.translationContext = translationContext;
@@ -66,7 +68,8 @@ public abstract class PullDeserializer extends Debug implements FieldTypes
 	 * @param translationContext
 	 *          used for graph handling
 	 */
-	public PullDeserializer(TranslationScope translationScope, TranslationContext translationContext,
+
+	public PullDeserializer(SimplTypesScope translationScope, TranslationContext translationContext,
 			DeserializationHookStrategy deserializationHookStrategy)
 	{
 		this.translationScope = translationScope;
@@ -186,7 +189,7 @@ public abstract class PullDeserializer extends Debug implements FieldTypes
 	 * @return
 	 * @throws SIMPLTranslationException
 	 */
-	public static PullDeserializer getDeserializer(TranslationScope translationScope,
+	public static PullDeserializer getDeserializer(SimplTypesScope translationScope,
 			TranslationContext translationContext, Format format) throws SIMPLTranslationException
 	{
 		return getDeserializer(translationScope, translationContext, null, format);
@@ -201,7 +204,8 @@ public abstract class PullDeserializer extends Debug implements FieldTypes
 	 * @return
 	 * @throws SIMPLTranslationException
 	 */
-	public static PullDeserializer getDeserializer(TranslationScope translationScope,
+
+	public static PullDeserializer getDeserializer(SimplTypesScope translationScope,
 			TranslationContext translationContext,
 			DeserializationHookStrategy deserializationHookStrategy, Format format)
 			throws SIMPLTranslationException
@@ -215,7 +219,10 @@ public abstract class PullDeserializer extends Debug implements FieldTypes
 			return new JSONPullDeserializer(translationScope, translationContext,
 					deserializationHookStrategy);
 		case TLV:
+			return new TLVPullDeserializer(translationScope, translationContext,
+					deserializationHookStrategy);
 		case BIBTEX:
+			
 		default:
 			throw new SIMPLTranslationException(format + " format not supported");
 		}
@@ -229,7 +236,7 @@ public abstract class PullDeserializer extends Debug implements FieldTypes
 	 * @return
 	 * @throws SIMPLTranslationException
 	 */
-	public static StringPullDeserializer getStringDeserializer(TranslationScope translationScope,
+	public static StringPullDeserializer getStringDeserializer(SimplTypesScope translationScope,
 			TranslationContext translationContext, StringFormat stringFormat)
 			throws SIMPLTranslationException
 	{
@@ -245,7 +252,8 @@ public abstract class PullDeserializer extends Debug implements FieldTypes
 	 * @return
 	 * @throws SIMPLTranslationException
 	 */
-	public static StringPullDeserializer getStringDeserializer(TranslationScope translationScope,
+
+	public static StringPullDeserializer getStringDeserializer(SimplTypesScope translationScope,
 			TranslationContext translationContext,
 			DeserializationHookStrategy deserializationHookStrategy, StringFormat stringFormat)
 			throws SIMPLTranslationException
@@ -272,7 +280,7 @@ public abstract class PullDeserializer extends Debug implements FieldTypes
 	 * @return
 	 * @throws SIMPLTranslationException
 	 */
-	public static BinaryPullDeserializer getBinaryDeserializer(TranslationScope translationScope,
+	public static BinaryPullDeserializer getBinaryDeserializer(SimplTypesScope translationScope,
 			TranslationContext translationContext, BinaryFormat binaryFormat)
 			throws SIMPLTranslationException
 	{
@@ -288,7 +296,8 @@ public abstract class PullDeserializer extends Debug implements FieldTypes
 	 * @return
 	 * @throws SIMPLTranslationException
 	 */
-	public static BinaryPullDeserializer getBinaryDeserializer(TranslationScope translationScope,
+
+	public static BinaryPullDeserializer getBinaryDeserializer(SimplTypesScope translationScope,
 			TranslationContext translationContext,
 			DeserializationHookStrategy deserializationHookStrategy, BinaryFormat binaryFormat)
 			throws SIMPLTranslationException

@@ -11,12 +11,12 @@ import java.util.Collection;
 import ecologylab.serialization.ClassDescriptor;
 import ecologylab.serialization.FieldDescriptor;
 import ecologylab.serialization.FieldTypes;
-import ecologylab.serialization.Format;
 import ecologylab.serialization.SIMPLTranslationException;
+import ecologylab.serialization.SimplTypesScope;
+import ecologylab.serialization.SimplTypesScope.GRAPH_SWITCH;
 import ecologylab.serialization.TranslationContext;
-import ecologylab.serialization.TranslationScope;
-import ecologylab.serialization.TranslationScope.GRAPH_SWITCH;
 import ecologylab.serialization.XMLTools;
+import ecologylab.serialization.formatenums.Format;
 
 /**
  * 
@@ -37,8 +37,10 @@ public class TLVSerializer extends BinarySerializer implements FieldTypes
 	 * @param dataOutputStream
 	 * @param translationContext
 	 * @throws SIMPLTranslationException
+	 * @throws
 	 * @throws IOException
 	 */
+	@Override
 	public void serialize(Object object, DataOutputStream dataOutputStream,
 			TranslationContext translationContext) throws SIMPLTranslationException
 	{
@@ -47,8 +49,15 @@ public class TLVSerializer extends BinarySerializer implements FieldTypes
 		ClassDescriptor<? extends FieldDescriptor> rootObjectClassDescriptor = ClassDescriptor
 				.getClassDescriptor(object.getClass());
 
-		serialize(object, rootObjectClassDescriptor.pseudoFieldDescriptor(), dataOutputStream,
-				translationContext);
+		try
+		{
+			serialize(object, rootObjectClassDescriptor.pseudoFieldDescriptor(), dataOutputStream,
+					translationContext);
+		}
+		catch (IOException e)
+		{
+			throw new SIMPLTranslationException("IO Exception occurred", e);
+		}
 	}
 
 	/**
@@ -59,10 +68,11 @@ public class TLVSerializer extends BinarySerializer implements FieldTypes
 	 * @param translationContext
 	 * @throws SIMPLTranslationException
 	 * @throws IOException
+	 * @throws IOException
 	 */
 	private void serialize(Object object, FieldDescriptor rootObjectFieldDescriptor,
 			DataOutputStream dataOutputStream, TranslationContext translationContext)
-			throws SIMPLTranslationException
+			throws SIMPLTranslationException, IOException
 	{
 
 		if (alreadySerialized(object, translationContext))
@@ -93,6 +103,13 @@ public class TLVSerializer extends BinarySerializer implements FieldTypes
 
 	}
 
+	/**
+	 * 
+	 * @param dataOutputStream
+	 * @param buffer
+	 * @param tlvId
+	 * @throws SIMPLTranslationException
+	 */
 	private void writeHeader(DataOutputStream dataOutputStream, ByteArrayOutputStream buffer,
 			int tlvId) throws SIMPLTranslationException
 	{
@@ -117,13 +134,15 @@ public class TLVSerializer extends BinarySerializer implements FieldTypes
 	 * @param allFieldDescriptors
 	 * @throws IOException
 	 * @throws SIMPLTranslationException
+	 * @throws IOException
 	 */
 	private void serializeFields(Object object, DataOutputStream outputBuffer,
 			TranslationContext translationContext,
-			ArrayList<? extends FieldDescriptor> allFieldDescriptors) throws SIMPLTranslationException
+			ArrayList<? extends FieldDescriptor> allFieldDescriptors) throws SIMPLTranslationException,
+			IOException
 	{
 
-		if (TranslationScope.graphSwitch == GRAPH_SWITCH.ON)
+		if (SimplTypesScope.graphSwitch == GRAPH_SWITCH.ON)
 		{
 			if (translationContext.needsHashCode(object))
 			{
@@ -142,7 +161,8 @@ public class TLVSerializer extends BinarySerializer implements FieldTypes
 				writeValue(object, childFd, outputBuffer, translationContext);
 				break;
 			case COMPOSITE_ELEMENT:
-				Object compositeObject = childFd.getObject(object);
+				Object compositeObject = childFd.getValue(object);
+					
 				FieldDescriptor compositeObjectFieldDescriptor = childFd.isPolymorphic() ? getClassDescriptor(
 						compositeObject).pseudoFieldDescriptor()
 						: childFd;
@@ -152,17 +172,18 @@ public class TLVSerializer extends BinarySerializer implements FieldTypes
 				break;
 			case COLLECTION_SCALAR:
 			case MAP_SCALAR:
-				Collection<?> scalarCollection = XMLTools.getCollection(object);
+				Object scalarCollectionObject = childFd.getValue(object);
+				Collection<?> scalarCollection = XMLTools.getCollection(scalarCollectionObject);
 				for (Object collectionObject : scalarCollection)
 				{
-					writeValue(collectionObject, childFd, collectionBuffer, translationContext);
+					writeScalarCollectionLeaf(collectionObject, childFd, collectionBuffer, translationContext);
 				}
 				writeWrap(childFd, outputBuffer, byteArrayOutputStreamCollection);
 				break;
 			case COLLECTION_ELEMENT:
 			case MAP_ELEMENT:
-				Object collectionObject = childFd.getObject(object);
-				Collection<?> compositeCollection = XMLTools.getCollection(collectionObject);
+				Object compositeCollectionObject = childFd.getValue(object);
+				Collection<?> compositeCollection = XMLTools.getCollection(compositeCollectionObject);
 				for (Object collectionComposite : compositeCollection)
 				{
 					FieldDescriptor collectionObjectFieldDescriptor = childFd.isPolymorphic() ? getClassDescriptor(
@@ -177,12 +198,27 @@ public class TLVSerializer extends BinarySerializer implements FieldTypes
 		}
 	}
 
+	/**
+	 * 
+	 * @param object
+	 * @param outputBuffer
+	 * @throws IOException
+	 */
 	private void writeSimplIdAttribute(Object object, DataOutputStream outputBuffer)
+			throws IOException
 	{
-		// TODO Auto-generated method stub
-
+		outputBuffer.writeInt(TranslationContext.SIMPL_ID.hashCode());
+		outputBuffer.writeInt(4);
+		outputBuffer.writeInt(object.hashCode());
 	}
 
+	/**
+	 * 
+	 * @param fd
+	 * @param outputBuffer
+	 * @param collectionBuffy
+	 * @throws SIMPLTranslationException
+	 */
 	private void writeWrap(FieldDescriptor fd, DataOutputStream outputBuffer,
 			ByteArrayOutputStream collectionBuffy) throws SIMPLTranslationException
 	{
@@ -203,6 +239,60 @@ public class TLVSerializer extends BinarySerializer implements FieldTypes
 		}
 	}
 
+	/**
+	 * 
+	 * @param object
+	 * @param fd
+	 * @param outputBuffer
+	 * @param translationContext
+	 * @throws SIMPLTranslationException
+	 */
+	private void writeScalarCollectionLeaf(Object object, FieldDescriptor fd,
+			DataOutputStream outputBuffer, TranslationContext translationContext)
+			throws SIMPLTranslationException
+	{
+		try
+		{
+			if (!fd.isDefaultValue(object.toString()))
+			{
+				outputBuffer.writeInt(fd.getTLVId());
+
+				// TODO appendValue in scalar types should be able to append bytes to DataOutputStream.
+				final StringBuilder buffy = new StringBuilder();
+				OutputStream outputStream = new OutputStream()
+				{
+					@Override
+					public void write(int b) throws IOException
+					{
+						buffy.append((char) b);
+					}
+				};
+
+				fd.appendCollectionScalarValue(new PrintStream(outputStream), object, translationContext,
+						Format.TLV);
+
+				ByteArrayOutputStream temp = new ByteArrayOutputStream();
+				DataOutputStream tempStream = new DataOutputStream(temp);
+				tempStream.writeBytes(buffy.toString());
+
+				outputBuffer.writeInt(tempStream.size());
+				temp.writeTo(outputBuffer);
+			}
+		}
+		catch (IOException e)
+		{
+			throw new SIMPLTranslationException("IOException", e);
+		}
+	}
+
+	/**
+	 * 
+	 * @param object
+	 * @param fd
+	 * @param outputBuffer
+	 * @param translationContext
+	 * @throws SIMPLTranslationException
+	 */
 	private void writeValue(Object object, FieldDescriptor fd, DataOutputStream outputBuffer,
 			TranslationContext translationContext) throws SIMPLTranslationException
 	{
@@ -244,10 +334,18 @@ public class TLVSerializer extends BinarySerializer implements FieldTypes
 	 * @param object
 	 * @param rootObjectFieldDescriptor
 	 * @param dataOutputStream
+	 * @throws IOException
+	 * @throws SIMPLTranslationException
 	 */
-	private void writeSimplRef(Object object, FieldDescriptor fd, DataOutputStream dataOutputStream)
+	private void writeSimplRef(Object object, FieldDescriptor fd, DataOutputStream outputStream)
+			throws IOException, SIMPLTranslationException
 	{
-		// TODO Auto-generated method stub
+		ByteArrayOutputStream simplRefData = new ByteArrayOutputStream();
+		DataOutputStream outputBuffer = new DataOutputStream(simplRefData);
+		outputBuffer.writeInt(TranslationContext.SIMPL_REF.hashCode());
+		outputBuffer.writeInt(4);
+		outputBuffer.writeInt(object.hashCode());
 
+		writeHeader(outputStream, simplRefData, fd.getTLVId());
 	}
 }

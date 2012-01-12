@@ -7,10 +7,10 @@ import java.util.Collection;
 import ecologylab.serialization.ClassDescriptor;
 import ecologylab.serialization.FieldDescriptor;
 import ecologylab.serialization.FieldTypes;
-import ecologylab.serialization.Format;
 import ecologylab.serialization.SIMPLTranslationException;
 import ecologylab.serialization.TranslationContext;
 import ecologylab.serialization.XMLTools;
+import ecologylab.serialization.formatenums.Format;
 
 /**
  * 
@@ -131,13 +131,23 @@ public class BibtexSerializer extends StringSerializer implements FieldTypes
 			TranslationContext translationContext, FieldDescriptor fd) throws SIMPLTranslationException,
 			IOException
 	{
-		Object compositeObject = fd.getObject(object);
+		Object compositeObject = fd.getValue(object);
+		
 		FieldDescriptor compositeAsScalarFD = getClassDescriptor(compositeObject)
 				.getScalarValueFieldDescripotor();
 
 		if (compositeAsScalarFD != null)
 		{
-			writeBibtexAttribute(compositeObject, fd, appendable, translationContext);
+			writeScalarBibtexAttribute(compositeObject, compositeAsScalarFD, appendable, translationContext);
+		}
+	}
+
+	private void writeScalarBibtexAttribute(Object object, FieldDescriptor fd, Appendable appendable,
+			TranslationContext translationContext) throws SIMPLTranslationException
+	{
+		if (!fd.isDefaultValueFromContext(object))
+		{
+			fd.appendValue(appendable, object, translationContext, Format.BIBTEX);
 		}
 	}
 
@@ -155,7 +165,7 @@ public class BibtexSerializer extends StringSerializer implements FieldTypes
 	{
 		if (!fd.isDefaultValueFromContext(object))
 		{
-			if (fd.isBibtexKey())
+			if (!fd.isBibtexKey())
 			{
 				appendable.append(fd.getBibtexTagName());
 				appendable.append('=');
@@ -182,7 +192,11 @@ public class BibtexSerializer extends StringSerializer implements FieldTypes
 			TranslationContext translationContext, FieldDescriptor fd) throws IOException,
 			SIMPLTranslationException
 	{
-		Collection<?> scalarCollection = XMLTools.getCollection(object);
+		Object scalarCollectionObject = fd.getValue(object);
+		Collection<?> scalarCollection = XMLTools.getCollection(scalarCollectionObject);
+		
+		String delim = "author".equals(fd.getBibtexTagName()) ? " and " : translationContext
+				.getDelimiter();
 
 		if (scalarCollection.size() > 0)
 		{
@@ -196,11 +210,12 @@ public class BibtexSerializer extends StringSerializer implements FieldTypes
 
 				if (compositeAsScalarFD != null)
 				{
-					writeBibtexAttribute(collectionObject, fd, appendable, translationContext);
+					writeScalarBibtexAttribute(collectionObject, compositeAsScalarFD, appendable,
+							translationContext);
 				}
 
 				if (++numberOfItems < scalarCollection.size())
-					appendable.append(',');
+					appendable.append(delim);
 			}
 			writeCollectionEnd(appendable);
 		}
@@ -219,7 +234,8 @@ public class BibtexSerializer extends StringSerializer implements FieldTypes
 			TranslationContext translationContext, FieldDescriptor fd) throws IOException,
 			SIMPLTranslationException
 	{
-		Collection<?> scalarCollection = XMLTools.getCollection(object);
+		Object scalarCollectionObject = fd.getValue(object);
+		Collection<?> scalarCollection = XMLTools.getCollection(scalarCollectionObject);
 
 		String delim = "author".equals(fd.getBibtexTagName()) ? " and " : translationContext
 				.getDelimiter();
@@ -274,7 +290,7 @@ public class BibtexSerializer extends StringSerializer implements FieldTypes
 			Appendable appendable, TranslationContext translationContext)
 			throws SIMPLTranslationException
 	{
-		fd.appendValue(appendable, collectionObject, translationContext, Format.BIBTEX);
+		fd.appendCollectionScalarValue(appendable, collectionObject, translationContext, Format.BIBTEX);
 	}
 
 	/**
