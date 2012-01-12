@@ -16,7 +16,7 @@ import ecologylab.serialization.ElementState;
 import ecologylab.serialization.FieldDescriptor;
 import ecologylab.serialization.SIMPLTranslationException;
 import ecologylab.serialization.TranslationContext;
-import ecologylab.serialization.TranslationScope;
+import ecologylab.serialization.SimplTypesScope;
 import ecologylab.serialization.deserializers.pullhandlers.stringformats.StringPullDeserializer;
 import ecologylab.serialization.types.element.IMappable;
 
@@ -27,7 +27,7 @@ public class AndroidXMLDeserializer extends StringPullDeserializer
 
 	private XmlPullParser	xmlPullParser;
 
-	public AndroidXMLDeserializer(TranslationScope translationScope,
+	public AndroidXMLDeserializer(SimplTypesScope translationScope,
 			TranslationContext translationContext)
 	{
 		super(translationScope, translationContext);
