@@ -2,7 +2,7 @@ package ecologylab.serialization.library.dc;
 
 import ecologylab.net.ParsedURL;
 import ecologylab.serialization.ElementState;
-import ecologylab.serialization.SimplTypesScope;
+import ecologylab.serialization.TranslationScope;
 import ecologylab.serialization.annotations.Hint;
 import ecologylab.serialization.annotations.simpl_hints;
 import ecologylab.serialization.annotations.simpl_scalar;
@@ -58,9 +58,9 @@ public class DcTag extends ElementState
 		Dc.class,
 	};
 
-	public static SimplTypesScope get()
+	public static TranslationScope get()
 	{
-		return SimplTypesScope.get(TRANSLATION_SPACE_NAME, TRANSLATIONS);
+		return TranslationScope.get(TRANSLATION_SPACE_NAME, TRANSLATIONS);
 	}
 	
 	public DcTag() 

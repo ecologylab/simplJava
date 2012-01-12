@@ -1,7 +1,7 @@
 ///**
 // * 
 // */
-package ecologylab.serialization.deserializers.pushhandlers;
+//package ecologylab.serialization.deserializers.pushhandlers;
 //
 //import java.io.BufferedInputStream;
 //import java.io.File;
@@ -49,8 +49,9 @@ package ecologylab.serialization.deserializers.pushhandlers;
 // * 
 // * @author andruid
 // */
-public class ElementStateSAXHandler // extends Debug implements ContentHandler, FieldTypes, ScalarUnmarshallingContext
-{
+//public class ElementStateSAXHandler extends Debug implements ContentHandler, FieldTypes,
+//		ScalarUnmarshallingContext
+//{
 //
 //	final TranslationScope			translationScope;
 //
@@ -1022,4 +1023,4 @@ public class ElementStateSAXHandler // extends Debug implements ContentHandler, 
 //				: null;
 //	}
 //
-}
+//}

@@ -2,13 +2,13 @@ package ecologylab.serialization.deserializers.pullhandlers.stringformats;
 
 import ecologylab.serialization.DeserializationHookStrategy;
 import ecologylab.serialization.SIMPLTranslationException;
-import ecologylab.serialization.SimplTypesScope;
 import ecologylab.serialization.TranslationContext;
+import ecologylab.serialization.TranslationScope;
 import ecologylab.serialization.deserializers.pullhandlers.PullDeserializer;
 
 public class XmlJDKParserFactory extends BaseXmlPullDeserializerFactory
 {
-	public StringPullDeserializer getFormatSerializer(SimplTypesScope translationScope,
+	public StringPullDeserializer getFormatSerializer(TranslationScope translationScope,
 			TranslationContext translationContext, DeserializationHookStrategy deserializationHookStrategy)
 			throws SIMPLTranslationException
 	{

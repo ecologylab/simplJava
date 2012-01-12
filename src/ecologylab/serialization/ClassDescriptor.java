@@ -1,19 +1,19 @@
 package ecologylab.serialization;
 
+import java.io.File;
+import java.io.IOException;
+import java.io.OutputStream;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
-import java.lang.reflect.Type;
 import java.lang.reflect.TypeVariable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.List;
-import java.util.Map.Entry;
 import java.util.Set;
+import java.util.Map.Entry;
 
-import sun.reflect.generics.reflectiveObjects.ParameterizedTypeImpl;
 import ecologylab.generic.HashMapArrayList;
 import ecologylab.generic.ReflectionTools;
 import ecologylab.serialization.annotations.Hint;
@@ -28,9 +28,9 @@ import ecologylab.serialization.annotations.simpl_map_key_field;
 import ecologylab.serialization.annotations.simpl_nowrap;
 import ecologylab.serialization.annotations.simpl_other_tags;
 import ecologylab.serialization.annotations.simpl_scalar;
-import ecologylab.serialization.annotations.simpl_tag;
 import ecologylab.serialization.annotations.simpl_use_equals_equals;
-import ecologylab.serialization.formatenums.StringFormat;
+import ecologylab.serialization.serializers.FormatSerializer;
+import ecologylab.serialization.serializers.stringformats.StringSerializer;
 import ecologylab.serialization.types.CollectionType;
 import ecologylab.serialization.types.ScalarType;
 import ecologylab.serialization.types.TypeRegistry;
@@ -136,8 +136,6 @@ public class ClassDescriptor<FD extends FieldDescriptor> extends DescriptorBase 
 
 	private ArrayList<FD>																															unresolvedScopeAnnotationFDs;
 
-	private ArrayList<FD>																															unresolvedClassesAnnotationFDs;
-
 	private String																																		bibtexType													= "";
 
 	@simpl_collection("generic_type_variable")
@@ -151,15 +149,6 @@ public class ClassDescriptor<FD extends FieldDescriptor> extends DescriptorBase 
 	private boolean																																		strictObjectGraphRequired						= false;
 
 	public Class<?>																																		fdClass;
-
-	@simpl_collection("generic_type_var")
-	private ArrayList<GenericTypeVar>																									genericTypeVars											= null;
-
-	@simpl_collection("super_class_generic_type_var")
-	private ArrayList<GenericTypeVar>																									superClassGenericTypeVars						= null;
-
-	@simpl_scalar
-	private String																																		explictObjectiveCTypeName;
 
 	static
 	{
@@ -181,18 +170,20 @@ public class ClassDescriptor<FD extends FieldDescriptor> extends DescriptorBase 
 	 */
 	protected ClassDescriptor(Class<?> thatClass)
 	{
-		super(XMLTools.getXmlTagName(thatClass, SimplTypesScope.STATE), thatClass.getName());
+		super(XMLTools.getXmlTagName(thatClass, TranslationScope.STATE), thatClass.getName());
 
 		this.describedClass = thatClass;
 		this.describedClassSimpleName = thatClass.getSimpleName();
 		this.describedClassPackageName = thatClass.getPackage().getName();
 
-
-		final simpl_descriptor_classes descriptorsClassesAnnotation = thatClass.getAnnotation(simpl_descriptor_classes.class);
+		final simpl_descriptor_classes descriptorsClassesAnnotation = thatClass
+				.getAnnotation(simpl_descriptor_classes.class);
 		if (descriptorsClassesAnnotation != null)
 		{
-			classDescriptorClass = (Class<? extends ClassDescriptor>) descriptorsClassesAnnotation.value()[0];
-			fieldDescriptorClass = (Class<? extends FieldDescriptor>) descriptorsClassesAnnotation.value()[1];
+			classDescriptorClass = (Class<? extends ClassDescriptor>) descriptorsClassesAnnotation
+					.value()[0];
+			fieldDescriptorClass = (Class<? extends FieldDescriptor>) descriptorsClassesAnnotation
+					.value()[1];
 		}
 
 		if (thatClass.isAnnotationPresent(simpl_inherit.class))
@@ -219,16 +210,11 @@ public class ClassDescriptor<FD extends FieldDescriptor> extends DescriptorBase 
 	 * @param superClass
 	 * @param interfaces
 	 */
-	protected ClassDescriptor(String tagName,
-														String comment,
-														String describedClassPackageName,
-														String describedClassSimpleName,
-														ClassDescriptor<FD> superClass,
-														ArrayList<String> interfaces)
+	protected ClassDescriptor(String tagName, String comment, String describedClassPackageName,
+			String describedClassSimpleName, ClassDescriptor<FD> superClass, ArrayList<String> interfaces)
 	{
-		super(tagName,
-					describedClassPackageName + PACKAGE_CLASS_SEP + describedClassSimpleName,
-					comment);
+		super(tagName, describedClassPackageName + PACKAGE_CLASS_SEP + describedClassSimpleName,
+				comment);
 
 		this.describedClassPackageName = describedClassPackageName;
 		this.describedClassSimpleName = describedClassSimpleName;
@@ -240,8 +226,6 @@ public class ClassDescriptor<FD extends FieldDescriptor> extends DescriptorBase 
 	 * Handles a text node.
 	 */
 	private FieldDescriptor	scalarTextFD;
-
-	private Object					SCOPE_ANNOTATION_LOCK	= new Object();
 
 	public FieldDescriptor getScalarTextFD()
 	{
@@ -271,92 +255,17 @@ public class ClassDescriptor<FD extends FieldDescriptor> extends DescriptorBase 
 			for (TypeVariable<?> typeVariable : typeVariables)
 			{
 				String typeClassName = typeVariable.getName();
+
 				genericTypeVariables.add(typeClassName);
 			}
 		}
 	}
 
-	/**
-	 * lazy-evaluation method.
-	 * 
-	 * @return
-	 */
-	public ArrayList<GenericTypeVar> getGenericTypeVars()
-	{
-		if (genericTypeVars == null)
-		{
-			synchronized (this)
-			{
-				if (genericTypeVars == null)
-				{
-					genericTypeVars = new ArrayList<GenericTypeVar>();
-					deriveGenericTypeVariables();
-				}
-			}
-		}
-
-		return genericTypeVars;
-	}
-
-	/**
-	 * lazy-evaluation method.
-	 * 
-	 * @return
-	 */
-	public ArrayList<GenericTypeVar> getSuperClassGenericTypeVars()
-	{
-		if (superClassGenericTypeVars == null)
-		{
-			synchronized (this)
-			{
-				if (superClassGenericTypeVars == null)
-				{
-					superClassGenericTypeVars = new ArrayList<GenericTypeVar>();
-					deriveSuperGenericTypeVariables();
-				}
-			}
-		}
-
-		return superClassGenericTypeVars;
-	}
-
-	private void deriveSuperGenericTypeVariables()
-	{
-		if (describedClass == null)
-			return;
-		
-		Type superClassType = describedClass.getGenericSuperclass();
-
-		if (superClassType instanceof ParameterizedTypeImpl)
-		{
-			ParameterizedTypeImpl superClassParameterizedType = (ParameterizedTypeImpl) superClassType;
-			superClassGenericTypeVars = GenericTypeVar.getGenericTypeVars(superClassParameterizedType);
-		}
-	}
-
-	private void deriveGenericTypeVariables()
-	{
-		if (describedClass != null) // for generated descriptors, describedClass == null
-		{
-			TypeVariable<?>[] typeVariables = describedClass.getTypeParameters();
-			if (typeVariables != null && typeVariables.length > 0)
-			{
-				for (TypeVariable<?> typeVariable : typeVariables)
-				{
-					GenericTypeVar g = GenericTypeVar.getGenericTypeVar(typeVariable);
-					this.genericTypeVars.add(g);
-				}
-			}
-		}
-	}
-
-	@Deprecated
 	public ArrayList<String> getGenericTypeVariables()
 	{
 		return genericTypeVariables;
 	}
 
-	@Override
 	public String getTagName()
 	{
 		return tagName;
@@ -415,7 +324,8 @@ public class ClassDescriptor<FD extends FieldDescriptor> extends DescriptorBase 
 				result = globalClassDescriptorsMap.get(className);
 				if (result == null)
 				{
-					final simpl_descriptor_classes descriptorsClassesAnnotation = thatClass.getAnnotation(simpl_descriptor_classes.class);
+					final simpl_descriptor_classes descriptorsClassesAnnotation = thatClass
+							.getAnnotation(simpl_descriptor_classes.class);
 					if (descriptorsClassesAnnotation == null)
 						result = new ClassDescriptor<FieldDescriptor>(thatClass);
 					else
@@ -424,9 +334,8 @@ public class ClassDescriptor<FD extends FieldDescriptor> extends DescriptorBase 
 						Object[] args = new Object[1];
 						args[0] = thatClass;
 
-						result = (ClassDescriptor<? extends FieldDescriptor>) ReflectionTools.getInstance(aClass,
-																																															CONSTRUCTOR_ARGS,
-																																															args);
+						result = (ClassDescriptor<? extends FieldDescriptor>) ReflectionTools.getInstance(
+								aClass, CONSTRUCTOR_ARGS, args);
 					}
 					globalClassDescriptorsMap.put(className, result);
 
@@ -484,18 +393,15 @@ public class ClassDescriptor<FD extends FieldDescriptor> extends DescriptorBase 
 		return elementFieldDescriptors;
 	}
 
-	public FD getFieldDescriptorByTag(String tag, SimplTypesScope tScope, Object context)
+	public FD getFieldDescriptorByTag(String tag, TranslationScope tScope, Object context)
 	{
 		if (unresolvedScopeAnnotationFDs != null)
 			resolveUnresolvedScopeAnnotationFDs();
 
-		if (unresolvedClassesAnnotationFDs != null)
-			resolveUnresolvedClassesAnnotationFDs();
-
 		return allFieldDescriptorsByTagNames.get(tag);
 	}
 
-	public FD getFieldDescriptorByTag(String tag, SimplTypesScope tScope)
+	public FD getFieldDescriptorByTag(String tag, TranslationScope tScope)
 	{
 		return getFieldDescriptorByTag(tag, tScope, null);
 	}
@@ -504,9 +410,6 @@ public class ClassDescriptor<FD extends FieldDescriptor> extends DescriptorBase 
 	{
 		if (unresolvedScopeAnnotationFDs != null)
 			resolveUnresolvedScopeAnnotationFDs();
-
-		if (unresolvedClassesAnnotationFDs != null)
-			resolveUnresolvedClassesAnnotationFDs();
 
 		return allFieldDescriptorsByTLVIds.get(tlvId);
 	}
@@ -526,7 +429,6 @@ public class ClassDescriptor<FD extends FieldDescriptor> extends DescriptorBase 
 		return fieldDescriptorsByFieldName.get(fieldName);
 	}
 
-	@Override
 	public Iterator<FD> iterator()
 	{
 		return fieldDescriptorsByFieldName.iterator();
@@ -545,7 +447,8 @@ public class ClassDescriptor<FD extends FieldDescriptor> extends DescriptorBase 
 
 	private Class<FieldDescriptor> fieldDescriptorAnnotationValue(Class<? extends Object> thatClass)
 	{
-		final simpl_descriptor_classes fieldDescriptorsClassAnnotation = thatClass.getAnnotation(simpl_descriptor_classes.class);
+		final simpl_descriptor_classes fieldDescriptorsClassAnnotation = thatClass
+				.getAnnotation(simpl_descriptor_classes.class);
 		Class<FieldDescriptor> result = null;
 		if (fieldDescriptorsClassAnnotation != null)
 		{
@@ -571,9 +474,9 @@ public class ClassDescriptor<FD extends FieldDescriptor> extends DescriptorBase 
 	{
 
 		if (classWithFields.isAnnotationPresent(simpl_inherit.class))
-
 		{
-			ClassDescriptor<FD> superClassDescriptor = (ClassDescriptor<FD>) ClassDescriptor.getClassDescriptor(classWithFields.getSuperclass());
+			ClassDescriptor<FD> superClassDescriptor = (ClassDescriptor<FD>) ClassDescriptor
+					.getClassDescriptor(classWithFields.getSuperclass());
 
 			referFieldDescriptorsFrom(superClassDescriptor);
 		}
@@ -631,11 +534,8 @@ public class ClassDescriptor<FD extends FieldDescriptor> extends DescriptorBase 
 			if (fieldType == UNSET_TYPE)
 				continue; // not a simpl serialization annotated field
 
-
-			FD fieldDescriptor = newFieldDescriptor(thatField,
-																							fieldType,
-																							(Class<FD>) fieldDescriptorClass);
-
+			FD fieldDescriptor = newFieldDescriptor(thatField, fieldType,
+					(Class<FD>) fieldDescriptorClass);
 			// create indexes for serialize
 			if (fieldDescriptor.getType() == SCALAR)
 			{
@@ -685,11 +585,8 @@ public class ClassDescriptor<FD extends FieldDescriptor> extends DescriptorBase 
 			final String fieldTagName = fieldDescriptor.getTagName();
 			if (fieldDescriptor.isWrapped())
 			{
-
-				FD wrapper = newFieldDescriptor(fieldDescriptor,
-																				fieldTagName,
-																				(Class<FD>) fieldDescriptorClass);
-
+				FD wrapper = newFieldDescriptor(fieldDescriptor, fieldTagName,
+						(Class<FD>) fieldDescriptorClass);
 				mapTagToFdForDeserialize(fieldTagName, wrapper);
 				mapOtherTagsToFdForDeserialize(wrapper, fieldDescriptor.otherTags());
 			}
@@ -711,39 +608,39 @@ public class ClassDescriptor<FD extends FieldDescriptor> extends DescriptorBase 
 
 	private void referFieldDescriptorsFrom(ClassDescriptor<FD> superClassDescriptor)
 	{
-		for (Entry<String, FD> fieldDescriptorEntry : superClassDescriptor.getFieldDescriptorsByFieldName()
-																																			.entrySet())
+		for (Entry<String, FD> fieldDescriptorEntry : superClassDescriptor
+				.getFieldDescriptorsByFieldName().entrySet())
 		{
-			fieldDescriptorsByFieldName.put(fieldDescriptorEntry.getKey(),
-																			fieldDescriptorEntry.getValue());
+			fieldDescriptorsByFieldName.put(fieldDescriptorEntry.getKey(), fieldDescriptorEntry
+					.getValue());
 		}
 
-		for (Entry<String, FD> fieldDescriptorEntry : superClassDescriptor.getDeclaredFieldDescriptorsByFieldName()
-																																			.entrySet())
+		for (Entry<String, FD> fieldDescriptorEntry : superClassDescriptor
+				.getDeclaredFieldDescriptorsByFieldName().entrySet())
 		{
-			declaredFieldDescriptorsByFieldName.put(fieldDescriptorEntry.getKey(),
-																							fieldDescriptorEntry.getValue());
+			declaredFieldDescriptorsByFieldName.put(fieldDescriptorEntry.getKey(), fieldDescriptorEntry
+					.getValue());
 		}
 
-		for (Entry<String, FD> fieldDescriptorEntry : superClassDescriptor.getAllFieldDescriptorsByTagNames()
-																																			.entrySet())
+		for (Entry<String, FD> fieldDescriptorEntry : superClassDescriptor
+				.getAllFieldDescriptorsByTagNames().entrySet())
 		{
-			allFieldDescriptorsByTagNames.put(fieldDescriptorEntry.getKey(),
-																				fieldDescriptorEntry.getValue());
+			allFieldDescriptorsByTagNames.put(fieldDescriptorEntry.getKey(), fieldDescriptorEntry
+					.getValue());
 		}
 
-		for (Entry<Integer, FD> fieldDescriptorEntry : superClassDescriptor.getAllFieldDescriptorsByTLVIds()
-																																				.entrySet())
+		for (Entry<Integer, FD> fieldDescriptorEntry : superClassDescriptor
+				.getAllFieldDescriptorsByTLVIds().entrySet())
 		{
-			allFieldDescriptorsByTLVIds.put(fieldDescriptorEntry.getKey(),
-																			fieldDescriptorEntry.getValue());
+			allFieldDescriptorsByTLVIds.put(fieldDescriptorEntry.getKey(), fieldDescriptorEntry
+					.getValue());
 		}
 
-		for (Entry<String, FD> fieldDescriptorEntry : superClassDescriptor.getAllFieldDescriptorsByBibTeXTag()
-																																			.entrySet())
+		for (Entry<String, FD> fieldDescriptorEntry : superClassDescriptor
+				.getAllFieldDescriptorsByBibTeXTag().entrySet())
 		{
-			allFieldDescriptorsByBibTeXTag.put(	fieldDescriptorEntry.getKey(),
-																					fieldDescriptorEntry.getValue());
+			allFieldDescriptorsByBibTeXTag.put(fieldDescriptorEntry.getKey(), fieldDescriptorEntry
+					.getValue());
 		}
 
 		for (FD fieldDescriptor : superClassDescriptor.attributeFieldDescriptors())
@@ -756,25 +653,11 @@ public class ClassDescriptor<FD extends FieldDescriptor> extends DescriptorBase 
 			elementFieldDescriptors.add(fieldDescriptor);
 		}
 		
-		FieldDescriptor scalarTextFD = superClassDescriptor.getScalarTextFD();
-		if (scalarTextFD != null)
-		{ // added by Zach -- doesn't seem to be covered otherwise
-			this.setScalarTextFD(scalarTextFD);
-		}
-
-		if (superClassDescriptor.getUnresolvedScopeAnnotationFDs() != null)
+		if(superClassDescriptor.getUnresolvedScopeAnnotationFDs() != null)
 		{
-			for (FD fd : superClassDescriptor.getUnresolvedScopeAnnotationFDs())
+			for(FD fd : superClassDescriptor.getUnresolvedScopeAnnotationFDs())
 			{
 				this.registerUnresolvedScopeAnnotationFD(fd);
-			}
-		}
-
-		if (superClassDescriptor.getUnresolvedClassesAnnotationFDs() != null)
-		{
-			for (FD fd : superClassDescriptor.getUnresolvedClassesAnnotationFDs())
-			{
-				this.registerUnresolvedClassesAnnotationFD(fd);
 			}
 		}
 	}
@@ -822,7 +705,7 @@ public class ClassDescriptor<FD extends FieldDescriptor> extends DescriptorBase 
 		args[1] = thatField;
 		args[2] = annotationType;
 
-		return ReflectionTools.getInstance(fieldDescriptorClass, FIELD_DESCRIPTOR_ARGS, args);
+		return (FD) ReflectionTools.getInstance(fieldDescriptorClass, FIELD_DESCRIPTOR_ARGS, args);
 	}
 
 	static final Class[]	WRAPPER_FIELD_DESCRIPTOR_ARGS	=
@@ -839,7 +722,8 @@ public class ClassDescriptor<FD extends FieldDescriptor> extends DescriptorBase 
 		args[1] = wrappedFD;
 		args[2] = wrapperTag;
 
-		return ReflectionTools.getInstance(fieldDescriptorClass, WRAPPER_FIELD_DESCRIPTOR_ARGS, args);
+		return (FD) ReflectionTools.getInstance(fieldDescriptorClass, WRAPPER_FIELD_DESCRIPTOR_ARGS,
+				args);
 	}
 
 	/**
@@ -855,7 +739,7 @@ public class ClassDescriptor<FD extends FieldDescriptor> extends DescriptorBase 
 		{
 			FD previousMapping = allFieldDescriptorsByTagNames.put(tagName, fdToMap);
 			allFieldDescriptorsByTLVIds.put(tagName.hashCode(), fdToMap);
-			if (previousMapping != null && previousMapping != fdToMap)
+			if (previousMapping != null)
 				warning(" tag <" + tagName + ">:\tfield[" + fdToMap.getName() + "] overrides field["
 						+ previousMapping.getName() + "]");
 		}
@@ -884,7 +768,6 @@ public class ClassDescriptor<FD extends FieldDescriptor> extends DescriptorBase 
 		declaredFieldDescriptorsByFieldName.put(fieldDescriptor.getName(), fieldDescriptor);
 	}
 
-	@Override
 	public String toString()
 	{
 		return getClassSimpleName() + "[" + this.name + "]";
@@ -943,23 +826,9 @@ public class ClassDescriptor<FD extends FieldDescriptor> extends DescriptorBase 
 	}
 
 	@Override
-	public String getCSharpNamespace()
-	{
-		String csTypeName = this.getCSharpTypeName();
-		if (csTypeName != null)
-		{
-			int pos = csTypeName.lastIndexOf('.');
-			return pos > 0 ? csTypeName.substring(0, pos) : CSHARP_PRIMITIVE_NAMESPACE;
-		}
-		else
-			return null;
-	}
-
-	@Override
 	public String getObjectiveCTypeName()
 	{
-		return explictObjectiveCTypeName != null ? explictObjectiveCTypeName
-				: this.getDescribedClassSimpleName();
+		return this.getDescribedClassSimpleName();
 	}
 
 	@Override
@@ -981,7 +850,6 @@ public class ClassDescriptor<FD extends FieldDescriptor> extends DescriptorBase 
 	/**
 	 * The tagName.
 	 */
-	@Override
 	public String key()
 	{
 		return tagName;
@@ -1017,11 +885,6 @@ public class ClassDescriptor<FD extends FieldDescriptor> extends DescriptorBase 
 		return this.unresolvedScopeAnnotationFDs;
 	}
 
-	public ArrayList<FD> getUnresolvedClassesAnnotationFDs()
-	{
-		return this.unresolvedClassesAnnotationFDs;
-	}
-
 	public String getSuperClassName()
 	{
 		return XMLTools.getClassSimpleName(describedClass.getSuperclass());
@@ -1029,14 +892,12 @@ public class ClassDescriptor<FD extends FieldDescriptor> extends DescriptorBase 
 
 	public static void main(String[] s)
 	{
-		SimplTypesScope mostBasicTranslations = SimplTypesScope.get("most_basic",
-																																ClassDescriptor.class,
-																																FieldDescriptor.class,
-																																SimplTypesScope.class);
+		TranslationScope mostBasicTranslations = TranslationScope.get("most_basic",
+				ClassDescriptor.class, FieldDescriptor.class, TranslationScope.class);
 
 		try
 		{
-			SimplTypesScope.serialize(mostBasicTranslations, System.out, StringFormat.XML);
+			ClassDescriptor.serialize(mostBasicTranslations, System.out, StringFormat.XML);
 		}
 		catch (SIMPLTranslationException e)
 		{
@@ -1063,63 +924,21 @@ public class ClassDescriptor<FD extends FieldDescriptor> extends DescriptorBase 
 		unresolvedScopeAnnotationFDs.add(fd);
 	}
 
-	void registerUnresolvedClassesAnnotationFD(FD fd)
-	{
-		if (unresolvedClassesAnnotationFDs == null)
-		{
-			synchronized (this)
-			{
-				if (unresolvedClassesAnnotationFDs == null)
-					unresolvedClassesAnnotationFDs = new ArrayList<FD>();
-			}
-		}
-		unresolvedClassesAnnotationFDs.add(fd);
-	}
-
 	/**
 	 * Late evaluation of @serial_scope, if it failed the first time around.
 	 */
-	public void resolvePolymorphicAnnotations()
-	{
-		resolveUnresolvedScopeAnnotationFDs();
-		resolveUnresolvedClassesAnnotationFDs();
-	}
-
 	public void resolveUnresolvedScopeAnnotationFDs()
 	{
 		if (unresolvedScopeAnnotationFDs != null)
 		{
-			synchronized (SCOPE_ANNOTATION_LOCK)
+			for (int i = unresolvedScopeAnnotationFDs.size() - 1; i >= 0; i--)
 			{
-				if (unresolvedScopeAnnotationFDs != null)
-				{
-					for (int i = unresolvedScopeAnnotationFDs.size() - 1; i >= 0; i--)
-					{
-						FieldDescriptor fd = unresolvedScopeAnnotationFDs.remove(i);
-						fd.resolveUnresolvedScopeAnnotation();
-						this.mapPolymorphicClassDescriptors((FD) fd);
-					}
-					unresolvedScopeAnnotationFDs = null;
-				}
-			}
-		}
-	}
-
-	/**
-	 * Late evaluation of @serial_scope, if it failed the first time around.
-	 */
-	public void resolveUnresolvedClassesAnnotationFDs()
-	{
-		if (unresolvedClassesAnnotationFDs != null)
-		{
-			for (int i = unresolvedClassesAnnotationFDs.size() - 1; i >= 0; i--)
-			{
-				FieldDescriptor fd = unresolvedClassesAnnotationFDs.remove(i);
-				fd.resolveUnresolvedClassesAnnotation();
+				FieldDescriptor fd = unresolvedScopeAnnotationFDs.remove(i);
+				fd.resolveUnresolvedScopeAnnotation();
 				this.mapPolymorphicClassDescriptors((FD) fd);
 			}
 		}
-		unresolvedClassesAnnotationFDs = null;
+		unresolvedScopeAnnotationFDs = null;
 	}
 
 	/**
@@ -1128,7 +947,6 @@ public class ClassDescriptor<FD extends FieldDescriptor> extends DescriptorBase 
 	 * 
 	 * @return The array of old tags, or null, if there is no @simpl_other_tags annotation.
 	 */
-	@Override
 	public ArrayList<String> otherTags()
 	{
 		ArrayList<String> result = this.otherTags;
@@ -1139,7 +957,8 @@ public class ClassDescriptor<FD extends FieldDescriptor> extends DescriptorBase 
 			Class<?> thisClass = getDescribedClass();
 			if (thisClass != null)
 			{
-				final simpl_other_tags otherTagsAnnotation = thisClass.getAnnotation(simpl_other_tags.class);
+				final simpl_other_tags otherTagsAnnotation = thisClass
+						.getAnnotation(simpl_other_tags.class);
 
 				// commented out since getAnnotation also includes inherited annotations
 				// ElementState.xml_other_tags otherTagsAnnotation =
@@ -1206,8 +1025,7 @@ public class ClassDescriptor<FD extends FieldDescriptor> extends DescriptorBase 
 			if (fd.isNested() || (fd.isCollection()))
 			{
 				ClassDescriptor elementClassDescriptor = fd.getElementClassDescriptor();
-				if (elementClassDescriptor != null
-						&& TypeRegistry.getScalarTypeByName(elementClassDescriptor.getDescribedClassName()) == null)
+				if (elementClassDescriptor != null)
 					result.add(elementClassDescriptor);
 
 				Collection<ClassDescriptor> polyClassDescriptors = fd.getPolymorphicClassDescriptors();
@@ -1272,29 +1090,170 @@ public class ClassDescriptor<FD extends FieldDescriptor> extends DescriptorBase 
 	}
 
 	/**
-	 * @return The list of meta-information (annotations, attributes, etc.) for this class.
+	 * Static method for serializing an object to the defined format. TranslationContext is
+	 * automatically initialized to handle graphs if enabled
+	 * 
+	 * @param object
+	 * @param stringBuilder
+	 * @param stringFormat
+	 * @throws SIMPLTranslationException
+	 * @throws IOException
 	 */
-	public List<MetaInformation> getMetaInformation()
+	public static void serialize(Object object, File file, Format format)
+			throws SIMPLTranslationException
 	{
-		if (metaInfo == null)
-		{
-			metaInfo = new ArrayList<MetaInformation>();
-
-			// @simpl_inherit
-			if (superClass != null)
-				metaInfo.add(new MetaInformation(simpl_inherit.class));
-
-			// @simpl_tag
-			String autoTagName = XMLTools.getXmlTagName(getDescribedClassSimpleName(), null);
-			if (tagName != null && !tagName.equals("") && !tagName.equals(autoTagName))
-				metaInfo.add(new MetaInformation(simpl_tag.class, false, tagName));
-
-			// @simpl_other_tags
-			ArrayList<String> otherTags = otherTags();
-			if (otherTags != null && otherTags.size() > 0)
-				metaInfo.add(new MetaInformation(simpl_other_tags.class, true, otherTags.toArray()));
-		}
-		return metaInfo;
+		TranslationContext translationContext = new TranslationContext();
+		serialize(object, file, format, translationContext);
 	}
 
+	/**
+	 * Static method for serializing an object. accepts translation context which a user can supply to
+	 * pass in additional information for the serialization method to use
+	 * 
+	 * @param object
+	 * @param appendable
+	 * @param format
+	 * @param translationContext
+	 * @throws SIMPLTranslationException
+	 * @throws IOException
+	 */
+	public static void serialize(Object object, File file, Format format,
+			TranslationContext translationContext) throws SIMPLTranslationException
+	{
+		FormatSerializer formatSerializer = FormatSerializer.getSerializer(format);
+		formatSerializer.serialize(object, file, translationContext);
+	}
+
+	/**
+	 * Static method for serializing an object to the defined format. TranslationContext is
+	 * automatically initialized to handle graphs if enabled
+	 * 
+	 * @param object
+	 * @param stringBuilder
+	 * @param stringFormat
+	 * @throws SIMPLTranslationException
+	 * @throws IOException
+	 */
+	public static void serialize(Object object, StringBuilder stringBuilder, StringFormat stringFormat)
+			throws SIMPLTranslationException
+	{
+		TranslationContext translationContext = new TranslationContext();
+		serialize(object, stringBuilder, stringFormat, translationContext);
+	}
+
+	/**
+	 * Static method for serializing an object to the defined format. TranslationContext is
+	 * automatically initialized to handle graphs if enabled
+	 * 
+	 * @param object
+	 * @param stringBuilder
+	 * @param stringFormat
+	 * @throws SIMPLTranslationException
+	 * @throws IOException
+	 */
+	public static StringBuilder serialize(Object object, StringFormat stringFormat)
+			throws SIMPLTranslationException
+	{
+		TranslationContext translationContext = new TranslationContext();
+		return serialize(object, stringFormat, translationContext);
+	}
+
+	/**
+	 * Static method for serializing an object to the defined format. TranslationContext is
+	 * automatically initialized to handle graphs if enabled
+	 * 
+	 * @param object
+	 * @param appendable
+	 * @param format
+	 * @throws SIMPLTranslationException
+	 * @throws IOException
+	 */
+	public static void serialize(Object object, Appendable appendable, StringFormat stringFormat)
+			throws SIMPLTranslationException
+	{
+		TranslationContext translationContext = new TranslationContext();
+		serialize(object, appendable, stringFormat, translationContext);
+	}
+
+	public static void serializeOut(Object object, String message, StringFormat stringFormat)
+	{
+		System.out.print(message);
+		System.out.print(':');
+		try
+		{
+			serialize(object, System.out, stringFormat);
+		}
+		catch (SIMPLTranslationException e)
+		{
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+
+	/**
+	 * Static method for serializing an object. accepts translation context which a user can supply to
+	 * pass in additional information for the serialization method to use
+	 * 
+	 * @param object
+	 * @param appendable
+	 * @param format
+	 * @param translationContext
+	 * @throws SIMPLTranslationException
+	 * @throws IOException
+	 */
+	public static void serialize(Object object, Appendable appendable, StringFormat stringFormat,
+			TranslationContext translationContext) throws SIMPLTranslationException
+	{
+		StringSerializer stringSerializer = FormatSerializer.getStringSerializer(stringFormat);
+		stringSerializer.serialize(object, appendable, translationContext);
+	}
+
+	/**
+	 * Static method for serializing an object. accepts translation context which a user can supply to
+	 * pass in additional information for the serialization method to use
+	 * 
+	 * @param object
+	 * @param stringBuilder
+	 * @param format
+	 * @param translationContext
+	 * @throws SIMPLTranslationException
+	 * @throws IOException
+	 */
+	public static void serialize(Object object, StringBuilder stringBuilder,
+			StringFormat stringFormat, TranslationContext translationContext)
+			throws SIMPLTranslationException
+	{
+		StringSerializer stringSerializer = FormatSerializer.getStringSerializer(stringFormat);
+		stringSerializer.serialize(object, stringBuilder, translationContext);
+	}
+
+	/**
+	 * Static method for serializing an object. accepts translation context which a user can supply to
+	 * pass in additional information for the serialization method to use
+	 * 
+	 * @param object
+	 * @param stringBuilder
+	 * @param format
+	 * @param translationContext
+	 * @throws SIMPLTranslationException
+	 * @throws IOException
+	 */
+	public static StringBuilder serialize(Object object, StringFormat stringFormat,
+			TranslationContext translationContext) throws SIMPLTranslationException
+	{
+		StringSerializer stringSerializer = FormatSerializer.getStringSerializer(stringFormat);
+		return stringSerializer.serialize(object, translationContext);
+	}
+
+	/**
+	 * 
+	 * @param object
+	 * @param outputStream
+	 * @param bibtex
+	 */
+	public static void serialize(Object object, OutputStream outputStream, Format format)
+	{
+		// TODO Auto-generated method stub
+
+	}
 }

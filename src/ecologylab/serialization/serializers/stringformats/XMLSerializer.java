@@ -7,16 +7,15 @@ import java.util.Collection;
 import ecologylab.serialization.ClassDescriptor;
 import ecologylab.serialization.FieldDescriptor;
 import ecologylab.serialization.FieldTypes;
+import ecologylab.serialization.Format;
 import ecologylab.serialization.SIMPLTranslationException;
-import ecologylab.serialization.SimplTypesScope;
-import ecologylab.serialization.SimplTypesScope.GRAPH_SWITCH;
 import ecologylab.serialization.TranslationContext;
+import ecologylab.serialization.TranslationScope;
 import ecologylab.serialization.XMLTools;
-import ecologylab.serialization.formatenums.Format;
+import ecologylab.serialization.TranslationScope.GRAPH_SWITCH;
 
 /**
- * XML Specific serializer. contains functionalities specific to ouput syntax for XML from an objet
- * model.
+ * XML Specific serializer
  * 
  * @author nabeel
  */
@@ -71,7 +70,7 @@ public class XMLSerializer extends StringSerializer implements FieldTypes
 
 		if (alreadySerialized(object, translationContext))
 		{
-			writeSimplRef(object, rootObjectFieldDescriptor, appendable, translationContext);
+			writeSimplRef(object, rootObjectFieldDescriptor, appendable);
 			return;
 		}
 
@@ -142,11 +141,11 @@ public class XMLSerializer extends StringSerializer implements FieldTypes
 			}
 		}
 
-		if (SimplTypesScope.graphSwitch == GRAPH_SWITCH.ON)
+		if (TranslationScope.graphSwitch == GRAPH_SWITCH.ON)
 		{
 			if (translationContext.needsHashCode(object))
 			{
-				writeSimplIdAttribute(object, appendable, translationContext);
+				writeSimplIdAttribute(object, appendable);
 			}
 
 			if (isRoot && translationContext.isGraph())
@@ -179,7 +178,7 @@ public class XMLSerializer extends StringSerializer implements FieldTypes
 				writeValueAsLeaf(object, childFd, appendable, translationContext);
 				break;
 			case COMPOSITE_ELEMENT:
-				Object compositeObject = childFd.getValue(object);
+				Object compositeObject = childFd.getObject(object);
 				if (compositeObject != null)
 				{
 					FieldDescriptor compositeObjectFieldDescriptor = childFd.isPolymorphic() ? getClassDescriptor(
@@ -192,7 +191,7 @@ public class XMLSerializer extends StringSerializer implements FieldTypes
 				break;
 			case COLLECTION_SCALAR:
 			case MAP_SCALAR:
-				Object scalarCollectionObject = childFd.getValue(object);
+				Object scalarCollectionObject = childFd.getObject(object);
 				Collection<?> scalarCollection = XMLTools.getCollection(scalarCollectionObject);
 				if (scalarCollection != null && scalarCollection.size() > 0)
 				{
@@ -207,7 +206,7 @@ public class XMLSerializer extends StringSerializer implements FieldTypes
 				break;
 			case COLLECTION_ELEMENT:
 			case MAP_ELEMENT:
-				Object compositeCollectionObject = childFd.getValue(object);
+				Object compositeCollectionObject = childFd.getObject(object);
 				Collection<?> compositeCollection = XMLTools.getCollection(compositeCollectionObject);
 				if (compositeCollection != null && compositeCollection.size() > 0)
 				{
@@ -234,11 +233,11 @@ public class XMLSerializer extends StringSerializer implements FieldTypes
 	 * @param appendable
 	 * @throws IOException
 	 */
-	private void writeSimplRef(Object object, FieldDescriptor fd, Appendable appendable, TranslationContext translationContext)
+	private void writeSimplRef(Object object, FieldDescriptor fd, Appendable appendable)
 			throws IOException
 	{
 		writeObjectStart(fd, appendable);
-		writeSimplRefAttribute(object, appendable, translationContext);
+		writeSimplRefAttribute(object, appendable);
 		writeCompleteClose(appendable);
 	}
 
@@ -408,13 +407,13 @@ public class XMLSerializer extends StringSerializer implements FieldTypes
 	 * @param appendable
 	 * @throws IOException
 	 */
-	private void writeSimplRefAttribute(Object object, Appendable appendable, TranslationContext translationContext) throws IOException
+	private void writeSimplRefAttribute(Object object, Appendable appendable) throws IOException
 	{
 		appendable.append(' ');
 		appendable.append(TranslationContext.SIMPL_REF);
 		appendable.append('=');
 		appendable.append('"');
-		appendable.append(translationContext.getSimplId(object));
+		appendable.append(((Integer) object.hashCode()).toString());
 		appendable.append('"');
 	}
 
@@ -424,13 +423,13 @@ public class XMLSerializer extends StringSerializer implements FieldTypes
 	 * @param appendable
 	 * @throws IOException
 	 */
-	private void writeSimplIdAttribute(Object object, Appendable appendable, TranslationContext translationContext) throws IOException
+	private void writeSimplIdAttribute(Object object, Appendable appendable) throws IOException
 	{
 		appendable.append(' ');
 		appendable.append(TranslationContext.SIMPL_ID);
 		appendable.append('=');
 		appendable.append('"');
-		appendable.append(translationContext.getSimplId(object));
+		appendable.append(((Integer) object.hashCode()).toString());
 		appendable.append('"');
 	}
 

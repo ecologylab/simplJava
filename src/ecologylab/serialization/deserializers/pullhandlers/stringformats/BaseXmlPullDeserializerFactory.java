@@ -2,8 +2,8 @@ package ecologylab.serialization.deserializers.pullhandlers.stringformats;
 
 import ecologylab.serialization.DeserializationHookStrategy;
 import ecologylab.serialization.SIMPLTranslationException;
-import ecologylab.serialization.SimplTypesScope;
 import ecologylab.serialization.TranslationContext;
+import ecologylab.serialization.TranslationScope;
 import ecologylab.serialization.XMLTools;
 
 public abstract class BaseXmlPullDeserializerFactory
@@ -36,6 +36,6 @@ public abstract class BaseXmlPullDeserializerFactory
 		return factory;
 	}
 	
-	public abstract StringPullDeserializer getFormatSerializer(SimplTypesScope translationScope,
+	public abstract StringPullDeserializer getFormatSerializer(TranslationScope translationScope,
 			TranslationContext translationContext, DeserializationHookStrategy deserializationHookStrategy) throws SIMPLTranslationException;
 }

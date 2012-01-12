@@ -4,7 +4,7 @@
 package ecologylab.serialization.types.element;
 
 import ecologylab.generic.Debug;
-import ecologylab.serialization.SimplTypesScope;
+import ecologylab.serialization.TranslationScope;
 
 /**
  * Translations for built-in element types.
@@ -40,9 +40,9 @@ public class ElementTypeTranslationsProvider extends Debug
     /**
      * Get the translation space
      */
-	public static SimplTypesScope get()
+	public static TranslationScope get()
 	{
-		return SimplTypesScope.get(PACKAGE_NAME, TRANSLATIONS);
+		return TranslationScope.get(PACKAGE_NAME, TRANSLATIONS);
 	}
 
 }

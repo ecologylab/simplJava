@@ -7,10 +7,10 @@ import java.io.IOException;
 import java.lang.reflect.Field;
 
 import ecologylab.serialization.FieldDescriptor;
+import ecologylab.serialization.Format;
 import ecologylab.serialization.ScalarUnmarshallingContext;
 import ecologylab.serialization.TranslationContext;
 import ecologylab.serialization.annotations.simpl_inherit;
-import ecologylab.serialization.formatenums.Format;
 import ecologylab.serialization.types.CrossLanguageTypeConstants;
 import ecologylab.serialization.types.ScalarType;
 

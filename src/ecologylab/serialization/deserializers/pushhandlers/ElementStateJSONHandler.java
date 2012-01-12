@@ -23,8 +23,9 @@ package ecologylab.serialization.deserializers.pushhandlers;
 //import ecologylab.serialization.TranslationScope;
 //import ecologylab.serialization.types.element.IMappable;
 
-public class ElementStateJSONHandler // extends Debug implements ContentHandler, FieldTypes, ScalarUnmarshallingContext
-{
+//public class ElementStateJSONHandler extends Debug //implements ContentHandler, FieldTypes,
+		//ScalarUnmarshallingContext
+//{
 //	final TranslationScope			translationScope;
 //
 //	ElementState								root;
@@ -577,4 +578,4 @@ public class ElementStateJSONHandler // extends Debug implements ContentHandler,
 //		int num = pop();
 //		push(++num);
 //	}
-}
+//}

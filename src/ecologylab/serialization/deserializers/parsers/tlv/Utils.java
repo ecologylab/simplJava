@@ -453,7 +453,7 @@ public class Utils {
      */
     public static void writeHex(PrintStream writer, byte[] data) {
 
-        String s = "";
+        String s = "    ";
 
         for (int i = 0; i < data.length; i++) {
 
@@ -464,7 +464,7 @@ public class Utils {
 
             if ((i + 1) % 16 == 0) {
                 writer.println(s);
-                s = "";
+                s = "    ";
             }
         }
 

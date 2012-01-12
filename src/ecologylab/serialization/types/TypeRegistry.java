@@ -187,10 +187,6 @@ implements CrossLanguageTypeConstants
 		return scalarRegistry().contains(thatClass);
 	}
 	
-	public static ScalarType getScalarTypeByName(String name)
-	{
-		return scalarRegistry().getTypeByJavaName(name);
-	}
 	public static ScalarType getScalarTypeBySimpleName(String simpleName)
 	{
 		return scalarRegistry().getTypeBySimpleName(simpleName);

@@ -2,10 +2,11 @@ package ecologylab.serialization.library.rss;
 
 import ecologylab.generic.Debug;
 import ecologylab.net.ParsedURL;
+import ecologylab.serialization.ClassDescriptor;
 import ecologylab.serialization.ElementState;
 import ecologylab.serialization.SIMPLTranslationException;
-import ecologylab.serialization.SimplTypesScope;
-import ecologylab.serialization.formatenums.StringFormat;
+import ecologylab.serialization.StringFormat;
+import ecologylab.serialization.TranslationScope;
 
 /**
  * Translations for all RSS parsing.
@@ -44,9 +45,9 @@ public class RssTranslations extends Debug
 	{
 	}
 
-	public static SimplTypesScope get()
+	public static TranslationScope get()
 	{
-		return SimplTypesScope.get(TRANSLATION_SPACE_NAME, /* NAME_SPACE_DECLS,INHERITED_TRANSLATIONS, */
+		return TranslationScope.get(TRANSLATION_SPACE_NAME, /* NAME_SPACE_DECLS,INHERITED_TRANSLATIONS, */
 		TRANSLATIONS);
 	}
 
@@ -59,20 +60,20 @@ public class RssTranslations extends Debug
 
 	public static void main(String[] args)
 	{
-		SimplTypesScope tScope = get();
+		TranslationScope tScope = get();
 
 		try
 		{
 			StringBuilder buffy = new StringBuilder();
-			SimplTypesScope.serialize(tScope, System.out, StringFormat.XML);
+			ClassDescriptor.serialize(tScope, System.out, StringFormat.XML);
 
 			System.out.println('\n');
 
-			ElementState translated = (ElementState) SimplTypesScope.getBasicTranslations().deserialize(
+			ElementState translated = (ElementState) TranslationScope.getBasicTranslations().deserialize(
 					buffy, StringFormat.XML);
 			// ElementState.translateFromXMLCharSequence(OUT, TranslationScope.getBasicTranslations());
 
-			SimplTypesScope.serialize(translated, System.out, StringFormat.XML);
+			ClassDescriptor.serialize(translated, System.out, StringFormat.XML);
 
 			System.out.println('\n');
 		}

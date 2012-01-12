@@ -7,12 +7,12 @@ import java.util.Collection;
 import ecologylab.serialization.ClassDescriptor;
 import ecologylab.serialization.FieldDescriptor;
 import ecologylab.serialization.FieldTypes;
+import ecologylab.serialization.Format;
 import ecologylab.serialization.SIMPLTranslationException;
-import ecologylab.serialization.SimplTypesScope;
-import ecologylab.serialization.SimplTypesScope.GRAPH_SWITCH;
 import ecologylab.serialization.TranslationContext;
+import ecologylab.serialization.TranslationScope;
 import ecologylab.serialization.XMLTools;
-import ecologylab.serialization.formatenums.Format;
+import ecologylab.serialization.TranslationScope.GRAPH_SWITCH;
 
 /***
  * JSONSerializaton. Guides serialization of data in JSON. Contains code that is specific to
@@ -68,7 +68,7 @@ public class JSONSerializer extends StringSerializer implements FieldTypes
 	{
 		if (alreadySerialized(object, translationContext))
 		{
-			writeSimplRef(object, rootObjectFieldDescriptor, withTag, appendable, translationContext);
+			writeSimplRef(object, rootObjectFieldDescriptor, withTag, appendable);
 			return;
 		}
 
@@ -104,7 +104,7 @@ public class JSONSerializer extends StringSerializer implements FieldTypes
 	{
 		int numOfFields = 0;
 
-		if (SimplTypesScope.graphSwitch == GRAPH_SWITCH.ON)
+		if (TranslationScope.graphSwitch == GRAPH_SWITCH.ON)
 		{
 			if (translationContext.needsHashCode(object))
 			{
@@ -164,13 +164,13 @@ public class JSONSerializer extends StringSerializer implements FieldTypes
 		case COMPOSITE_ELEMENT:
 		case COLLECTION_ELEMENT:
 		case MAP_ELEMENT:
-			Object obj = childFd.getValue(object);
+			Object obj = childFd.getObject(object);
 			if (obj == null)
 				return false;
 			break;
 		case COLLECTION_SCALAR:
 		case MAP_SCALAR:
-			Object scalarCollectionObject = childFd.getValue(object);
+			Object scalarCollectionObject = childFd.getObject(object);
 			Collection<?> scalarCollection = XMLTools.getCollection(scalarCollectionObject);
 			if (scalarCollection == null || scalarCollection.size() <= 0)
 				return false;
@@ -193,7 +193,7 @@ public class JSONSerializer extends StringSerializer implements FieldTypes
 			TranslationContext translationContext, FieldDescriptor childFd)
 			throws SIMPLTranslationException, IOException
 	{
-		Object compositeObject = childFd.getValue(object);
+		Object compositeObject = childFd.getObject(object);
 		FieldDescriptor compositeObjectFieldDescriptor = childFd.isPolymorphic() ? getClassDescriptor(
 				compositeObject).pseudoFieldDescriptor() : childFd;
 		serialize(compositeObject, compositeObjectFieldDescriptor, appendable, translationContext, true);
@@ -212,7 +212,7 @@ public class JSONSerializer extends StringSerializer implements FieldTypes
 			TranslationContext translationContext, FieldDescriptor childFd) throws IOException,
 			SIMPLTranslationException
 	{
-		Object collectionObject = childFd.getValue(object);
+		Object collectionObject = childFd.getObject(object);
 		Collection<?> compositeCollection = XMLTools.getCollection(collectionObject);
 		int numberOfItems = 0;
 
@@ -247,7 +247,7 @@ public class JSONSerializer extends StringSerializer implements FieldTypes
 			TranslationContext translationContext, FieldDescriptor childFd) throws IOException,
 			SIMPLTranslationException
 	{
-		Object collectionObject = childFd.getValue(object);
+		Object collectionObject = childFd.getObject(object);
 		Collection<?> compositeCollection = XMLTools.getCollection(collectionObject);
 		int numberOfItems = 0;
 
@@ -283,7 +283,7 @@ public class JSONSerializer extends StringSerializer implements FieldTypes
 			TranslationContext translationContext, FieldDescriptor childFd) throws IOException,
 			SIMPLTranslationException
 	{
-		Object scalarCollectionObject = childFd.getValue(object);
+		Object scalarCollectionObject = childFd.getObject(object);
 		Collection<?> scalarCollection = XMLTools.getCollection(scalarCollectionObject);
 		int numberOfItems = 0;
 
@@ -421,21 +421,21 @@ public class JSONSerializer extends StringSerializer implements FieldTypes
 	 * @throws IOException
 	 */
 	private void writeSimplRef(Object object, FieldDescriptor fd, boolean withTag,
-			Appendable appendable, TranslationContext translationContext) throws IOException
+			Appendable appendable) throws IOException
 	{
 		writeObjectStart(fd, appendable, withTag);
-		writeSimplRefAttribute(object, appendable, translationContext);
+		writeSimplRefAttribute(object, appendable);
 		writeClose(appendable);
 	}
 
-	private void writeSimplRefAttribute(Object object, Appendable appendable, TranslationContext translationContext) throws IOException
+	private void writeSimplRefAttribute(Object object, Appendable appendable) throws IOException
 	{
 		appendable.append('"');
 		appendable.append(TranslationContext.JSON_SIMPL_REF);
 		appendable.append('"');
 		appendable.append(':');
 		appendable.append('"');
-		appendable.append(translationContext.getSimplId(object));
+		appendable.append(((Integer) object.hashCode()).toString());
 		appendable.append('"');
 	}
 

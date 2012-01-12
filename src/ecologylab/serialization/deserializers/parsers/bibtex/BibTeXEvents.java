@@ -21,6 +21,6 @@ public interface BibTeXEvents
 
 	void endBibTeX();
 	
-	Object getBibTeXObject();
+	ElementState getBibTeXObject();
 
 }

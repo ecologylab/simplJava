@@ -3,16 +3,17 @@ package ecologylab.serialization.library.yahoo;
 import java.util.ArrayList;
 
 import ecologylab.net.ParsedURL;
+import ecologylab.serialization.ClassDescriptor;
 import ecologylab.serialization.ElementState;
+import ecologylab.serialization.Format;
 import ecologylab.serialization.SIMPLTranslationException;
-import ecologylab.serialization.SimplTypesScope;
+import ecologylab.serialization.StringFormat;
+import ecologylab.serialization.TranslationScope;
 import ecologylab.serialization.annotations.simpl_collection;
 import ecologylab.serialization.annotations.simpl_inherit;
 import ecologylab.serialization.annotations.simpl_nowrap;
 import ecologylab.serialization.annotations.simpl_scalar;
 import ecologylab.serialization.annotations.simpl_tag;
-import ecologylab.serialization.formatenums.Format;
-import ecologylab.serialization.formatenums.StringFormat;
 
 /**
  * Top level result set collection element for Yahoo search. The collected elements are all of type
@@ -60,9 +61,9 @@ public class ResultSet extends ElementState
 	public static final Class[]	YAHOO_CLASSES	=
 																						{ ResultSet.class, Result.class, ThumbnailState.class, };
 
-	public static SimplTypesScope getTranslationScope()
+	public static TranslationScope getTranslationScope()
 	{
-		return SimplTypesScope.get(YAHOO, YAHOO_CLASSES);
+		return TranslationScope.get(YAHOO, YAHOO_CLASSES);
 	}
 
 	public static String	SEOUL_SHOPPING	= "http://api.search.yahoo.com/WebSearchService/V1/webSearch?appid=yahoosearchwebrss&results=15&start=1&query=shopping+seoul";
@@ -75,7 +76,7 @@ public class ResultSet extends ElementState
 			ResultSet resultSet = (ResultSet) ResultSet.getTranslationScope().deserialize(purl,
 					Format.XML);
 
-			SimplTypesScope.serialize(resultSet, System.out, StringFormat.XML);
+			ClassDescriptor.serialize(resultSet, System.out, StringFormat.XML);
 		}
 		catch (SIMPLTranslationException e)
 		{

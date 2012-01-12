@@ -1,5 +1,5 @@
-package ecologylab.serialization.deserializers.pushhandlers;
-
+//package ecologylab.serialization.deserializers.pushhandlers;
+//
 //import java.io.File;
 //import java.util.Collection;
 //
@@ -11,10 +11,12 @@ package ecologylab.serialization.deserializers.pushhandlers;
 //import ecologylab.serialization.SIMPLTranslationException;
 //import ecologylab.serialization.ScalarUnmarshallingContext;
 //import ecologylab.serialization.TranslationContext;
+//import ecologylab.serialization.TranslationScope;
 //import ecologylab.serialization.deserializers.parsers.bibtex.BibTeXEvents;
-
-public class ElementStateBibTeXHandler // extends Debug implements BibTeXEvents, ScalarUnmarshallingContext
-{
+//
+//public class ElementStateBibTeXHandler extends Debug implements BibTeXEvents,
+//		ScalarUnmarshallingContext
+//{
 //
 //	ParsedURL						purlContext;
 //
@@ -185,4 +187,4 @@ public class ElementStateBibTeXHandler // extends Debug implements BibTeXEvents,
 //		return null;
 //	}
 //
-}
+//}

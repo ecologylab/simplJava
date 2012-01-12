@@ -4,14 +4,14 @@ import java.io.File;
 import java.util.ArrayList;
 
 import ecologylab.net.ParsedURL;
+import ecologylab.serialization.ClassDescriptor;
 import ecologylab.serialization.ElementState;
+import ecologylab.serialization.Format;
 import ecologylab.serialization.SIMPLTranslationException;
-import ecologylab.serialization.SimplTypesScope;
+import ecologylab.serialization.StringFormat;
 import ecologylab.serialization.annotations.simpl_collection;
 import ecologylab.serialization.annotations.simpl_nowrap;
 import ecologylab.serialization.annotations.simpl_tag;
-import ecologylab.serialization.formatenums.Format;
-import ecologylab.serialization.formatenums.StringFormat;
 import ecologylab.serialization.library.dc.Dc;
 
 /**
@@ -156,10 +156,10 @@ public class RDFState extends ElementState // ArrayListState<Item>
 			}
 			println("\n");
 
-			SimplTypesScope.serialize(rdfState, System.err, StringFormat.XML);
+			ClassDescriptor.serialize(rdfState, System.err, StringFormat.XML);
 
 			println("\n");
-			SimplTypesScope.serialize(rdfState, System.err, StringFormat.XML);
+			ClassDescriptor.serialize(rdfState, System.err, StringFormat.XML);
 
 			// RssState rssState2 = (RssState) ElementState.translateFromXMLCharSequence(retranslated,
 			// RssTranslations.get());

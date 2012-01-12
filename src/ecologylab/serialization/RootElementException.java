@@ -13,7 +13,7 @@ public class RootElementException extends SIMPLTranslationException
 	/**
 	 * @param msg
 	 */
-	public RootElementException(String tag, SimplTypesScope tSpace)
+	public RootElementException(String tag, TranslationScope tSpace)
 	{
 		super("Can't resolve root element <" + tag + "> in TranslationSpace " + tSpace.getName());
 	}

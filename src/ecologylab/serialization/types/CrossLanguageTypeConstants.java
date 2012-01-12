@@ -90,31 +90,31 @@ public interface CrossLanguageTypeConstants
 
 	public static final String	DOTNET_DATE							= "DateTime";
 
-	public static final String	DOTNET_STRING_BUILDER		= "System.Text.StringBuilder";
+	public static final String	DOTNET_STRING_BUILDER		= "StringBuilder";
 
 	public static final String	DOTNET_URL							= "Uri";
 
-	public static final String	DOTNET_PARSED_URL				= "Simpl.Fundamental.Net.ParsedUri";
+	public static final String	DOTNET_PARSED_URL				= "ParsedUri";
 
-	public static final String	DOTNET_SCALAR_TYPE			= "Simpl.Serialization.Types.ScalarType"; 
+	public static final String	DOTNET_SCALAR_TYPE			= "ScalarType";
 
 	public static final String	DOTNET_CLASS						= "Type";
 
-	public static final String	DOTNET_FIELD						= "System.Reflection.FieldInfo"; 
+	public static final String	DOTNET_FIELD						= "FieldInfo";
 
-	public static final String	DOTNET_COLOR						= "Color"; // namespace?
+	public static final String	DOTNET_COLOR						= "Color";
 
-	public static final String	DOTNET_FILE							= "System.IO.FileInfo";
+	public static final String	DOTNET_FILE							= "FileInfo";
 
-	public static final String	DOTNET_ARRAYLIST				= "List"; // System.Collections.Generic
+	public static final String	DOTNET_ARRAYLIST				= "List";
 
-	public static final String	DOTNET_HASHMAP					= "Dictionary"; // System.Collections.Generic
+	public static final String	DOTNET_HASHMAP					= "Dictionary";
 
-	public static final String	DOTNET_HASHMAPARRAYLIST	= "DictionaryList"; // Simpl.Fundamental.Generic
+	public static final String	DOTNET_HASHMAPARRAYLIST	= "DictionaryList";
 
-	public static final String	DOTNET_SCOPE						= "Scope"; // ecologylab.collections
+	public static final String	DOTNET_SCOPE						= "Scope";
 	
-	public static final String DOTNET_UUID							= "Guid";
+	public static final String DOTNET_UUID							= "GUID";
 	
 	/*
 	 * Java Scalar Types
@@ -170,8 +170,5 @@ public interface CrossLanguageTypeConstants
 	public static final String	JAVA_PATTERN					= "Pattern";
 	
 	public static final String	DOTNET_PATTERN				= "System.Text.RegularExpressions.Regex";
-	
-	public static final String	OBJC_PATTERN					= "NSRegularExpression";
-	
 
 }

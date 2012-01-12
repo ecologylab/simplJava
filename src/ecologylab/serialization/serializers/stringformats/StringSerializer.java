@@ -9,7 +9,6 @@ import java.io.PrintStream;
 
 import ecologylab.serialization.SIMPLTranslationException;
 import ecologylab.serialization.TranslationContext;
-import ecologylab.serialization.TranslationContextPool;
 import ecologylab.serialization.XMLTools;
 import ecologylab.serialization.serializers.FormatSerializer;
 
@@ -54,10 +53,7 @@ public abstract class StringSerializer extends FormatSerializer
 	 */
 	public StringBuilder serialize(Object object) throws SIMPLTranslationException
 	{
-		TranslationContext translationContext = TranslationContextPool.get().acquire();
-		StringBuilder sb = serialize(object, translationContext);
-		TranslationContextPool.get().release(translationContext);
-		return sb;
+		return serialize(object, new TranslationContext());
 	}
 
 	/**

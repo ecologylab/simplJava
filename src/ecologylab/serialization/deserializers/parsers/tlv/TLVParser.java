@@ -3,7 +3,7 @@ package ecologylab.serialization.deserializers.parsers.tlv;
 import ecologylab.serialization.ClassDescriptor;
 import ecologylab.serialization.FieldDescriptor;
 import ecologylab.serialization.FieldTypes;
-import ecologylab.serialization.SimplTypesScope;
+import ecologylab.serialization.TranslationScope;
 
 /**
  * This is the basic tlv parser for parsing tlv messages generated from
@@ -31,7 +31,7 @@ public class TLVParser implements FieldTypes
 	/**
 	 * translation scope which maps tlv ids to tag names.
 	 */
-	private SimplTypesScope	translationScope;
+	private TranslationScope	translationScope;
 
 	/**
 	 * local state variable.
@@ -59,7 +59,7 @@ public class TLVParser implements FieldTypes
 	 * @param listenerObject
 	 * @param translationScope
 	 */
-	public TLVParser(TLVEvents listenerObject, SimplTypesScope translationScope)
+	public TLVParser(TLVEvents listenerObject, TranslationScope translationScope)
 	{
 		this.listenerObject = listenerObject;
 		this.translationScope = translationScope;

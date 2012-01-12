@@ -3,13 +3,13 @@ package ecologylab.serialization.deserializers.pullhandlers.stringformats;
 import ecologylab.serialization.DeserializationHookStrategy;
 import ecologylab.serialization.SIMPLTranslationException;
 import ecologylab.serialization.TranslationContext;
-import ecologylab.serialization.SimplTypesScope;
+import ecologylab.serialization.TranslationScope;
 import ecologylab.serialization.deserializers.pullhandlers.PullDeserializer;
 
 public abstract class StringPullDeserializer extends PullDeserializer
 {
 
-	public StringPullDeserializer(SimplTypesScope translationScope,
+	public StringPullDeserializer(TranslationScope translationScope,
 			TranslationContext translationContext)
 	{
 		super(translationScope, translationContext);
@@ -23,7 +23,7 @@ public abstract class StringPullDeserializer extends PullDeserializer
 	 * @param translationContext
 	 *          used for graph handling
 	 */
-	public StringPullDeserializer(SimplTypesScope translationScope,
+	public StringPullDeserializer(TranslationScope translationScope,
 			TranslationContext translationContext, DeserializationHookStrategy deserializationHookStrategy)
 	{
 		super(translationScope, translationContext, deserializationHookStrategy);

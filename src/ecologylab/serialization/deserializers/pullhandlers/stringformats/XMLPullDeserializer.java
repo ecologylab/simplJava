@@ -20,12 +20,12 @@ import ecologylab.serialization.DeserializationHookStrategy;
 import ecologylab.serialization.ElementState;
 import ecologylab.serialization.FieldDescriptor;
 import ecologylab.serialization.SIMPLTranslationException;
-import ecologylab.serialization.SimplTypesScope;
 import ecologylab.serialization.TranslationContext;
+import ecologylab.serialization.TranslationScope;
 import ecologylab.serialization.types.element.IMappable;
 
 /**
- * Pull API implementation to transform XML documents to corresponding object models. Utilizes
+ * Pull API implementation to transform XML documets to corresponding object models. Utilizes
  * XMLStreamReader to get sequential access to tags in XML.
  * 
  * @author nabeel
@@ -33,9 +33,9 @@ import ecologylab.serialization.types.element.IMappable;
 public class XMLPullDeserializer extends StringPullDeserializer
 {
 
-	// private CharSequence test;
+	private CharSequence	test;
 
-	XMLStreamReader	xmlStreamReader	= null;
+	XMLStreamReader				xmlStreamReader	= null;
 
 	/**
 	 * 
@@ -44,7 +44,7 @@ public class XMLPullDeserializer extends StringPullDeserializer
 	 * @param deserializationHookStrategy
 	 */
 	public XMLPullDeserializer(
-			SimplTypesScope translationScope,
+			TranslationScope translationScope,
 			TranslationContext translationContext,
 			DeserializationHookStrategy<? extends Object, ? extends FieldDescriptor> deserializationHookStrategy)
 	{
@@ -56,7 +56,8 @@ public class XMLPullDeserializer extends StringPullDeserializer
 	 * @param translationScope
 	 * @param translationContext
 	 */
-	public XMLPullDeserializer(SimplTypesScope translationScope, TranslationContext translationContext)
+	public XMLPullDeserializer(TranslationScope translationScope,
+			TranslationContext translationContext)
 	{
 		super(translationScope, translationContext);
 	}
@@ -100,7 +101,6 @@ public class XMLPullDeserializer extends StringPullDeserializer
 	 * @throws SIMPLTranslationException
 	 * @throws IOException
 	 */
-	@Override
 	public Object parse(CharSequence charSequence) throws SIMPLTranslationException
 	{
 		try
@@ -115,7 +115,6 @@ public class XMLPullDeserializer extends StringPullDeserializer
 	}
 
 	/**
-	 * Configures the input stream. Creates an instance of XMLStreamReader on the input stream.
 	 * 
 	 * @param inputStream
 	 * @param charSet
@@ -149,7 +148,7 @@ public class XMLPullDeserializer extends StringPullDeserializer
 	private void configure(CharSequence charSequence) throws XMLStreamException,
 			FactoryConfigurationError
 	{
-		// test = charSequence;
+		test = charSequence;
 		InputStream xmlStream = new StringInputStream(charSequence, StringInputStream.UTF8);
 		xmlStreamReader = XMLInputFactory.newInstance().createXMLStreamReader(xmlStream, "UTF-8");
 	}
@@ -197,7 +196,7 @@ public class XMLPullDeserializer extends StringPullDeserializer
 	}
 
 	/**
-	 * Recursive method that moves forward in the CharSequence through XMLStreamReader to create a
+	 * Recursive method that moves forward in the CharSequence through JsonParser to create a
 	 * corresponding object model
 	 * 
 	 * @param root
@@ -218,6 +217,7 @@ public class XMLPullDeserializer extends StringPullDeserializer
 
 		try
 		{
+
 			int event = 0;
 			event = nextEvent();
 
@@ -300,14 +300,6 @@ public class XMLPullDeserializer extends StringPullDeserializer
 		}
 	}
 
-	/**
-	 * 
-	 * @param root
-	 * @param fd
-	 * @return
-	 * @throws SIMPLTranslationException
-	 * @throws XMLStreamException
-	 */
 	private int deserializeScalarCollection(Object root, FieldDescriptor fd)
 			throws SIMPLTranslationException, XMLStreamException
 	{
@@ -445,18 +437,16 @@ public class XMLPullDeserializer extends StringPullDeserializer
 	private int deserializeScalar(Object root, FieldDescriptor currentFieldDescriptor)
 			throws XMLStreamException
 	{
-
-		// nextEvent();
+		nextEvent();
 
 		StringBuilder text = new StringBuilder();
-		// text.append(xmlStreamReader.getText());
+		text.append(xmlStreamReader.getText());
 
-		do
+		while (nextEvent() != XMLStreamConstants.END_ELEMENT)
 		{
 			if (xmlStreamReader.getEventType() == XMLStreamConstants.CHARACTERS)
 				text.append(xmlStreamReader.getText());
 		}
-		while (nextEvent() != XMLStreamConstants.END_ELEMENT);
 
 		String value = text.toString();
 		currentFieldDescriptor.setFieldToScalar(root, value, translationContext);
@@ -626,9 +616,6 @@ public class XMLPullDeserializer extends StringPullDeserializer
 		return eventType;
 	}
 
-	/**
-	 * 
-	 */
 	protected void debug()
 	{
 		int event = xmlStreamReader.getEventType();
@@ -649,10 +636,6 @@ public class XMLPullDeserializer extends StringPullDeserializer
 		} // end switch
 	}
 
-	/**
-	 * 
-	 * @return
-	 */
 	private String getTagName()
 	{
 		if (!(xmlStreamReader.getPrefix().length() == 0))

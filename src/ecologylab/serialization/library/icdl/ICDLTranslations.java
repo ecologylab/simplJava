@@ -4,7 +4,7 @@
 package ecologylab.serialization.library.icdl;
 
 import ecologylab.generic.Debug;
-import ecologylab.serialization.SimplTypesScope;
+import ecologylab.serialization.TranslationScope;
 
 /**
  * Translations for parsing International Childrens Digital Library stuff.
@@ -29,8 +29,8 @@ public class ICDLTranslations extends Debug
 	   {
 	   }
 	   
-	   public static SimplTypesScope get()
+	   public static TranslationScope get()
 	   {
-		   return SimplTypesScope.get(TRANSLATION_SPACE_NAME, TRANSLATIONS);
+		   return TranslationScope.get(TRANSLATION_SPACE_NAME, TRANSLATIONS);
 	   }
 }

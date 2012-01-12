@@ -6,10 +6,11 @@ package ecologylab.serialization.library.apple;
 import java.io.File;
 import java.io.IOException;
 
+import ecologylab.serialization.ClassDescriptor;
+import ecologylab.serialization.Format;
 import ecologylab.serialization.SIMPLTranslationException;
-import ecologylab.serialization.SimplTypesScope;
-import ecologylab.serialization.formatenums.Format;
-import ecologylab.serialization.formatenums.StringFormat;
+import ecologylab.serialization.StringFormat;
+import ecologylab.serialization.TranslationScope;
 
 /**
  * @author Zachary O. Toups (zach@ecologylab.net)
@@ -26,9 +27,9 @@ public class PListTranslations
 			IntegerProperty.class, ArrayProperty.class, BooleanProperty.class, TrueProperty.class,
 			FalseProperty.class, RealProperty.class, DataProperty.class	};
 
-	public static SimplTypesScope get()
+	public static TranslationScope get()
 	{
-		return SimplTypesScope.get(NAME, TRANSLATIONS);
+		return TranslationScope.get(NAME, TRANSLATIONS);
 	}
 
 	public static void main(String[] args) throws SIMPLTranslationException, IOException
@@ -39,22 +40,9 @@ public class PListTranslations
 																													Format.XML);
 		
 		
-		SimplTypesScope.serialize(result, System.out, StringFormat.XML);
+		ClassDescriptor.serialize(result, System.out, StringFormat.XML);
 //		ClassDescriptor.serialize(result,
 //															new File("/Users/toupsz/Dropbox/ttecBibForBill/tecNewTutMap2.xml"),
 //															Format.XML);
-	}
-	
-	public static final String		KEY_NAME						= "KeyTrans";
-
-	@SuppressWarnings("unchecked")
-	protected static final Class	KEY_TRANSLATIONS[]	=
-																								{
-			KeyProperty.class,
-			Property.class, StringProperty.class	};
-
-	public static SimplTypesScope getKey()
-	{
-		return SimplTypesScope.get(KEY_NAME, KEY_TRANSLATIONS);
 	}
 }

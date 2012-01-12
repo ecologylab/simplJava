@@ -4,16 +4,15 @@ import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
 
+import ecologylab.serialization.BinaryFormat;
 import ecologylab.serialization.ClassDescriptor;
 import ecologylab.serialization.FieldDescriptor;
+import ecologylab.serialization.Format;
 import ecologylab.serialization.SIMPLTranslationException;
+import ecologylab.serialization.StringFormat;
 import ecologylab.serialization.TranslationContext;
-import ecologylab.serialization.SimplTypesScope;
-import ecologylab.serialization.TranslationContextPool;
-import ecologylab.serialization.SimplTypesScope.GRAPH_SWITCH;
-import ecologylab.serialization.formatenums.BinaryFormat;
-import ecologylab.serialization.formatenums.Format;
-import ecologylab.serialization.formatenums.StringFormat;
+import ecologylab.serialization.TranslationScope;
+import ecologylab.serialization.TranslationScope.GRAPH_SWITCH;
 import ecologylab.serialization.serializers.binaryformats.TLVSerializer;
 import ecologylab.serialization.serializers.stringformats.BibtexSerializer;
 import ecologylab.serialization.serializers.stringformats.JSONSerializer;
@@ -40,9 +39,7 @@ public abstract class FormatSerializer
 	 */
 	public void serialize(Object object, OutputStream outputStream) throws SIMPLTranslationException
 	{
-		TranslationContext translationContext = TranslationContextPool.get().acquire();
-		serialize(object, outputStream, translationContext);
-		TranslationContextPool.get().release(translationContext);
+		serialize(object, outputStream, new TranslationContext());
 	}
 
 	public abstract void serialize(Object object, OutputStream outputStream,
@@ -57,9 +54,7 @@ public abstract class FormatSerializer
 	 */
 	public void serialize(Object object, File outputFile) throws SIMPLTranslationException
 	{		
-		TranslationContext translationContext = TranslationContextPool.get().acquire();
-		serialize(object, outputFile, translationContext);
-		TranslationContextPool.get().release(translationContext);
+		serialize(object, outputFile, new TranslationContext());
 	}
 
 	public abstract void serialize(Object object, File outputFile,
@@ -109,7 +104,7 @@ public abstract class FormatSerializer
 	 */
 	protected boolean alreadySerialized(Object object, TranslationContext translationContext)
 	{
-		return SimplTypesScope.graphSwitch == GRAPH_SWITCH.ON
+		return TranslationScope.graphSwitch == GRAPH_SWITCH.ON
 				&& translationContext.alreadyMarshalled(object);
 	}
 

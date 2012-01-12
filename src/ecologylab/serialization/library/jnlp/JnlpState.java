@@ -10,15 +10,16 @@ import java.util.ArrayList;
 import ecologylab.appframework.types.prefs.PrefSet;
 import ecologylab.appframework.types.prefs.PrefSetBaseClassProvider;
 import ecologylab.generic.Debug;
+import ecologylab.serialization.ClassDescriptor;
 import ecologylab.serialization.ElementState;
 import ecologylab.serialization.SIMPLTranslationException;
-import ecologylab.serialization.SimplTypesScope;
+import ecologylab.serialization.StringFormat;
+import ecologylab.serialization.TranslationScope;
 import ecologylab.serialization.annotations.simpl_collection;
 import ecologylab.serialization.annotations.simpl_composite;
 import ecologylab.serialization.annotations.simpl_nowrap;
 import ecologylab.serialization.annotations.simpl_scalar;
 import ecologylab.serialization.annotations.simpl_tag;
-import ecologylab.serialization.formatenums.StringFormat;
 import ecologylab.serialization.library.jnlp.applet.AppletDesc;
 import ecologylab.serialization.library.jnlp.application.ApplicationDesc;
 import ecologylab.serialization.library.jnlp.information.InformationElement;
@@ -167,8 +168,8 @@ public class JnlpState extends ElementState implements Cloneable
 			String thisXml;
 			try
 			{
-				thisXml = SimplTypesScope.serialize(this, StringFormat.XML).toString();
-				String thatXml = SimplTypesScope.serialize(obj, StringFormat.XML).toString();
+				thisXml = ClassDescriptor.serialize(this, StringFormat.XML).toString();
+				String thatXml = ClassDescriptor.serialize(obj, StringFormat.XML).toString();
 
 				return thisXml.equals(thatXml);
 			}
@@ -233,24 +234,24 @@ public class JnlpState extends ElementState implements Cloneable
 			System.out.println("arg: " + a);
 		}
 
-		SimplTypesScope.serialize(j, System.out, StringFormat.XML);
+		ClassDescriptor.serialize(j, System.out, StringFormat.XML);
 
 		String prefSetString = URLDecoder.decode(
 				appDesc.getArguments().get(appDesc.getArguments().size() - 1), "UTF-8");
-		SimplTypesScope[] arrayToMakeJavaShutUp = {};
-		PrefSet prefs = (PrefSet) SimplTypesScope.get(PrefSet.PREFS_TRANSLATION_SCOPE,
+		TranslationScope[] arrayToMakeJavaShutUp = {};
+		PrefSet prefs = (PrefSet) TranslationScope.get(PrefSet.PREFS_TRANSLATION_SCOPE,
 				arrayToMakeJavaShutUp, PrefSetBaseClassProvider.STATIC_INSTANCE.provideClasses())
 				.deserialize(prefSetString, StringFormat.XML);
 
 		Debug.println(prefSetString);
-		Debug.println(SimplTypesScope.serialize(prefs, StringFormat.XML));
+		Debug.println(ClassDescriptor.serialize(prefs, StringFormat.XML));
 
 		JnlpState newState = new JnlpState();
 		newState.setApplicationDesc(new ApplicationDesc());
 
 		newState.getApplicationDesc().setPrefSet(prefs);
 
-		Debug.println(SimplTypesScope.serialize(newState, StringFormat.XML));
+		Debug.println(ClassDescriptor.serialize(newState, StringFormat.XML));
 	}
 
 	/**
@@ -272,7 +273,7 @@ public class JnlpState extends ElementState implements Cloneable
 		try
 		{
 			return (JnlpState) JnlpTranslations.get().deserialize(
-					SimplTypesScope.serialize(this, StringFormat.XML), StringFormat.XML);
+					ClassDescriptor.serialize(this, StringFormat.XML), StringFormat.XML);
 		}
 		catch (SIMPLTranslationException e)
 		{

@@ -1,4 +1,4 @@
-package ecologylab.serialization.deserializers.pushhandlers;
+//package ecologylab.serialization.deserializers.pushhandlers;
 //
 //import java.io.File;
 //import java.util.ArrayList;
@@ -20,8 +20,9 @@ package ecologylab.serialization.deserializers.pushhandlers;
 //import ecologylab.serialization.deserializers.parsers.tlv.TLVParser;
 //import ecologylab.serialization.types.element.IMappable;
 //
-public class ElementStateTLVHandler // extends Debug implements TLVEvents, FieldTypes, ScalarUnmarshallingContext
-{
+//public class ElementStateTLVHandler extends Debug implements TLVEvents, FieldTypes,
+//		ScalarUnmarshallingContext
+//{
 //	TranslationScope									translationScope;
 //
 //	TLVParser													tlvParser	= null;
@@ -516,4 +517,4 @@ public class ElementStateTLVHandler // extends Debug implements TLVEvents, Field
 //	// // TODO Auto-generated method stub
 //	// return null;
 //	// }
-}
+//}

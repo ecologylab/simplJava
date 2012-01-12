@@ -1,7 +1,7 @@
 package ecologylab.serialization.library.rest;
 
 import ecologylab.generic.Debug;
-import ecologylab.serialization.SimplTypesScope;
+import ecologylab.serialization.TranslationScope;
 import ecologylab.serialization.library.dc.Dc;
 
 public class RESTTranslationSpace extends Debug
@@ -16,10 +16,10 @@ public class RESTTranslationSpace extends Debug
 		Record.class
 	};
 		
-	protected static final SimplTypesScope INHERITED[] = {Dc.get()};
+	protected static final TranslationScope INHERITED[] = {Dc.get()};
 	
-	public static SimplTypesScope get()
+	public static TranslationScope get()
 	{
-		return SimplTypesScope.get(PACKAGE_NAME, INHERITED, TRANSLATIONS);
+		return TranslationScope.get(PACKAGE_NAME, INHERITED, TRANSLATIONS);
 	}
 }

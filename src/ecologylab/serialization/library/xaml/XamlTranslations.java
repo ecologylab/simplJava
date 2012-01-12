@@ -2,7 +2,7 @@ package ecologylab.serialization.library.xaml;
 
 import ecologylab.generic.Debug;
 import ecologylab.serialization.NameSpaceDecl;
-import ecologylab.serialization.SimplTypesScope;
+import ecologylab.serialization.TranslationScope;
 
 
 public class XamlTranslations extends Debug
@@ -31,9 +31,9 @@ public class XamlTranslations extends Debug
 	{
 	}
 
-	public static SimplTypesScope get()
+	public static TranslationScope get()
 	{
-		return SimplTypesScope.get(TRANSLATION_SPACE_NAME, NAME_SPACE_DECLS, TRANSLATIONS);
+		return TranslationScope.get(TRANSLATION_SPACE_NAME, NAME_SPACE_DECLS, TRANSLATIONS);
 	   }
 	
 }

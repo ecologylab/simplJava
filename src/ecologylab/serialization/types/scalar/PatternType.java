@@ -20,7 +20,7 @@ implements CrossLanguageTypeConstants
 
 	public PatternType()
 	{
-		super(Pattern.class, JAVA_PATTERN, DOTNET_PATTERN, OBJC_PATTERN, null);
+		super(Pattern.class, JAVA_PATTERN, DOTNET_PATTERN, null, null);
 	}
 
 	@Override

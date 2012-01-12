@@ -4,7 +4,7 @@
 package ecologylab.serialization.library.opml;
 
 import ecologylab.serialization.ElementState;
-import ecologylab.serialization.SimplTypesScope;
+import ecologylab.serialization.TranslationScope;
 import ecologylab.serialization.annotations.simpl_composite;
 
 /**
@@ -37,9 +37,9 @@ public class Opml extends ElementState
 	 * 
 	 * @return
 	 */  
-	public static SimplTypesScope getTranslationScope()
+	public static TranslationScope getTranslationScope()
 	{
-		return SimplTypesScope.get(PACKAGE_NAME, TRANSLATIONS);
+		return TranslationScope.get(PACKAGE_NAME, TRANSLATIONS);
 	}
 	/**
 	 * @return Returns the body.

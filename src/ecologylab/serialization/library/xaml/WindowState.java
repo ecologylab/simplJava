@@ -3,7 +3,7 @@
  */
 package ecologylab.serialization.library.xaml;
 
-import ecologylab.serialization.SimplTypesScope;
+import ecologylab.serialization.TranslationScope;
 import ecologylab.serialization.annotations.simpl_scalar;
 import ecologylab.serialization.annotations.simpl_tag;
 
@@ -30,9 +30,9 @@ public class WindowState extends FrameworkElementState
 		this.title 		= title;	
 	}
 	
-	public static SimplTypesScope get()
+	public static TranslationScope get()
 	{
-		return SimplTypesScope.get("xaml", WindowState.class);
+		return TranslationScope.get("xaml", WindowState.class);
 	}
 	
 }

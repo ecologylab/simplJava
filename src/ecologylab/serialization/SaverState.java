@@ -7,7 +7,6 @@ import java.io.File;
 
 import ecologylab.oodss.exceptions.SaveFailedException;
 import ecologylab.serialization.annotations.simpl_inherit;
-import ecologylab.serialization.formatenums.Format;
 
 /**
  * This class is configured with a file path that serves as its backing store and provides a save()
@@ -36,7 +35,7 @@ public class SaverState extends ElementState
 	 * @return Strongly typed tree of ElementState objects.
 	 * @throws SIMPLTranslationException
 	 */
-	public static SaverState translateFromXML(File xmlFile, SimplTypesScope translationScope)
+	public static SaverState translateFromXML(File xmlFile, TranslationScope translationScope)
 			throws SIMPLTranslationException
 	{
 		SaverState saverState = (SaverState) translationScope.deserialize(xmlFile, Format.XML);
@@ -58,7 +57,7 @@ public class SaverState extends ElementState
 	 * @return Strongly typed tree of ElementState objects.
 	 * @throws SIMPLTranslationException
 	 */
-	public static ElementState translateFromXML(String fileName, SimplTypesScope translationScope)
+	public static ElementState translateFromXML(String fileName, TranslationScope translationScope)
 			throws SIMPLTranslationException
 	{
 		SaverState saverState = (SaverState) translationScope.deserialize(new File(fileName),
@@ -98,7 +97,7 @@ public class SaverState extends ElementState
 
 		try
 		{
-			SimplTypesScope.serialize(this, this.backingFile(), Format.XML);
+			ClassDescriptor.serialize(this, this.backingFile(), Format.XML);
 		}
 		catch (SIMPLTranslationException e)
 		{

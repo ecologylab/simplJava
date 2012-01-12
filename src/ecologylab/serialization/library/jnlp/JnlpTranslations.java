@@ -4,7 +4,7 @@
 package ecologylab.serialization.library.jnlp;
 
 import ecologylab.appframework.types.AppFrameworkTranslations;
-import ecologylab.serialization.SimplTypesScope;
+import ecologylab.serialization.TranslationScope;
 import ecologylab.serialization.library.jnlp.applet.AppletDesc;
 import ecologylab.serialization.library.jnlp.applet.Param;
 import ecologylab.serialization.library.jnlp.application.ApplicationDesc;
@@ -48,7 +48,7 @@ public class JnlpTranslations
 			Jar.class, Nativelib.class, Property.class, ResourceElement.class,
 			ResourceElementArray.class, JnlpState.class					};
 
-	private static final SimplTypesScope	inheritedTranslations[]	=
+	private static final TranslationScope	inheritedTranslations[]	=
 																						{
 			AppFrameworkTranslations.get(),
 			JnlpTranslations.getStudyTranslationsOnly()					};
@@ -58,9 +58,9 @@ public class JnlpTranslations
 	 * 
 	 * @return
 	 */
-	public static SimplTypesScope get()
+	public static TranslationScope get()
 	{
-		SimplTypesScope result = SimplTypesScope.get(JNLP_TRANSLATIONS_NAME,
+		TranslationScope result = TranslationScope.get(JNLP_TRANSLATIONS_NAME,
 				inheritedTranslations, JNLP_TRANSLATIONS);
 
 		return result;
@@ -69,9 +69,9 @@ public class JnlpTranslations
 	/**
 	 * @return
 	 */
-	private static SimplTypesScope getStudyTranslationsOnly()
+	private static TranslationScope getStudyTranslationsOnly()
 	{
-		SimplTypesScope temp = SimplTypesScope.get(JNLP_TRANSLATIONS_NAME, JNLP_TRANSLATIONS);
+		TranslationScope temp = TranslationScope.get(JNLP_TRANSLATIONS_NAME, JNLP_TRANSLATIONS);
 
 		return temp;
 	}

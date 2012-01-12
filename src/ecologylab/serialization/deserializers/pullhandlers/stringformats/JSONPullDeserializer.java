@@ -22,7 +22,7 @@ import ecologylab.serialization.FieldTypes;
 import ecologylab.serialization.SIMPLTranslationException;
 import ecologylab.serialization.ScalarUnmarshallingContext;
 import ecologylab.serialization.TranslationContext;
-import ecologylab.serialization.SimplTypesScope;
+import ecologylab.serialization.TranslationScope;
 import ecologylab.serialization.deserializers.pullhandlers.PullDeserializer;
 import ecologylab.serialization.types.element.IMappable;
 
@@ -40,13 +40,13 @@ public class JSONPullDeserializer extends StringPullDeserializer
 	 */
 	JsonParser	jp	= null;
 
-	public JSONPullDeserializer(SimplTypesScope translationScope,
+	public JSONPullDeserializer(TranslationScope translationScope,
 			TranslationContext translationContext, DeserializationHookStrategy deserializationHookStrategy)
 	{
 		super(translationScope, translationContext, deserializationHookStrategy);
 	}
 
-	public JSONPullDeserializer(SimplTypesScope translationScope,
+	public JSONPullDeserializer(TranslationScope translationScope,
 			TranslationContext translationContext)
 	{
 		super(translationScope, translationContext);
@@ -302,9 +302,9 @@ public class JSONPullDeserializer extends StringPullDeserializer
 			jp.nextToken();
 		}
 
-		deserializationPostHook(root, translationContext);
-		if (deserializationHookStrategy != null)
-			deserializationHookStrategy.deserializationPostHook(root, null);
+		// root.deserializationPostHook();
+		// if (deserializationHookStrategy != null)
+		// deserializationHookStrategy.deserializationPostHook(root, currentFieldDescriptor);
 	}
 
 	/**
@@ -340,10 +340,6 @@ public class JSONPullDeserializer extends StringPullDeserializer
 						.getChildClassDescriptor(tagName);
 
 				subRoot = subRootClassDescriptor.getInstance();
-				
-				deserializationPreHook(subRoot, translationContext);
-				if (deserializationHookStrategy != null)
-					deserializationHookStrategy.deserializationPreHook(subRoot, currentFieldDescriptor);
 
 				createObjectModel(subRoot, subRootClassDescriptor);
 			}
