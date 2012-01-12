@@ -16,6 +16,10 @@ extends Observable
    {
       Debug.println(this, message);
    }
+   public final void weird(String message)
+   {
+      Debug.weird(this, message);
+   }
    public final void debugA(String message)
    {
       Debug.printlnA(this, message);

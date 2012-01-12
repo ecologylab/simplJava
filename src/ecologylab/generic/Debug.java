@@ -183,7 +183,7 @@ public class Debug
 			}
 		}
 		else
-			System.err.println(message);
+			System.out.println(message);
 	}
 
 	public static void print(char c)

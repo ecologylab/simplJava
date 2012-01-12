@@ -9,7 +9,7 @@ import ecologylab.oodss.distributed.server.NIOServerProcessor;
 import ecologylab.oodss.messages.RequestMessage;
 import ecologylab.oodss.messages.ResponseMessage;
 import ecologylab.oodss.messages.UpdateMessage;
-import ecologylab.serialization.TranslationScope;
+import ecologylab.serialization.SimplTypesScope;
 
 public abstract class HTTPClientSessionManager<S extends Scope, PARENT extends Scope> extends TCPClientSessionManager<S, PARENT>
 {
@@ -27,7 +27,7 @@ public abstract class HTTPClientSessionManager<S extends Scope, PARENT extends S
 	protected boolean		ALLOW_HTTP_STYLE_REQUESTS	= true;
 
 	public HTTPClientSessionManager(String sessionId, int maxPacketSize, NIOServerIOThread server,
-			NIOServerProcessor frontend, SelectionKey socket, TranslationScope translationScope,
+			NIOServerProcessor frontend, SelectionKey socket, SimplTypesScope translationScope,
 			PARENT registry)
 	{
 		super(sessionId, maxPacketSize, server, frontend, socket, translationScope, registry);

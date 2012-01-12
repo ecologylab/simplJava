@@ -2,9 +2,9 @@ package ecologylab.standalone;
 
 import java.io.File;
 
-import ecologylab.serialization.Format;
 import ecologylab.serialization.SIMPLTranslationException;
-import ecologylab.serialization.TranslationScope;
+import ecologylab.serialization.SimplTypesScope;
+import ecologylab.serialization.formatenums.Format;
 import ecologylab.serialization.library.rest.Fields;
 import ecologylab.serialization.library.rest.RESTTranslationSpace;
 
@@ -24,7 +24,7 @@ public class TestNameSpace
 		}
 		
 		File xmlFile 	= new File(args[0]);
-		TranslationScope tSpace
+		SimplTypesScope tSpace
 						= RESTTranslationSpace.get(); 
 		try 
 		{

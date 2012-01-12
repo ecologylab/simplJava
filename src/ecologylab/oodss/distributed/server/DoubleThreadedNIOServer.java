@@ -29,7 +29,7 @@ import ecologylab.oodss.distributed.server.clientsessionmanager.ClientSessionMan
 import ecologylab.oodss.distributed.server.clientsessionmanager.SessionHandle;
 import ecologylab.oodss.distributed.server.clientsessionmanager.TCPClientSessionManager;
 import ecologylab.oodss.exceptions.BadClientException;
-import ecologylab.serialization.TranslationScope;
+import ecologylab.serialization.SimplTypesScope;
 
 /**
  * A server that uses NIO and two threads (one for handling IO, the other for handling interfacing
@@ -53,7 +53,7 @@ public class DoubleThreadedNIOServer<S extends Scope> extends AbstractNIOServer<
 	}
 
 	public static DoubleThreadedNIOServer getInstance(int portNumber, InetAddress[] inetAddress,
-			TranslationScope requestTranslationScope, Scope applicationObjectScope,
+			SimplTypesScope requestTranslationScope, Scope applicationObjectScope,
 			int idleConnectionTimeout, int maxPacketSize) throws IOException, BindException
 	{
 		return new DoubleThreadedNIOServer(portNumber, inetAddress, requestTranslationScope,
@@ -61,7 +61,7 @@ public class DoubleThreadedNIOServer<S extends Scope> extends AbstractNIOServer<
 	}
 
 	public static DoubleThreadedNIOServer getInstance(int portNumber, InetAddress inetAddress,
-			TranslationScope requestTranslationScope, Scope applicationObjectScope,
+			SimplTypesScope requestTranslationScope, Scope applicationObjectScope,
 			int idleConnectionTimeout, int maxPacketSize) throws IOException, BindException
 	{
 		InetAddress[] address =
@@ -106,7 +106,7 @@ public class DoubleThreadedNIOServer<S extends Scope> extends AbstractNIOServer<
 	 * 
 	 */
 	protected DoubleThreadedNIOServer(int portNumber, InetAddress[] inetAddresses,
-			TranslationScope requestTranslationScope, S applicationObjectScope,
+			SimplTypesScope requestTranslationScope, S applicationObjectScope,
 			int idleConnectionTimeout, int maxMessageSize) throws IOException, BindException
 	{
 		super(portNumber, inetAddresses, requestTranslationScope, applicationObjectScope,
@@ -139,7 +139,7 @@ public class DoubleThreadedNIOServer<S extends Scope> extends AbstractNIOServer<
 	 * 
 	 */
 	protected DoubleThreadedNIOServer(int portNumber, InetAddress inetAddress,
-			TranslationScope requestTranslationScope, S applicationObjectScope,
+			SimplTypesScope requestTranslationScope, S applicationObjectScope,
 			int idleConnectionTimeout, int maxPacketSize) throws IOException, BindException
 	{
 		this(portNumber, NetTools.wrapSingleAddress(inetAddress), requestTranslationScope,
@@ -160,7 +160,7 @@ public class DoubleThreadedNIOServer<S extends Scope> extends AbstractNIOServer<
 	 * @throws IOException
 	 * @throws BindException
 	 */
-	protected DoubleThreadedNIOServer(int portNumber, TranslationScope requestTranslationScope,
+	protected DoubleThreadedNIOServer(int portNumber, SimplTypesScope requestTranslationScope,
 			S applicationObjectScope) throws BindException, IOException
 	{
 		this(portNumber, NetTools.getAllInetAddressesForLocalhost(), requestTranslationScope,
@@ -220,7 +220,7 @@ public class DoubleThreadedNIOServer<S extends Scope> extends AbstractNIOServer<
 	 */
 	@Override
 	protected TCPClientSessionManager generateContextManager(String sessionId, SelectionKey sk,
-			TranslationScope translationScopeIn, Scope registryIn)
+			SimplTypesScope translationScopeIn, Scope registryIn)
 	{
 		return new ClientSessionManager(sessionId, maxMessageSize, this.getBackend(), this, sk,
 				translationScopeIn, registryIn);

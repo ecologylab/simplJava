@@ -1,4 +1,4 @@
-//package ecologylab.serialization.deserializers.pushhandlers;
+package ecologylab.serialization.deserializers.pushhandlers;
 //
 //import java.io.File;
 //import java.io.IOException;
@@ -29,9 +29,8 @@
 // * @author nabeelshahzad
 // * 
 // */
-//public class ElementStateJSONPushHandler extends Debug implements ScalarUnmarshallingContext,
-//		FieldTypes
-//{
+public class ElementStateJSONPushHandler // extends Debug implements ScalarUnmarshallingContext, FieldTypes
+{
 //
 //	TranslationScope						translationScope;
 //
@@ -385,4 +384,4 @@
 //		// TODO Auto-generated method stub
 //		return null;
 //	}
-//}
+}

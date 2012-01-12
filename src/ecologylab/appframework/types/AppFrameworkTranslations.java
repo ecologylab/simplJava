@@ -3,7 +3,7 @@ package ecologylab.appframework.types;
 import ecologylab.appframework.types.prefs.PrefsTranslationsProvider;
 import ecologylab.generic.Debug;
 import ecologylab.oodss.messages.DefaultServicesTranslations;
-import ecologylab.serialization.TranslationScope;
+import ecologylab.serialization.SimplTypesScope;
 
 /**
  * Base translations for applications that use the ecologylab appframework and services.
@@ -15,7 +15,7 @@ public class AppFrameworkTranslations extends Debug
 {
 	public static final String	PACKAGE_NAME	= "ecologylab.appframework.types";
 	
-	public static final TranslationScope inheritedTranslations[]	=
+	public static final SimplTypesScope inheritedTranslations[]	=
 	{
 		DefaultServicesTranslations.get(),
 		PrefsTranslationsProvider.get()
@@ -33,8 +33,8 @@ public class AppFrameworkTranslations extends Debug
 	 * This accessor will work from anywhere, in any order, and stay efficient.
 	 * @return
 	 */
-	public static TranslationScope get()
+	public static SimplTypesScope get()
 	{
-		return TranslationScope.get(PACKAGE_NAME, inheritedTranslations);
+		return SimplTypesScope.get(PACKAGE_NAME, inheritedTranslations);
 	}
 }

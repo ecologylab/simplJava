@@ -5,14 +5,13 @@ package ecologylab.standalone;
 
 import java.util.ArrayList;
 
-import ecologylab.serialization.ClassDescriptor;
 import ecologylab.serialization.ElementState;
 import ecologylab.serialization.SIMPLTranslationException;
-import ecologylab.serialization.StringFormat;
-import ecologylab.serialization.TranslationScope;
+import ecologylab.serialization.SimplTypesScope;
 import ecologylab.serialization.annotations.simpl_collection;
 import ecologylab.serialization.annotations.simpl_nowrap;
 import ecologylab.serialization.annotations.simpl_scalar;
+import ecologylab.serialization.formatenums.StringFormat;
 
 /**
  * 
@@ -27,7 +26,7 @@ public class TestXml extends ElementState
 	@simpl_scalar
 	String												fooBar;
 
-	static final TranslationScope	TS	= TranslationScope.get("testing123", TestXml.class);
+	static final SimplTypesScope	TS	= SimplTypesScope.get("testing123", TestXml.class);
 
 	/**
 	 * 
@@ -45,7 +44,7 @@ public class TestXml extends ElementState
 		try
 		{
 			Object es = TS.deserialize(STUFF, StringFormat.XML);
-			println(ClassDescriptor.serialize(es, StringFormat.XML));
+			println(SimplTypesScope.serialize(es, StringFormat.XML));
 
 		}
 		catch (SIMPLTranslationException e)

@@ -29,13 +29,13 @@ import ecologylab.oodss.distributed.common.ServicesHostsAndPorts;
 import ecologylab.oodss.distributed.exception.MessageTooLargeException;
 import ecologylab.oodss.messages.DefaultServicesTranslations;
 import ecologylab.oodss.messages.ResponseMessage;
-import ecologylab.serialization.ClassDescriptor;
 import ecologylab.serialization.ElementState;
 import ecologylab.serialization.SIMPLTranslationException;
-import ecologylab.serialization.StringFormat;
+import ecologylab.serialization.SimplTypesScope;
 import ecologylab.serialization.XMLTools;
 import ecologylab.serialization.annotations.simpl_collection;
 import ecologylab.serialization.annotations.simpl_scope;
+import ecologylab.serialization.formatenums.StringFormat;
 
 /**
  * Provides a framework for interaction logging. Uses ecologylab.serialization to serialize user and
@@ -466,7 +466,7 @@ public class Logging<T extends MixedInitiativeOp> extends ElementState implement
 			{
 				synchronized (incomingOpsBuffer)
 				{
-					ClassDescriptor.serialize(op, incomingOpsBuffer, StringFormat.XML);					
+					SimplTypesScope.serialize(op, incomingOpsBuffer, StringFormat.XML);					
 				}
 
 				// final int bufferLength = incomingOpsBuffer.length();
@@ -899,11 +899,9 @@ public class Logging<T extends MixedInitiativeOp> extends ElementState implement
 				if (remaining < incoming.remaining())
 				{ // we want to write more than will fit; so we just write
 					// what we can first...
-					debug("not enough space in the buffer: " + remaining + " remaining, "
-							+ incoming.remaining() + " needed.");
-					debug("last range file range: " + (endOfMappedBytes - LOG_FILE_INCREMENT) + "-"
-							+ endOfMappedBytes);
-					debug("new range will be: " + (endOfMappedBytes) + "-"
+					debug("not enough space in the buffer: " + remaining + "/"
+							+ incoming.remaining() + "; old range: " + (endOfMappedBytes - LOG_FILE_INCREMENT) + "-"
+							+ endOfMappedBytes+"; new range: " + (endOfMappedBytes) + "-"
 							+ (endOfMappedBytes + LOG_FILE_INCREMENT));
 
 					byte[] temp = new byte[remaining];
@@ -1057,7 +1055,7 @@ public class Logging<T extends MixedInitiativeOp> extends ElementState implement
 					debug(">> sending a normal log message (non-blocking): ");
 					try
 					{
-						debug(ClassDescriptor.serialize(message, StringFormat.XML).toString());
+						debug(SimplTypesScope.serialize(message, StringFormat.XML).toString());
 					}
 					catch (SIMPLTranslationException e)
 					{

@@ -33,10 +33,9 @@ import ecologylab.oodss.exceptions.BadClientException;
 import ecologylab.oodss.messages.RequestMessage;
 import ecologylab.oodss.messages.ResponseMessage;
 import ecologylab.oodss.messages.UpdateMessage;
-import ecologylab.serialization.ClassDescriptor;
 import ecologylab.serialization.SIMPLTranslationException;
-import ecologylab.serialization.StringFormat;
-import ecologylab.serialization.TranslationScope;
+import ecologylab.serialization.SimplTypesScope;
+import ecologylab.serialization.formatenums.StringFormat;
 
 /**
  * The base class for all ContextManagers, objects that track the state and respond to clients on a
@@ -93,7 +92,7 @@ public abstract class TCPClientSessionManager<S extends Scope, PARENT extends Sc
 	protected int																												maxMessageSize;
 
 	/** Used to translate incoming message XML strings into RequestMessages. */
-	protected TranslationScope																					translationScope;
+	protected SimplTypesScope																					translationScope;
 
 	/**
 	 * stores the sequence of characters read from the header of an incoming message, may need to
@@ -178,7 +177,7 @@ public abstract class TCPClientSessionManager<S extends Scope, PARENT extends Sc
 	 * @param registry
 	 */
 	public TCPClientSessionManager(String sessionId, int maxMessageSizeIn, NIOServerIOThread server,
-			NIOServerProcessor frontend, SelectionKey socket, TranslationScope translationScope,
+			NIOServerProcessor frontend, SelectionKey socket, SimplTypesScope translationScope,
 			PARENT baseScope)
 	{
 		super(sessionId, frontend, socket, baseScope);
@@ -910,7 +909,7 @@ public abstract class TCPClientSessionManager<S extends Scope, PARENT extends Sc
 		try
 		{
 			// setup outgoingMessageBuffer
-			ClassDescriptor.serialize(update, msgBufOutgoing, StringFormat.XML);
+			SimplTypesScope.serialize(update, msgBufOutgoing, StringFormat.XML);
 		}
 		catch (SIMPLTranslationException e1)
 		{

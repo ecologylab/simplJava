@@ -14,7 +14,7 @@ import ecologylab.oodss.distributed.common.ServicesHostsAndPorts;
 import ecologylab.oodss.distributed.server.DoubleThreadedNIOServer;
 import ecologylab.oodss.distributed.server.clientsessionmanager.HTTPPostClientSessionManager;
 import ecologylab.oodss.messages.DefaultServicesTranslations;
-import ecologylab.serialization.TranslationScope;
+import ecologylab.serialization.SimplTypesScope;
 
 /**
  * A server that runs on an application that uses web launch, listening for commands from the web
@@ -47,7 +47,7 @@ public class WebLaunchAppServer extends DoubleThreadedNIOServer implements Servi
 	 * @throws BindException
 	 */
 	protected WebLaunchAppServer(int portNumber, InetAddress[] inetAddresses,
-			TranslationScope requestTranslationSpace, Scope objectRegistry, int idleConnectionTimeout,
+			SimplTypesScope requestTranslationSpace, Scope objectRegistry, int idleConnectionTimeout,
 			int maxPacketSize) throws IOException, BindException
 	{
 		super(portNumber, inetAddresses, requestTranslationSpace, objectRegistry,
@@ -56,7 +56,7 @@ public class WebLaunchAppServer extends DoubleThreadedNIOServer implements Servi
 
 	@Override
 	protected HTTPPostClientSessionManager generateContextManager(String token, SelectionKey sk,
-			TranslationScope translationScopeIn, Scope registryIn)
+			SimplTypesScope translationScopeIn, Scope registryIn)
 	{
 		return new HTTPPostClientSessionManager(token, maxMessageSize, this.getBackend(), this, sk,
 				translationScopeIn, registryIn);

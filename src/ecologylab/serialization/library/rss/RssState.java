@@ -7,11 +7,12 @@ import ecologylab.net.ParsedURL;
 import ecologylab.serialization.ClassDescriptor;
 import ecologylab.serialization.ElementState;
 import ecologylab.serialization.FieldDescriptor;
-import ecologylab.serialization.Format;
 import ecologylab.serialization.SIMPLTranslationException;
-import ecologylab.serialization.StringFormat;
+import ecologylab.serialization.SimplTypesScope;
 import ecologylab.serialization.annotations.simpl_composite;
 import ecologylab.serialization.annotations.simpl_scalar;
+import ecologylab.serialization.formatenums.Format;
+import ecologylab.serialization.formatenums.StringFormat;
 
 /**
  * {@link ecologylab.serialization.ElementState ElementState} for the root element of the RSS
@@ -204,7 +205,7 @@ public class RssState extends ElementState
 			rss = (ElementState) RssTranslations.get().deserialize(CNN_TOP_FEED, Format.XML);
 
 			System.out.println("");
-			ClassDescriptor.serialize(rss, System.out, StringFormat.XML);
+			SimplTypesScope.serialize(rss, System.out, StringFormat.XML);
 
 			System.out.println("");
 
@@ -228,7 +229,7 @@ public class RssState extends ElementState
 		try
 		{
 
-			ClassDescriptor.serialize(rss, System.out, StringFormat.XML);
+			SimplTypesScope.serialize(rss, System.out, StringFormat.XML);
 		}
 		catch (SIMPLTranslationException e)
 		{
@@ -273,10 +274,10 @@ public class RssState extends ElementState
 				// }
 			}
 
-			ClassDescriptor.serialize(rssState, System.err, StringFormat.XML);
+			SimplTypesScope.serialize(rssState, System.err, StringFormat.XML);
 
 			println("\n");
-			ClassDescriptor.serialize(rssState, System.err, StringFormat.XML);
+			SimplTypesScope.serialize(rssState, System.err, StringFormat.XML);
 
 			println("\n");
 

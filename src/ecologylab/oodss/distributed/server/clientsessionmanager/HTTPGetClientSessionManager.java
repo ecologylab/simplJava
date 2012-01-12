@@ -14,7 +14,7 @@ import ecologylab.oodss.messages.HttpGetRequest;
 import ecologylab.oodss.messages.RequestMessage;
 import ecologylab.oodss.messages.ResponseMessage;
 import ecologylab.serialization.SIMPLTranslationException;
-import ecologylab.serialization.TranslationScope;
+import ecologylab.serialization.SimplTypesScope;
 
 /**
  * A ContextManager for handling HTTP Get requests. Can be used to respond to browser requests.
@@ -36,7 +36,7 @@ public class HTTPGetClientSessionManager<S extends Scope, PARENT extends Scope> 
 	 * @param registry
 	 */
 	public HTTPGetClientSessionManager(String token, int maxPacketSize, NIOServerIOThread server,
-			NIOServerProcessor frontend, SelectionKey socketKey, TranslationScope translationScope,
+			NIOServerProcessor frontend, SelectionKey socketKey, SimplTypesScope translationScope,
 			PARENT registry)
 	{
 		super(token, maxPacketSize, server, frontend, socketKey, translationScope, registry);

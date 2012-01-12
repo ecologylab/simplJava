@@ -1,6 +1,6 @@
 package ecologylab.serialization.library.endnote;
 
-import ecologylab.serialization.TranslationScope;
+import ecologylab.serialization.SimplTypesScope;
 
 /**
  * Contains all of the information necessary to translate XML objects used in
@@ -36,9 +36,9 @@ public class EndnoteNameSpace
             ecologylab.serialization.library.geom.Ellipse2DDoubleState.class,
             ecologylab.serialization.library.geom.RectangularShape.class };
 
-    public static TranslationScope get()
+    public static SimplTypesScope get()
     {
-        return TranslationScope.get(NAME, TRANSLATIONS);
+        return SimplTypesScope.get(NAME, TRANSLATIONS);
     }
 
     /**

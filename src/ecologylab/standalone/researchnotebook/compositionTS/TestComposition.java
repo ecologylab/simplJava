@@ -8,12 +8,11 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 
-import ecologylab.serialization.ClassDescriptor;
 import ecologylab.serialization.ElementState;
-import ecologylab.serialization.Format;
 import ecologylab.serialization.SIMPLTranslationException;
-import ecologylab.serialization.StringFormat;
-import ecologylab.serialization.TranslationScope;
+import ecologylab.serialization.SimplTypesScope;
+import ecologylab.serialization.formatenums.Format;
+import ecologylab.serialization.formatenums.StringFormat;
 import ecologylab.standalone.researchnotebook.testxml.Image;
 import ecologylab.standalone.researchnotebook.testxml.SiteSet;
 
@@ -37,7 +36,7 @@ public class TestComposition {
 	}
 	
 	public static class Composition extends ElementState{ 
-		static final TranslationScope TS = TranslationScope.get("CompositionTS", 
+		static final SimplTypesScope TS = SimplTypesScope.get("CompositionTS", 
 				CompositionState.class, Preferences.class, SeedSet.class, SiteSet.class, 
 				TraversableSet.class, UntraversableSet.class, RejectDomainSet.class,
 				ContainerSet.class, Set.class, Container.class, Document.class, 
@@ -53,7 +52,7 @@ public class TestComposition {
 			System.out.println(sb.toString());
 			
 			CompositionState r = (CompositionState)TS.deserialize(sb.toString(), StringFormat.XML);
-			ClassDescriptor.serialize(r, System.out, StringFormat.XML);
+			SimplTypesScope.serialize(r, System.out, StringFormat.XML);
 			
 			System.out.println();
 			System.out.println(r.save_agent_state);
@@ -74,7 +73,7 @@ public class TestComposition {
 			SimpleDateFormat thisDateFormat = new SimpleDateFormat("MM-dd-yy_'at'_HH_mm_ss");
 			String out = thisDateFormat.format(Calendar.getInstance().getTime());
 			r.setDate(out); 
-			ClassDescriptor.serialize(r, System.out, StringFormat.XML);
+			SimplTypesScope.serialize(r, System.out, StringFormat.XML);
 			
 		}	
 	}

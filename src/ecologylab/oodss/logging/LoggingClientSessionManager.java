@@ -8,7 +8,7 @@ import java.nio.channels.SelectionKey;
 import ecologylab.collections.Scope;
 import ecologylab.oodss.distributed.impl.NIOServerIOThread;
 import ecologylab.oodss.distributed.server.clientsessionmanager.ClientSessionManager;
-import ecologylab.serialization.TranslationScope;
+import ecologylab.serialization.SimplTypesScope;
 
 /**
  * Provides a special implementation of performService(), that open()'s an OutputStream as necessary
@@ -33,7 +33,7 @@ public class LoggingClientSessionManager extends ClientSessionManager<LoggingCon
 	 */
 	public LoggingClientSessionManager(String sessionId, int maxPacketSize,
 			NIOLoggingServer loggingServer, NIOServerIOThread server, SelectionKey sk,
-			TranslationScope translationScope, Scope<?> appObjScope)
+			SimplTypesScope translationScope, Scope<?> appObjScope)
 	{
 		super(sessionId, maxPacketSize, server, loggingServer, sk, translationScope, appObjScope);
 	}

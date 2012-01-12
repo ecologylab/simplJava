@@ -10,14 +10,14 @@ import java.util.Set;
 
 import ecologylab.net.ParsedURL;
 import ecologylab.serialization.ElementState;
-import ecologylab.serialization.Format;
 import ecologylab.serialization.SIMPLTranslationException;
-import ecologylab.serialization.TranslationScope;
+import ecologylab.serialization.SimplTypesScope;
 import ecologylab.serialization.annotations.simpl_collection;
 import ecologylab.serialization.annotations.simpl_inherit;
 import ecologylab.serialization.annotations.simpl_nowrap;
 import ecologylab.serialization.annotations.simpl_scalar;
 import ecologylab.serialization.annotations.simpl_scope;
+import ecologylab.serialization.formatenums.Format;
 /**
  * Groupings of MetaPrefs, by category. Categories
  * are also ordered in a separate ArrayList.
@@ -157,7 +157,7 @@ public class MetaPrefSet extends ElementState
      * @return
      * @throws SIMPLTranslationException
      */
-    public static MetaPrefSet load(File file, TranslationScope translationScope) 
+    public static MetaPrefSet load(File file, SimplTypesScope translationScope) 
     throws SIMPLTranslationException
     {
 		 return load(new ParsedURL(file), translationScope);
@@ -172,7 +172,7 @@ public class MetaPrefSet extends ElementState
      * @return
      * @throws SIMPLTranslationException
      */
-    public static MetaPrefSet load(ParsedURL purl, TranslationScope translationScope) 
+    public static MetaPrefSet load(ParsedURL purl, SimplTypesScope translationScope) 
     throws SIMPLTranslationException
     {
 		 return (MetaPrefSet) translationScope.deserialize(purl, Format.XML);

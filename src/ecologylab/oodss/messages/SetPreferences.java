@@ -4,10 +4,10 @@ import ecologylab.appframework.types.prefs.PrefSet;
 import ecologylab.collections.Scope;
 import ecologylab.generic.ConsoleUtils;
 import ecologylab.serialization.SIMPLTranslationException;
-import ecologylab.serialization.StringFormat;
-import ecologylab.serialization.TranslationScope;
+import ecologylab.serialization.SimplTypesScope;
 import ecologylab.serialization.annotations.simpl_composite;
 import ecologylab.serialization.annotations.simpl_inherit;
+import ecologylab.serialization.formatenums.StringFormat;
 
 /**
  * The message sent by ServicesClientApplet to Java application running ServicesServer at 
@@ -34,7 +34,7 @@ extends RequestMessage
 		super();
 		this.preferencesSet = preferencesSet;
 	}
-	public SetPreferences(String preferencesSetString, TranslationScope translationScope)
+	public SetPreferences(String preferencesSetString, SimplTypesScope translationScope)
 	throws SIMPLTranslationException
 	{
 		this((PrefSet) translationScope.deserialize(preferencesSetString, StringFormat.XML));

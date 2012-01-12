@@ -12,15 +12,15 @@ import java.util.Set;
 import ecologylab.appframework.ApplicationPropertyNames;
 import ecologylab.net.ParsedURL;
 import ecologylab.serialization.ElementState;
-import ecologylab.serialization.Format;
 import ecologylab.serialization.SIMPLTranslationException;
-import ecologylab.serialization.StringFormat;
 import ecologylab.serialization.TranslationContext;
-import ecologylab.serialization.TranslationScope;
+import ecologylab.serialization.SimplTypesScope;
 import ecologylab.serialization.annotations.simpl_inherit;
 import ecologylab.serialization.annotations.simpl_map;
 import ecologylab.serialization.annotations.simpl_nowrap;
 import ecologylab.serialization.annotations.simpl_scope;
+import ecologylab.serialization.formatenums.Format;
+import ecologylab.serialization.formatenums.StringFormat;
 
 /**
  * A serial set of Pref objects. Used for reading and writing (load and save). The static
@@ -112,7 +112,7 @@ public class PrefSet extends ElementState implements ApplicationPropertyNames, C
 	 * @return
 	 * @throws SIMPLTranslationException
 	 */
-	public static PrefSet load(ParsedURL purl, TranslationScope translationScope)
+	public static PrefSet load(ParsedURL purl, SimplTypesScope translationScope)
 			throws SIMPLTranslationException
 	{
 		File file = purl.file();
@@ -132,7 +132,7 @@ public class PrefSet extends ElementState implements ApplicationPropertyNames, C
 	 * @return
 	 * @throws SIMPLTranslationException
 	 */
-	public static PrefSet load(String filename, TranslationScope translationScope)
+	public static PrefSet load(String filename, SimplTypesScope translationScope)
 			throws SIMPLTranslationException
 	{
 		PrefSet pS = (PrefSet) translationScope.deserialize(new File(filename), Format.XML);
@@ -149,7 +149,7 @@ public class PrefSet extends ElementState implements ApplicationPropertyNames, C
 	 * @return
 	 * @throws SIMPLTranslationException
 	 */
-	public static PrefSet loadFromCharSequence(String prefXML, TranslationScope translationScope)
+	public static PrefSet loadFromCharSequence(String prefXML, SimplTypesScope translationScope)
 			throws SIMPLTranslationException
 	{
 		PrefSet pS = (PrefSet) translationScope.deserialize(prefXML, StringFormat.XML);

@@ -22,7 +22,7 @@ import ecologylab.oodss.logging.Logging;
 import ecologylab.oodss.logging.MixedInitiativeOp;
 import ecologylab.oodss.logging.translationScope.MixedInitiativeOpClassesProvider;
 import ecologylab.serialization.SIMPLTranslationException;
-import ecologylab.serialization.TranslationScope;
+import ecologylab.serialization.SimplTypesScope;
 
 /**
  * The main application for playing back log files.
@@ -64,7 +64,7 @@ public abstract class LogPlayer<OP extends MixedInitiativeOp, LOG extends Loggin
 
 	private boolean															guiShown;
 
-	protected TranslationScope									translationScope;
+	protected SimplTypesScope									translationScope;
 
 	public final static int											DEFAULT_PLAYBACK_INTERVAL		= 100;
 
@@ -88,23 +88,23 @@ public abstract class LogPlayer<OP extends MixedInitiativeOp, LOG extends Loggin
 	 *          operations read in by the player.
 	 * @throws SIMPLTranslationException
 	 */
-	public LogPlayer(String appName, String[] args, TranslationScope translationScope,
+	public LogPlayer(String appName, String[] args, SimplTypesScope translationScope,
 			Class[] opSubclasses) throws SIMPLTranslationException
 	{
-		super(appName, translationScope, (TranslationScope) null, args, 0);
+		super(appName, translationScope, (SimplTypesScope) null, args, 0);
 
 		// create a translation scope for the opSubclasses
 		if (opSubclasses == null)
 			opSubclasses = MixedInitiativeOpClassesProvider.STATIC_INSTANCE.provideClasses();
 
-		TranslationScope.get(Logging.MIXED_INITIATIVE_OP_TRANSLATION_SCOPE, opSubclasses);
+		SimplTypesScope.get(Logging.MIXED_INITIATIVE_OP_TRANSLATION_SCOPE, opSubclasses);
 
 		guiShown = false;
 
 		if (translationScope != null)
 			this.translationScope = translationScope;
 		else
-			this.translationScope = TranslationScope.get(Logging.MIXED_INITIATIVE_OP_TRANSLATION_SCOPE);
+			this.translationScope = SimplTypesScope.get(Logging.MIXED_INITIATIVE_OP_TRANSLATION_SCOPE);
 
 		LOG incomingLog = null;
 

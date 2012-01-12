@@ -5,7 +5,7 @@ import ecologylab.oodss.logging.LogOps;
 import ecologylab.oodss.logging.Prologue;
 import ecologylab.oodss.logging.SendEpilogue;
 import ecologylab.oodss.logging.SendPrologue;
-import ecologylab.serialization.TranslationScope;
+import ecologylab.serialization.SimplTypesScope;
 import ecologylab.serialization.types.element.ElementTypeTranslationsProvider;
 
 /**
@@ -39,8 +39,8 @@ public class DefaultServicesTranslations
 	 * 
 	 * @return TranslationSpace for basic ecologylab.oodss
 	 */
-	public static TranslationScope get()
+	public static SimplTypesScope get()
 	{
-		return TranslationScope.get(PACKAGE_NAME, ElementTypeTranslationsProvider.get(), TRANSLATIONS);
+		return SimplTypesScope.get(PACKAGE_NAME, ElementTypeTranslationsProvider.get(), TRANSLATIONS);
 	}
 }

@@ -9,12 +9,12 @@ import ecologylab.io.Files;
 import ecologylab.net.NetTools;
 import ecologylab.oodss.messages.ErrorResponse;
 import ecologylab.oodss.messages.ResponseMessage;
-import ecologylab.serialization.ClassDescriptor;
 import ecologylab.serialization.SIMPLTranslationException;
-import ecologylab.serialization.StringFormat;
+import ecologylab.serialization.SimplTypesScope;
 import ecologylab.serialization.XMLTools;
 import ecologylab.serialization.annotations.simpl_inherit;
 import ecologylab.serialization.annotations.simpl_scalar;
+import ecologylab.serialization.formatenums.StringFormat;
 
 /**
  * Allows the application to send application-specific content to the log, at the beginning of a
@@ -54,7 +54,7 @@ public final class SendPrologue extends LogueMessage
 		this.studyName = prologue.getStudyName();
 		try
 		{
-			bufferToLog = ClassDescriptor.serialize(prologue, StringFormat.XML);//prologue.serialize((StringBuilder) null);
+			bufferToLog = SimplTypesScope.serialize(prologue, StringFormat.XML);//prologue.serialize((StringBuilder) null);
 			bufferToLog.insert(0, beginLog());
 			bufferToLog.append(Logging.OP_SEQUENCE_START);
 		}

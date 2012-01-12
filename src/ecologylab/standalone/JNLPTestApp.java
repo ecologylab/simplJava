@@ -6,9 +6,9 @@ package ecologylab.standalone;
 import java.io.File;
 
 import ecologylab.generic.Debug;
-import ecologylab.serialization.ClassDescriptor;
-import ecologylab.serialization.Format;
 import ecologylab.serialization.SIMPLTranslationException;
+import ecologylab.serialization.SimplTypesScope;
+import ecologylab.serialization.formatenums.Format;
 import ecologylab.serialization.library.jnlp.JnlpState;
 import ecologylab.serialization.library.jnlp.JnlpTranslations;
 
@@ -36,7 +36,7 @@ public class JNLPTestApp
 
 			Debug.println("translate to...");
 
-			ClassDescriptor.serialize(jnlp, new File("c:\\jnlp2.txt"), Format.XML);
+			SimplTypesScope.serialize(jnlp, new File("c:\\jnlp2.txt"), Format.XML);
 
 			Debug.println("...done.");
 		}

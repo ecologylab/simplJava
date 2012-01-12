@@ -20,11 +20,10 @@ import ecologylab.io.DownloadProcessor;
 import ecologylab.io.Files;
 import ecologylab.io.ZipDownload;
 import ecologylab.net.ParsedURL;
-import ecologylab.serialization.ClassDescriptor;
 import ecologylab.serialization.SIMPLTranslationException;
-import ecologylab.serialization.StringFormat;
-import ecologylab.serialization.TranslationScope;
+import ecologylab.serialization.SimplTypesScope;
 import ecologylab.serialization.XMLTranslationExceptionTypes;
+import ecologylab.serialization.formatenums.StringFormat;
 
 /**
  * An instance of Environment, which is an application, rather than an applet, or a servlet. The
@@ -49,7 +48,7 @@ public class ApplicationEnvironment extends Debug implements Environment,
 
 	Scope													sessionScope;
 
-	TranslationScope							translationScope;
+	SimplTypesScope							translationScope;
 
 	/**
 	 * Used for forming codeBase relative ParsedURLs. A simulation of the property available in
@@ -119,11 +118,11 @@ public class ApplicationEnvironment extends Debug implements Environment,
 	 * @throws SIMPLTranslationException
 	 */
 	public ApplicationEnvironment(String applicationName,
-																TranslationScope translationScope,
+																SimplTypesScope translationScope,
 																String args[],
 																float prefsAssetVersion) throws SIMPLTranslationException
 	{
-		this(applicationName, translationScope, (TranslationScope) null, args, prefsAssetVersion);
+		this(applicationName, translationScope, (SimplTypesScope) null, args, prefsAssetVersion);
 	}
 
 	/**
@@ -148,7 +147,7 @@ public class ApplicationEnvironment extends Debug implements Environment,
 	 * @throws SIMPLTranslationException
 	 */
 	public ApplicationEnvironment(String applicationName,
-																TranslationScope translationScope,
+																SimplTypesScope translationScope,
 																Class<? extends Pref<?>>[] customPrefs,
 																String args[],
 																float prefsAssetVersion) throws SIMPLTranslationException
@@ -175,7 +174,7 @@ public class ApplicationEnvironment extends Debug implements Environment,
 	 */
 	public ApplicationEnvironment(String applicationName,
 																Scope<?> sessionScope,
-																TranslationScope translationScope,
+																SimplTypesScope translationScope,
 																Class<? extends Pref<?>>[] customPrefs,
 																String args[],
 																float prefsAssetVersion) throws SIMPLTranslationException
@@ -211,8 +210,8 @@ public class ApplicationEnvironment extends Debug implements Environment,
 	 * @throws SIMPLTranslationException
 	 */
 	public ApplicationEnvironment(String applicationName,
-																TranslationScope translationScope,
-																TranslationScope customPrefsTranslationScope,
+																SimplTypesScope translationScope,
+																SimplTypesScope customPrefsTranslationScope,
 																String args[],
 																float prefsAssetVersion) throws SIMPLTranslationException
 	{
@@ -232,14 +231,14 @@ public class ApplicationEnvironment extends Debug implements Environment,
 	 * @param customPrefs
 	 * @return
 	 */
-	protected static final TranslationScope prefsClassArrayToTranslationScope(
+	protected static final SimplTypesScope prefsClassArrayToTranslationScope(
 			Class<? extends Pref<?>>[] customPrefs)
 	{
 		// configure the PrefSet translation scope, incorporating custom translations, if any
 		if (customPrefs == null)
 			customPrefs = PrefSetBaseClassProvider.STATIC_INSTANCE.provideClasses();
 
-		return TranslationScope.get(PrefSet.PREFS_TRANSLATION_SCOPE, customPrefs);
+		return SimplTypesScope.get(PrefSet.PREFS_TRANSLATION_SCOPE, customPrefs);
 	}
 
 	/**
@@ -264,7 +263,7 @@ public class ApplicationEnvironment extends Debug implements Environment,
 	public ApplicationEnvironment(String applicationName, String args[])
 			throws SIMPLTranslationException
 	{
-		this(applicationName, (TranslationScope) null, (TranslationScope) null, args, 0);
+		this(applicationName, (SimplTypesScope) null, (SimplTypesScope) null, args, 0);
 	}
 
 	/**
@@ -305,7 +304,7 @@ public class ApplicationEnvironment extends Debug implements Environment,
 	 */
 	public ApplicationEnvironment(Class<?> baseClass,
 																String applicationName,
-																TranslationScope translationScope,
+																SimplTypesScope translationScope,
 																String args[],
 																float prefsAssetVersion) throws SIMPLTranslationException
 	{
@@ -360,7 +359,7 @@ public class ApplicationEnvironment extends Debug implements Environment,
 	public ApplicationEnvironment(Class<?> baseClass,
 																String applicationName,
 																Scope<?> sessionScope,
-																TranslationScope translationScope,
+																SimplTypesScope translationScope,
 																String args[],
 																float prefsAssetVersion) throws SIMPLTranslationException
 	{
@@ -420,8 +419,8 @@ public class ApplicationEnvironment extends Debug implements Environment,
 	public ApplicationEnvironment(Class<?> baseClass,
 																String applicationName,
 																Scope<?> sessionScope,
-																TranslationScope translationScope,
-																TranslationScope customPrefsTranslationScope,
+																SimplTypesScope translationScope,
+																SimplTypesScope customPrefsTranslationScope,
 																String args[],
 																float prefsAssetVersion) throws SIMPLTranslationException
 	{
@@ -487,20 +486,20 @@ public class ApplicationEnvironment extends Debug implements Environment,
 	public ApplicationEnvironment(Class<?> baseClass,
 																String applicationName,
 																Scope<?> sessionScope,
-																TranslationScope translationScope,
-																TranslationScope customPrefsTranslationScope,
+																SimplTypesScope translationScope,
+																SimplTypesScope customPrefsTranslationScope,
 																Stack<String> argStack,
 																float prefsAssetVersion) throws SIMPLTranslationException
 	{
 		this.argStack = argStack;
 
 		// setup the translations used for prefs
-		TranslationScope prefTranslations;
+		SimplTypesScope prefTranslations;
 		if (customPrefsTranslationScope != null)
 		{
-			TranslationScope[] arrayToMakeJavaShutUp =
+			SimplTypesScope[] arrayToMakeJavaShutUp =
 			{ customPrefsTranslationScope };
-			prefTranslations = TranslationScope.get(PrefSet.PREFS_TRANSLATION_SCOPE,
+			prefTranslations = SimplTypesScope.get(PrefSet.PREFS_TRANSLATION_SCOPE,
 																							arrayToMakeJavaShutUp,
 																							PrefSetBaseClassProvider.STATIC_INSTANCE.provideClasses());
 		}
@@ -508,7 +507,7 @@ public class ApplicationEnvironment extends Debug implements Environment,
 		{
 			Class[] customPrefs = PrefSetBaseClassProvider.STATIC_INSTANCE.provideClasses();
 
-			prefTranslations = TranslationScope.get(PrefSet.PREFS_TRANSLATION_SCOPE, customPrefs);
+			prefTranslations = SimplTypesScope.get(PrefSet.PREFS_TRANSLATION_SCOPE, customPrefs);
 		}
 
 		this.sessionScope = sessionScope;
@@ -552,7 +551,7 @@ public class ApplicationEnvironment extends Debug implements Environment,
 		return retStack;
 	}
 
-	protected void processArgsAndPrefs(Class<?> baseClass, TranslationScope translationScope,
+	protected void processArgsAndPrefs(Class<?> baseClass, SimplTypesScope translationScope,
 			float prefsAssetVersion) throws SIMPLTranslationException
 	{
 		processPrefs(baseClass, translationScope, argStack, prefsAssetVersion);
@@ -570,7 +569,7 @@ public class ApplicationEnvironment extends Debug implements Environment,
 	 * @param uid
 	 * @return
 	 */
-	protected PrefSet requestPrefFromServlet(String prefServlet, TranslationScope translationScope)
+	protected PrefSet requestPrefFromServlet(String prefServlet, SimplTypesScope translationScope)
 	{
 		System.out.println("retrieving preferences set from servlet: " + prefServlet);
 
@@ -593,7 +592,7 @@ public class ApplicationEnvironment extends Debug implements Environment,
 				prfs = PrefSet.loadFromCharSequence(prefSetXML, translationScope);
 				System.out.println("Prefs loaded From Servlet:: ");
 				if (prfs != null)
-					ClassDescriptor.serialize(prfs, System.out, StringFormat.XML);
+					SimplTypesScope.serialize(prfs, System.out, StringFormat.XML);
 					
 				System.out.println(" --- End Prefs");
 			}
@@ -622,7 +621,7 @@ public class ApplicationEnvironment extends Debug implements Environment,
 	 *          TODO
 	 * @throws SIMPLTranslationException
 	 */
-	private void processPrefs(Class<?> baseClass, TranslationScope translationScope,
+	private void processPrefs(Class<?> baseClass, SimplTypesScope translationScope,
 			Stack<String> argStack, float prefsAssetVersion) throws SIMPLTranslationException
 	{
 		LaunchType launchType = LaunchType.ECLIPSE; // current default
@@ -810,7 +809,7 @@ public class ApplicationEnvironment extends Debug implements Environment,
 		try
 		{
 			if (prefSet != null)
-				ClassDescriptor.serialize(prefSet, System.out, StringFormat.XML);
+				SimplTypesScope.serialize(prefSet, System.out, StringFormat.XML);
 				
 		}
 		catch (SIMPLTranslationException e)
@@ -973,7 +972,7 @@ public class ApplicationEnvironment extends Debug implements Environment,
 	 * 
 	 * @return TranslationSpace in use for parsing Preferences
 	 */
-	public TranslationScope translationScope()
+	public SimplTypesScope translationScope()
 	{
 		return translationScope;
 	}

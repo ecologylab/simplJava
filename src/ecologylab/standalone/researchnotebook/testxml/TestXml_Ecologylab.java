@@ -12,14 +12,13 @@ import java.net.URL;
 import java.util.ArrayList;
 
 import ecologylab.net.ParsedURL;
-import ecologylab.serialization.ClassDescriptor;
 import ecologylab.serialization.ElementState;
 import ecologylab.serialization.SIMPLTranslationException;
-import ecologylab.serialization.StringFormat;
-import ecologylab.serialization.TranslationScope;
+import ecologylab.serialization.SimplTypesScope;
 import ecologylab.serialization.annotations.simpl_collection;
 import ecologylab.serialization.annotations.simpl_nowrap;
 import ecologylab.serialization.annotations.simpl_scalar;
+import ecologylab.serialization.formatenums.StringFormat;
 
 public class TestXml_Ecologylab
 {
@@ -76,7 +75,7 @@ public class TestXml_Ecologylab
 		@simpl_scalar
 		String												test;
 
-		static final TranslationScope	TS					= TranslationScope.get("testing123",
+		static final SimplTypesScope	TS					= SimplTypesScope.get("testing123",
 																									TestXml2State.class, TestItems.class,
 																									TestSubItem.class, TestSubItem2.class);
 
@@ -115,7 +114,7 @@ public class TestXml_Ecologylab
 			// for(String st: s1)
 			// System.out.println(st);
 
-			System.out.println(ClassDescriptor.serialize(es, StringFormat.XML));
+			System.out.println(SimplTypesScope.serialize(es, StringFormat.XML));
 
 		}
 
@@ -178,13 +177,13 @@ public class TestXml_Ecologylab
 																					+ "<guid>http://xkcd.com/773/</guid>" + "</test_item>"
 																					+ "</test_channel>" + "</test_rss>";
 
-		static TranslationScope	TS				= TranslationScope.get("TestRss", TestRssState.class,
+		static SimplTypesScope	TS				= SimplTypesScope.get("TestRss", TestRssState.class,
 																					TestChannel.class, TestItem.class);
 
 		public static void testRss() throws SIMPLTranslationException, MalformedURLException
 		{
 			TestRssState r = (TestRssState) TS.deserialize(RSS, StringFormat.XML);
-			ClassDescriptor.serialize(r, System.out, StringFormat.XML);
+			SimplTypesScope.serialize(r, System.out, StringFormat.XML);
 
 			TestChannel tc = new TestChannel();
 			tc.setTitle("test channel");
@@ -201,7 +200,7 @@ public class TestXml_Ecologylab
 			r.getChannels().add(tc);
 
 			System.out.println("\nafter adding data ---");
-			ClassDescriptor.serialize(r, System.out, StringFormat.XML);
+			SimplTypesScope.serialize(r, System.out, StringFormat.XML);
 		}
 
 		public ArrayList<TestChannel> getChannels()
@@ -221,7 +220,7 @@ public class TestXml_Ecologylab
 	public static class BingSearch extends ElementState
 	{
 		// cf. BingSearch.java, search.xml (mmd)
-		static final TranslationScope	TS	= TranslationScope.get("BingSearchTS",
+		static final SimplTypesScope	TS	= SimplTypesScope.get("BingSearchTS",
 																					SearchResponseState.class, Query.class, Image.class,
 																					Results.class, ImageResult.class, Thumbnail.class);
 
@@ -232,7 +231,7 @@ public class TestXml_Ecologylab
 
 			SearchResponseState r = (SearchResponseState) TS.deserialize(sb.toString(), StringFormat.XML);
 
-			ClassDescriptor.serialize(r, System.out, StringFormat.XML);
+			SimplTypesScope.serialize(r, System.out, StringFormat.XML);
 		}
 	}
 

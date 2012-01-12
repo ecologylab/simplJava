@@ -1,7 +1,7 @@
 package ecologylab.oodss.distributed.common;
 
 import ecologylab.oodss.messages.DefaultServicesTranslations;
-import ecologylab.serialization.TranslationScope;
+import ecologylab.serialization.SimplTypesScope;
 
 /**
  * Constants that define general ecologylab objects that get stored in the
@@ -16,7 +16,7 @@ public interface SessionObjects
 
     public static final String           MAIN_SHUTDOWNABLE             = "main_shutdownable";
 
-    public static final TranslationScope BROWSER_SERVICES_TRANSLATIONS = DefaultServicesTranslations.get();
+    public static final SimplTypesScope BROWSER_SERVICES_TRANSLATIONS = DefaultServicesTranslations.get();
     	/*TranslationScope
                                                                                .get(
                                                                                        "Browse",

@@ -28,7 +28,7 @@ import ecologylab.generic.ObjectOrHashMap;
 import ecologylab.oodss.distributed.common.ServerConstants;
 import ecologylab.oodss.distributed.server.NIOServerDataReader;
 import ecologylab.oodss.exceptions.BadClientException;
-import ecologylab.serialization.TranslationScope;
+import ecologylab.serialization.SimplTypesScope;
 
 /**
  * The backend portion of the NIO Server, which handles low-level communication with clients.
@@ -42,7 +42,7 @@ import ecologylab.serialization.TranslationScope;
 public class NIOServerIOThread extends NIONetworking implements ServerConstants
 {
 	static NIOServerIOThread getInstance(int portNumber, InetAddress[] hostAddresses,
-			NIOServerDataReader sAP, TranslationScope requestTranslationSpace, Scope<?> objectRegistry,
+			NIOServerDataReader sAP, SimplTypesScope requestTranslationSpace, Scope<?> objectRegistry,
 			int idleSocketTimeout, int maxMessageLength) throws IOException, BindException
 	{
 		return new NIOServerIOThread(portNumber, hostAddresses, sAP, requestTranslationSpace,
@@ -70,7 +70,7 @@ public class NIOServerIOThread extends NIONetworking implements ServerConstants
 	private final ArrayList<InetAddress>												boundAddresses						= new ArrayList<InetAddress>();
 
 	protected NIOServerIOThread(int portNumber, InetAddress[] hostAddresses, NIOServerDataReader sAP,
-			TranslationScope requestTranslationSpace, Scope<?> objectRegistry, int idleSocketTimeout,
+			SimplTypesScope requestTranslationSpace, Scope<?> objectRegistry, int idleSocketTimeout,
 			int maxMessageLength) throws IOException, BindException
 	{
 		super("NIOServer", portNumber, requestTranslationSpace, objectRegistry, maxMessageLength);

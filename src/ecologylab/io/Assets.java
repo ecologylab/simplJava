@@ -20,9 +20,9 @@ import ecologylab.appframework.types.AssetsTranslations;
 import ecologylab.generic.Debug;
 import ecologylab.generic.StringBuilderPool;
 import ecologylab.net.ParsedURL;
-import ecologylab.serialization.ClassDescriptor;
-import ecologylab.serialization.Format;
 import ecologylab.serialization.SIMPLTranslationException;
+import ecologylab.serialization.SimplTypesScope;
+import ecologylab.serialization.formatenums.Format;
 
 /**
  * Used to manage cachable assets.
@@ -443,7 +443,7 @@ public class Assets extends Debug implements ApplicationProperties
 				needToWriteAssetsXml = false;
 				// assetsState.translateToXML(assetsXmlFile);
 				
-				ClassDescriptor.serialize(assetsState, assetsXmlFile, Format.XML);
+				SimplTypesScope.serialize(assetsState, assetsXmlFile, Format.XML);
 				
 				println("Saved Assets XML" + sourceSpot + ": " + assetsXmlFile);
 			}

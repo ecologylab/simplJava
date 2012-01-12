@@ -52,11 +52,10 @@ import ecologylab.oodss.messages.ResponseMessage;
 import ecologylab.oodss.messages.SendableRequest;
 import ecologylab.oodss.messages.ServiceMessage;
 import ecologylab.oodss.messages.UpdateMessage;
-import ecologylab.serialization.ClassDescriptor;
-import ecologylab.serialization.Format;
+import ecologylab.serialization.formatenums.Format;
 import ecologylab.serialization.SIMPLTranslationException;
-import ecologylab.serialization.StringFormat;
-import ecologylab.serialization.TranslationScope;
+import ecologylab.serialization.SimplTypesScope;
+import ecologylab.serialization.formatenums.StringFormat;
 
 /**
  * Services Client using NIO; a major difference with the NIO version is state tracking. Since the
@@ -196,12 +195,12 @@ public class NIOClient<S extends Scope> extends Debug implements ClientConstants
 
 	protected S																													objectRegistry;
 
-	private TranslationScope																					translationScope;
+	private SimplTypesScope																					translationScope;
 
 	protected CharsetDecoder																					decoder												= CHARSET
 																																																			.newDecoder();
 
-	public NIOClient(String serverAddress, int portNumber, TranslationScope messageSpace,
+	public NIOClient(String serverAddress, int portNumber, SimplTypesScope messageSpace,
 			S objectRegistry) throws IOException
 	{
 		super();
@@ -218,7 +217,7 @@ public class NIOClient<S extends Scope> extends Debug implements ClientConstants
 	
 	
 	@Deprecated
-	public NIOClient(String serverAddress, int portNumber, TranslationScope messageSpace,
+	public NIOClient(String serverAddress, int portNumber, SimplTypesScope messageSpace,
 			S objectRegistry, int maxMessageLengthChars) throws IOException
 	{
 		this(serverAddress, portNumber, messageSpace, objectRegistry);
@@ -309,7 +308,7 @@ public class NIOClient<S extends Scope> extends Debug implements ClientConstants
 		pReq = this.pRequestPool.acquire();
 
 		// fill requestBuffer
-		ClassDescriptor.serialize(request, pReq.getRequest(), StringFormat.XML);
+		SimplTypesScope.serialize(request, pReq.getRequest(), StringFormat.XML);
 
 		pReq.setUid(uid);
 		pReq.setDisposable(request.isDisposable());

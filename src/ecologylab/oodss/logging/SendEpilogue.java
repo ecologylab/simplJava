@@ -6,10 +6,10 @@ import java.io.Writer;
 import ecologylab.oodss.messages.ErrorResponse;
 import ecologylab.oodss.messages.OkResponse;
 import ecologylab.oodss.messages.ResponseMessage;
-import ecologylab.serialization.ClassDescriptor;
 import ecologylab.serialization.SIMPLTranslationException;
-import ecologylab.serialization.StringFormat;
+import ecologylab.serialization.SimplTypesScope;
 import ecologylab.serialization.annotations.simpl_inherit;
+import ecologylab.serialization.formatenums.StringFormat;
 
 /**
  * Allows the application to send application-specific content to the log, at
@@ -28,7 +28,7 @@ import ecologylab.serialization.annotations.simpl_inherit;
 		super(logging);
 		try
 		{
-			bufferToLog = ClassDescriptor.serialize(epilogue, StringFormat.XML);//epilogue.serialize((StringBuilder) null);
+			bufferToLog = SimplTypesScope.serialize(epilogue, StringFormat.XML);//epilogue.serialize((StringBuilder) null);
 			bufferToLog.insert(0, Logging.OP_SEQUENCE_END);
 			bufferToLog.append(endLog());
 		}

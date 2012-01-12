@@ -7,7 +7,7 @@ import ecologylab.appframework.SingletonApplicationEnvironment;
 import ecologylab.appframework.types.prefs.PrefsTranslationsProvider;
 import ecologylab.appframework.types.prefs.gui.PrefsEditor;
 import ecologylab.serialization.SIMPLTranslationException;
-import ecologylab.serialization.TranslationScope;
+import ecologylab.serialization.SimplTypesScope;
 
 /**
  * Standalone app to open a prefs editing dialog.
@@ -20,7 +20,7 @@ public class PrefsEditorAp extends SingletonApplicationEnvironment
 	
 	public PrefsEditorAp(String[] args) throws SIMPLTranslationException 
 	{
-		super("ecologyLabFundamental", PrefsTranslationsProvider.get(), (TranslationScope) null, args, 0);
+		super("ecologyLabFundamental", PrefsTranslationsProvider.get(), (SimplTypesScope) null, args, 0);
 
 		PrefsEditor mgr = (PrefsEditor) this.createPrefsEditor(true, true);
 	}

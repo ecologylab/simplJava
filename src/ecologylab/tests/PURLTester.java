@@ -7,13 +7,12 @@ import java.net.URI;
 import java.net.URL;
 
 import ecologylab.net.ParsedURL;
-import ecologylab.serialization.ClassDescriptor;
 import ecologylab.serialization.ElementState;
-import ecologylab.serialization.Format;
-import ecologylab.serialization.TranslationScope;
+import ecologylab.serialization.SimplTypesScope;
 import ecologylab.serialization.annotations.Hint;
 import ecologylab.serialization.annotations.simpl_hints;
 import ecologylab.serialization.annotations.simpl_scalar;
+import ecologylab.serialization.formatenums.Format;
 
 public class PURLTester extends ElementState
 {
@@ -160,10 +159,10 @@ public class PURLTester extends ElementState
 		PURLTester tester = new PURLTester(true);
 		tester.main();
 
-		TranslationScope ts = TranslationScope.get("testerscope", PURLTester.class, ParsedURL.class);
+		SimplTypesScope ts = SimplTypesScope.get("testerscope", PURLTester.class, ParsedURL.class);
 		try
 		{
-			ClassDescriptor.serialize(tester, new File("tester.xml"), Format.XML);
+			SimplTypesScope.serialize(tester, new File("tester.xml"), Format.XML);
 
 			PURLTester other = (PURLTester) ts.deserialize(new File("tester.xml"), Format.XML);
 			/*

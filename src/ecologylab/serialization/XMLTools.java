@@ -9,9 +9,12 @@ import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.StringBufferInputStream;
 import java.lang.reflect.Field;
+import java.lang.reflect.GenericDeclaration;
 import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
+import java.lang.reflect.TypeVariable;
+import java.lang.reflect.WildcardType;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -1697,6 +1700,27 @@ public class XMLTools extends Debug implements CharacterConstants, SpecialCharac
 					result.append(inferCSharpType((Class<?>) ta[i]));
 				else
 					result.append(", " + inferCSharpType((Class<?>) ta[i]));
+			}
+			else if (ta[i] instanceof WildcardType)
+			{
+				WildcardType wildcardType = (WildcardType) ta[i];
+				Type[] types = wildcardType.getUpperBounds();
+				for (Type t : types)
+				{
+					Class<?> c = (Class<?>) t;
+					if (i == 0)
+						result.append(inferCSharpType(c));
+					else
+						result.append(", " + inferCSharpType(c));
+				}
+			}
+			else if (ta[i] instanceof TypeVariable)
+			{
+				TypeVariable tv = (TypeVariable) ta[i];
+				if (i == 0)
+					result.append(tv.getName());
+				else
+					result.append(", " + tv.getName());
 			}
 			else
 			{

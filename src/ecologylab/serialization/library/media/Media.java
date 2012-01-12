@@ -1,7 +1,7 @@
 package ecologylab.serialization.library.media;
 
 import ecologylab.serialization.ElementState;
-import ecologylab.serialization.TranslationScope;
+import ecologylab.serialization.SimplTypesScope;
 import ecologylab.serialization.annotations.Hint;
 import ecologylab.serialization.annotations.simpl_composite;
 import ecologylab.serialization.annotations.simpl_hints;
@@ -132,9 +132,9 @@ public class Media extends ElementState
 	 * 
 	 * @return
 	 */
-	public static final TranslationScope getTranslations()
+	public static final SimplTypesScope getTranslations()
 	{
-		return TranslationScope.get(TRANSLATION_SPACE_NAME, TRANSLATIONS);
+		return SimplTypesScope.get(TRANSLATION_SPACE_NAME, TRANSLATIONS);
 	}
 	/**
 	 * @return the thumbnail

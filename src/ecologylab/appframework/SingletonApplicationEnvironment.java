@@ -24,9 +24,9 @@ import ecologylab.io.Files;
 import ecologylab.net.ParsedURL;
 import ecologylab.serialization.ClassDescriptor;
 import ecologylab.serialization.SIMPLTranslationException;
-import ecologylab.serialization.StringFormat;
-import ecologylab.serialization.TranslationScope;
+import ecologylab.serialization.SimplTypesScope;
 import ecologylab.serialization.XMLTranslationExceptionTypes;
+import ecologylab.serialization.formatenums.StringFormat;
 
 /**
  * An instance of Environment, which is an application, rather than an applet, or a servlet. The
@@ -54,12 +54,15 @@ public class SingletonApplicationEnvironment extends ApplicationEnvironment impl
 	MetaPrefSet										metaPrefSet;
 
 	// must initialize this before subsequent lookup by scope name.
-	static final TranslationScope	META_PREFS_TRANSLATION_SCOPE	= MetaPrefsTranslationScope.get();
+	static final SimplTypesScope	META_PREFS_TRANSLATION_SCOPE	= MetaPrefsTranslationScope.get();
 
 	public static enum WindowSize
 	{
 		PASS_PARAMS, QUARTER_SCREEN, ALMOST_HALF, NEAR_FULL, FULL_SCREEN
 	}
+	
+  public static final String	TOP_LEVEL_HEIGHT	= "topheight";
+  public static final String	TOP_LEVEL_WIDTH		= "topwidth";
 
 	/**
 	 * Create an ApplicationEnvironment. Create an empty properties object for application parameters.
@@ -99,11 +102,11 @@ public class SingletonApplicationEnvironment extends ApplicationEnvironment impl
 	 * @throws SIMPLTranslationException
 	 */
 	public SingletonApplicationEnvironment(	String applicationName,
-																					TranslationScope translationScope,
+																					SimplTypesScope translationScope,
 																					String args[],
 																					float prefsAssetVersion) throws SIMPLTranslationException
 	{
-		this(applicationName, translationScope, (TranslationScope) null, args, prefsAssetVersion);
+		this(applicationName, translationScope, (SimplTypesScope) null, args, prefsAssetVersion);
 	}
 
 	/**
@@ -128,7 +131,7 @@ public class SingletonApplicationEnvironment extends ApplicationEnvironment impl
 	 * @throws SIMPLTranslationException
 	 */
 	public SingletonApplicationEnvironment(	String applicationName,
-																					TranslationScope translationScope,
+																					SimplTypesScope translationScope,
 																					Class<? extends Pref<?>>[] customPrefs,
 																					String args[],
 																					float prefsAssetVersion) throws SIMPLTranslationException
@@ -155,7 +158,7 @@ public class SingletonApplicationEnvironment extends ApplicationEnvironment impl
 	 */
 	public SingletonApplicationEnvironment(	String applicationName,
 																					Scope<?> sessionScope,
-																					TranslationScope translationScope,
+																					SimplTypesScope translationScope,
 																					Class<? extends Pref<?>>[] customPrefs,
 																					String args[],
 																					float prefsAssetVersion) throws SIMPLTranslationException
@@ -191,8 +194,8 @@ public class SingletonApplicationEnvironment extends ApplicationEnvironment impl
 	 * @throws SIMPLTranslationException
 	 */
 	public SingletonApplicationEnvironment(	String applicationName,
-																					TranslationScope translationScope,
-																					TranslationScope customPrefsTranslationScope,
+																					SimplTypesScope translationScope,
+																					SimplTypesScope customPrefsTranslationScope,
 																					String args[],
 																					float prefsAssetVersion) throws SIMPLTranslationException
 	{
@@ -227,7 +230,7 @@ public class SingletonApplicationEnvironment extends ApplicationEnvironment impl
 	public SingletonApplicationEnvironment(String applicationName, String args[])
 			throws SIMPLTranslationException
 	{
-		this(applicationName, (TranslationScope) null, (TranslationScope) null, args, 0);
+		this(applicationName, (SimplTypesScope) null, (SimplTypesScope) null, args, 0);
 	}
 
 	/**
@@ -268,7 +271,7 @@ public class SingletonApplicationEnvironment extends ApplicationEnvironment impl
 	 */
 	public SingletonApplicationEnvironment(	Class<?> baseClass,
 																					String applicationName,
-																					TranslationScope translationScope,
+																					SimplTypesScope translationScope,
 																					String args[],
 																					float prefsAssetVersion) throws SIMPLTranslationException
 	{
@@ -323,7 +326,7 @@ public class SingletonApplicationEnvironment extends ApplicationEnvironment impl
 	public SingletonApplicationEnvironment(	Class<?> baseClass,
 																					String applicationName,
 																					Scope sessionScope,
-																					TranslationScope translationScope,
+																					SimplTypesScope translationScope,
 																					String args[],
 																					float prefsAssetVersion) throws SIMPLTranslationException
 	{
@@ -383,8 +386,8 @@ public class SingletonApplicationEnvironment extends ApplicationEnvironment impl
 	public SingletonApplicationEnvironment(	Class<?> baseClass,
 																					String applicationName,
 																					Scope<?> sessionScope,
-																					TranslationScope translationScope,
-																					TranslationScope customPrefsTranslationScope,
+																					SimplTypesScope translationScope,
+																					SimplTypesScope customPrefsTranslationScope,
 																					String args[],
 																					float prefsAssetVersion) throws SIMPLTranslationException
 	{
@@ -418,7 +421,7 @@ public class SingletonApplicationEnvironment extends ApplicationEnvironment impl
 	}
 
 	@Override
-	protected void processArgsAndPrefs(Class<?> baseClass, TranslationScope translationScope,
+	protected void processArgsAndPrefs(Class<?> baseClass, SimplTypesScope translationScope,
 			float prefsAssetVersion) throws SIMPLTranslationException
 	{
 		String arg;
@@ -450,6 +453,25 @@ public class SingletonApplicationEnvironment extends ApplicationEnvironment impl
 		{
 			argStack.push(arg);
 		}
+		if (Pref.lookupInt(SCREEN_SIZE) == 0)
+		{
+			try
+			{
+				arg = pop(argStack);
+				if (arg == null)
+					return;
+				Pref.useAndSetPrefInt(TOP_LEVEL_WIDTH, Integer.parseInt(arg));
+				
+				arg = pop(argStack);
+				if (arg == null)
+					return;
+				Pref.useAndSetPrefInt(TOP_LEVEL_HEIGHT, Integer.parseInt(arg));
+			}
+			catch (IllegalArgumentException e)
+			{
+				argStack.push(arg);
+			}
+		}
 	}
 
 	/**
@@ -463,7 +485,7 @@ public class SingletonApplicationEnvironment extends ApplicationEnvironment impl
 	 * @return
 	 */
 	@Override
-	protected PrefSet requestPrefFromServlet(String prefServlet, TranslationScope translationScope)
+	protected PrefSet requestPrefFromServlet(String prefServlet, SimplTypesScope translationScope)
 	{
 		System.out.println("retrieving preferences set from servlet: " + prefServlet);
 		/*
@@ -493,7 +515,7 @@ public class SingletonApplicationEnvironment extends ApplicationEnvironment impl
 				prfs = PrefSet.loadFromCharSequence(prefSetXML, translationScope);
 				System.out.println("Prefs loaded From Servlet:: ");
 				if (prfs != null)
-					ClassDescriptor.serialize(prfs, System.out, StringFormat.XML);
+					SimplTypesScope.serialize(prfs, System.out, StringFormat.XML);
 					
 				System.out.println(" --- End Prefs");
 			}
@@ -522,7 +544,7 @@ public class SingletonApplicationEnvironment extends ApplicationEnvironment impl
 	 *          TODO
 	 * @throws SIMPLTranslationException
 	 */
-	private void processPrefs(Class<?> baseClass, TranslationScope translationScope,
+	private void processPrefs(Class<?> baseClass, SimplTypesScope translationScope,
 			Stack<String> argStack, float prefsAssetVersion) throws SIMPLTranslationException
 	{
 		LaunchType launchType = LaunchType.ECLIPSE; // current default
@@ -785,7 +807,7 @@ public class SingletonApplicationEnvironment extends ApplicationEnvironment impl
 		try
 		{
 			if (prefSet != null)
-				ClassDescriptor.serialize(prefSet, System.out, StringFormat.XML);				
+				SimplTypesScope.serialize(prefSet, System.out, StringFormat.XML);				
 		}
 		catch (SIMPLTranslationException e)
 		{
