@@ -59,8 +59,7 @@ public class JavascriptTranslator
 		try
 		{
 			ecologylab.serialization.SimplTypesScope.enableGraphSerialization();
-			classDescriptorJSON = SimplTypesScope.serialize(classDescriptor, StringFormat.JSON)
-					.toString();
+			classDescriptorJSON = SimplTypesScope.serialize(classDescriptor, StringFormat.JSON).toString();
 			System.out.println();
 		}
 		catch (SIMPLTranslationException e)
@@ -257,7 +256,7 @@ public class JavascriptTranslator
 	{
 		System.out.println("Translating...");
 		System.out.println("Parsing source files to extract comments... not yet really");
-		SimplTypesScope anotherScope = SimplTypesScope.augmentTranslationScope(tScope);// I'm not sure
+		//SimplTypesScope anotherScope = SimplTypesScope.augmentTranslationScope(tScope);// I'm not sure
 		// what this
 		// does...
 		// Parse source files for javadocs
@@ -273,7 +272,7 @@ public class JavascriptTranslator
 		translateToJavascript(ClassDescriptor.class, bufferedWriter);
 
 		// Generate header and implementation files
-		ArrayList<Class<?>> classes = anotherScope.getAllClasses();
+		ArrayList<Class<?>> classes = tScope.getAllClasses();
 		int length = classes.size();
 		for (int i = 0; i < length; i++)
 		{
