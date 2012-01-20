@@ -2098,7 +2098,7 @@ public class FieldDescriptor extends DescriptorBase implements FieldTypes, IMapp
 		try
 		{
 			ScalarType scalarType = this.scalarType;
-			scalarType.appendValue(object, appendable, !isCDATA, null, format);
+			scalarType.appendValue(object, appendable, !isCDATA, translationContext, format);
 		}
 		catch (Exception ex)
 		{
