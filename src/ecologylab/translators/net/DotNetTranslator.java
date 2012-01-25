@@ -26,6 +26,7 @@ import ecologylab.serialization.types.CollectionType;
 import ecologylab.serialization.types.ScalarType;
 import ecologylab.serialization.types.element.IMappable;
 import ecologylab.translators.AbstractCodeTranslator;
+import ecologylab.translators.CodeTranslationException;
 import ecologylab.translators.CodeTranslatorConfig;
 
 /**
@@ -90,14 +91,14 @@ public class DotNetTranslator extends AbstractCodeTranslator implements DotNetTr
 				debug("Excluding " + classDesc + "from translation as requested.");
 				continue;
 			}
-			translate(classDesc, directoryLocation, config);
+			translate(classDesc, directoryLocation, config, GeneratePackageStructure.TRUE);
 		}
-		generateLibraryTScopeClass(directoryLocation, tScope);
+		generateLibraryTScopeClass(directoryLocation, tScope, null, null);
 		debug("DONE !");
 	}
 
 	@Override
-	public void translate(ClassDescriptor inputClass, File directoryLocation, CodeTranslatorConfig config)
+	public void translate(ClassDescriptor inputClass, File directoryLocation, CodeTranslatorConfig config, GeneratePackageStructure generatePackageStructure)
 			throws IOException, DotNetTranslationException
 	{
 		debug("Generating C# class" + inputClass.getDescribedClassName() + "...");
@@ -109,7 +110,7 @@ public class DotNetTranslator extends AbstractCodeTranslator implements DotNetTr
 				FILE_EXTENSION
 				);
 		BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(outputFile));
-		translate(inputClass, implementMappableInterface, bufferedWriter);
+		translate(inputClass, implementMappableInterface, bufferedWriter, GenerateAbstractClass.FALSE);
 		bufferedWriter.close();
 		debug("done.");
 	}
@@ -123,7 +124,7 @@ public class DotNetTranslator extends AbstractCodeTranslator implements DotNetTr
 	 * @throws IOException
 	 * @throws DotNetTranslationException
 	 */
-	private void translate(ClassDescriptor inputClass, boolean implementMappable, Appendable appendable)
+	private void translate(ClassDescriptor inputClass, boolean implementMappable, Appendable appendable, GenerateAbstractClass generateAbstractClass)
 			throws IOException, DotNetTranslationException
 	{
 		HashMapArrayList<String, ? extends FieldDescriptor> fieldDescriptors =
@@ -138,11 +139,12 @@ public class DotNetTranslator extends AbstractCodeTranslator implements DotNetTr
 		appendHeaderComments(inputClass.getDescribedClassSimpleName(), SINGLE_LINE_COMMENT, FILE_EXTENSION, header);
 		
 		// unit scope
-		openUnitScope(inputClass, classBody);
+		String packageName = inputClass.getPackageName();
+		openUnitScope(packageName, classBody);
 
 		// class
 		// class: opening
-		openClassBody(inputClass, classBody);
+		openClassBody(inputClass, classBody, null, generateAbstractClass);
 		// class: fields
 		for (FieldDescriptor fieldDescriptor : fieldDescriptors)
 		{
@@ -150,7 +152,7 @@ public class DotNetTranslator extends AbstractCodeTranslator implements DotNetTr
 				appendField(inputClass, fieldDescriptor, classBody);
 		}
 		// class: constructor(s)
-		appendConstructor(inputClass, classBody);
+		appendConstructor(inputClass, classBody, null);
 		// class: getters and setters
 		for (FieldDescriptor fieldDescriptor : fieldDescriptors)
 		{
@@ -180,9 +182,18 @@ public class DotNetTranslator extends AbstractCodeTranslator implements DotNetTr
 	}
 
 	@Override
-	protected void openUnitScope(ClassDescriptor inputClass, Appendable appendable) throws IOException
+	public void translate(ClassDescriptor classDescriptor, File directoryLocation,
+			CodeTranslatorConfig config, GeneratePackageStructure generatePackageStructure,
+			String packageName, String classSimpleName, GenerateAbstractClass generateAbstractClass) throws IOException, CodeTranslationException
 	{
-		currentNamespace = inputClass.getCSharpNamespace();
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	protected void openUnitScope(String unitScopeName, Appendable appendable) throws IOException
+	{
+		currentNamespace = unitScopeName;//.getCSharpNamespace();
 		addLibraryTScopeDependency(currentNamespace);
 		
 		appendable.append(NAMESPACE);
@@ -202,7 +213,7 @@ public class DotNetTranslator extends AbstractCodeTranslator implements DotNetTr
 	 * @throws IOException
 	 */
 	@Override
-	protected void openClassBody(ClassDescriptor inputClass, Appendable appendable) throws IOException
+	protected void openClassBody(ClassDescriptor inputClass, Appendable appendable, String overriddenClassSimpleName, GenerateAbstractClass generateAbstractClass) throws IOException
 	{
 		appendClassComments(inputClass, appendable);
 		
@@ -214,7 +225,7 @@ public class DotNetTranslator extends AbstractCodeTranslator implements DotNetTr
 		appendable.append(CLASS);
 		appendable.append(SPACE);
 		appendable.append(inputClass.getDescribedClassSimpleName());
-		appendGenericTypeVariables(appendable, inputClass);
+		appendClassGenericTypeVariables(appendable, inputClass);
 		
 		ClassDescriptor superCD = inputClass.getSuperClass();
 		if (superCD != null)
@@ -288,7 +299,7 @@ public class DotNetTranslator extends AbstractCodeTranslator implements DotNetTr
 	 * @throws IOException
 	 */
 	@Override
-	protected void appendGenericTypeVariables(Appendable appendable, ClassDescriptor inputClass)
+	protected void appendClassGenericTypeVariables(Appendable appendable, ClassDescriptor inputClass)
 			throws IOException
 	{
 		// TODO currently generic parameters can only be done through reflection!
@@ -307,6 +318,14 @@ public class DotNetTranslator extends AbstractCodeTranslator implements DotNetTr
 			}
 			appendable.append('>');
 		}
+	}
+
+	@Override
+	protected void appendSuperClassGenericTypeVariables(Appendable appendable,
+			ClassDescriptor inputClass) throws IOException
+	{
+		// TODO Auto-generated method stub
+		
 	}
 
 	/**
@@ -344,6 +363,14 @@ public class DotNetTranslator extends AbstractCodeTranslator implements DotNetTr
 		appendable.append(DOUBLE_LINE_BREAK);
 		if (isKeyword)
 				appendable.append(CLOSE_BLOCK_COMMENTS).append(SINGLE_LINE_BREAK);
+	}
+
+	@Override
+	protected void appendFieldGenericTypeVars(ClassDescriptor contextCd,
+			FieldDescriptor fieldDescriptor, Appendable appendable) throws IOException
+	{
+		// TODO Auto-generated method stub
+		
 	}
 
 	private Set<String> deriveDependencies(ClassDescriptor inputClass)
@@ -406,16 +433,16 @@ public class DotNetTranslator extends AbstractCodeTranslator implements DotNetTr
 	 * @throws IOException
 	 */
 	@Override
-	protected void appendConstructor(ClassDescriptor inputClass, Appendable appendable)
+	protected void appendConstructor(ClassDescriptor inputClass, Appendable appendable, String className)
 			throws IOException
 	{
 		appendDefaultConstructor(inputClass.getDescribedClassSimpleName(), appendable);
 		
-		appendConstructorHook(inputClass, appendable);
+		appendConstructorHook(inputClass, appendable, null);
 	}
 
 	@Override
-	protected void appendConstructorHook(ClassDescriptor inputClass, Appendable appendable) throws IOException
+	protected void appendConstructorHook(ClassDescriptor inputClass, Appendable appendable, String classSimpleName) throws IOException
 	{
 		// for derived classes to use.
 	}
@@ -687,7 +714,7 @@ public class DotNetTranslator extends AbstractCodeTranslator implements DotNetTr
 	 * @throws IOException
 	 */
 	@Override
-	protected void generateLibraryTScopeClass(File directoryLocation, SimplTypesScope tScope)
+	public void generateLibraryTScopeClass(File directoryLocation, SimplTypesScope tScope, String tScopeClassPackage, String tScopeClassSimpleName)
 			throws IOException
 	{
 		String packageName = config.getLibraryTScopeClassPackageName();

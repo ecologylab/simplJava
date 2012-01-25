@@ -6,6 +6,7 @@ import java.io.IOException;
 import ecologylab.serialization.ClassDescriptor;
 import ecologylab.serialization.SIMPLTranslationException;
 import ecologylab.serialization.SimplTypesScope;
+import ecologylab.translators.CodeTranslator.GenerateAbstractClass;
 
 /**
  * 
@@ -14,6 +15,10 @@ import ecologylab.serialization.SimplTypesScope;
  */
 public interface CodeTranslator
 {
+	
+	enum GeneratePackageStructure { TRUE, FALSE };
+	
+	enum GenerateAbstractClass { TRUE, FALSE };
 
 	/**
 	 * Generate source codes taking an input translation scope.
@@ -44,10 +49,29 @@ public interface CodeTranslator
 	 *          The directory in which generated source codes will be placed.
 	 * @param config
 	 * 					The configuration.
+	 * @param generatePackageStructure TODO
 	 * @throws IOException
 	 * @throws CodeTranslationException
 	 */
-	void translate(ClassDescriptor classDescriptor, File directoryLocation, CodeTranslatorConfig config)
+	void translate(ClassDescriptor classDescriptor, File directoryLocation, CodeTranslatorConfig config, GeneratePackageStructure generatePackageStructure)
+			throws IOException, CodeTranslationException;
+
+	/**
+	 * Generates source codes taking an input {@link ClassDescriptor}, allowing you override class
+	 * name and package.
+	 * 
+	 * @param classDescriptor
+	 *          The descriptor for the type that needs be to translated.
+	 * @param directoryLocation
+	 *          The directory in which generated source codes will be placed.
+	 * @param config
+	 * 					The configuration.
+	 * @param generatePackageStructure TODO
+	 * @param generateAbstractClass TODO
+	 * @throws IOException
+	 * @throws CodeTranslationException
+	 */
+	void translate(ClassDescriptor classDescriptor, File directoryLocation, CodeTranslatorConfig config, GeneratePackageStructure generatePackageStructure, String packageName, String classSimpleName, GenerateAbstractClass generateAbstractClass)
 			throws IOException, CodeTranslationException;
 
 	/**

@@ -96,28 +96,44 @@ public class JavaTranslator extends AbstractCodeTranslator implements JavaTransl
 				debug("Excluding " + classDesc + " from translation as requested");
 				continue;
 			}
-			translate(classDesc, directoryLocation, null);
+			translate(classDesc, directoryLocation, null, GeneratePackageStructure.TRUE);
 		}
-		generateLibraryTScopeClass(directoryLocation, tScope);
+		generateLibraryTScopeClass(directoryLocation, tScope, config.getLibraryTScopeClassPackageName(), config.getLibraryTScopeClassSimpleName());
 		System.out.println("DONE !");
 	}
 
 	@Override
 	public void translate(ClassDescriptor inputClass, File directoryLocation,
-			CodeTranslatorConfig config)
+			CodeTranslatorConfig config, GeneratePackageStructure generatePackageStructure)
 			throws IOException, JavaTranslationException
 	{
-		debug("Generating Java class " + inputClass.getDescribedClassName() + "...");
+		translate(inputClass, directoryLocation, config, generatePackageStructure, inputClass.getDescribedClassPackageName(), inputClass.getDescribedClassSimpleName(), GenerateAbstractClass.FALSE);
+	}
+
+	@Override
+	public void translate(ClassDescriptor inputClass, File directoryLocation,
+			CodeTranslatorConfig config, GeneratePackageStructure generatePackageStructure,
+			String packageName, String classSimpleName, GenerateAbstractClass generateAbstractClass) throws IOException, JavaTranslationException
+	{
+		debug("Generating Java class " + packageName + "." + classSimpleName + "...");
 		if (this.typesScopeName == null)
-			this.typesScopeName = inputClass.getClass().getName() + "_simpl_types_scope";
-		File outputFile = createFileWithDirStructure(
-				directoryLocation,
-				inputClass.getDescribedClassPackageName().split(PACKAGE_NAME_SEPARATOR),
-				inputClass.getDescribedClassSimpleName(),
-				FILE_EXTENSION
-				);
+			this.typesScopeName = packageName + "." + classSimpleName + "_simpl_types_scope";
+		File outputFile = null;
+		if (generatePackageStructure == GeneratePackageStructure.TRUE)
+		{
+			outputFile = createFileWithDirStructure(
+					directoryLocation,
+					packageName.split(PACKAGE_NAME_SEPARATOR),
+					classSimpleName,
+					FILE_EXTENSION
+					);
+		}
+		else
+		{
+			outputFile = new File(directoryLocation, classSimpleName + FILE_EXTENSION);
+		}
 		BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(outputFile));
-		translate(inputClass, implementMappableInterface, bufferedWriter);
+		translate(inputClass, implementMappableInterface, bufferedWriter, packageName, classSimpleName, generateAbstractClass);
 		bufferedWriter.close();
 		debug("done.");
 	}
@@ -128,11 +144,12 @@ public class JavaTranslator extends AbstractCodeTranslator implements JavaTransl
 	 * @param inputClass
 	 * @param implementMappable
 	 * @param appendable
+	 * @param generateAbstractClass 
 	 * @throws IOException
 	 * @throws JavaTranslationException
 	 */
 	private void translate(ClassDescriptor inputClass, boolean implementMappable,
-			Appendable appendable)
+			Appendable appendable, String packageName, String classSimpleName, GenerateAbstractClass generateAbstractClass)
 			throws IOException, JavaTranslationException
 	{
 		HashMapArrayList<String, ? extends FieldDescriptor> fieldDescriptors =
@@ -146,12 +163,12 @@ public class JavaTranslator extends AbstractCodeTranslator implements JavaTransl
 		StringBuilder header = StringBuilderUtils.acquire();
 
 		// unit scope
-		openUnitScope(inputClass, header);
+		openUnitScope(packageName, header);
 		header.append("\n").append(getClaimString(""));
 
 		// class
 		// class: opening
-		openClassBody(inputClass, classBody);
+		openClassBody(inputClass, classBody, classSimpleName, generateAbstractClass);
 		// class: fields
 		for (FieldDescriptor fieldDescriptor : fieldDescriptors)
 		{
@@ -159,7 +176,7 @@ public class JavaTranslator extends AbstractCodeTranslator implements JavaTransl
 				appendField(inputClass, fieldDescriptor, classBody);
 		}
 		// class: constructor(s)
-		appendConstructor(inputClass, classBody);
+		appendConstructor(inputClass, classBody, classSimpleName);
 		// class: getters and setters
 		for (FieldDescriptor fieldDescriptor : fieldDescriptors)
 		{
@@ -192,10 +209,10 @@ public class JavaTranslator extends AbstractCodeTranslator implements JavaTransl
 	}
 
 	@Override
-	protected void openUnitScope(ClassDescriptor inputClass, Appendable appendable)
+	protected void openUnitScope(String unitScopeName, Appendable appendable)
 			throws IOException
 	{
-		currentNamespace = inputClass.getDescribedClassPackageName();
+		currentNamespace = unitScopeName;
 		addLibraryTScopeDependency(currentNamespace);
 
 		appendable.append(PACKAGE);
@@ -206,7 +223,7 @@ public class JavaTranslator extends AbstractCodeTranslator implements JavaTransl
 	}
 
 	@Override
-	protected void openClassBody(ClassDescriptor inputClass, Appendable appendable)
+	protected void openClassBody(ClassDescriptor inputClass, Appendable appendable, String overriddenClassSimpleName, GenerateAbstractClass generateAbstractClass)
 			throws IOException
 	{
 		appendClassComments(inputClass, appendable);
@@ -215,10 +232,17 @@ public class JavaTranslator extends AbstractCodeTranslator implements JavaTransl
 
 		appendable.append(PUBLIC);
 		appendable.append(SPACE);
+		if (generateAbstractClass == GenerateAbstractClass.TRUE)
+		{
+			appendable.append("abstract ");
+		}
 		appendable.append(CLASS);
 		appendable.append(SPACE);
-		appendable.append(inputClass.getDescribedClassSimpleName());
-		appendGenericTypeVariables(appendable, inputClass);
+		if (overriddenClassSimpleName != null)
+			appendable.append(overriddenClassSimpleName);
+		else
+			appendable.append(inputClass.getDescribedClassSimpleName());
+		appendClassGenericTypeVariables(appendable, inputClass);
 
 		ClassDescriptor superCD = inputClass.getSuperClass();
 		if (superCD != null)
@@ -228,6 +252,7 @@ public class JavaTranslator extends AbstractCodeTranslator implements JavaTransl
 			appendable.append(SPACE);
 			appendable.append(superCD.getDescribedClassSimpleName());
 //			appendGenericTypeVariables(appendable, superCD); // this does not work correctly
+			appendSuperClassGenericTypeVariables(appendable, inputClass);
 			appendGenericTypeVariablesHelper(appendable, inputClass.getSuperClassGenericTypeVars(), false);
 			addCurrentClassDependency(superCD.getDescribedClassName());
 		}
@@ -304,13 +329,21 @@ public class JavaTranslator extends AbstractCodeTranslator implements JavaTransl
 	 * @throws IOException
 	 */
 	@Override
-	protected void appendGenericTypeVariables(Appendable appendable, ClassDescriptor inputClass)
+	protected void appendClassGenericTypeVariables(Appendable appendable, ClassDescriptor inputClass)
 			throws IOException
 	{
 		ArrayList<GenericTypeVar> genericTypeVars = inputClass.getGenericTypeVars();
 		appendGenericTypeVariablesHelper(appendable, genericTypeVars, true);
 	}
 
+	@Override
+	protected void appendSuperClassGenericTypeVariables(Appendable appendable, ClassDescriptor inputClass)
+			throws IOException
+	{
+		ArrayList<GenericTypeVar> superClassGenericTypeVars = inputClass.getSuperClassGenericTypeVars();
+		appendGenericTypeVariablesHelper(appendable, superClassGenericTypeVars, false);
+	}
+	
 	/**
 	 * 
 	 * @param appendable
@@ -360,7 +393,7 @@ public class JavaTranslator extends AbstractCodeTranslator implements JavaTransl
 		String javaType = fieldDescriptor.getJavaType();
 		if (javaType == null)
 		{
-			System.out.println("ERROR, no valid JavaType found for : " + fieldDescriptor);
+			error("ERROR, no valid JavaType found for : " + fieldDescriptor);
 			return;
 		}
 
@@ -373,12 +406,21 @@ public class JavaTranslator extends AbstractCodeTranslator implements JavaTransl
 		appendable.append(PRIVATE);
 		appendable.append(SPACE);
 		appendable.append(javaType);
+		appendFieldGenericTypeVars(contextCd, fieldDescriptor, appendable);
 		appendable.append(SPACE);
 		appendable.append(fieldDescriptor.getName());
 		appendable.append(END_LINE);
 		appendable.append(DOUBLE_LINE_BREAK);
 		if (isKeyword)
 			appendable.append(CLOSE_BLOCK_COMMENTS).append(SINGLE_LINE_BREAK);
+	}
+
+	@Override
+	protected void appendFieldGenericTypeVars(ClassDescriptor contextCd,
+			FieldDescriptor fieldDescriptor, Appendable appendable) throws IOException
+	{
+		// TODO Auto-generated method stub
+		
 	}
 
 	private Set<String> deriveDependencies(ClassDescriptor inputClass)
@@ -432,16 +474,16 @@ public class JavaTranslator extends AbstractCodeTranslator implements JavaTransl
 	}
 
 	@Override
-	protected void appendConstructor(ClassDescriptor inputClass, Appendable appendable)
+	protected void appendConstructor(ClassDescriptor inputClass, Appendable appendable, String classSimpleName)
 			throws IOException
 	{
-		appendDefaultConstructor(inputClass.getDescribedClassSimpleName(), appendable);
+		appendDefaultConstructor(classSimpleName, appendable);
 
-		appendConstructorHook(inputClass, appendable);
+		appendConstructorHook(inputClass, appendable, classSimpleName);
 	}
 
 	@Override
-	protected void appendConstructorHook(ClassDescriptor inputClass, Appendable appendable)
+	protected void appendConstructorHook(ClassDescriptor inputClass, Appendable appendable, String classSimpleName)
 			throws IOException
 	{
 		// for derived classes to use.
@@ -460,6 +502,8 @@ public class JavaTranslator extends AbstractCodeTranslator implements JavaTransl
 		appendable.append(SINGLE_LINE_BREAK);
 		appendable.append(TAB);
 		appendable.append(OPENING_CURLY_BRACE);
+		appendable.append(SPACE);
+		appendable.append("super();");
 		appendable.append(SPACE);
 		appendable.append(CLOSING_CURLY_BRACE);
 		appendable.append(SINGLE_LINE_BREAK);
@@ -667,7 +711,7 @@ public class JavaTranslator extends AbstractCodeTranslator implements JavaTransl
 	 * @return
 	 * @throws IOException
 	 */
-	private boolean checkForKeywords(FieldDescriptor fieldDescriptor)
+	protected boolean checkForKeywords(FieldDescriptor fieldDescriptor)
 			throws IOException
 	{
 		if (JavaTranslationUtilities.isKeyword(fieldDescriptor.getName()))
@@ -793,11 +837,11 @@ public class JavaTranslator extends AbstractCodeTranslator implements JavaTransl
 	}
 
 	@Override
-	protected void generateLibraryTScopeClass(File directoryLocation, SimplTypesScope tScope)
+	public void generateLibraryTScopeClass(File directoryLocation, SimplTypesScope tScope, String tScopeClassPackage, String tScopeClassSimpleName)
 			throws IOException
 	{
-		String packageName = config.getLibraryTScopeClassPackageName();
-		String tscopeClassName = config.getLibraryTScopeClassSimpleName();
+		String packageName = tScopeClassPackage;
+		String tscopeClassName = tScopeClassSimpleName;
 
 		File sourceFile = createFileWithDirStructure(
 				directoryLocation,
@@ -830,7 +874,7 @@ public class JavaTranslator extends AbstractCodeTranslator implements JavaTransl
 		bufferedWriter.append("\t};\n\n");
 
 		// write get() method
-		generateLibraryTScopeGetter(bufferedWriter);
+		generateLibraryTScopeGetter(bufferedWriter, tScope.getName());
 
 		// end the class
 		bufferedWriter.append("}\n");
@@ -838,7 +882,7 @@ public class JavaTranslator extends AbstractCodeTranslator implements JavaTransl
 		bufferedWriter.close();
 	}
 
-	protected void generateLibraryTScopeGetter(Appendable appendable) throws IOException
+	protected void generateLibraryTScopeGetter(Appendable appendable, String typesScopeName) throws IOException
 	{
 		appendable.append("\tpublic static ").append(JAVA_TRANSLATION_SCOPE).append(" get()\n\t{\n");
 		appendable.append("\t\treturn ").append(JAVA_TRANSLATION_SCOPE).append(".get(\"").append(typesScopeName).append("\", TRANSLATIONS);\n");
@@ -853,7 +897,8 @@ public class JavaTranslator extends AbstractCodeTranslator implements JavaTransl
 		Collection<ClassDescriptor<? extends FieldDescriptor>> allClasses = tScope.entriesByClassName()
 				.values();
 		for (ClassDescriptor<? extends FieldDescriptor> myClass : allClasses)
-			classes.add("\t\t" + myClass.getDescribedClassName() + ".class,\n\n");
+			if (!excludeClassesFromTranslation.contains(myClass))
+				classes.add("\t\t" + myClass.getDescribedClassName() + ".class,\n\n");
 		Collections.sort(classes);
 		for (String classItem : classes)
 			appendable.append(classItem);

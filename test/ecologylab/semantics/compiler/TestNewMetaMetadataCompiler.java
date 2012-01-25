@@ -7,8 +7,6 @@ import java.util.Arrays;
 import org.junit.Assert;
 import org.junit.Test;
 
-import ecologylab.io.Files;
-import ecologylab.semantics.generated.library.dlese.GetRecordAdditionalMetadata;
 import ecologylab.semantics.metadata.scalar.MetadataString;
 import ecologylab.semantics.metametadata.MetaMetadata;
 import ecologylab.semantics.metametadata.MetaMetadataCollectionField;
@@ -26,7 +24,7 @@ public class TestNewMetaMetadataCompiler
 	
 	protected CompilerConfig getCompilerConfig(final File testingRepository)
 	{
-		CompilerConfig config = new CompilerConfig(CompilerConfig.JAVA, new File(".." + Files.sep + "testMetaMetadataCompiler" + Files.sep + "src"))
+		CompilerConfig config = new CompilerConfig(CompilerConfig.JAVA, new File("../testMetaMetadataCompiler/src"), new File("../ecologylabSemantics/src/ecologylab/semantics/metadata/builtins/declarations"))
 		{
 			@Override
 			public MetaMetadataRepository loadRepository()
@@ -39,7 +37,7 @@ public class TestNewMetaMetadataCompiler
 
 	protected CompilerConfig getCompilerConfigForDir(final File testingRepositoryDir)
 	{
-		CompilerConfig config = new CompilerConfig(CompilerConfig.JAVA, new File(".." + Files.sep + "testMetaMetadataCompiler" + Files.sep + "src"))
+		CompilerConfig config = new CompilerConfig(CompilerConfig.JAVA, new File("../testMetaMetadataCompiler/src"), new File("../ecologylabSemantics/src/ecologylab/semantics/metadata/builtins/declarations"))
 		{
 			MetaMetadataRepository repo = null;
 

@@ -47,9 +47,9 @@ public class MetaMetadataDotNetTranslator extends DotNetTranslator implements Mm
 	}
 
 	@Override
-	protected void appendConstructorHook(ClassDescriptor inputClass, Appendable appendable) throws IOException
+	protected void appendConstructorHook(ClassDescriptor inputClass, Appendable appendable, String classSimpleName) throws IOException
 	{
-		super.appendConstructorHook(inputClass, appendable);
+		super.appendConstructorHook(inputClass, appendable, classSimpleName);
 		
 		appendable.append("\n");
 		appendable.append("\t\tpublic ").append(inputClass.getDescribedClassSimpleName())

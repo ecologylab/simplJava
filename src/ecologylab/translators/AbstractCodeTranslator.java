@@ -68,31 +68,33 @@ public abstract class AbstractCodeTranslator extends Debug implements CodeTransl
 	}
 
 	// - unit scope (package / namespace) opening
-	protected abstract void openUnitScope(ClassDescriptor inputClass, Appendable appendable) throws IOException;
+	protected abstract void openUnitScope(String unitScopeName, Appendable appendable) throws IOException;
 
 	// - class body opening (comments, annotations, definition, base, interfaces, generics, etc.)
-	protected abstract void openClassBody(ClassDescriptor inputClass, Appendable appendable) throws IOException;
+	protected abstract void openClassBody(ClassDescriptor inputClass, Appendable appendable, String overriddenClassSimpleName, GenerateAbstractClass generateAbstractClass) throws IOException;
 	protected abstract void appendClassComments(ClassDescriptor inputClass, Appendable appendable) throws IOException;
 	protected abstract void appendStructuredComments(Appendable appendable, String spacing, String... comments) throws IOException;
 	protected abstract void appendClassMetaInformation(ClassDescriptor inputClass, Appendable appendable) throws IOException;
 	protected abstract void appendMetaInformation(MetaInformation metaInfo, Appendable appendable) throws IOException;
 	protected abstract void appendClassMetaInformationHook(ClassDescriptor inputClass, Appendable appendable);
-	protected abstract void appendGenericTypeVariables(Appendable appendable, ClassDescriptor inputClass) throws IOException;
+	protected abstract void appendClassGenericTypeVariables(Appendable appendable, ClassDescriptor inputClass) throws IOException;
+	protected abstract void appendSuperClassGenericTypeVariables(Appendable appendable, ClassDescriptor inputClass) throws IOException;
 
 	// - fields (comments, annotations, definition)
 	protected abstract void appendField(ClassDescriptor context, FieldDescriptor fieldDescriptor, Appendable appendable) throws IOException, CodeTranslationException;
 	protected abstract void appendFieldComments(FieldDescriptor fieldDescriptor, Appendable appendable) throws IOException;
 	protected abstract void appendFieldMetaInformation(ClassDescriptor contextCd, FieldDescriptor fieldDescriptor, Appendable appendable) throws IOException;
 	protected abstract void appendFieldMetaInformationHook(ClassDescriptor contextCd, FieldDescriptor fieldDesc, Appendable appendable) throws IOException;
+	protected abstract void appendFieldGenericTypeVars(ClassDescriptor contextCd, FieldDescriptor fieldDescriptor, Appendable appendable) throws IOException;
 
 	// - getters & setters
 	protected abstract void appendGettersAndSetters(ClassDescriptor context, FieldDescriptor fieldDescriptor, Appendable appendable) throws IOException;
 	protected abstract void appendGettersAndSettersHook(ClassDescriptor context, FieldDescriptor fieldDescriptor, Appendable appendable);
 
 	// - constructor(s)
-	protected abstract void appendConstructor(ClassDescriptor inputClass, Appendable appendable) throws IOException;
+	protected abstract void appendConstructor(ClassDescriptor inputClass, Appendable appendable, String classSimpleName) throws IOException;
 	protected abstract void appendDefaultConstructor(String className, Appendable appendable) throws IOException;
-	protected abstract void appendConstructorHook(ClassDescriptor inputClass, Appendable appendable) throws IOException;
+	protected abstract void appendConstructorHook(ClassDescriptor inputClass, Appendable appendable, String classSimpleName) throws IOException;
 
 	// - class body closing
 	protected abstract void closeClassBody(Appendable appendable) throws IOException;
@@ -107,7 +109,7 @@ public abstract class AbstractCodeTranslator extends Debug implements CodeTransl
 	protected abstract void addLibraryTScopeDependency(String name);
 
 	// - library translation scope class
-	protected abstract void generateLibraryTScopeClass(File directoryLocation, SimplTypesScope tScope) throws IOException;
+	public abstract void generateLibraryTScopeClass(File directoryLocation, SimplTypesScope tScope, String tScopeClassPackage, String tScopeClassSimpleName) throws IOException;
 	protected abstract void appendTranslatedClassList(SimplTypesScope tScope, Appendable appendable) throws IOException;
 
 	protected File createFileWithDirStructure(File parentDir, String[] dirStructure, String name, String extension)
