@@ -1294,5 +1294,30 @@ public class ClassDescriptor<FD extends FieldDescriptor> extends DescriptorBase 
 		}
 		return metaInfo;
 	}
+	
+	@Override
+	public Object clone()
+	{
+		try
+		{
+			return super.clone();
+		}
+		catch (CloneNotSupportedException e)
+		{
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return null;
+	}
+
+	public void setDescribedClassSimpleName(String describedClassSimpleName)
+	{
+		this.describedClassSimpleName = describedClassSimpleName;
+	}
+
+	public void setDescribedClassPackageName(String describedClassPackageName)
+	{
+		this.describedClassPackageName = describedClassPackageName;
+	}
 
 }

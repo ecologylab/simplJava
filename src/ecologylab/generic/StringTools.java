@@ -485,6 +485,43 @@ public class StringTools extends Debug
 	}
 
 	/**
+	 * Return true iff all the characters in the first argument are lower case, except chars in the
+	 * second argument.
+	 * 
+	 * @param s
+	 * @param ignoreChars 
+	 * @return
+	 */
+	public static boolean isLowerCaseExcept(String s, String ignoreChars)
+	{
+		int length = s.length();
+		for (int i = 0; i < length; i++)
+		{
+			char c = s.charAt(i);
+			if (!Character.isLowerCase(c) && ignoreChars.indexOf(c) < 0)
+				return false;
+		}
+		return true;
+	}
+
+	/**
+	 * Return true iff all the characters in the argument are upper case.
+	 * 
+	 * @param s
+	 * @return
+	 */
+	public static boolean isUpperCase(String s)
+	{
+		int length = s.length();
+		for (int i = 0; i < length; i++)
+		{
+			if (!Character.isUpperCase(s.charAt(i)))
+				return false;
+		}
+		return true;
+	}
+
+	/**
 	 * @param path
 	 * @return true if the String ends with a forward slash, like a nice directory.
 	 */

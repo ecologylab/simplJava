@@ -64,6 +64,11 @@ public class GenericTypeVar extends Debug
 		return name;
 	}
 	
+	public void setName(String name)
+	{
+		this.name = name;
+	}
+	
 	public ClassDescriptor getClassDescriptor()
 	{
 		return classDescriptor;
@@ -72,6 +77,11 @@ public class GenericTypeVar extends Debug
 	public ClassDescriptor getConstraintClassDescriptor()
 	{
 		return constraintClassDescriptor;
+	}
+	
+	public void setConstraintClassDescriptor(ClassDescriptor constraintClassDescriptor)
+	{
+		this.constraintClassDescriptor = constraintClassDescriptor;
 	}
 
 	public void addGenericTypeVar(GenericTypeVar g)
