@@ -7,15 +7,12 @@ import ecologylab.generic.Debug;
 import ecologylab.semantics.metadata.MetadataClassDescriptor;
 import ecologylab.semantics.metametadata.MetaMetadata;
 import ecologylab.semantics.metametadata.MetaMetadataRepository;
+import ecologylab.semantics.namesandnums.SemanticsNames;
 import ecologylab.serialization.ClassDescriptor;
 import ecologylab.serialization.SIMPLTranslationException;
 import ecologylab.serialization.SimplTypesScope;
-import ecologylab.translators.AbstractCodeTranslator;
 import ecologylab.translators.CodeTranslationException;
 import ecologylab.translators.CodeTranslator;
-import ecologylab.translators.CodeTranslator.GenerateAbstractClass;
-import ecologylab.translators.CodeTranslator.GeneratePackageStructure;
-import ecologylab.translators.CodeTranslatorConfig;
 
 /**
  * 
@@ -26,13 +23,15 @@ import ecologylab.translators.CodeTranslatorConfig;
 public class NewMetaMetadataCompiler extends Debug // ApplicationEnvironment
 {
 	
-	public static final String	BUILTINS_CLASS_PACKAGE							= ".builtins";
+	public static final String	BUILTINS_CLASS_PACKAGE														= ".builtins";
 
-	public static final String	DECLARATION_CLASS_PACKAGE						= ".declarations";
+	public static final String	DECLARATION_CLASS_PACKAGE													= ".declarations";
 
-	public static final String	DECLARATION_CLASS_SUFFIX						= "Declaration";
+	public static final String	DECLARATION_CLASS_SUFFIX													= "Declaration";
 
-	private static final String	META_METADATA_COMPILER_TSCOPE_NAME	= "meta-metadata-compiler-tscope";
+	private static final String	META_METADATA_COMPILER_TSCOPE_NAME								= "meta-metadata-compiler-tscope";
+
+	private static final String	META_METADATA_COMPILER_BUILTIN_DECLARATIONS_SCOPE	= "meta-metadata-compiler-builtin-declarations-scope";
 
 	public void compile(CompilerConfig config) throws IOException, SIMPLTranslationException,
 			CodeTranslationException
@@ -40,61 +39,70 @@ public class NewMetaMetadataCompiler extends Debug // ApplicationEnvironment
 		debug("\n\n loading repository ...\n\n");
 		SimplTypesScope.enableGraphSerialization();
 		MetaMetadataRepository repository = config.loadRepository();
-		SimplTypesScope tscope = repository
-				.traverseAndGenerateTranslationScope(META_METADATA_COMPILER_TSCOPE_NAME);
-		// SimplTypesScope metadataBuiltInTScope = MetadataBuiltinsTranslationScope.get();
+		SimplTypesScope tscope = repository.traverseAndGenerateTranslationScope(META_METADATA_COMPILER_TSCOPE_NAME);
 
 		CodeTranslator compiler = config.getCompiler();
 		
 		// generate declaration classes and scope
-		SimplTypesScope builtinDeclarationsScope = SimplTypesScope.get("metadata-builtin-declarations-scope", new Class[] {});
+		SimplTypesScope builtinDeclarationsScope = SimplTypesScope.get(META_METADATA_COMPILER_BUILTIN_DECLARATIONS_SCOPE, new Class[] {});
 		String builtinPackage = null;
-		for (ClassDescriptor cd : tscope.getClassDescriptors())
+		for (ClassDescriptor mdCD : tscope.getClassDescriptors())
 		{
-			ClassDescriptor clonedCd = (ClassDescriptor) cd.clone();
-			
-			String newPackageName = cd.getDescribedClassPackageName();
-			String newSimpleName = cd.getDescribedClassSimpleName();
-
-			MetaMetadata definingMmd = ((MetadataClassDescriptor) cd).getDefiningMmd();
-			if (definingMmd.isRootMetaMetadata())
+			MetaMetadata definingMmd = ((MetadataClassDescriptor) mdCD).getDefiningMmd();
+			if (definingMmd.isBuiltIn())
 			{
-				newPackageName += BUILTINS_CLASS_PACKAGE + DECLARATION_CLASS_PACKAGE;
-				newSimpleName += DECLARATION_CLASS_SUFFIX;
+				ClassDescriptor declCD = (ClassDescriptor) mdCD.clone();
+				String packageName = mdCD.getDescribedClassPackageName();
+				String classSimpleName = mdCD.getDescribedClassSimpleName();
+				if (definingMmd.isRootMetaMetadata())
+				{
+					packageName += BUILTINS_CLASS_PACKAGE + DECLARATION_CLASS_PACKAGE;
+					classSimpleName += DECLARATION_CLASS_SUFFIX;
+				}
+				else
+				{
+					builtinPackage = packageName; // essentially, the old package name
+					packageName += DECLARATION_CLASS_PACKAGE;
+					classSimpleName += DECLARATION_CLASS_SUFFIX;
+				}
+				declCD.setDescribedClassPackageName(packageName);
+				declCD.setDescribedClassSimpleName(classSimpleName);
+				builtinDeclarationsScope.addTranslation(declCD);
 			}
-			else if (definingMmd.isBuiltIn())
-			{
-				builtinPackage = newPackageName; // essentially, the old package name
-				newPackageName += DECLARATION_CLASS_PACKAGE;
-				newSimpleName += DECLARATION_CLASS_SUFFIX;
-			}
-			else
-			{
-				continue;
-			}
-			clonedCd.setDescribedClassPackageName(newPackageName);
-			clonedCd.setDescribedClassSimpleName(newSimpleName);
-			
-			compiler.excludeClassFromTranslation(cd);
-			builtinDeclarationsScope.addTranslation(clonedCd);
-			compiler.translate(cd, config.getGeneratedBuiltinDeclarationsLocation(), config,
-					GeneratePackageStructure.FALSE, newPackageName, newSimpleName, GenerateAbstractClass.TRUE);
 		}
-		CodeTranslator translator = CodeTranslatorConfig.getCodeTranslator(config.getTargetLanguage());
-		if (translator instanceof AbstractCodeTranslator)
+//			compiler.translate(cd, config.getGeneratedBuiltinDeclarationsLocation(), config,
+//					newPackageName, newSimpleName, GenerateAbstractClass.TRUE);
+		CompilerConfig newConfig = (CompilerConfig) config.clone();
+		newConfig.setLibraryTScopeClassPackage("ecologylab.semantics.metadata.builtins.declarations");
+		newConfig.setLibraryTScopeClassSimpleName("MetadataBuiltinDeclarationsTranslationScope");
+		newConfig.setGenerateAbstractClass(true);
+		newConfig.setBuiltinDeclarationScopeName(SemanticsNames.REPOSITORY_BUILTIN_DECLARATIONS_SCOPE);
+		compiler.translate(config.getGeneratedBuiltinDeclarationsLocation(), builtinDeclarationsScope, newConfig);
+		
+		// generate normal metadata classes
+		for (ClassDescriptor mdCD : tscope.getClassDescriptors())
 		{
-			File directoryLocation = new File("../ecologylabSemantics/src"); // default location
-			((AbstractCodeTranslator) translator).generateLibraryTScopeClass(directoryLocation, builtinDeclarationsScope, builtinPackage + DECLARATION_CLASS_PACKAGE, "MetadataBuiltinDeclarationsTranslationScope");
+			MetaMetadata definingMmd = ((MetadataClassDescriptor) mdCD).getDefiningMmd();
+			if (definingMmd.isBuiltIn())
+				compiler.excludeClassFromTranslation(mdCD);
 		}
-		else
-		{
-			warning("Do not support generating declarations scope class in this target language!");
-		}
-
-		// generate other classes and scope
 		File generatedSemanticsLocation = config.getGeneratedSemanticsLocation();
 		debug("\n\n compiling to " + generatedSemanticsLocation + " ...\n\n");
 		compiler.translate(generatedSemanticsLocation, tscope, config);
+		
+			
+//		CodeTranslator translator = CodeTranslatorConfig.getCodeTranslator(config.getTargetLanguage());
+//		if (translator instanceof AbstractCodeTranslator)
+//		{
+//			File directoryLocation = new File("../ecologylabSemantics/src"); // default location
+//			((AbstractCodeTranslator) translator).generateLibraryTScopeClass(directoryLocation, builtinDeclarationsScope, builtinPackage + DECLARATION_CLASS_PACKAGE, "MetadataBuiltinDeclarationsTranslationScope");
+//		}
+//		else
+//		{
+//			warning("Do not support generating declarations scope class in this target language!");
+//		}
+
+		// generate other classes and scope
 
 		compilerHook(repository);
 		debug("\n\n compiler finished.");

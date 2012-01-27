@@ -86,6 +86,10 @@ public class CompilerConfig extends CodeTranslatorConfig
 	@simpl_hints({ Hint.XML_LEAF })
 	private File													generatedBuiltinDeclarationsLocation;
 
+	@simpl_scalar
+	@simpl_hints({ Hint.XML_LEAF })
+	private String												builtinDeclarationScopeName;
+
 	/**
 	 * The target languange.
 	 */
@@ -194,6 +198,16 @@ public class CompilerConfig extends CodeTranslatorConfig
 			}
 		}
 		return compiler;
+	}
+
+	public String getBuiltinDeclarationScopeName()
+	{
+		return builtinDeclarationScopeName;
+	}
+
+	public void setBuiltinDeclarationScopeName(String builtinDeclarationScopeName)
+	{
+		this.builtinDeclarationScopeName = builtinDeclarationScopeName;
 	}
 
 }

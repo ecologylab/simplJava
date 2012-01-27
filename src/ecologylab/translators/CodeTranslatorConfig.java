@@ -17,7 +17,7 @@ import ecologylab.translators.net.DotNetTranslator;
  *
  */
 @simpl_inherit
-public class CodeTranslatorConfig extends ElementState
+public class CodeTranslatorConfig extends ElementState implements Cloneable
 {
 	
 	@simpl_scalar
@@ -27,6 +27,10 @@ public class CodeTranslatorConfig extends ElementState
 	@simpl_scalar
 	@simpl_hints({Hint.XML_LEAF})
 	private String libraryTScopeClassSimpleName;
+
+	@simpl_scalar
+	@simpl_hints({Hint.XML_LEAF})
+	private boolean generateAbstractClass;
 
 	public CodeTranslatorConfig()
 	{
@@ -44,9 +48,14 @@ public class CodeTranslatorConfig extends ElementState
 		libraryTScopeClassSimpleName = simpleName;
 	}
 	
-	public String getLibraryTScopeClassPackageName()
+	public String getLibraryTScopeClassPackage()
 	{
 		return libraryTScopeClassPackage;
+	}
+
+	public void setLibraryTScopeClassPackage(String libraryTScopeClassPackage)
+	{
+		this.libraryTScopeClassPackage = libraryTScopeClassPackage;
 	}
 
 	public String getLibraryTScopeClassSimpleName()
@@ -54,6 +63,21 @@ public class CodeTranslatorConfig extends ElementState
 		return libraryTScopeClassSimpleName;
 	}
 	
+	public void setLibraryTScopeClassSimpleName(String libraryTScopeClassSimpleName)
+	{
+		this.libraryTScopeClassSimpleName = libraryTScopeClassSimpleName;
+	}
+
+	public boolean isGenerateAbstractClass()
+	{
+		return generateAbstractClass;
+	}
+
+	public void setGenerateAbstractClass(boolean generateAbstractClass)
+	{
+		this.generateAbstractClass = generateAbstractClass;
+	}
+
 	public static final String												JAVA						= "java";
 
 	public static final String												CSHARP					= "csharp";
@@ -87,6 +111,21 @@ public class CodeTranslatorConfig extends ElementState
 	public static CodeTranslator getCodeTranslator(String name)
 	{
 		return codeTranslators.get(name);
+	}
+	
+	@Override
+	public Object clone()
+	{
+		try
+		{
+			return super.clone();
+		}
+		catch (CloneNotSupportedException e)
+		{
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return null;
 	}
 
 }

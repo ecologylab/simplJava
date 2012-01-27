@@ -26,7 +26,6 @@ import ecologylab.serialization.types.CollectionType;
 import ecologylab.serialization.types.ScalarType;
 import ecologylab.serialization.types.element.IMappable;
 import ecologylab.translators.AbstractCodeTranslator;
-import ecologylab.translators.CodeTranslationException;
 import ecologylab.translators.CodeTranslatorConfig;
 
 /**
@@ -91,14 +90,14 @@ public class DotNetTranslator extends AbstractCodeTranslator implements DotNetTr
 				debug("Excluding " + classDesc + "from translation as requested.");
 				continue;
 			}
-			translate(classDesc, directoryLocation, config, GeneratePackageStructure.TRUE);
+			translate(classDesc, directoryLocation, config);
 		}
 		generateLibraryTScopeClass(directoryLocation, tScope, null, null);
 		debug("DONE !");
 	}
 
 	@Override
-	public void translate(ClassDescriptor inputClass, File directoryLocation, CodeTranslatorConfig config, GeneratePackageStructure generatePackageStructure)
+	public void translate(ClassDescriptor inputClass, File directoryLocation, CodeTranslatorConfig config)
 			throws IOException, DotNetTranslationException
 	{
 		debug("Generating C# class" + inputClass.getDescribedClassName() + "...");
@@ -110,7 +109,7 @@ public class DotNetTranslator extends AbstractCodeTranslator implements DotNetTr
 				FILE_EXTENSION
 				);
 		BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(outputFile));
-		translate(inputClass, implementMappableInterface, bufferedWriter, GenerateAbstractClass.FALSE);
+		translate(inputClass, implementMappableInterface, bufferedWriter);
 		bufferedWriter.close();
 		debug("done.");
 	}
@@ -124,7 +123,7 @@ public class DotNetTranslator extends AbstractCodeTranslator implements DotNetTr
 	 * @throws IOException
 	 * @throws DotNetTranslationException
 	 */
-	private void translate(ClassDescriptor inputClass, boolean implementMappable, Appendable appendable, GenerateAbstractClass generateAbstractClass)
+	private void translate(ClassDescriptor inputClass, boolean implementMappable, Appendable appendable)
 			throws IOException, DotNetTranslationException
 	{
 		HashMapArrayList<String, ? extends FieldDescriptor> fieldDescriptors =
@@ -144,7 +143,7 @@ public class DotNetTranslator extends AbstractCodeTranslator implements DotNetTr
 
 		// class
 		// class: opening
-		openClassBody(inputClass, classBody, null, generateAbstractClass);
+		openClassBody(inputClass, classBody, null);
 		// class: fields
 		for (FieldDescriptor fieldDescriptor : fieldDescriptors)
 		{
@@ -182,15 +181,6 @@ public class DotNetTranslator extends AbstractCodeTranslator implements DotNetTr
 	}
 
 	@Override
-	public void translate(ClassDescriptor classDescriptor, File directoryLocation,
-			CodeTranslatorConfig config, GeneratePackageStructure generatePackageStructure,
-			String packageName, String classSimpleName, GenerateAbstractClass generateAbstractClass) throws IOException, CodeTranslationException
-	{
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
 	protected void openUnitScope(String unitScopeName, Appendable appendable) throws IOException
 	{
 		currentNamespace = unitScopeName;//.getCSharpNamespace();
@@ -213,7 +203,7 @@ public class DotNetTranslator extends AbstractCodeTranslator implements DotNetTr
 	 * @throws IOException
 	 */
 	@Override
-	protected void openClassBody(ClassDescriptor inputClass, Appendable appendable, String overriddenClassSimpleName, GenerateAbstractClass generateAbstractClass) throws IOException
+	protected void openClassBody(ClassDescriptor inputClass, Appendable appendable, String overriddenClassSimpleName) throws IOException
 	{
 		appendClassComments(inputClass, appendable);
 		
@@ -717,7 +707,7 @@ public class DotNetTranslator extends AbstractCodeTranslator implements DotNetTr
 	public void generateLibraryTScopeClass(File directoryLocation, SimplTypesScope tScope, String tScopeClassPackage, String tScopeClassSimpleName)
 			throws IOException
 	{
-		String packageName = config.getLibraryTScopeClassPackageName();
+		String packageName = config.getLibraryTScopeClassPackage();
 		String tscopeClassName = config.getLibraryTScopeClassSimpleName();
 		
 		File sourceFile = createFileWithDirStructure(directoryLocation, packageName.split(PACKAGE_NAME_SEPARATOR), tscopeClassName, FILE_EXTENSION);

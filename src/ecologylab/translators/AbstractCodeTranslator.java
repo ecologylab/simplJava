@@ -71,7 +71,7 @@ public abstract class AbstractCodeTranslator extends Debug implements CodeTransl
 	protected abstract void openUnitScope(String unitScopeName, Appendable appendable) throws IOException;
 
 	// - class body opening (comments, annotations, definition, base, interfaces, generics, etc.)
-	protected abstract void openClassBody(ClassDescriptor inputClass, Appendable appendable, String overriddenClassSimpleName, GenerateAbstractClass generateAbstractClass) throws IOException;
+	protected abstract void openClassBody(ClassDescriptor inputClass, Appendable appendable, String overriddenClassSimpleName) throws IOException;
 	protected abstract void appendClassComments(ClassDescriptor inputClass, Appendable appendable) throws IOException;
 	protected abstract void appendStructuredComments(Appendable appendable, String spacing, String... comments) throws IOException;
 	protected abstract void appendClassMetaInformation(ClassDescriptor inputClass, Appendable appendable) throws IOException;
