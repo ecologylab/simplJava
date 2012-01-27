@@ -161,6 +161,10 @@ public class ClassDescriptor<FD extends FieldDescriptor> extends DescriptorBase 
 	@simpl_scalar
 	private String																																		explictObjectiveCTypeName;
 
+	private boolean																																		isCloned;
+	
+	private ClassDescriptor																														clonedFrom;
+	
 	static
 	{
 		TypeRegistry.init();
@@ -1298,21 +1302,35 @@ public class ClassDescriptor<FD extends FieldDescriptor> extends DescriptorBase 
 	@Override
 	public Object clone()
 	{
+		ClassDescriptor cloned = null;
 		try
 		{
-			return super.clone();
+			cloned = (ClassDescriptor) super.clone();
+			cloned.isCloned = true;
+			cloned.clonedFrom = this;
 		}
 		catch (CloneNotSupportedException e)
 		{
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		return null;
+		return cloned;
+	}
+	
+	public boolean isCloned()
+	{
+		return isCloned;
+	}
+	
+	public ClassDescriptor getClonedFrom()
+	{
+		return clonedFrom;
 	}
 
 	public void setDescribedClassSimpleName(String describedClassSimpleName)
 	{
 		this.describedClassSimpleName = describedClassSimpleName;
+		this.tagName = XMLTools.getXmlTagName(describedClassSimpleName, null);
 	}
 
 	public void setDescribedClassPackageName(String describedClassPackageName)
