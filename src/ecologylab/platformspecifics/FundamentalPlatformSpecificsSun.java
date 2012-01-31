@@ -13,6 +13,7 @@ import ecologylab.generic.Debug;
 
 import sun.reflect.generics.reflectiveObjects.ParameterizedTypeImpl;
 import sun.reflect.generics.reflectiveObjects.TypeVariableImpl;
+import sun.reflect.generics.reflectiveObjects.WildcardTypeImpl;
 
 public class FundamentalPlatformSpecificsSun implements IFundamentalPlatformSpecifics
 {
@@ -30,7 +31,7 @@ public class FundamentalPlatformSpecificsSun implements IFundamentalPlatformSpec
 		if (superClassType instanceof ParameterizedTypeImpl)
 		{
 				ParameterizedTypeImpl superClassParameterizedType = (ParameterizedTypeImpl) superClassType;
-				classDescriptor.setSuperClassGenericTypeVars(GenericTypeVar.getGenericTypeVars(superClassParameterizedType));
+				classDescriptor.setSuperClassGenericTypeVars(getGenericTypeVars(superClassParameterizedType));
 		}
 	}
 	
@@ -96,4 +97,70 @@ public class FundamentalPlatformSpecificsSun implements IFundamentalPlatformSpec
 		}
 		return result;
 	};
+	
+	// in ecologylab.serialization.GenericTypeVar;
+	public static ArrayList<GenericTypeVar> getGenericTypeVars(Type parameterizedType)
+	{
+		return getGenericTypeVars((ParameterizedTypeImpl) parameterizedType);
+	}
+	
+	public static ArrayList<GenericTypeVar> getGenericTypeVars(ParameterizedTypeImpl parameterizedType)
+	{
+		Type[] types = parameterizedType.getActualTypeArguments();
+
+		if (types == null | types.length <= 0)
+			return null;
+
+		ArrayList<GenericTypeVar> returnValue = new ArrayList<GenericTypeVar>();
+		for (Type t : types)
+		{
+			GenericTypeVar g = GenericTypeVar.getGenericTypeVar(t);
+			returnValue.add(g);
+		}
+
+		return returnValue;
+	}
+	
+	public void checkBoundParameterizedTypeImpl(GenericTypeVar g, Type bound)
+	{
+		if (bound instanceof ParameterizedTypeImpl)
+		{
+			ParameterizedTypeImpl parmeterizedType = (ParameterizedTypeImpl) bound;
+			g.setConstraintClassDescriptor(ClassDescriptor.getClassDescriptor(parmeterizedType
+					.getRawType()));
+
+			Type[] types = parmeterizedType.getActualTypeArguments();
+
+			for (Type type : types)
+			{
+				g.addContraintGenericTypeVar(GenericTypeVar.getGenericTypeVar(type));
+			}
+		}
+	}
+
+	public void checkTypeWildcardTypeImpl(GenericTypeVar g, Type type)
+	{
+		if (type instanceof WildcardTypeImpl)
+		{
+			g.setName("?");
+			WildcardTypeImpl wildCardType = (WildcardTypeImpl) type;
+			GenericTypeVar.resolveGenericConstraints(g, wildCardType.getUpperBounds());
+		}
+	}
+	
+	public void checkTypeParameterizedTypeImpl(GenericTypeVar g, Type type)
+	{
+		if (type instanceof ParameterizedTypeImpl)
+		{
+			ParameterizedTypeImpl parmeterizedType = (ParameterizedTypeImpl) type;
+			g.setClassDescriptor(ClassDescriptor.getClassDescriptor(parmeterizedType.getRawType()));
+
+			Type[] types = parmeterizedType.getActualTypeArguments();
+
+			for (Type t : types)
+			{
+				g.addGenericTypeVar(GenericTypeVar.getGenericTypeVar(t));
+			}
+		}
+	}
 }
