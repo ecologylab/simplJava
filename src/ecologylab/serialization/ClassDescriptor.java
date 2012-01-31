@@ -1353,4 +1353,18 @@ public class ClassDescriptor<FD extends FieldDescriptor> extends DescriptorBase 
 		this.describedClassPackageName = describedClassPackageName;
 	}
 
+	/**
+	 * If this class is a generic class, such as MyClass&lt;T&gt;.
+	 * 
+	 * Currently this is not implemented. Please update this javadoc when you implement it.
+	 * 
+	 * @return
+	 */
+	public boolean isGenericClass()
+	{
+		// TODO Auto-generated method stub
+		// NOT YET IMPLEMENTED!
+		return false;
+	}
+
 }
