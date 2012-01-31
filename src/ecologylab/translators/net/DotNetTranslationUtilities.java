@@ -7,7 +7,6 @@ import ecologylab.semantics.html.utils.StringBuilderUtils;
 import ecologylab.serialization.ClassDescriptor;
 import ecologylab.serialization.FieldDescriptor;
 import ecologylab.serialization.XMLTools;
-import ecologylab.serialization.annotations.Hint;
 
 /**
  * Static methods to do repeated useful tasks during the translation
@@ -169,30 +168,6 @@ public class DotNetTranslationUtilities
 			return translatedNamespace == null ? packageName : translatedNamespace;
 	}
 	
-	public static String translateMetaInfoArgValue(Object argValue)
-	{
-		// TODO to make this extendible, use an interface MetaInfoArgValueTranslator and allow users
-		//      to inject new ones to handle different kind of cases.
-		if (argValue instanceof String)
-		{
-			return "\"" + argValue.toString() + "\"";
-		}
-		else if (argValue instanceof Hint)
-		{
-			switch ((Hint) argValue)
-			{
-			case XML_ATTRIBUTE: return "Hint.XmlAttribute"; 
-			case XML_LEAF: return "Hint.XmlLeaf"; 
-			case XML_LEAF_CDATA: return "Hint.XmlLeafCdata"; 
-			case XML_TEXT: return "Hint.XmlText"; 
-			case XML_TEXT_CDATA: return "Hint.XmlTextCdata"; 
-			default: return "Hint.Undefined";
-			}
-		}
-		// eles if (argValue instanceof ClassDescriptor)
-		return null;
-	}
-
 	/**
 	 * Generate a C# property name for this field.
 	 * @param context TODO

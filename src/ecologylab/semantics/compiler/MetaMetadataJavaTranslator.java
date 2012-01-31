@@ -3,6 +3,8 @@ package ecologylab.semantics.compiler;
 import java.io.IOException;
 import java.util.List;
 
+import ecologylab.generic.Debug;
+import ecologylab.generic.StringTools;
 import ecologylab.semantics.metadata.MetadataClassDescriptor;
 import ecologylab.semantics.metadata.MetadataFieldDescriptor;
 import ecologylab.semantics.metadata.builtins.MetadataBuiltinsTranslationScope;
@@ -19,7 +21,11 @@ import ecologylab.semantics.namesandnums.SemanticsNames;
 import ecologylab.serialization.ClassDescriptor;
 import ecologylab.serialization.FieldDescriptor;
 import ecologylab.serialization.FieldTypes;
+import ecologylab.serialization.MetaInformation;
+import ecologylab.serialization.annotations.simpl_descriptor_classes;
+import ecologylab.serialization.annotations.simpl_inherit;
 import ecologylab.serialization.types.ScalarType;
+import ecologylab.translators.java.JavaTranslationException;
 import ecologylab.translators.java.JavaTranslator;
 
 public class MetaMetadataJavaTranslator extends JavaTranslator implements MmdCompilerService
@@ -47,6 +53,24 @@ public class MetaMetadataJavaTranslator extends JavaTranslator implements MmdCom
 	}
 
 	@Override
+	protected void appendClassMetaInformationHook(ClassDescriptor classDesc, Appendable appendable)
+	{
+		MetaMetadata definingMmd = ((MetadataClassDescriptor) classDesc).getDefiningMmd();
+		if (definingMmd.isRootMetaMetadata())
+		{
+			List<MetaInformation> metaInfo = classDesc.getMetaInformation();
+			metaInfo.add(new MetaInformation(simpl_descriptor_classes.class, true,
+					MetadataClassDescriptor.class, MetadataFieldDescriptor.class));
+			metaInfo.add(new MetaInformation(simpl_inherit.class));
+			this.addCurrentClassDependency(simpl_descriptor_classes.class.getName());
+			this.addCurrentClassDependency(simpl_inherit.class.getName());
+			this.addCurrentClassDependency(MetadataClassDescriptor.class.getName());
+			this.addCurrentClassDependency(MetadataFieldDescriptor.class.getName());
+		}
+		super.appendClassMetaInformationHook(classDesc, appendable);
+	}
+	
+	@Override
 	protected void appendClassGenericTypeVariables(Appendable appendable, ClassDescriptor inputClass)
 			throws IOException
 	{
@@ -54,8 +78,7 @@ public class MetaMetadataJavaTranslator extends JavaTranslator implements MmdCom
 		MetaMetadata mmd = mdInputClass.getDefiningMmd();
 		List<MetaMetadataGenericTypeVar> mmdGenericTypeVars = mmd.getMetaMetadataGenericTypeVars();
 		MetaMetadataRepository repository = mmd.getRepository();
-		MetaMetadataGenericTypeVar.appendGenericTypeVarDefinitions(appendable, mmdGenericTypeVars,
-				repository, this);
+		appendGenericTypeVarDefinitions(appendable, mmdGenericTypeVars, repository);
 	}
 
 	@Override
@@ -66,10 +89,17 @@ public class MetaMetadataJavaTranslator extends JavaTranslator implements MmdCom
 		MetaMetadata mmd = mdInputClass.getDefiningMmd();
 		List<MetaMetadataGenericTypeVar> mmdGenericTypeVars = mmd.getMetaMetadataGenericTypeVars();
 		MetaMetadataRepository repository = mmd.getRepository();
-		MetaMetadataGenericTypeVar.appendGenericTypeVarParameterizations(appendable,
-				mmdGenericTypeVars, repository, this);
+		appendGenericTypeVarParameterizations(appendable, mmdGenericTypeVars, repository);
 	}
 
+	@Override
+	protected void appendField(ClassDescriptor contextCd, FieldDescriptor fieldDescriptor, Appendable appendable)
+			throws IOException, JavaTranslationException
+	{
+		((MetadataFieldDescriptor) fieldDescriptor).setCompilerService(this);
+		super.appendField(contextCd, fieldDescriptor, appendable);
+	}
+	
 	@Override
 	protected void appendFieldGenericTypeVars(ClassDescriptor contextCd,
 			FieldDescriptor fieldDescriptor, Appendable appendable) throws IOException
@@ -84,8 +114,72 @@ public class MetaMetadataJavaTranslator extends JavaTranslator implements MmdCom
 			List<MetaMetadataGenericTypeVar> mmdGenericTypeVars = nestedField
 					.getMetaMetadataGenericTypeVars();
 			MetaMetadataRepository repository = nestedField.getRepository();
-			MetaMetadataGenericTypeVar.appendGenericTypeVarParameterizations(appendable,
-					mmdGenericTypeVars, repository, this);
+			appendGenericTypeVarParameterizations(appendable, mmdGenericTypeVars, repository);
+		}
+	}
+
+	public void appendGenericTypeVarDefinitions(Appendable appendable,
+			List<MetaMetadataGenericTypeVar> mmdGenericTypeVars, MetaMetadataRepository repository)
+			throws IOException
+	{
+		if (mmdGenericTypeVars != null && mmdGenericTypeVars.size() > 0)
+		{
+			boolean first = true;
+			for (MetaMetadataGenericTypeVar mmdGenericTypeVar : mmdGenericTypeVars)
+			{
+				String varName = mmdGenericTypeVar.getName();
+				String boundName = mmdGenericTypeVar.getBound();
+				String paramName = mmdGenericTypeVar.getParameter();
+				if (varName != null && boundName != null && paramName == null)
+				{
+					if (!StringTools.isUpperCase(varName))
+					{
+						Debug.warning(MetaMetadataGenericTypeVar.class, "We recommend capital letters for generic variable names!");
+					}
+					if (first)
+					{
+						appendable.append("<");
+						first = false;
+					}
+					else
+						appendable.append(", ");
+					appendable.append(varName).append(" extends ").append(MetaMetadataGenericTypeVar.getMdClassNameFromMmdOrNoChange(boundName, repository, this));
+					appendGenericTypeVarParameterizations(appendable, mmdGenericTypeVar.getGenericTypeVars(), repository);
+				}
+			}
+			if (!first)
+				appendable.append(">");
+		}
+	}
+
+	@Override
+	public void appendGenericTypeVarParameterizations(Appendable appendable,
+			List<MetaMetadataGenericTypeVar> mmdGenericTypeVars, MetaMetadataRepository repository)
+			throws IOException
+	{
+		if (mmdGenericTypeVars != null && mmdGenericTypeVars.size() > 0)
+		{
+			boolean first = true;
+			for (MetaMetadataGenericTypeVar mmdGenericTypeVar : mmdGenericTypeVars)
+			{
+				String varName = mmdGenericTypeVar.getName();
+				String boundName = mmdGenericTypeVar.getBound();
+				String paramName = mmdGenericTypeVar.getParameter();
+				if (paramName != null && varName == null && boundName == null)
+				{
+					if (first)
+					{
+						appendable.append("<");
+						first = false;
+					}
+					else
+						appendable.append(", ");
+					appendable.append(MetaMetadataGenericTypeVar.getMdClassNameFromMmdOrNoChange(paramName, repository, this));
+					appendGenericTypeVarParameterizations(appendable, mmdGenericTypeVar.getGenericTypeVars(), repository);
+				}
+			}
+			if (!first)
+				appendable.append(">");
 		}
 	}
 
@@ -266,6 +360,12 @@ public class MetaMetadataJavaTranslator extends JavaTranslator implements MmdCom
 		}
 		appendable.append(", TRANSLATIONS);\n");
 		appendable.append("\t}\n\n");
+	}
+
+	@Override
+	public void addCurrentClassDependency(ClassDescriptor dependency)
+	{
+		addCurrentClassDependency(dependency.getDescribedClassName());
 	}
 
 }

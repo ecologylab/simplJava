@@ -164,7 +164,7 @@ public class JavaTranslator extends AbstractCodeTranslator implements JavaTransl
 
 		// class
 		// class: opening
-		openClassBody(inputClass, classBody, classSimpleName);
+		openClassBody(inputClass, classBody);
 		// class: fields
 		for (FieldDescriptor fieldDescriptor : fieldDescriptors)
 		{
@@ -219,7 +219,7 @@ public class JavaTranslator extends AbstractCodeTranslator implements JavaTransl
 	}
 
 	@Override
-	protected void openClassBody(ClassDescriptor inputClass, Appendable appendable, String overriddenClassSimpleName)
+	protected void openClassBody(ClassDescriptor inputClass, Appendable appendable)
 			throws IOException
 	{
 		appendClassComments(inputClass, appendable);
@@ -234,10 +234,7 @@ public class JavaTranslator extends AbstractCodeTranslator implements JavaTransl
 		}
 		appendable.append(CLASS);
 		appendable.append(SPACE);
-		if (overriddenClassSimpleName != null)
-			appendable.append(overriddenClassSimpleName);
-		else
-			appendable.append(inputClass.getDescribedClassSimpleName());
+		appendable.append(inputClass.getDescribedClassSimpleName());
 		appendClassGenericTypeVariables(appendable, inputClass);
 
 		ClassDescriptor superCD = inputClass.getSuperClass();
@@ -782,6 +779,11 @@ public class JavaTranslator extends AbstractCodeTranslator implements JavaTransl
 			case XML_TEXT_CDATA: return "Hint.XML_TEXT_CDATA"; 
 			default: return "Hint.UNDEFINED";
 			}
+		}
+		else if (argValue instanceof Class)
+		{
+			addCurrentClassDependency(((Class) argValue).getName());
+			return ((Class) argValue).getSimpleName() + ".class";
 		}
 		// eles if (argValue instanceof ClassDescriptor)
 		return null;

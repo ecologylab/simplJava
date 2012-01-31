@@ -22,6 +22,7 @@ import ecologylab.serialization.MetaInformation;
 import ecologylab.serialization.MetaInformation.Argument;
 import ecologylab.serialization.SIMPLTranslationException;
 import ecologylab.serialization.SimplTypesScope;
+import ecologylab.serialization.annotations.Hint;
 import ecologylab.serialization.types.CollectionType;
 import ecologylab.serialization.types.ScalarType;
 import ecologylab.serialization.types.element.IMappable;
@@ -92,7 +93,7 @@ public class DotNetTranslator extends AbstractCodeTranslator implements DotNetTr
 			}
 			translate(classDesc, directoryLocation, config);
 		}
-		generateLibraryTScopeClass(directoryLocation, tScope, null, null);
+		generateLibraryTScopeClass(directoryLocation, tScope, config.getLibraryTScopeClassPackage(), config.getLibraryTScopeClassSimpleName());
 		debug("DONE !");
 	}
 
@@ -138,16 +139,15 @@ public class DotNetTranslator extends AbstractCodeTranslator implements DotNetTr
 		appendHeaderComments(inputClass.getDescribedClassSimpleName(), SINGLE_LINE_COMMENT, FILE_EXTENSION, header);
 		
 		// unit scope
-		String packageName = inputClass.getPackageName();
-		openUnitScope(packageName, classBody);
+		openUnitScope(inputClass.getCSharpNamespace(), classBody);
 
 		// class
 		// class: opening
-		openClassBody(inputClass, classBody, null);
+		openClassBody(inputClass, classBody);
 		// class: fields
 		for (FieldDescriptor fieldDescriptor : fieldDescriptors)
 		{
-			if (fieldDescriptor.belongsTo(inputClass))
+			if (fieldDescriptor.belongsTo(inputClass) || inputClass.isCloned() && fieldDescriptor.belongsTo(inputClass.getClonedFrom()))
 				appendField(inputClass, fieldDescriptor, classBody);
 		}
 		// class: constructor(s)
@@ -155,7 +155,7 @@ public class DotNetTranslator extends AbstractCodeTranslator implements DotNetTr
 		// class: getters and setters
 		for (FieldDescriptor fieldDescriptor : fieldDescriptors)
 		{
-			if (fieldDescriptor.belongsTo(inputClass))
+			if (fieldDescriptor.belongsTo(inputClass) || inputClass.isCloned() && fieldDescriptor.belongsTo(inputClass.getClonedFrom()))
 				appendGettersAndSetters(inputClass, fieldDescriptor, classBody);
 		}
 		// class: mappable
@@ -183,7 +183,7 @@ public class DotNetTranslator extends AbstractCodeTranslator implements DotNetTr
 	@Override
 	protected void openUnitScope(String unitScopeName, Appendable appendable) throws IOException
 	{
-		currentNamespace = unitScopeName;//.getCSharpNamespace();
+		currentNamespace = unitScopeName;
 		addLibraryTScopeDependency(currentNamespace);
 		
 		appendable.append(NAMESPACE);
@@ -203,7 +203,7 @@ public class DotNetTranslator extends AbstractCodeTranslator implements DotNetTr
 	 * @throws IOException
 	 */
 	@Override
-	protected void openClassBody(ClassDescriptor inputClass, Appendable appendable, String overriddenClassSimpleName) throws IOException
+	protected void openClassBody(ClassDescriptor inputClass, Appendable appendable) throws IOException
 	{
 		appendClassComments(inputClass, appendable);
 		
@@ -224,8 +224,10 @@ public class DotNetTranslator extends AbstractCodeTranslator implements DotNetTr
 			appendable.append(INHERITANCE_OPERATOR);
 			appendable.append(SPACE);
 			appendable.append(superCD.getDescribedClassSimpleName());
+			appendSuperClassGenericTypeVariables(appendable, inputClass);
 			addCurrentClassDependency(superCD.getCSharpNamespace());
 		}
+		superClassHook(inputClass, appendable);
 	
 		// TODO currently interfaces can only be done through reflection
 		ArrayList<String> interfaces = inputClass.getInterfaceList();
@@ -245,6 +247,11 @@ public class DotNetTranslator extends AbstractCodeTranslator implements DotNetTr
 		appendable.append(TAB);
 		appendable.append(OPENING_CURLY_BRACE);
 		appendable.append(SINGLE_LINE_BREAK);
+	}
+
+	protected void superClassHook(ClassDescriptor inputClass, Appendable appendable) throws IOException
+	{
+		
 	}
 
 	/**
@@ -658,9 +665,11 @@ public class DotNetTranslator extends AbstractCodeTranslator implements DotNetTr
 			if (metaInfo.argsInArray)
 			{
 				String argType = metaInfo.args.get(0).simpleTypeName;
+				if (argType.equals("Class"))
+					argType = "Type";
 				appendable.append("new ").append(argType).append("[] {");
 				for (int i = 0; i < metaInfo.args.size(); ++i)
-					appendable.append(i==0?"":", ").append(DotNetTranslationUtilities.translateMetaInfoArgValue(metaInfo.args.get(i).value));
+					appendable.append(i==0?"":", ").append(translateMetaInfoArgValue(metaInfo.args.get(i).value));
 				appendable.append("}");
 			}
 			else
@@ -668,7 +677,7 @@ public class DotNetTranslator extends AbstractCodeTranslator implements DotNetTr
 				for (int i = 0; i < metaInfo.args.size(); ++i)
 				{
 					Argument a = metaInfo.args.get(i);
-					appendable.append(i==0?"":", ").append(metaInfo.args.size()>1?a.name+" = ":"").append(DotNetTranslationUtilities.translateMetaInfoArgValue(a.value));
+					appendable.append(i==0?"":", ").append(metaInfo.args.size()>1?a.name+" = ":"").append(translateMetaInfoArgValue(a.value));
 				}
 			}
 			appendable.append(")");
@@ -677,6 +686,34 @@ public class DotNetTranslator extends AbstractCodeTranslator implements DotNetTr
 		appendable.append(SINGLE_LINE_BREAK);
 	}
 	
+	public String translateMetaInfoArgValue(Object argValue)
+	{
+		// TODO to make this extendible, use an interface MetaInfoArgValueTranslator and allow users
+		//      to inject new ones to handle different kind of cases.
+		if (argValue instanceof String)
+		{
+			return "\"" + argValue.toString() + "\"";
+		}
+		else if (argValue instanceof Hint)
+		{
+			switch ((Hint) argValue)
+			{
+			case XML_ATTRIBUTE: return "Hint.XmlAttribute"; 
+			case XML_LEAF: return "Hint.XmlLeaf"; 
+			case XML_LEAF_CDATA: return "Hint.XmlLeafCdata"; 
+			case XML_TEXT: return "Hint.XmlText"; 
+			case XML_TEXT_CDATA: return "Hint.XmlTextCdata"; 
+			default: return "Hint.Undefined";
+			}
+		}
+		else if (argValue instanceof Class)
+		{
+			return "typeof(" + ((Class) argValue).getSimpleName() + ")";
+		}
+		// eles if (argValue instanceof ClassDescriptor)
+		return null;
+	}
+
 	@Override
 	public void addGlobalDependency(String name)
 	{
@@ -704,13 +741,10 @@ public class DotNetTranslator extends AbstractCodeTranslator implements DotNetTr
 	 * @throws IOException
 	 */
 	@Override
-	public void generateLibraryTScopeClass(File directoryLocation, SimplTypesScope tScope, String tScopeClassPackage, String tScopeClassSimpleName)
+	public void generateLibraryTScopeClass(File directoryLocation, SimplTypesScope tScope, String tscopePackageName, String tscopeClassName)
 			throws IOException
 	{
-		String packageName = config.getLibraryTScopeClassPackage();
-		String tscopeClassName = config.getLibraryTScopeClassSimpleName();
-		
-		File sourceFile = createFileWithDirStructure(directoryLocation, packageName.split(PACKAGE_NAME_SEPARATOR), tscopeClassName, FILE_EXTENSION);
+		File sourceFile = createFileWithDirStructure(directoryLocation, tscopePackageName.split(PACKAGE_NAME_SEPARATOR), tscopeClassName, FILE_EXTENSION);
 		BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(sourceFile));
 
 		// append dependencies
@@ -724,7 +758,7 @@ public class DotNetTranslator extends AbstractCodeTranslator implements DotNetTr
 		// header
 		bufferedWriter.append(NAMESPACE);
 		bufferedWriter.append(SPACE);
-		bufferedWriter.append(packageName);
+		bufferedWriter.append(tscopePackageName);
 		bufferedWriter.append(SPACE);
 		bufferedWriter.append(SINGLE_LINE_BREAK);
 		bufferedWriter.append(OPENING_CURLY_BRACE);
@@ -746,41 +780,7 @@ public class DotNetTranslator extends AbstractCodeTranslator implements DotNetTr
 		appendDefaultConstructor(tscopeClassName, bufferedWriter);
 		
 		// class: the Get() method
-		bufferedWriter.append(SINGLE_LINE_BREAK);
-		bufferedWriter.append(DOUBLE_TAB);
-		bufferedWriter.append(PUBLIC);
-		bufferedWriter.append(SPACE);
-		bufferedWriter.append(STATIC);
-		bufferedWriter.append(SPACE);
-		bufferedWriter.append(DOTNET_TRANSLATION_SCOPE);
-		bufferedWriter.append(SPACE);
-		bufferedWriter.append("Get");
-		bufferedWriter.append(OPENING_BRACE);
-		bufferedWriter.append(CLOSING_BRACE);
-		bufferedWriter.append(SINGLE_LINE_BREAK);
-		bufferedWriter.append(DOUBLE_TAB);
-		bufferedWriter.append(OPENING_CURLY_BRACE);
-		bufferedWriter.append(SINGLE_LINE_BREAK);
-		
-		bufferedWriter.append(DOUBLE_TAB);
-		bufferedWriter.append(TAB);
-		bufferedWriter.append(RETURN);
-		bufferedWriter.append(SPACE);
-		bufferedWriter.append(DOTNET_TRANSLATION_SCOPE);
-		bufferedWriter.append(DOT);
-		bufferedWriter.append(FGET);
-		bufferedWriter.append(OPENING_BRACE);
-		bufferedWriter.append(QUOTE);
-		bufferedWriter.append(tScope.getName());
-//		appendable.append("SemanticNames.REPOSITORY_METADATA_TRANSLATIONS"); // FIXME
-		bufferedWriter.append(QUOTE);
-		appendTranslatedClassList(tScope, bufferedWriter);
-		bufferedWriter.append(CLOSING_BRACE);
-		bufferedWriter.append(END_LINE);
-		bufferedWriter.append(SINGLE_LINE_BREAK);
-		bufferedWriter.append(DOUBLE_TAB);
-		bufferedWriter.append(CLOSING_CURLY_BRACE);
-		bufferedWriter.append(SINGLE_LINE_BREAK);
+		generateLibraryTScopeGetter(bufferedWriter, tScope);
 		
 		closeClassBody(bufferedWriter);
 		closeUnitScope(bufferedWriter);
@@ -788,21 +788,60 @@ public class DotNetTranslator extends AbstractCodeTranslator implements DotNetTr
 		bufferedWriter.close();
 	}
 
+	protected void generateLibraryTScopeGetter(Appendable appendable, SimplTypesScope tScope)
+			throws IOException
+	{
+		appendable.append(SINGLE_LINE_BREAK);
+		appendable.append(DOUBLE_TAB);
+		appendable.append(PUBLIC);
+		appendable.append(SPACE);
+		appendable.append(STATIC);
+		appendable.append(SPACE);
+		appendable.append(DOTNET_TRANSLATION_SCOPE);
+		appendable.append(SPACE);
+		appendable.append("Get");
+		appendable.append(OPENING_BRACE);
+		appendable.append(CLOSING_BRACE);
+		appendable.append(SINGLE_LINE_BREAK);
+		appendable.append(DOUBLE_TAB);
+		appendable.append(OPENING_CURLY_BRACE);
+		appendable.append(SINGLE_LINE_BREAK);
+		
+		appendable.append(DOUBLE_TAB);
+		appendable.append(TAB);
+		appendable.append(RETURN);
+		appendable.append(SPACE);
+		appendable.append(DOTNET_TRANSLATION_SCOPE);
+		appendable.append(DOT);
+		appendable.append(FGET);
+		appendable.append(OPENING_BRACE);
+		appendable.append(QUOTE);
+		appendable.append(tScope.getName());
+		appendable.append(QUOTE);
+		appendTranslatedClassList(tScope, appendable);
+		appendable.append(CLOSING_BRACE);
+		appendable.append(END_LINE);
+		appendable.append(SINGLE_LINE_BREAK);
+		appendable.append(DOUBLE_TAB);
+		appendable.append(CLOSING_CURLY_BRACE);
+		appendable.append(SINGLE_LINE_BREAK);
+	}
+
 	@Override
 	protected void appendTranslatedClassList(SimplTypesScope tScope, Appendable appendable) throws IOException
 	{
+		List<String> lines = new ArrayList<String>();
+		
 		Collection<ClassDescriptor<? extends FieldDescriptor>> allClasses = tScope.entriesByClassName().values();
-		for (ClassDescriptor<? extends FieldDescriptor> myClass : allClasses)
+		for (ClassDescriptor<? extends FieldDescriptor> oneClass : allClasses)
 		{
-			appendable.append(COMMA);
-			appendable.append(SINGLE_LINE_BREAK);
-			appendable.append(DOUBLE_TAB);
-			appendable.append(DOUBLE_TAB);
-			appendable.append(TYPE_OF);
-			appendable.append(OPENING_BRACE);
-			appendable.append(myClass.getDescribedClassSimpleName());
-			appendable.append(CLOSING_BRACE);
+			if (excludeClassesFromTranslation.contains(oneClass))
+				continue;
+			lines.add(String.format(",\n\t\t\t\ttypeof(%s%s)", oneClass.getDescribedClassSimpleName(), oneClass.isGenericClass() ? "<>" : ""));
 		}
+		Collections.sort(lines);
+		for (String line : lines)
+			appendable.append(line);
 	}
 
 	/**
