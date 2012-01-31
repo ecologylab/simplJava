@@ -16,6 +16,8 @@ import java.util.Set;
 import sun.reflect.generics.reflectiveObjects.ParameterizedTypeImpl;
 import ecologylab.generic.HashMapArrayList;
 import ecologylab.generic.ReflectionTools;
+import ecologylab.platformspecifics.FundamentalPlatformSpecifics;
+import ecologylab.platformspecifics.IFundamentalPlatformSpecifics;
 import ecologylab.serialization.annotations.Hint;
 import ecologylab.serialization.annotations.bibtex_key;
 import ecologylab.serialization.annotations.bibtex_type;
@@ -324,18 +326,31 @@ public class ClassDescriptor<FD extends FieldDescriptor> extends DescriptorBase 
 		return superClassGenericTypeVars;
 	}
 
+	// added a setter to enable environment specific implementation -Fei
+	public void setSuperClassGenericTypeVars(ArrayList<GenericTypeVar> derivedSuperClassGenericTypeVars)
+	{
+		synchronized (this)
+		{
+			superClassGenericTypeVars = derivedSuperClassGenericTypeVars;
+		}
+	}
+	
+	// This method is modified, refer to FundamentalPlatformSpecific package -Fei
 	private void deriveSuperGenericTypeVariables()
 	{
-		if (describedClass == null)
-			return;
+		IFundamentalPlatformSpecifics iFundamentalPlatformSpecifics = FundamentalPlatformSpecifics.get();
+		iFundamentalPlatformSpecifics.deriveSuperGenericTypeVariables(this);
 		
-		Type superClassType = describedClass.getGenericSuperclass();
-
-		if (superClassType instanceof ParameterizedTypeImpl)
-		{
-			ParameterizedTypeImpl superClassParameterizedType = (ParameterizedTypeImpl) superClassType;
-			superClassGenericTypeVars = GenericTypeVar.getGenericTypeVars(superClassParameterizedType);
-		}
+//		if (describedClass == null)
+//			return;
+//		
+//		Type superClassType = describedClass.getGenericSuperclass();
+//
+//		if (superClassType instanceof ParameterizedTypeImpl)
+//		{
+//			ParameterizedTypeImpl superClassParameterizedType = (ParameterizedTypeImpl) superClassType;
+//			superClassGenericTypeVars = GenericTypeVar.getGenericTypeVars(superClassParameterizedType);
+//		}
 	}
 
 	private void deriveGenericTypeVariables()

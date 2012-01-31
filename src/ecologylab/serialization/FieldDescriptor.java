@@ -11,7 +11,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
-import java.lang.reflect.Type;
+//import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -22,12 +22,14 @@ import java.util.regex.Pattern;
 
 import org.w3c.dom.Node;
 
-import sun.reflect.generics.reflectiveObjects.ParameterizedTypeImpl;
-import sun.reflect.generics.reflectiveObjects.TypeVariableImpl;
+//import sun.reflect.generics.reflectiveObjects.ParameterizedTypeImpl;
+//import sun.reflect.generics.reflectiveObjects.TypeVariableImpl;
 import ecologylab.generic.HashMapArrayList;
 import ecologylab.generic.ReflectionTools;
 import ecologylab.generic.StringBuilderBaseUtils;
 import ecologylab.generic.StringTools;
+import ecologylab.platformspecifics.FundamentalPlatformSpecifics;
+import ecologylab.platformspecifics.IFundamentalPlatformSpecifics;
 import ecologylab.serialization.MetaInformation.Argument;
 import ecologylab.serialization.annotations.Hint;
 import ecologylab.serialization.annotations.simpl_classes;
@@ -542,25 +544,38 @@ public class FieldDescriptor extends DescriptorBase implements FieldTypes, IMapp
 		return genericTypeVars;
 	}
 
+	// added a setter to enable environment specific implementation -Fei
+	public void setGenericTypeVars(ArrayList<GenericTypeVar> derivedGenericTypeVariables)
+	{
+		synchronized (this)
+		{
+			genericTypeVars = derivedGenericTypeVariables;
+		}
+	}
+	
+	// This method is modified, refer to FundamentalPlatformSpecific package -Fei
 	private void deriveGenericTypeVariables()
 	{
-		Type genericType = field.getGenericType();
+		IFundamentalPlatformSpecifics iFundamentalPlatformSpecifics = FundamentalPlatformSpecifics.get();
+		iFundamentalPlatformSpecifics.deriveGenericTypeVariables(this);
 		
-		if(genericType instanceof ParameterizedTypeImpl)
-		{
-			ParameterizedTypeImpl parameterizedType = (ParameterizedTypeImpl) genericType;
-			
-			Type[] types = parameterizedType.getActualTypeArguments();
-	
-			if (types == null | types.length <= 0)
-				return;
-	
-			for (Type t : types)
-			{
-				GenericTypeVar g = GenericTypeVar.getGenericTypeVar(t);
-				genericTypeVars.add(g);
-			}
-		}
+//		Type genericType = field.getGenericType();
+//		
+//		if(genericType instanceof ParameterizedTypeImpl)
+//		{
+//			ParameterizedTypeImpl parameterizedType = (ParameterizedTypeImpl) genericType;
+//			
+//			Type[] types = parameterizedType.getActualTypeArguments();
+//	
+//			if (types == null | types.length <= 0)
+//				return;
+//	
+//			for (Type t : types)
+//			{
+//				GenericTypeVar g = GenericTypeVar.getGenericTypeVar(t);
+//				genericTypeVars.add(g);
+//			}
+//		}
 	}	
 
 
@@ -864,41 +879,45 @@ public class FieldDescriptor extends DescriptorBase implements FieldTypes, IMapp
 	 * @return The class of the type variable, if it exists.
 	 */
 	@SuppressWarnings("unchecked")
+	// This method is modified to enable platform specific implementation
 	public Class<?> getTypeArgClass(Field field, int i)
 	{
-		Class result = null;
-
-		java.lang.reflect.Type[] typeArgs = ReflectionTools.getParameterizedTypeTokens(field);
-		if (typeArgs != null)
-		{
-			final int max = typeArgs.length - 1;
-			if (i > max)
-				i = max;
-			final Type typeArg0 = typeArgs[i];
-			if (typeArg0 instanceof Class)
-			{
-				result = (Class) typeArg0;
-			}
-			else if (typeArg0 instanceof ParameterizedTypeImpl)
-			{ // nested parameterized type
-				ParameterizedTypeImpl pti = (ParameterizedTypeImpl) typeArg0;
-				result = pti.getRawType();
-			}
-			else if (typeArg0 instanceof TypeVariableImpl)
-			{
-				TypeVariableImpl tvi = (TypeVariableImpl) typeArg0;
-				Type[] tviBounds = tvi.getBounds();
-				result = (Class) tviBounds[0];
-				debug("yo! " + result);
-			}
-
-			else
-			{
-				error("getTypeArgClass(" + field + ", " + i
-						+ " yucky! Consult s.im.mp serialization developers.");
-			}
-		}
-		return result;
+		IFundamentalPlatformSpecifics iFundamentalPlatformSpecifics = FundamentalPlatformSpecifics.get();
+		return iFundamentalPlatformSpecifics.getTypeArgClass(field, i, this);
+		
+//		Class result = null;
+//
+//		java.lang.reflect.Type[] typeArgs = ReflectionTools.getParameterizedTypeTokens(field);
+//		if (typeArgs != null)
+//		{
+//			final int max = typeArgs.length - 1;
+//			if (i > max)
+//				i = max;
+//			final Type typeArg0 = typeArgs[i];
+//			if (typeArg0 instanceof Class)
+//			{
+//				result = (Class) typeArg0;
+//			}
+//			else if (typeArg0 instanceof ParameterizedTypeImpl)
+//			{ // nested parameterized type
+//				ParameterizedTypeImpl pti = (ParameterizedTypeImpl) typeArg0;
+//				result = pti.getRawType();
+//			}
+//			else if (typeArg0 instanceof TypeVariableImpl)
+//			{
+//				TypeVariableImpl tvi = (TypeVariableImpl) typeArg0;
+//				Type[] tviBounds = tvi.getBounds();
+//				result = (Class) tviBounds[0];
+//				debug("yo! " + result);
+//			}
+//
+//			else
+//			{
+//				error("getTypeArgClass(" + field + ", " + i
+//						+ " yucky! Consult s.im.mp serialization developers.");
+//			}
+//		}
+//		return result;
 	}
 
 	/**

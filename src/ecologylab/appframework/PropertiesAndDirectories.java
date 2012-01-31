@@ -33,11 +33,11 @@ public class PropertiesAndDirectories extends Debug
 	protected static File				_DIR;
 
 	public static final int			UNKNOWN			= 0, XP = 1, LINUX = 2, MAC_OLD = 3, MAC = 4,
-			OTHER_UNIX = 5, VISTA_AND_7 = 6;
+			OTHER_UNIX = 5, VISTA_AND_7 = 6,  ANDROID = 7;
 
 	public static final String	OS_NAMES[]	=
 																					{ "Unknown", "Windows XP", "Linux", "Mac old", "Mac OSX",
-			"Unix", "Windows Vista / 7"				};
+			"Unix", "Windows Vista / 7"	, "Android"			};
 
 	protected static int				os;									// should be final
 
@@ -61,6 +61,8 @@ public class PropertiesAndDirectories extends Debug
 					|| StringTools.contains(osName, "hp-ux") || StringTools.contains(osName, "freebsd")
 					|| StringTools.contains(osName, "irix") || StringTools.contains(osName, "aix"))
 				os = OTHER_UNIX;
+			else if (System.getProperty("java.vm.name").contains("Dalvik"))
+				os = ANDROID;
 			else
 				os = UNKNOWN;
 		}
