@@ -7,9 +7,11 @@ import java.lang.reflect.Type;
 import java.lang.reflect.TypeVariable;
 import java.util.ArrayList;
 
-import sun.reflect.generics.reflectiveObjects.ParameterizedTypeImpl;
-import sun.reflect.generics.reflectiveObjects.WildcardTypeImpl;
+//import sun.reflect.generics.reflectiveObjects.ParameterizedTypeImpl;
+//import sun.reflect.generics.reflectiveObjects.WildcardTypeImpl;
 import ecologylab.generic.Debug;
+import ecologylab.platformspecifics.FundamentalPlatformSpecifics;
+import ecologylab.platformspecifics.IFundamentalPlatformSpecifics;
 import ecologylab.serialization.annotations.simpl_collection;
 import ecologylab.serialization.annotations.simpl_composite;
 import ecologylab.serialization.annotations.simpl_scalar;
@@ -74,6 +76,12 @@ public class GenericTypeVar extends Debug
 		return classDescriptor;
 	}
 	
+	// added a setter to enable platform specific
+	public void setClassDescriptor(ClassDescriptor classDescriptor)
+	{
+		this.classDescriptor = classDescriptor;
+	}
+	
 	public ClassDescriptor getConstraintClassDescriptor()
 	{
 		return constraintClassDescriptor;
@@ -100,27 +108,31 @@ public class GenericTypeVar extends Debug
 		constraintedGenericTypeVars.add(g);
 	}
 
-	public static ArrayList<GenericTypeVar> getGenericTypeVars(Type parameterizedType)
-	{
-		return getGenericTypeVars((ParameterizedTypeImpl) parameterizedType);
-	}
+	// this method has been moved to the platform specific package in the corresponding project
+	
+//	public static ArrayList<GenericTypeVar> getGenericTypeVars(Type parameterizedType)
+//	{
+//		return getGenericTypeVars((ParameterizedTypeImpl) parameterizedType);
+//	}
 
-	public static ArrayList<GenericTypeVar> getGenericTypeVars(ParameterizedTypeImpl parameterizedType)
-	{
-		Type[] types = parameterizedType.getActualTypeArguments();
-
-		if (types == null | types.length <= 0)
-			return null;
-
-		ArrayList<GenericTypeVar> returnValue = new ArrayList<GenericTypeVar>();
-		for (Type t : types)
-		{
-			GenericTypeVar g = getGenericTypeVar(t);
-			returnValue.add(g);
-		}
-
-		return returnValue;
-	}
+	// this method has been moved to the platform specific package in the corresponding project
+	
+//	public static ArrayList<GenericTypeVar> getGenericTypeVars(ParameterizedTypeImpl parameterizedType)
+//	{
+//		Type[] types = parameterizedType.getActualTypeArguments();
+//
+//		if (types == null | types.length <= 0)
+//			return null;
+//
+//		ArrayList<GenericTypeVar> returnValue = new ArrayList<GenericTypeVar>();
+//		for (Type t : types)
+//		{
+//			GenericTypeVar g = getGenericTypeVar(t);
+//			returnValue.add(g);
+//		}
+//
+//		return returnValue;
+//	}
 
 	public static GenericTypeVar getGenericTypeVar(TypeVariable<?> typeVariable)
 	{
@@ -132,7 +144,15 @@ public class GenericTypeVar extends Debug
 
 		return g;
 	}
-
+	
+	// added a helper method for resolveGenericConstraints
+	public static void checkBoundParameterizedTypeImpl (GenericTypeVar g, Type bounds)
+	{
+		IFundamentalPlatformSpecifics iFundamentalPlatformSpecifics = FundamentalPlatformSpecifics.get();
+		iFundamentalPlatformSpecifics.checkBoundParameterizedTypeImpl(g, bounds);
+	}
+	
+	// this method has been moved to the platform specific package in the corresponding project
 	public static void resolveGenericConstraints(GenericTypeVar g, Type[] bounds)
 	{
 		if (bounds == null)
@@ -148,19 +168,21 @@ public class GenericTypeVar extends Debug
 				g.constraintClassDescriptor = ClassDescriptor.getClassDescriptor(boundClass);
 		}
 
-		if (bound instanceof ParameterizedTypeImpl)
-		{
-			ParameterizedTypeImpl parmeterizedType = (ParameterizedTypeImpl) bound;
-			g.constraintClassDescriptor = ClassDescriptor.getClassDescriptor(parmeterizedType
-					.getRawType());
-
-			Type[] types = parmeterizedType.getActualTypeArguments();
-
-			for (Type type : types)
-			{
-				g.addContraintGenericTypeVar(getGenericTypeVar(type));
-			}
-		}
+		checkBoundParameterizedTypeImpl(g, bound);
+		
+//		if (bound instanceof ParameterizedTypeImpl)
+//		{
+//			ParameterizedTypeImpl parmeterizedType = (ParameterizedTypeImpl) bound;
+//			g.constraintClassDescriptor = ClassDescriptor.getClassDescriptor(parmeterizedType
+//					.getRawType());
+//
+//			Type[] types = parmeterizedType.getActualTypeArguments();
+//
+//			for (Type type : types)
+//			{
+//				g.addContraintGenericTypeVar(getGenericTypeVar(type));
+//			}
+//		}
 
 		if (bound instanceof TypeVariable<?>)
 		{
@@ -169,16 +191,31 @@ public class GenericTypeVar extends Debug
 		}
 	}
 
+	// added two helper functions for GenericTypeVar
+	public static void checkTypeWildcardTypeImpl(GenericTypeVar g, Type type)
+	{
+		IFundamentalPlatformSpecifics iFundamentalPlatformSpecifics = FundamentalPlatformSpecifics.get();
+		iFundamentalPlatformSpecifics.checkTypeWildcardTypeImpl(g, type);
+	}
+	
+	public static void checkTypeParameterizedTypeImpl(GenericTypeVar g, Type type)
+	{
+		IFundamentalPlatformSpecifics iFundamentalPlatformSpecifics = FundamentalPlatformSpecifics.get();
+		iFundamentalPlatformSpecifics.checkTypeParameterizedTypeImpl(g, type);
+	}
+	
 	public static GenericTypeVar getGenericTypeVar(Type type)
 	{
 		GenericTypeVar g = new GenericTypeVar();
 
-		if (type instanceof WildcardTypeImpl)
-		{
-			g.name = "?";
-			WildcardTypeImpl wildCardType = (WildcardTypeImpl) type;
-			resolveGenericConstraints(g, wildCardType.getUpperBounds());
-		}
+		checkTypeWildcardTypeImpl(g, type);
+		
+//		if (type instanceof WildcardTypeImpl)
+//		{
+//			g.name = "?";
+//			WildcardTypeImpl wildCardType = (WildcardTypeImpl) type;
+//			resolveGenericConstraints(g, wildCardType.getUpperBounds());
+//		}
 
 		if (type instanceof Class<?>)
 		{
@@ -193,18 +230,20 @@ public class GenericTypeVar extends Debug
 			return getGenericTypeVar(typeVar);
 		}
 
-		if (type instanceof ParameterizedTypeImpl)
-		{
-			ParameterizedTypeImpl parmeterizedType = (ParameterizedTypeImpl) type;
-			g.classDescriptor = ClassDescriptor.getClassDescriptor(parmeterizedType.getRawType());
-
-			Type[] types = parmeterizedType.getActualTypeArguments();
-
-			for (Type t : types)
-			{
-				g.addGenericTypeVar(getGenericTypeVar(t));
-			}
-		}
+		checkTypeParameterizedTypeImpl(g, type);
+		
+//		if (type instanceof ParameterizedTypeImpl)
+//		{
+//			ParameterizedTypeImpl parmeterizedType = (ParameterizedTypeImpl) type;
+//			g.classDescriptor = ClassDescriptor.getClassDescriptor(parmeterizedType.getRawType());
+//
+//			Type[] types = parmeterizedType.getActualTypeArguments();
+//
+//			for (Type t : types)
+//			{
+//				g.addGenericTypeVar(getGenericTypeVar(t));
+//			}
+//		}
 
 		return g;
 	}

@@ -13,7 +13,7 @@ import java.util.List;
 import java.util.Map.Entry;
 import java.util.Set;
 
-import sun.reflect.generics.reflectiveObjects.ParameterizedTypeImpl;
+//import sun.reflect.generics.reflectiveObjects.ParameterizedTypeImpl;
 import ecologylab.generic.HashMapArrayList;
 import ecologylab.generic.ReflectionTools;
 import ecologylab.platformspecifics.FundamentalPlatformSpecifics;
