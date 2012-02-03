@@ -992,6 +992,12 @@ public class Files extends Debug
 		}
 		return succeeded;
 	}
+	
+	public static String getFilenameMinusExtension(File file)
+	{
+		String pathString = file.getAbsolutePath();
+		return pathString.substring(pathString.lastIndexOf(sep)+1, pathString.lastIndexOf('.'));
+	}
 }
 
 class XMLFileNonRecursiveFilter implements java.io.FileFilter
