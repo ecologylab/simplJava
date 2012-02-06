@@ -759,6 +759,7 @@ public final class SimplTypesScope extends ElementState
 
 	private String	toStringCache;
 
+	@Override
 	public String toString()
 	{
 		if (toStringCache == null)
@@ -1654,6 +1655,20 @@ public Object deserialize(InputStream inputStream, TranslationContext translatio
 	{
 		FormatSerializer serializer = FormatSerializer.getSerializer(format);
 		serializer.serialize(object, outputStream);
+	}
+	
+	/**
+	 * 
+	 * @param object
+	 * @param outputStream
+	 * @param format
+	 * @param translationContext
+	 * @throws SIMPLTranslationException 
+	 */
+	public static void serialize(Object object, OutputStream outputStream, Format format, TranslationContext translationContext) throws SIMPLTranslationException
+	{
+		FormatSerializer serializer = FormatSerializer.getSerializer(format);
+		serializer.serialize(object, outputStream, translationContext);
 	}
 
 	/**

@@ -108,6 +108,11 @@ public class ImageTools extends Debug
 
 	public static void writeFile(RenderedImage rendImage, File outfile, String formatName)
 	{
+		writeToTarget(rendImage, outfile, outfile.getName(), formatName);
+	}
+	
+	private static void writeToTarget(RenderedImage rendImage, Object outputTarget, String targetName, String formatName)
+	{
 		if (rendImage == null)
 		{
 			error(ImageTools.class, "rendered image is NULL! cannot save image file.");
@@ -125,12 +130,12 @@ public class ImageTools extends Debug
 			}
 			else
 			{
-				Debug.error(rendImage, "no image writer for " + outfile.getName());
+				Debug.error(rendImage, "no image writer for " + targetName);
 				return;
 			}
 
 			// Prepare output file
-			ImageOutputStream ios = ImageIO.createImageOutputStream(outfile);
+			ImageOutputStream ios = ImageIO.createImageOutputStream(outputTarget);
 			writer.setOutput(ios);
 
 			ImageTools imageTools = new ImageTools();
@@ -156,6 +161,11 @@ public class ImageTools extends Debug
 		writeFile(rendImage, outfile, "png");
 	}
 
+	public static void writePngStream(RenderedImage rendImage, OutputStream outStream)
+	{
+		writeToTarget(rendImage, outStream, outStream.toString(), "png");
+	}
+
 	public static void writeTifFile(RenderedImage rendImage, File outfile)
 	{
 		writeFile(rendImage, outfile, "tif");
@@ -169,6 +179,17 @@ public class ImageTools extends Debug
 	 */
 	public static void writeJpegFile(RenderedImage rendImage, File outfile, float compressionQuality)
 	{
+		writeJpegToTarget(rendImage, outfile, compressionQuality);
+	}
+
+	public static void writeJpegStream(RenderedImage rendImage, OutputStream outStream, float compressionQuality)
+	{
+		writeJpegToTarget(rendImage, outStream, compressionQuality);
+	}
+
+	private static void writeJpegToTarget(RenderedImage rendImage, Object target,
+			float compressionQuality)
+	{
 		try
 		{
 			// Find a jpeg writer
@@ -179,7 +200,7 @@ public class ImageTools extends Debug
 				writer = (ImageWriter) iter.next();
 			}
 			// Prepare output file
-			ImageOutputStream ios = ImageIO.createImageOutputStream(outfile);
+			ImageOutputStream ios = ImageIO.createImageOutputStream(target);
 			writer.setOutput(ios);
 		
 			ImageTools imageTools = new ImageTools();
@@ -215,6 +236,19 @@ public class ImageTools extends Debug
 	public static void writeJpegFile(BufferedImage image, String fileName, float compressionQuality,
 			int width, int height)
 	{
+		BufferedImage scaledImage = scaleJpeg(image, width, height);
+		writeJpegFile(scaledImage, fileName, compressionQuality);
+	}
+
+	public static void writeJpegStream(BufferedImage image, OutputStream outStream, float compressionQuality,
+			int width, int height)
+	{
+		BufferedImage scaledImage = scaleJpeg(image, width, height);
+		writeJpegStream(scaledImage, outStream, compressionQuality);
+	}
+
+	private static BufferedImage scaleJpeg(BufferedImage image, int width, int height)
+	{
 		// final int THUMBNAIL_WIDTH = 245;
 		// final int THUMBNAIL_HEIGHT = 350;
 
@@ -247,8 +281,7 @@ public class ImageTools extends Debug
 				RenderingHints.VALUE_INTERPOLATION_BILINEAR);
 
 		graphics2D.drawImage(image, 0, 0, width, height, null);
-
-		writeJpegFile(scaledImage, fileName, compressionQuality);
+		return scaledImage;
 	}
 
 	// This class overrides the setCompressionQuality() method to workaround

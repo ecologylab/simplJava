@@ -6,6 +6,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintStream;
+import java.io.UnsupportedEncodingException;
 
 import ecologylab.serialization.SIMPLTranslationException;
 import ecologylab.serialization.TranslationContext;
@@ -20,7 +21,16 @@ public abstract class StringSerializer extends FormatSerializer
 	public void serialize(Object object, OutputStream outputStream,
 			TranslationContext translationContext) throws SIMPLTranslationException
 	{
-		serialize(object, (Appendable) new PrintStream(outputStream), translationContext);
+//		serialize(object, (Appendable) new PrintStream(outputStream), translationContext);
+		try
+		{
+			serialize(object, (Appendable) new PrintStream(outputStream, true, "utf-8"), translationContext);
+		}
+		catch (UnsupportedEncodingException e)
+		{
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 
 	@Override
@@ -35,7 +45,7 @@ public abstract class StringSerializer extends FormatSerializer
 				translationContext.setBaseDirFile(outputFile.getParentFile());
 
 			BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(outputFile));
-			serialize(object, (Appendable) bufferedWriter, translationContext);
+			serialize(object, bufferedWriter, translationContext);
 
 			bufferedWriter.close();
 		}
