@@ -4,5 +4,9 @@
 	<classpathentry kind="src" path="gen"/>
 	<classpathentry kind="con" path="com.android.ide.eclipse.adt.ANDROID_FRAMEWORK"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/ecologylabFundamental"/>
-	<classpathentry kind="output" path="bin"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/ecologylabGeneratedSemantics"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/ecologylabSemanticsCyberneko"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/ecologylabSemantics"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/cyberneko"/>
+	<classpathentry kind="output" path="bin/classes"/>
 </classpath>
