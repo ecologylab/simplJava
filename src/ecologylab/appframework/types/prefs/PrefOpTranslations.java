@@ -3,7 +3,11 @@
  */
 package ecologylab.appframework.types.prefs;
 
+import java.util.ArrayList;
+import java.util.Collection;
+
 import ecologylab.generic.Debug;
+import ecologylab.platformspecifics.FundamentalPlatformSpecifics;
 import ecologylab.serialization.SimplTypesScope;
 
 /**
@@ -17,7 +21,6 @@ public class PrefOpTranslations extends Debug
 	public static final Class[] TRANSLATIONS 	= 
 	{
 		PrefOp.class,
-		PrefDelayedOp.class,
 	};
 	
 	/**
@@ -29,6 +32,7 @@ public class PrefOpTranslations extends Debug
 	
 	public static SimplTypesScope get(SimplTypesScope inheritedScope)
 	{
-		return SimplTypesScope.get(SCOPE_NAME, inheritedScope, TRANSLATIONS);
+		return SimplTypesScope.get(SCOPE_NAME, inheritedScope, TRANSLATIONS, FundamentalPlatformSpecifics.get().addtionalPrefOpTranslations());
 	}
+
 }

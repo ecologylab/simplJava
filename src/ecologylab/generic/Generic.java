@@ -1,8 +1,10 @@
 package ecologylab.generic;
 
-import java.awt.Toolkit;
+import ecologylab.platformspecifics.FundamentalPlatformSpecifics;
 
-import javax.swing.JOptionPane;
+//import java.awt.Toolkit;
+
+//import javax.swing.JOptionPane;
 
 
 /**
@@ -237,7 +239,7 @@ public class Generic
    
    public static void beep()
    {
-	  Toolkit.getDefaultToolkit().beep();
+	   FundamentalPlatformSpecifics.get().beep();
    }
 
 /**
@@ -286,9 +288,9 @@ public class Generic
 	 */
 	public static void showDialog(String msg)
 	{
-		JOptionPane.showOptionDialog(null, msg, "combinFormation exited", JOptionPane.DEFAULT_OPTION, 
-									JOptionPane.WARNING_MESSAGE, null, DIALOG_OPTIONS, DIALOG_OPTIONS[0]);
+		FundamentalPlatformSpecifics.get().showDialog(msg, DIALOG_OPTIONS);
 	}
+	
     public static String narrowFloat(float f)
 	   {
 	      String s	= Float.toString(f);

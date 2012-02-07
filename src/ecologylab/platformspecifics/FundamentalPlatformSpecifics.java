@@ -41,7 +41,7 @@ public class FundamentalPlatformSpecifics {
 					} catch (ClassNotFoundException e) {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
-						throw new RuntimeException("Can't initialize FundamentalPlatformSpecifics");
+						throw new RuntimeException("Can't initialize FundamentalPlatformSpecifics" + className);
 					}
 					if (platformSpecificsClass == null)
 					{

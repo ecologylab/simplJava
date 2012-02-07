@@ -3,11 +3,16 @@ package ecologylab.platformspecifics;
 import java.lang.reflect.Field;
 import java.lang.reflect.Type;
 
+import ecologylab.appframework.types.prefs.MetaPrefSet;
+import ecologylab.appframework.types.prefs.PrefSet;
+import ecologylab.net.ParsedURL;
 import ecologylab.serialization.ClassDescriptor;
 import ecologylab.serialization.FieldDescriptor;
 import ecologylab.serialization.GenericTypeVar;
 
 public interface IFundamentalPlatformSpecifics {
+	// in ApplicationEnvironment
+	void initialize();
 	
 	// in ecologylab.serialization.ClassDescriptor;
 	void deriveSuperGenericTypeVariables(ClassDescriptor classDescriptor);
@@ -20,4 +25,23 @@ public interface IFundamentalPlatformSpecifics {
 	void checkBoundParameterizedTypeImpl (GenericTypeVar g, Type bound);
 	void checkTypeWildcardTypeImpl(GenericTypeVar g, Type type);
 	void checkTypeParameterizedTypeImpl(GenericTypeVar g, Type type);
+	
+	// more stuff
+	Object getOrCreatePrefsEditor(MetaPrefSet metaPrefSet, PrefSet prefSet, ParsedURL savePrefsPURL, final boolean createJFrame, final boolean isStandalone);
+	
+	// in ParsedUrl
+	String[] getReaderFormatNames();
+	
+	// in Generic
+	void beep();
+	void showDialog(String msg, String[] digital_options);
+	
+	// in Pref
+	Object usePrefColor(String name, Object defaultValue);
+	Object lookupColor(String name, Object defaultValue) throws ClassCastException;
+	
+	Class[] addtionalPrefOpTranslations();
+
+	Class[] additionalPrefSetBaseTranslations();
+
 }

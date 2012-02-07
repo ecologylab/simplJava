@@ -3,12 +3,13 @@
  */
 package ecologylab.appframework.types.prefs;
 
-import java.awt.Color;
+//import java.awt.Color;
 import java.io.File;
 import java.util.LinkedList;
 
 import ecologylab.appframework.SingletonApplicationEnvironment;
 import ecologylab.collections.Scope;
+import ecologylab.platformspecifics.FundamentalPlatformSpecifics;
 import ecologylab.serialization.ElementState;
 import ecologylab.serialization.TranslationContext;
 import ecologylab.serialization.annotations.simpl_inherit;
@@ -47,7 +48,7 @@ public abstract class Pref<T> extends ElementState implements IMappable<String>,
 	{
 		super();
 	}
-
+	
 	protected Pref(String name)
 	{
 		this.name = name;
@@ -261,16 +262,9 @@ public abstract class Pref<T> extends ElementState implements IMappable<String>,
 	 * 
 	 * @return A usable Pref object associated with name, either from the registry or newly created
 	 */
-	public static PrefColor usePrefColor(String name, Color defaultValue)
+	public static Object usePrefColor(String name, Object defaultValue)
 	{
-		PrefColor pref = (PrefColor) lookupPref(name);
-		if (pref == null)
-		{
-			pref = new PrefColor(defaultValue);
-			pref.name = name;
-			pref.register();
-		}
-		return pref;
+		return FundamentalPlatformSpecifics.get().usePrefColor(name, defaultValue);
 	}
 
 	/**
@@ -545,10 +539,9 @@ public abstract class Pref<T> extends ElementState implements IMappable<String>,
 	 * 
 	 * @return PrefColor's value or default value if doesn't exist
 	 */
-	public static Color lookupColor(String name, Color defaultValue) throws ClassCastException
+	public static Object lookupColor(String name, Object defaultValue)
 	{
-		PrefColor prefColor = ((PrefColor) lookupPref(name));
-		return (prefColor == null) ? defaultValue : prefColor.value();
+		return FundamentalPlatformSpecifics.get().lookupColor(name, defaultValue);		
 	}
 
 	/**
@@ -559,7 +552,7 @@ public abstract class Pref<T> extends ElementState implements IMappable<String>,
 	 * 
 	 * @return PrefColor's value or null
 	 */
-	public static Color lookupColor(String name) throws ClassCastException
+	public static Object lookupColor(String name) throws ClassCastException
 	{
 		return lookupColor(name, null);
 	}

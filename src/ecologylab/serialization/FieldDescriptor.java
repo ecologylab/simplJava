@@ -11,7 +11,6 @@ import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
-//import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -22,14 +21,11 @@ import java.util.regex.Pattern;
 
 import org.w3c.dom.Node;
 
-//import sun.reflect.generics.reflectiveObjects.ParameterizedTypeImpl;
-//import sun.reflect.generics.reflectiveObjects.TypeVariableImpl;
 import ecologylab.generic.HashMapArrayList;
 import ecologylab.generic.ReflectionTools;
 import ecologylab.generic.StringBuilderBaseUtils;
 import ecologylab.generic.StringTools;
 import ecologylab.platformspecifics.FundamentalPlatformSpecifics;
-import ecologylab.platformspecifics.IFundamentalPlatformSpecifics;
 import ecologylab.serialization.MetaInformation.Argument;
 import ecologylab.serialization.annotations.Hint;
 import ecologylab.serialization.annotations.simpl_classes;
@@ -67,15 +63,15 @@ import ecologylab.serialization.types.scalar.EnumeratedType;
  */
 @SuppressWarnings("rawtypes")
 @simpl_inherit
-
 public class FieldDescriptor extends DescriptorBase implements FieldTypes, IMappable<String>,
 		Cloneable
 {
 
 	public static final String												NULL												= ScalarType.DEFAULT_VALUE_STRING;
 
-	public static final Class[]												SET_METHOD_STRING_ARG				= { String.class };
-	
+	public static final Class[]												SET_METHOD_STRING_ARG				=
+																																								{ String.class };
+
 	@simpl_scalar
 	protected Field																		field;																													// TODO
 
@@ -144,9 +140,9 @@ public class FieldDescriptor extends DescriptorBase implements FieldTypes, IMapp
 	 */
 	@simpl_scalar
 	private ScalarType<?>															scalarType;
-	
+
 	@simpl_composite("enumerated_type")
-	private EnumeratedType 														enumType;
+	private EnumeratedType														enumType;
 
 	@simpl_scalar
 	private CollectionType														collectionType;
@@ -210,17 +206,17 @@ public class FieldDescriptor extends DescriptorBase implements FieldTypes, IMapp
 	@simpl_scalar
 	private String																		fieldType;
 
-//	@simpl_scalar
+	// @simpl_scalar
 	protected String																	genericParametersString;
 
 	private ArrayList<ClassDescriptor>								dependencies								= new ArrayList<ClassDescriptor>();
-	
+
 	/**
 	 * if is null, this field is not a cloned one. <br />
 	 * if not null, refers to the descriptor that this field is cloned from.
 	 */
 	private FieldDescriptor														clonedFrom;
-	
+
 	/**
 	 * Default constructor only for use by translateFromXML().
 	 */
@@ -521,7 +517,7 @@ public class FieldDescriptor extends DescriptorBase implements FieldTypes, IMapp
 		}
 		return result;
 	}
-	
+
 	/**
 	 * lazy-evaluation method.
 	 * 
@@ -552,32 +548,12 @@ public class FieldDescriptor extends DescriptorBase implements FieldTypes, IMapp
 			genericTypeVars = derivedGenericTypeVariables;
 		}
 	}
-	
+
 	// This method is modified, refer to FundamentalPlatformSpecific package -Fei
 	private void deriveGenericTypeVariables()
 	{
-		IFundamentalPlatformSpecifics iFundamentalPlatformSpecifics = FundamentalPlatformSpecifics.get();
-		iFundamentalPlatformSpecifics.deriveGenericTypeVariables(this);
-		
-//		Type genericType = field.getGenericType();
-//		
-//		if(genericType instanceof ParameterizedTypeImpl)
-//		{
-//			ParameterizedTypeImpl parameterizedType = (ParameterizedTypeImpl) genericType;
-//			
-//			Type[] types = parameterizedType.getActualTypeArguments();
-//	
-//			if (types == null | types.length <= 0)
-//				return;
-//	
-//			for (Type t : types)
-//			{
-//				GenericTypeVar g = GenericTypeVar.getGenericTypeVar(t);
-//				genericTypeVars.add(g);
-//			}
-//		}
-	}	
-
+		FundamentalPlatformSpecifics.get().deriveGenericTypeVariables(this);
+	}
 
 	private void initPolymorphClassDescriptorsArrayList(int initialSize)
 	{
@@ -626,8 +602,8 @@ public class FieldDescriptor extends DescriptorBase implements FieldTypes, IMapp
 		isEnum = XMLTools.isEnum(field);
 		xmlHint = XMLTools.simplHint(field); // TODO -- confirm that default case is acceptable
 		scalarType = TypeRegistry.getScalarType(thatClass);
-		
-		if(isEnum)
+
+		if (isEnum)
 		{
 			enumType = new EnumeratedType(field);
 		}
@@ -882,42 +858,7 @@ public class FieldDescriptor extends DescriptorBase implements FieldTypes, IMapp
 	// This method is modified to enable platform specific implementation
 	public Class<?> getTypeArgClass(Field field, int i)
 	{
-		IFundamentalPlatformSpecifics iFundamentalPlatformSpecifics = FundamentalPlatformSpecifics.get();
-		return iFundamentalPlatformSpecifics.getTypeArgClass(field, i, this);
-		
-//		Class result = null;
-//
-//		java.lang.reflect.Type[] typeArgs = ReflectionTools.getParameterizedTypeTokens(field);
-//		if (typeArgs != null)
-//		{
-//			final int max = typeArgs.length - 1;
-//			if (i > max)
-//				i = max;
-//			final Type typeArg0 = typeArgs[i];
-//			if (typeArg0 instanceof Class)
-//			{
-//				result = (Class) typeArg0;
-//			}
-//			else if (typeArg0 instanceof ParameterizedTypeImpl)
-//			{ // nested parameterized type
-//				ParameterizedTypeImpl pti = (ParameterizedTypeImpl) typeArg0;
-//				result = pti.getRawType();
-//			}
-//			else if (typeArg0 instanceof TypeVariableImpl)
-//			{
-//				TypeVariableImpl tvi = (TypeVariableImpl) typeArg0;
-//				Type[] tviBounds = tvi.getBounds();
-//				result = (Class) tviBounds[0];
-//				debug("yo! " + result);
-//			}
-//
-//			else
-//			{
-//				error("getTypeArgClass(" + field + ", " + i
-//						+ " yucky! Consult s.im.mp serialization developers.");
-//			}
-//		}
-//		return result;
+		return FundamentalPlatformSpecifics.get().getTypeArgClass(field, i, this);
 	}
 
 	/**
@@ -947,7 +888,7 @@ public class FieldDescriptor extends DescriptorBase implements FieldTypes, IMapp
 	{
 		return type == COMPOSITE_ELEMENT;
 	}
-	
+
 	public boolean isEnum()
 	{
 		return isEnum;
@@ -1344,8 +1285,8 @@ public class FieldDescriptor extends DescriptorBase implements FieldTypes, IMapp
 		fieldName.setCssClass("metadata_field_name");
 		// td.setCssClass("nested_field_value");
 
-		//if (size > 1)
-			text.members.add(button);
+		// if (size > 1)
+		text.members.add(button);
 		String s = displayLabel;
 		if (size > 1)
 		{
@@ -1710,7 +1651,8 @@ public class FieldDescriptor extends DescriptorBase implements FieldTypes, IMapp
 	 */
 	public boolean isPolymorphic()
 	{
-		return (polymorphClassDescriptors != null) || (unresolvedScopeAnnotation != null) || (unresolvedClassesAnnotation != null);
+		return (polymorphClassDescriptors != null) || (unresolvedScopeAnnotation != null)
+				|| (unresolvedClassesAnnotation != null);
 		// else return true;
 		// return tagClassDescriptors != null;
 	}
@@ -1833,12 +1775,12 @@ public class FieldDescriptor extends DescriptorBase implements FieldTypes, IMapp
 	public String getJavaType()
 	{
 		StringBuilder sb = StringBuilderBaseUtils.acquire();
-		
+
 		if (collectionType != null)
 		{
 			sb.append(collectionType.getJavaTypeName());
 		}
-		
+
 		if (scalarType != null && !isCollection())
 		{
 			sb.append(scalarType.getSimpleName());
@@ -1858,7 +1800,7 @@ public class FieldDescriptor extends DescriptorBase implements FieldTypes, IMapp
 				sb.append('<');
 				for (int i = 0; i < genericTypeVars.size(); ++i)
 				{
-					sb.append(i==0?"":", ").append(genericTypeVars.get(i).getName());
+					sb.append(i == 0 ? "" : ", ").append(genericTypeVars.get(i).getName());
 				}
 				sb.append('>');
 			}
@@ -2060,9 +2002,9 @@ public class FieldDescriptor extends DescriptorBase implements FieldTypes, IMapp
 
 	@Override
 	public String getObjectiveCTypeName()
-	{		
-	
-		return elementClassDescriptor != null ? elementClassDescriptor.getObjectiveCTypeName() 
+	{
+
+		return elementClassDescriptor != null ? elementClassDescriptor.getObjectiveCTypeName()
 				: isPolymorphic() || isEnum ? this.fieldType : scalarType.getObjectiveCTypeName();
 	}
 
@@ -2257,5 +2199,5 @@ public class FieldDescriptor extends DescriptorBase implements FieldTypes, IMapp
 	{
 		return enumType;
 	}
-	
+
 }

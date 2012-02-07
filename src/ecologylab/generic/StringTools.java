@@ -15,7 +15,6 @@ import java.security.NoSuchAlgorithmException;
 import java.util.HashMap;
 import java.util.Set;
 
-import sun.misc.BASE64Encoder;
 import ecologylab.collections.CollectionTools;
 import ecologylab.net.ParsedURL;
 import ecologylab.serialization.XMLTools;
@@ -576,8 +575,8 @@ public class StringTools extends Debug
 			encrypter.update(message.toLowerCase().getBytes());
 
 			// convert to normal characters and return as a String
-			return new String((new BASE64Encoder()).encode(encrypter.digest()));
-
+			return new String((new Base64Coder()).encode(encrypter.digest()));
+			
 		}
 		catch (NoSuchAlgorithmException e)
 		{

@@ -4,6 +4,7 @@
 package ecologylab.appframework.types.prefs;
 
 import ecologylab.generic.Debug;
+import ecologylab.platformspecifics.FundamentalPlatformSpecifics;
 import ecologylab.serialization.SimplTypesScope;
 
 /**
@@ -18,7 +19,7 @@ public class MetaPrefsTranslationScope extends Debug
 	public static SimplTypesScope get()
 	{
 		return SimplTypesScope.get(NAME, MetaPref.class, MetaPrefSet.class,  MetaPrefBoolean.class, MetaPrefFloat.class,
-				MetaPrefInt.class, MetaPrefString.class, MetaPrefColor.class);
+				MetaPrefInt.class, MetaPrefString.class);
 	}
 
 }

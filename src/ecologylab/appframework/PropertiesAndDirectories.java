@@ -55,14 +55,14 @@ public class PropertiesAndDirectories extends Debug
 				os = MAC;
 			else if (StringTools.contains(osName, "mac os"))
 				os = MAC_OLD;
+			else if (System.getProperty("java.vm.name").contains("Dalvik"))
+				os = ANDROID;
 			else if (StringTools.contains(osName, "linux"))
 				os = LINUX;
 			else if (StringTools.contains(osName, "sunos") || StringTools.contains(osName, "solaris")
 					|| StringTools.contains(osName, "hp-ux") || StringTools.contains(osName, "freebsd")
 					|| StringTools.contains(osName, "irix") || StringTools.contains(osName, "aix"))
 				os = OTHER_UNIX;
-			else if (System.getProperty("java.vm.name").contains("Dalvik"))
-				os = ANDROID;
 			else
 				os = UNKNOWN;
 		}
@@ -171,6 +171,7 @@ public class PropertiesAndDirectories extends Debug
 		case MAC_OLD:
 			result = Files.newFile(apDataDir, applicationName);
 			break;
+		case ANDROID:
 		case LINUX:
 		case OTHER_UNIX:
 		case UNKNOWN:
@@ -374,6 +375,9 @@ public class PropertiesAndDirectories extends Debug
 			File appDataDir;
 			switch (os)
 			{
+			case ANDROID:
+				appDataDir = new File(fileName = "/mnt/sdcard/Android/data/");
+				break;
 			case VISTA_AND_7:
 				appDataDir = new File(fileName, "AppData/Roaming");
 				break;

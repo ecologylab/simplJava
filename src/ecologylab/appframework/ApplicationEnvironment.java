@@ -20,6 +20,7 @@ import ecologylab.io.DownloadProcessor;
 import ecologylab.io.Files;
 import ecologylab.io.ZipDownload;
 import ecologylab.net.ParsedURL;
+import ecologylab.platformspecifics.FundamentalPlatformSpecifics;
 import ecologylab.serialization.SIMPLTranslationException;
 import ecologylab.serialization.SimplTypesScope;
 import ecologylab.serialization.XMLTranslationExceptionTypes;
@@ -36,6 +37,12 @@ import ecologylab.serialization.formatenums.StringFormat;
 public class ApplicationEnvironment extends Debug implements Environment,
 		XMLTranslationExceptionTypes, ApplicationPropertyNames
 {
+	
+	static
+	{
+		FundamentalPlatformSpecifics.get().initialize();
+	}
+	
 	public static final PrefEnum	LAUNCH_TYPE_PREF	= Pref.usePrefEnum(	LAUNCH_TYPE,
 																																			LaunchType.ECLIPSE);
 

@@ -17,7 +17,6 @@ import java.util.Set;
 import ecologylab.generic.HashMapArrayList;
 import ecologylab.generic.ReflectionTools;
 import ecologylab.platformspecifics.FundamentalPlatformSpecifics;
-import ecologylab.platformspecifics.IFundamentalPlatformSpecifics;
 import ecologylab.serialization.annotations.Hint;
 import ecologylab.serialization.annotations.bibtex_key;
 import ecologylab.serialization.annotations.bibtex_type;
@@ -338,19 +337,7 @@ public class ClassDescriptor<FD extends FieldDescriptor> extends DescriptorBase 
 	// This method is modified, refer to FundamentalPlatformSpecific package -Fei
 	private void deriveSuperGenericTypeVariables()
 	{
-		IFundamentalPlatformSpecifics iFundamentalPlatformSpecifics = FundamentalPlatformSpecifics.get();
-		iFundamentalPlatformSpecifics.deriveSuperGenericTypeVariables(this);
-		
-//		if (describedClass == null)
-//			return;
-//		
-//		Type superClassType = describedClass.getGenericSuperclass();
-//
-//		if (superClassType instanceof ParameterizedTypeImpl)
-//		{
-//			ParameterizedTypeImpl superClassParameterizedType = (ParameterizedTypeImpl) superClassType;
-//			superClassGenericTypeVars = GenericTypeVar.getGenericTypeVars(superClassParameterizedType);
-//		}
+		FundamentalPlatformSpecifics.get().deriveSuperGenericTypeVariables(this);
 	}
 
 	private void deriveGenericTypeVariables()
@@ -616,6 +603,7 @@ public class ClassDescriptor<FD extends FieldDescriptor> extends DescriptorBase 
 			bibtexType = bibtexTypeAnnotation.value();
 		}
 
+		debug(classWithFields.toString());
 		Field[] fields = classWithFields.getDeclaredFields();
 
 		for (int i = 0; i < fields.length; i++)

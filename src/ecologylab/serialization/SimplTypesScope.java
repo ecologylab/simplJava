@@ -290,7 +290,7 @@ public final class SimplTypesScope extends ElementState
 	 * 
 	 * @param name
 	 * @param inheritedTranslationScope
-	 * @param translations
+	 * @param translations	A set of arrays of classes.
 	 */
 	private SimplTypesScope(String name, SimplTypesScope inheritedTranslationScope,
 			Class<?>[]... translations)

@@ -27,12 +27,14 @@ public class PrefSetBaseClassProvider extends TranslationsClassProvider
 	{
 		Class[] prefSetClasses =
 		{ MetaPref.class, MetaPrefSet.class, MetaPrefBoolean.class, MetaPrefFloat.class,
-				MetaPrefInt.class, MetaPrefString.class, MetaPrefColor.class,
+				MetaPrefInt.class, MetaPrefString.class,
 
 				Pref.class, PrefSet.class, PrefBoolean.class, PrefDouble.class, PrefFloat.class,
-				PrefInt.class, PrefLong.class, PrefString.class, PrefElementState.class, PrefColor.class,
-				PrefFile.class, PrefOp.class, PrefDelayedOp.class};
-		
+				PrefInt.class, PrefLong.class, PrefString.class, PrefElementState.class, PrefFile.class,
+				PrefOp.class,
+
+		};
+
 		return prefSetClasses;
 	}
 }

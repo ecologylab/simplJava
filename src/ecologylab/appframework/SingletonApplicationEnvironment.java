@@ -14,14 +14,13 @@ import ecologylab.appframework.types.prefs.MetaPrefSet;
 import ecologylab.appframework.types.prefs.MetaPrefsTranslationScope;
 import ecologylab.appframework.types.prefs.Pref;
 import ecologylab.appframework.types.prefs.PrefSet;
-import ecologylab.appframework.types.prefs.gui.PrefEditorWidgets;
-import ecologylab.appframework.types.prefs.gui.PrefsEditor;
 import ecologylab.collections.Scope;
 import ecologylab.generic.Debug;
 import ecologylab.io.Assets;
 import ecologylab.io.AssetsRoot;
 import ecologylab.io.Files;
 import ecologylab.net.ParsedURL;
+import ecologylab.platformspecifics.FundamentalPlatformSpecifics;
 import ecologylab.serialization.ClassDescriptor;
 import ecologylab.serialization.SIMPLTranslationException;
 import ecologylab.serialization.SimplTypesScope;
@@ -1162,14 +1161,14 @@ public class SingletonApplicationEnvironment extends ApplicationEnvironment impl
 	 * 
 	 * @return
 	 */
-	public PrefEditorWidgets createPrefsEditor(final boolean createJFrame, final boolean isStandalone)
+	public Object createPrefsEditor(final boolean createJFrame, final boolean isStandalone)
 	{
-		PrefsEditor result = null;
+		Object result = null;
 		if (metaPrefSet != null)
 		{
 			if (prefSet == null)
 				prefSet = new PrefSet();
-			result = new PrefsEditor(metaPrefSet, prefSet, prefsPURL, createJFrame, isStandalone);
+			result = FundamentalPlatformSpecifics.get().getOrCreatePrefsEditor(metaPrefSet, prefSet, prefsPURL, createJFrame, isStandalone);
 		}
 		return result;
 	}
@@ -1180,7 +1179,7 @@ public class SingletonApplicationEnvironment extends ApplicationEnvironment impl
 	 * 
 	 * @return
 	 */
-	public PrefEditorWidgets createPrefsEditor()
+	public Object createPrefsEditor()
 	{
 		return this.createPrefsEditor(true, false);
 	}

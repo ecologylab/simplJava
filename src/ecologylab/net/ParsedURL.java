@@ -11,13 +11,14 @@ import java.net.URLEncoder;
 import java.util.HashMap;
 import java.util.StringTokenizer;
 
-import javax.imageio.ImageIO;
+
 
 import ecologylab.collections.CollectionTools;
 import ecologylab.generic.Debug;
 import ecologylab.generic.IntSlot;
 import ecologylab.generic.StringTools;
 import ecologylab.io.Files;
+import ecologylab.platformspecifics.FundamentalPlatformSpecifics;
 import ecologylab.serialization.SIMPLTranslationException;
 import ecologylab.serialization.SimplTypesScope;
 import ecologylab.serialization.formatenums.Format;
@@ -621,8 +622,7 @@ public class ParsedURL extends Debug implements MimeType
 	static final HashMap									supportedProtocols					= CollectionTools
 																																				.buildHashMapFromStrings(supportedProtocolStrings);
 
-	static final String[]									imgSuffixStrings						= ImageIO
-																																				.getReaderFormatNames();
+	static final String[]									imgSuffixStrings						= FundamentalPlatformSpecifics.get().getReaderFormatNames(); 
 
 	/*
 	 * { "jpg", "jpeg", "pjpg", "pjpeg", "gif", "png", };

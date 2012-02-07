@@ -7,11 +7,8 @@ import java.lang.reflect.Type;
 import java.lang.reflect.TypeVariable;
 import java.util.ArrayList;
 
-//import sun.reflect.generics.reflectiveObjects.ParameterizedTypeImpl;
-//import sun.reflect.generics.reflectiveObjects.WildcardTypeImpl;
 import ecologylab.generic.Debug;
 import ecologylab.platformspecifics.FundamentalPlatformSpecifics;
-import ecologylab.platformspecifics.IFundamentalPlatformSpecifics;
 import ecologylab.serialization.annotations.simpl_collection;
 import ecologylab.serialization.annotations.simpl_composite;
 import ecologylab.serialization.annotations.simpl_scalar;
@@ -148,8 +145,7 @@ public class GenericTypeVar extends Debug
 	// added a helper method for resolveGenericConstraints
 	public static void checkBoundParameterizedTypeImpl (GenericTypeVar g, Type bounds)
 	{
-		IFundamentalPlatformSpecifics iFundamentalPlatformSpecifics = FundamentalPlatformSpecifics.get();
-		iFundamentalPlatformSpecifics.checkBoundParameterizedTypeImpl(g, bounds);
+		FundamentalPlatformSpecifics.get().checkBoundParameterizedTypeImpl(g, bounds);
 	}
 	
 	// this method has been moved to the platform specific package in the corresponding project
@@ -194,14 +190,12 @@ public class GenericTypeVar extends Debug
 	// added two helper functions for GenericTypeVar
 	public static void checkTypeWildcardTypeImpl(GenericTypeVar g, Type type)
 	{
-		IFundamentalPlatformSpecifics iFundamentalPlatformSpecifics = FundamentalPlatformSpecifics.get();
-		iFundamentalPlatformSpecifics.checkTypeWildcardTypeImpl(g, type);
+		FundamentalPlatformSpecifics.get().checkTypeWildcardTypeImpl(g, type);
 	}
 	
 	public static void checkTypeParameterizedTypeImpl(GenericTypeVar g, Type type)
 	{
-		IFundamentalPlatformSpecifics iFundamentalPlatformSpecifics = FundamentalPlatformSpecifics.get();
-		iFundamentalPlatformSpecifics.checkTypeParameterizedTypeImpl(g, type);
+		FundamentalPlatformSpecifics.get().checkTypeParameterizedTypeImpl(g, type);
 	}
 	
 	public static GenericTypeVar getGenericTypeVar(Type type)
