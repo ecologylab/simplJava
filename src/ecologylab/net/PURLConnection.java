@@ -89,6 +89,13 @@ public class PURLConnection extends Debug
 		inputStream = new FileInputStream(purl.file());
 		good				= true;
 	}
+	
+	public void streamConnect(InputStream inputStream)
+	{
+		this.inputStream = inputStream;
+		good = true;
+	}
+	
 	public void networkConnectAndCatch(ConnectionHelper connectionHelper, String userAgent)
 	{
 		networkConnectAndCatch(connectionHelper, userAgent, ParsedURL.CONNECT_TIMEOUT, ParsedURL.READ_TIMEOUT);
@@ -294,6 +301,7 @@ public class PURLConnection extends Debug
 		return result;
 	}
 	
+	@Override
 	public String toString()
 	{
 		return urlConnection != null ? urlConnection.toString() : "PURLConnection";

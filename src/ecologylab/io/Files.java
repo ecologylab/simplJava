@@ -1,5 +1,6 @@
 package ecologylab.io;
 
+import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -17,10 +18,8 @@ import java.net.URLConnection;
 import java.nio.channels.FileChannel;
 import java.util.Date;
 
-import ecologylab.appframework.EnvironmentGeneric;
 import ecologylab.generic.Debug;
 import ecologylab.generic.StringTools;
-import ecologylab.net.ParsedURL;
 
 /**
  * A set of lovely convenience methods for doing operations on local files.
@@ -998,6 +997,26 @@ public class Files extends Debug
 		String pathString = file.getAbsolutePath();
 		return pathString.substring(pathString.lastIndexOf(sep)+1, pathString.lastIndexOf('.'));
 	}
+
+	public static boolean isZipFile(File file) throws IOException
+	{
+		BufferedInputStream fin = new BufferedInputStream(new FileInputStream(file));
+		boolean isZipStream = StreamUtils.isZipStream(fin);
+		fin.close();
+		return isZipStream;
+	}
+	
+	public static File findFirstExistingAncestor(File file)
+	{
+		if (file != null)
+		{
+			File parent = file.getParentFile();
+			if (parent != null && parent.exists())
+				return parent;
+			return findFirstExistingAncestor(parent);
+		}
+		return null;
+	}
 }
 
 class XMLFileNonRecursiveFilter implements java.io.FileFilter
@@ -1020,6 +1039,7 @@ class XMLFileNonRecursiveFilter implements java.io.FileFilter
 
 	}
 
+	@Override
 	public boolean accept(File file)
 	{
 		String name = file.getName().toLowerCase();
