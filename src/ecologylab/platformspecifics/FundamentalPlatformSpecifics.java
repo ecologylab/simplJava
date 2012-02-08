@@ -3,42 +3,51 @@ package ecologylab.platformspecifics;
 import ecologylab.appframework.PropertiesAndDirectories;
 import ecologylab.generic.ReflectionTools;
 
+/**
+ * instantiation of IFundamentalPlatformSpeciics
+ * 
+ * @author shenfeng
+ * 
+ */
 
+public class FundamentalPlatformSpecifics
+{
+	private static IFundamentalPlatformSpecifics	iFundamentalPlatformSpecifics;
 
-public class FundamentalPlatformSpecifics {
-	private static IFundamentalPlatformSpecifics iFundamentalPlatformSpecifics;
-	
-	private static boolean dead = false;
-	
-	public static void set (IFundamentalPlatformSpecifics that)
+	private static boolean												dead	= false;
+
+	public static void set(IFundamentalPlatformSpecifics that)
 	{
 		iFundamentalPlatformSpecifics = that;
 	}
-	
-	public static IFundamentalPlatformSpecifics get() 
+
+	public static IFundamentalPlatformSpecifics get()
 	{
-		if (dead) 
+		if (dead)
 			throw new RuntimeException("Can't initialize FundamentalPlatformSpecifics");
-		
+
 		if (iFundamentalPlatformSpecifics == null)
-			synchronized(FundamentalPlatformSpecifics.class)
+			synchronized (FundamentalPlatformSpecifics.class)
 			{
-				String className  =  null;
-				
+				String className = null;
+
 				if (iFundamentalPlatformSpecifics == null)
 				{
-					if (PropertiesAndDirectories.os() ==  PropertiesAndDirectories.ANDROID)
-						className 	=  "FundamentalPlatformSpecificsAndroid";
+					if (PropertiesAndDirectories.os() == PropertiesAndDirectories.ANDROID)
+						className = "FundamentalPlatformSpecificsAndroid";
 					else
-						className   =  "FundamentalPlatformSpecificsSun";	
+						className = "FundamentalPlatformSpecificsSun";
 				}
-				
-				if (className != null) 
+
+				if (className != null)
 				{
 					Class platformSpecificsClass;
-					try {
+					try
+					{
 						platformSpecificsClass = Class.forName("ecologylab.platformspecifics." + className);
-					} catch (ClassNotFoundException e) {
+					}
+					catch (ClassNotFoundException e)
+					{
 						// TODO Auto-generated catch block
 						e.printStackTrace();
 						throw new RuntimeException("Can't initialize FundamentalPlatformSpecifics" + className);
@@ -52,7 +61,7 @@ public class FundamentalPlatformSpecifics {
 						iFundamentalPlatformSpecifics = ReflectionTools.getInstance(platformSpecificsClass);
 				}
 			}
-		
+
 		return iFundamentalPlatformSpecifics;
 	}
 }
