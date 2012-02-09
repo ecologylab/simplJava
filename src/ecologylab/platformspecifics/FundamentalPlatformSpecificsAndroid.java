@@ -28,10 +28,9 @@ public class FundamentalPlatformSpecificsAndroid implements IFundamentalPlatform
 {
 	private static final String[]	READER_FORMAT_NAMES	= new String[] { "jpg", "jpeg", "pjpg", "pjpeg", "gif", "png", };
 
-	public void initialize()
+	public void initializePlatformSpecificTranslation()
 	{
 		MetaPrefsTranslationScope.get().addTranslation(MetaPrefColor.class);
-		new PlatformSpecificTypesAndroid();
 	};
 
 	// in ecologylab.serialization.ClassDescriptor;
@@ -238,6 +237,11 @@ public class FundamentalPlatformSpecificsAndroid implements IFundamentalPlatform
 			TranslationContext translationContext, DeserializationHookStrategy deserializationHookStrategy)
 	{
     return new AndroidXMLDeserializer(translationScope, translationContext);
+	}
+
+	public void initializePlatformSpecificTypes() 
+	{
+		new PlatformSpecificTypesAndroid();	
 	}
 
 }
