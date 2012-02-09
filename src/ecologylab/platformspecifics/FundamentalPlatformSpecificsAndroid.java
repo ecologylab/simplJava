@@ -2,10 +2,9 @@ package ecologylab.platformspecifics;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Type;
-import java.util.ArrayList;
+
 
 import android.graphics.Color;
-
 import ecologylab.appframework.types.prefs.MetaPrefColor;
 import ecologylab.appframework.types.prefs.MetaPrefSet;
 import ecologylab.appframework.types.prefs.MetaPrefsTranslationScope;
@@ -16,8 +15,14 @@ import ecologylab.generic.Debug;
 import ecologylab.generic.ReflectionTools;
 import ecologylab.net.ParsedURL;
 import ecologylab.serialization.ClassDescriptor;
+import ecologylab.serialization.DeserializationHookStrategy;
 import ecologylab.serialization.FieldDescriptor;
 import ecologylab.serialization.GenericTypeVar;
+import ecologylab.serialization.SimplTypesScope;
+import ecologylab.serialization.TranslationContext;
+import ecologylab.serialization.deserializers.pullhandlers.stringformats.AndroidXMLDeserializer;
+import ecologylab.serialization.deserializers.pullhandlers.stringformats.StringPullDeserializer;
+import ecologylab.serialization.types.PlatformSpecificTypesAndroid;
 
 public class FundamentalPlatformSpecificsAndroid implements IFundamentalPlatformSpecifics
 {
@@ -26,6 +31,7 @@ public class FundamentalPlatformSpecificsAndroid implements IFundamentalPlatform
 	public void initialize()
 	{
 		MetaPrefsTranslationScope.get().addTranslation(MetaPrefColor.class);
+		new PlatformSpecificTypesAndroid();
 	};
 
 	// in ecologylab.serialization.ClassDescriptor;
@@ -226,6 +232,12 @@ public class FundamentalPlatformSpecificsAndroid implements IFundamentalPlatform
 	public Class[] additionalPrefSetBaseTranslations()
 	{
 		return PREF_SET_BASE_SUNTRANSLATIONS;
+	}
+
+	public StringPullDeserializer getXMLPullDeserializer(SimplTypesScope translationScope,
+			TranslationContext translationContext, DeserializationHookStrategy deserializationHookStrategy)
+	{
+    return new AndroidXMLDeserializer(translationScope, translationContext);
 	}
 
 }
