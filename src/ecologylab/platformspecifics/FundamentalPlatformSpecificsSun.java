@@ -35,10 +35,9 @@ import ecologylab.serialization.types.PlatformSpecificTypesSun;
 
 public class FundamentalPlatformSpecificsSun implements IFundamentalPlatformSpecifics
 {
-	public void initialize()
+	public void initializePlatformSpecificTranslation()
 	{
 		MetaPrefsTranslationScope.get().addTranslation(MetaPrefColor.class);
-		new PlatformSpecificTypesSun();
 	}
 
 	// in ecologylab.serialization.ClassDescriptor;
@@ -267,6 +266,12 @@ public class FundamentalPlatformSpecificsSun implements IFundamentalPlatformSpec
 		// TODO Auto-generated method stub
 		return new XMLPullDeserializerSun(translationScope, translationContext,
 				deserializationHookStrategy);
+	}
+
+	@Override
+	public void initializePlatformSpecificTypes() 
+	{
+		new PlatformSpecificTypesSun();
 	}
 
 }
