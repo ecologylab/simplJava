@@ -40,7 +40,8 @@ public class ApplicationEnvironment extends Debug implements Environment,
 	
 	static
 	{
-		FundamentalPlatformSpecifics.get().initialize();
+		FundamentalPlatformSpecifics.get().initializePlatformSpecificTranslation();
+		FundamentalPlatformSpecifics.get().initializePlatformSpecificTypes();
 	}
 	
 	public static final PrefEnum	LAUNCH_TYPE_PREF	= Pref.usePrefEnum(	LAUNCH_TYPE,

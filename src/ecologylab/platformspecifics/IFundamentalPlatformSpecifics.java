@@ -18,7 +18,7 @@ import ecologylab.serialization.formatenums.StringFormat;
 public interface IFundamentalPlatformSpecifics
 {
 	// in ApplicationEnvironment
-	void initialize();
+	void initializePlatformSpecificTranslation();
 
 	// in ecologylab.serialization.ClassDescriptor;
 	void deriveSuperGenericTypeVariables(ClassDescriptor classDescriptor);
@@ -60,4 +60,7 @@ public interface IFundamentalPlatformSpecifics
 	StringPullDeserializer getXMLPullDeserializer(SimplTypesScope translationScope,
 			TranslationContext translationContext,
 			DeserializationHookStrategy deserializationHookStrategy);
+	
+	// platform specific types
+	void initializePlatformSpecificTypes();
 }
