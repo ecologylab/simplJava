@@ -24,15 +24,22 @@ import ecologylab.generic.Debug;
 import ecologylab.generic.ReflectionTools;
 import ecologylab.net.ParsedURL;
 import ecologylab.serialization.ClassDescriptor;
+import ecologylab.serialization.DeserializationHookStrategy;
 import ecologylab.serialization.FieldDescriptor;
 import ecologylab.serialization.GenericTypeVar;
+import ecologylab.serialization.SimplTypesScope;
+import ecologylab.serialization.TranslationContext;
+import ecologylab.serialization.deserializers.pullhandlers.stringformats.StringPullDeserializer;
+import ecologylab.serialization.deserializers.pullhandlers.stringformats.XMLPullDeserializerSun;
+import ecologylab.serialization.types.PlatformSpecificTypesSun;
 
 public class FundamentalPlatformSpecificsSun implements IFundamentalPlatformSpecifics
 {
 	public void initialize()
 	{
 		MetaPrefsTranslationScope.get().addTranslation(MetaPrefColor.class);
-	};
+		new PlatformSpecificTypesSun();
+	}
 
 	// in ecologylab.serialization.ClassDescriptor;
 	public void deriveSuperGenericTypeVariables(ClassDescriptor classDescriptor)
@@ -251,6 +258,15 @@ public class FundamentalPlatformSpecificsSun implements IFundamentalPlatformSpec
 	public Class[] additionalPrefSetBaseTranslations()
 	{
 		return PREF_SET_BASE_SUNTRANSLATIONS;
+	}
+
+	@Override
+	public StringPullDeserializer getXMLPullDeserializer(SimplTypesScope translationScope,
+			TranslationContext translationContext, DeserializationHookStrategy deserializationHookStrategy)
+	{
+		// TODO Auto-generated method stub
+		return new XMLPullDeserializerSun(translationScope, translationContext,
+				deserializationHookStrategy);
 	}
 
 }
