@@ -13,6 +13,7 @@ import ecologylab.generic.Debug;
 import ecologylab.net.ConnectionAdapter;
 import ecologylab.net.PURLConnection;
 import ecologylab.net.ParsedURL;
+import ecologylab.platformspecifics.FundamentalPlatformSpecifics;
 import ecologylab.serialization.DeserializationHookStrategy;
 import ecologylab.serialization.FieldDescriptor;
 import ecologylab.serialization.FieldTypes;
@@ -22,11 +23,9 @@ import ecologylab.serialization.SimplTypesScope;
 import ecologylab.serialization.deserializers.ISimplDeserializationPre;
 import ecologylab.serialization.deserializers.ISimplDeserializationPost;
 import ecologylab.serialization.deserializers.pullhandlers.binaryformats.BinaryPullDeserializer;
-import ecologylab.serialization.deserializers.pullhandlers.stringformats.BaseXmlPullDeserializerFactory;
 import ecologylab.serialization.deserializers.pullhandlers.binaryformats.TLVPullDeserializer;
 import ecologylab.serialization.deserializers.pullhandlers.stringformats.JSONPullDeserializer;
 import ecologylab.serialization.deserializers.pullhandlers.stringformats.StringPullDeserializer;
-import ecologylab.serialization.deserializers.pullhandlers.stringformats.XMLPullDeserializer;
 import ecologylab.serialization.formatenums.BinaryFormat;
 import ecologylab.serialization.formatenums.Format;
 import ecologylab.serialization.formatenums.StringFormat;
@@ -211,8 +210,8 @@ public abstract class PullDeserializer extends Debug implements FieldTypes
 		switch (format)
 		{
 		case XML:
-			return BaseXmlPullDeserializerFactory.getXMLPullDeserializerFactory().getFormatSerializer(
-					translationScope, translationContext, deserializationHookStrategy);
+			return FundamentalPlatformSpecifics.get().getXMLPullDeserializer(translationScope,
+					translationContext, deserializationHookStrategy);
 		case JSON:
 			return new JSONPullDeserializer(translationScope, translationContext,
 					deserializationHookStrategy);
@@ -220,7 +219,7 @@ public abstract class PullDeserializer extends Debug implements FieldTypes
 			return new TLVPullDeserializer(translationScope, translationContext,
 					deserializationHookStrategy);
 		case BIBTEX:
-			
+
 		default:
 			throw new SIMPLTranslationException(format + " format not supported");
 		}
@@ -258,8 +257,8 @@ public abstract class PullDeserializer extends Debug implements FieldTypes
 		switch (stringFormat)
 		{
 		case XML:
-			return BaseXmlPullDeserializerFactory.getXMLPullDeserializerFactory().getFormatSerializer(
-					translationScope, translationContext, deserializationHookStrategy);
+			return FundamentalPlatformSpecifics.get().getXMLPullDeserializer(translationScope,
+					translationContext, deserializationHookStrategy);
 		case JSON:
 			return new JSONPullDeserializer(translationScope, translationContext,
 					deserializationHookStrategy);
