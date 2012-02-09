@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import ecologylab.generic.Debug;
+import ecologylab.platformspecifics.FundamentalPlatformSpecifics;
 import ecologylab.serialization.XMLTools;
 import ecologylab.serialization.types.scalar.CompositeAsScalarType;
 
@@ -62,6 +63,8 @@ implements CrossLanguageTypeConstants
 			init	= true;
 			
 			new FundamentalTypes();
+			
+			FundamentalPlatformSpecifics.get().initializePlatformSpecificTypes();
 		}
 	}
 
