@@ -2,7 +2,6 @@ package ecologylab.serialization;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
-import java.lang.reflect.Type;
 import java.lang.reflect.TypeVariable;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -13,7 +12,6 @@ import java.util.List;
 import java.util.Map.Entry;
 import java.util.Set;
 
-//import sun.reflect.generics.reflectiveObjects.ParameterizedTypeImpl;
 import ecologylab.generic.HashMapArrayList;
 import ecologylab.generic.ReflectionTools;
 import ecologylab.platformspecifics.FundamentalPlatformSpecifics;
@@ -51,6 +49,11 @@ import ecologylab.serialization.types.element.IMappable;
 public class ClassDescriptor<FD extends FieldDescriptor> extends DescriptorBase implements
 		FieldTypes, IMappable<String>, Iterable<FD>
 {
+	
+	public static interface FieldDescriptorsDerivedEventListener
+	{
+		void fieldDescriptorsDerived(Object... eventArgs);
+	}
 
 	private static final String																												PACKAGE_CLASS_SEP										= ".";
 
@@ -165,6 +168,8 @@ public class ClassDescriptor<FD extends FieldDescriptor> extends DescriptorBase 
 	private boolean																																		isCloned;
 	
 	private ClassDescriptor																														clonedFrom;
+	
+	private List<FieldDescriptorsDerivedEventListener>																fieldDescriptorsDerivedEventListeners = new ArrayList<FieldDescriptorsDerivedEventListener>();
 	
 	static
 	{
@@ -408,7 +413,7 @@ public class ClassDescriptor<FD extends FieldDescriptor> extends DescriptorBase 
 	 * @param thatClass
 	 * @return
 	 */
-	public static ClassDescriptor<? extends FieldDescriptor> getClassDescriptor(Class<?> thatClass)
+	public static ClassDescriptor<? extends FieldDescriptor> getClassDescriptor(final Class<?> thatClass)
 	{
 		String className = thatClass.getName();
 		// stay out of the synchronized block most of the time
@@ -436,13 +441,60 @@ public class ClassDescriptor<FD extends FieldDescriptor> extends DescriptorBase 
 					}
 					globalClassDescriptorsMap.put(className, result);
 
-					// NB: this call was moved out of the constructor to avoid recursion problems
-					result.deriveAndOrganizeFieldsRecursive(thatClass);
-					result.isGetAndOrganizeComplete = true;
+					ClassDescriptor<? extends FieldDescriptor> superCD = result.getSuperClass();
+					if (superCD == null || superCD.isGetAndOrganizeComplete)
+					{
+						// NB: this call was moved out of the constructor to avoid recursion problems
+						result.deriveAndOrganizeFieldsRecursive(thatClass);
+						result.isGetAndOrganizeComplete = true;
+						result.handleFieldDescriptorsDerivedEvent();
+					}
+					else
+					{
+						synchronized (superCD.fieldDescriptorsDerivedEventListeners)
+						{
+							final ClassDescriptor resultFinalCopy = result;
+							FieldDescriptorsDerivedEventListener listener = new FieldDescriptorsDerivedEventListener()
+							{
+								@Override
+								public void fieldDescriptorsDerived(Object... eventArgs)
+								{
+									resultFinalCopy.deriveAndOrganizeFieldsRecursive(thatClass);
+									resultFinalCopy.isGetAndOrganizeComplete = true;
+									resultFinalCopy.handleFieldDescriptorsDerivedEvent();
+								}
+							};
+							superCD.addFieldDescriptorDerivedEventListener(listener);
+						}
+					}
+					
+//					result.deriveAndOrganizeFieldsRecursive(thatClass);
+//					result.isGetAndOrganizeComplete = true;
+					
 				}
 			}
 		}
 		return result;
+	}
+
+	private void addFieldDescriptorDerivedEventListener(FieldDescriptorsDerivedEventListener listener)
+	{
+		fieldDescriptorsDerivedEventListeners.add(listener);
+	}
+
+	private void handleFieldDescriptorsDerivedEvent()
+	{
+		if (fieldDescriptorsDerivedEventListeners != null)
+		{
+			synchronized (fieldDescriptorsDerivedEventListeners)
+			{
+				for (FieldDescriptorsDerivedEventListener listener : fieldDescriptorsDerivedEventListeners)
+				{
+					listener.fieldDescriptorsDerived();
+				}
+				fieldDescriptorsDerivedEventListeners.clear();
+			}
+		}
 	}
 
 	/**

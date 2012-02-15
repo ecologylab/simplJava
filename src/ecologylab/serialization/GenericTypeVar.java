@@ -34,7 +34,7 @@ public class GenericTypeVar extends Debug
 
 	// If the declared generic type var is also generic. for example. MediaSearchResult<Media<M,T>> 
 	// then this collection will hold the generic type variables (such as M & T in example).
-	@simpl_collection
+	@simpl_collection("generic_type_var")
 	ArrayList<GenericTypeVar>	genericTypeVars							= null;
 
 	// This variable holds the ClassDecriptor of the class declared as a constraint to the generic type variable. 
@@ -44,7 +44,7 @@ public class GenericTypeVar extends Debug
 
 	// This variable holds the collection of generic type variables of a class declared as the constraint to the generic type variable. 
 	// For example this variable will hold R & S if generic type variable is declared as MediaSearchResult<M extends Media<R,S>>
-	@simpl_collection
+	@simpl_collection("generic_type_var")
 	ArrayList<GenericTypeVar>	constraintedGenericTypeVars	= null;
 	
 	// If a declared generic type variable is used, then this variable holds the reference of the decalared generic type var. 
