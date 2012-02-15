@@ -129,6 +129,11 @@ public class EnvironmentGeneric extends Generic
 		Environment.the.get().navigate(purl, Environment.the.frame());
 	}
 
+	public static boolean hasFirefox()
+	{
+		return Environment.the.get().hasFirefox();
+	}
+	
 	/**
 	 * Called at the end of an invocation. Calls System.exit(code).
 	 * 

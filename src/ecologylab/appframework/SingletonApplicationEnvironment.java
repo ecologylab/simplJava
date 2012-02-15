@@ -63,6 +63,8 @@ public class SingletonApplicationEnvironment extends ApplicationEnvironment impl
   public static final String	TOP_LEVEL_HEIGHT	= "topheight";
   public static final String	TOP_LEVEL_WIDTH		= "topwidth";
 
+	static boolean firefoxExists = false;
+
 	/**
 	 * Create an ApplicationEnvironment. Create an empty properties object for application parameters.
 	 * <p/>
@@ -1042,7 +1044,7 @@ public class SingletonApplicationEnvironment extends ApplicationEnvironment impl
 				if (path != null)
 				{
 					File existentialTester = new File(path);
-					boolean firefoxExists = existentialTester.exists();
+					firefoxExists = existentialTester.exists();
 					if (!firefoxExists)
 					{
 						path = FIREFOX_PATH_WINDOWS_64;
@@ -1072,10 +1074,12 @@ public class SingletonApplicationEnvironment extends ApplicationEnvironment impl
 				result[0] = "/usr/bin/open";
 				result[1] = "-a";
 				result[2] = "firefox";
+				firefoxExists = true;
 				break;
 			case PropertiesAndDirectories.LINUX:
 				result = new String[2];
 				result[0] = FIREFOX_PATH_LINUX;
+				firefoxExists = true;
 				break;
 			default:
 				error(PropertiesAndDirectories.getOsName(), "go(ParsedURL) not supported");
@@ -1089,6 +1093,19 @@ public class SingletonApplicationEnvironment extends ApplicationEnvironment impl
 		return result;
 	}
 
+	
+	/**
+	 * Returns true if firefox was found on this system.
+	 * @return
+	 */
+	@Override
+	public boolean hasFirefox()
+	{
+		getNavigateArgs();//sets firefoxExists if true
+		return firefoxExists;
+	}
+
+	
 	/**
 	 * Navigate to the purl using the best browser we can find.
 	 * 

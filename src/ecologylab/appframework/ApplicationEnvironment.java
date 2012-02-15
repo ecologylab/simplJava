@@ -1082,4 +1082,11 @@ public class ApplicationEnvironment extends Debug implements Environment,
 	{
 		return applicationName;
 	}
+
+	@Override
+	public boolean hasFirefox()
+	{
+		// TODO Auto-generated method stub
+		return false;
+	}
 }

@@ -384,4 +384,6 @@ public interface Environment
 	public void navigate(ParsedURL purl, String frame);
 
 	public String getApplicationName();
+	
+	public boolean hasFirefox();
 }
