@@ -479,7 +479,10 @@ public class ClassDescriptor<FD extends FieldDescriptor> extends DescriptorBase 
 
 	private void addFieldDescriptorDerivedEventListener(FieldDescriptorsDerivedEventListener listener)
 	{
-		fieldDescriptorsDerivedEventListeners.add(listener);
+		synchronized (fieldDescriptorsDerivedEventListeners)
+		{
+			fieldDescriptorsDerivedEventListeners.add(listener);
+		}
 	}
 
 	private void handleFieldDescriptorsDerivedEvent()
