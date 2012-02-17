@@ -22,4 +22,19 @@ public class Tr extends HtmlElement
 		this.setCssClass("");
 		cells = new ArrayList<Td>();
 	}
+	
+	boolean printOnceLock = false;
+	public String toString()
+	{
+		if(printOnceLock)
+		   return "tr-lockreached";	
+		String returnString = "tr[";
+		for(Td td : cells)
+		{
+			returnString += " "+td.toString();
+		}
+		returnString += " ]"+"\n";
+		printOnceLock = false;
+		return returnString;
+	}
 }

@@ -38,4 +38,16 @@ public class Div extends HtmlElement
 	{
 		this.text = text;
 	}
+	
+	public String toString()
+	{
+		String returnString = "";
+		returnString += " div:"+text;
+		for(Object member : members)
+		{
+			returnString += " "+member.toString()+",";
+		}
+		returnString += ":/div ";
+		return returnString;
+	}
 }

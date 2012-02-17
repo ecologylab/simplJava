@@ -38,4 +38,10 @@ public class A extends HtmlElement
 	{
 		this.link = link;
 	}
+	public String toString()
+	{
+		String returnString = "";
+		returnString += "a("+href+")["+link+"]";
+		return returnString;
+	}
 }

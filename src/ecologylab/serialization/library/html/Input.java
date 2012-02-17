@@ -48,4 +48,11 @@ public class Input extends HtmlElement
 	{
 		this.value = value;
 	}
+	
+	public String toString()
+	{
+		String returnString = "";
+		returnString += "input(type:"+type+", value:"+value+" ,src:"+src+")";
+		return returnString;
+	}
 }
