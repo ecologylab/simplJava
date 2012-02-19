@@ -49,12 +49,6 @@ public class HibernateXmlMappingGenerator extends Debug
 	
 	public static final String											XML_HEAD								= "<?xml version=\"1.0\"?>\n<!DOCTYPE hibernate-mapping PUBLIC \"-//Hibernate/Hibernate Mapping DTD 3.0//EN\" \"http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd\">\n";
 
-	/**
-	 * the implementation class of DbNameGenerator. when a new HibernateXmlMappingGenerator is newed,
-	 * this static member will be used to create the generator.
-	 */
-	public static Class<? extends DbNameGenerator>	DB_NAME_GENERATOR_CLASS	= DefaultCachedDbNameGenerator.class;
-
 	private DbNameGenerator													dbNameGenerator;
 
 	private SimplTypesScope													translationScope;
@@ -72,18 +66,12 @@ public class HibernateXmlMappingGenerator extends Debug
 
 	public HibernateXmlMappingGenerator()
 	{
-		try
-		{
-			dbNameGenerator = DB_NAME_GENERATOR_CLASS.newInstance();
-		}
-		catch (InstantiationException e)
-		{
-			e.printStackTrace();
-		}
-		catch (IllegalAccessException e)
-		{
-			e.printStackTrace();
-		}
+		this(new DefaultCachedDbNameGenerator());
+	}
+	
+	protected HibernateXmlMappingGenerator(DbNameGenerator dbNameGenerator)
+	{
+		this.dbNameGenerator = dbNameGenerator;
 	}
 
 	/**
@@ -122,14 +110,19 @@ public class HibernateXmlMappingGenerator extends Debug
 			generateClassMapping(cd);
 			this.dbNameGenerator.clearCache();
 		}
+		
+		generateMappingsDoneHook();
 
 		for (HibernateClass classMapping : allMappings.values())
 		{
 			HibernateMapping mappingUnit = new HibernateMapping();
-			mappingUnit.setMappingPackageName(classMapping.getMappedClassDescriptor().getDescribedClassPackageName());
+			String className = classMapping.getName();
+			if (className == null)
+				continue;
+			mappingUnit.setMappingPackageName(className.substring(0, className.lastIndexOf('.')));
 			mappingUnit.getMappedClasses().put(classMapping.getName(), classMapping);
 			
-			String entityClassName = classMapping.getName().replace('$', '_');
+			String entityClassName = className.replace('$', '_');
 			File newHbmFile = new File(hbmDir, entityClassName + ".hbm.xml");
 			mappingImports.add(String.format("<mapping file=\"%s\" />", newHbmFile.getPath()));
 			
@@ -142,6 +135,12 @@ public class HibernateXmlMappingGenerator extends Debug
 
 		Collections.sort(mappingImports);
 		return mappingImports;
+	}
+
+	protected void generateMappingsDoneHook()
+	{
+		// TODO Auto-generated method stub
+		
 	}
 
 	protected HibernateClass generateClassMapping(ClassDescriptor cd)
@@ -181,25 +180,41 @@ public class HibernateXmlMappingGenerator extends Debug
 			allMappings.put(cd.getDescribedClassName(), thatClass);
 			
 			thatClass.setMappedClassDescriptor(cd);
-			thatClass.setName(cd.getDescribedClassName());
+			String className = getClassNameForHbm(cd);
+			if (className == null)
+				return null;
+			thatClass.setName(className);
 			thatClass.setTable(dbNameGenerator.getTableName(cd));
-			thatClass.setProperties(new HashMapArrayList<String, HibernateFieldBase>());
-			cd.resolvePolymorphicAnnotations();
-			for (Object fdObj : cd.getDeclaredFieldDescriptorsByFieldName().values())
-			{
-				FieldDescriptor fd = (FieldDescriptor) fdObj;
-				if (fd.getName().equals(findIdFieldName(cd)))
-					continue;
-				if (fd.getDeclaringClassDescriptor().equals(cd))
-				{
-					HibernateFieldBase currentField = generateFieldMapping(cd, fd);
-					if (currentField != null)
-						thatClass.getProperties().put(currentField.getName(), currentField);
-				}
-			}
+			HashMapArrayList<String, HibernateFieldBase> propertyMappings = generatePropertyMappingsForClass(cd);
+			thatClass.setProperties(propertyMappings);
 		}
 
 		return thatClass;
+	}
+
+	protected HashMapArrayList<String, HibernateFieldBase> generatePropertyMappingsForClass(
+			ClassDescriptor cd)
+	{
+		HashMapArrayList<String, HibernateFieldBase> propertyMappings = new HashMapArrayList<String, HibernateFieldBase>();
+		cd.resolvePolymorphicAnnotations();
+		for (Object fdObj : cd.getDeclaredFieldDescriptorsByFieldName().values())
+		{
+			FieldDescriptor fd = (FieldDescriptor) fdObj;
+			if (fd.getName().equals(findIdFieldName(cd)))
+				continue;
+			if (fd.getDeclaringClassDescriptor().equals(cd))
+			{
+				HibernateFieldBase currentField = generateFieldMapping(cd, fd);
+				if (currentField != null)
+					propertyMappings.put(currentField.getName(), currentField);
+			}
+		}
+		return propertyMappings;
+	}
+	
+	protected String getClassNameForHbm(ClassDescriptor cd)
+	{
+		return cd.getDescribedClassName();
 	}
 
 	protected String findIdColName(ClassDescriptor cd)
@@ -276,7 +291,7 @@ public class HibernateXmlMappingGenerator extends Debug
 		
 		if (fd.isPolymorphic())
 		{
-			elementCd = ClassDescriptor.getClassDescriptor((Class) fd.getField().getType());
+			elementCd = ClassDescriptor.getClassDescriptor(fd.getField().getType());
 		}
 		else
 		{
@@ -436,6 +451,11 @@ public class HibernateXmlMappingGenerator extends Debug
 	protected String translateType(String typeName)
 	{
 		return typeName;
+	}
+
+	protected Map<String, HibernateClass> getAllMappings()
+	{
+		return allMappings;
 	}
 	
 }

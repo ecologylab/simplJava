@@ -387,9 +387,9 @@ public class DefaultCachedDbNameGenerator extends Debug implements DbNameGenerat
 
 	private Map<Object, String>	cachedNames						= new HashMap<Object, String>();
 
-	protected String createTableName(ClassDescriptor cd)
+	protected String createTableName(String classSimpleName)
 	{
-		String name = XMLTools.getXmlTagName(cd.getDescribedClassSimpleName(), null).toLowerCase();
+		String name = XMLTools.getXmlTagName(classSimpleName, null).toLowerCase();
 		if (SQL_RESERVED.contains(name))
 			name = TABLE_MAGIC_PREFIX + name;
 		return name;
@@ -408,15 +408,17 @@ public class DefaultCachedDbNameGenerator extends Debug implements DbNameGenerat
 		return name;
 	}
 
+	@Override
 	public String getTableName(ClassDescriptor cd)
 	{
 		if (cachedNames.containsKey(cd))
 			return cachedNames.get(cd);
-		String name = createTableName(cd);
+		String name = createTableName(cd.getDescribedClassSimpleName());
 		cachedNames.put(cd, name);
 		return name;
 	}
 
+	@Override
 	public String getColumnName(FieldDescriptor fd)
 	{
 		if (cachedNames.containsKey(fd))
@@ -426,26 +428,31 @@ public class DefaultCachedDbNameGenerator extends Debug implements DbNameGenerat
 		return name;
 	}
 
+	@Override
 	public String getColumnName(String fieldName)
 	{
 		return createColumnName(fieldName);
 	}
 
+	@Override
 	public String getAssociationTableName(ClassDescriptor cd, FieldDescriptor fd)
 	{
 		return getTableName(cd) + ASSOCIATION_TABLE_SEP + getColumnName(fd);
 	}
 
+	@Override
 	public String getAssociationTableColumnName(ClassDescriptor cd)
 	{
 		return getTableName(cd) + "_id";
 	}
 	
+	@Override
 	public String getAssociationTableIndexName(ClassDescriptor cd, FieldDescriptor fd)
 	{
 		return getAssociationTableName(cd, fd) + "__index";
 	}
 	
+	@Override
 	public void clearCache()
 	{
 		cachedNames.clear();
