@@ -68,6 +68,11 @@ implements CrossLanguageTypeConstants
 		this.isPrimitive 			= javaClass.isPrimitive();
 	}
 
+	protected ScalarType(Class thatClass)
+	{
+		this(thatClass, null, null, null);
+	}
+
 	/**
 	 * If <code>this</code> is a reference type, build an appropriate Object, given a String
 	 * representation. If it is a primitive type, return a boxed value.
