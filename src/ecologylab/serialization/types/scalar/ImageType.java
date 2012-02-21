@@ -1,13 +1,14 @@
 /*******************************************************************************
- *  Revision History:<br>
- *  SRL Member - File created
- *
- *  <p>
- *  <pre>
+ * Revision History:<br>
+ * SRL Member - File created
+ * 
+ * <p>
+ * 
+ * <pre>
  *  This work is released under the BSD License:
  *  (C) 2011 Sketch Recognition Lab, Texas A&M University (hereafter SRL @ TAMU)
  *  All rights reserved.
- *
+ * 
  *  Redistribution and use in source and binary forms, with or without
  *  modification, are permitted provided that the following conditions are met:
  *      * Redistributions of source code must retain the above copyright
@@ -29,8 +30,8 @@
  *  ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  *  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  *  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *  </pre>
- *  
+ * </pre>
+ * 
  *******************************************************************************/
 package ecologylab.serialization.types.scalar;
 
@@ -46,30 +47,36 @@ import ecologylab.serialization.ScalarUnmarshallingContext;
 import ecologylab.serialization.TranslationContext;
 import ecologylab.serialization.types.ScalarType;
 
-public class ImageType extends ScalarType<Image> {
+public class ImageType extends ScalarType<Image>
+{
 
-	public ImageType() {
+	public ImageType()
+	{
 		this(Image.class);
 	}
 
-	protected ImageType(Class<Image> thatClass) {
+	protected ImageType(Class<Image> thatClass)
+	{
 		super(thatClass, null, null, null);
 	}
 
 	@Override
 	public Image getInstance(String value, String[] formatStrings,
-			ScalarUnmarshallingContext scalarUnmarshallingContext) {
+			ScalarUnmarshallingContext scalarUnmarshallingContext)
+	{
 		value = value.trim();
 		byte[] data = new byte[value.length() / 2];
 
 		// TODO: optimize
 		for (int i = 0; i < data.length; ++i)
-			data[i] = (byte) Integer.parseInt(
-					value.substring(2 * i, 2 * i + 2), 16);
+			data[i] = (byte) Integer.parseInt(value.substring(2 * i, 2 * i + 2), 16);
 
-		try {
+		try
+		{
 			return ImageIO.read(new ByteArrayInputStream(data));
-		} catch (IOException e) {
+		}
+		catch (IOException e)
+		{
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
@@ -77,11 +84,13 @@ public class ImageType extends ScalarType<Image> {
 		return null;
 	}
 
-	public String fix(byte[] arr) {
+	public String fix(byte[] arr)
+	{
 
 		StringBuilder res = new StringBuilder(arr.length * 2);
 
-		for (int i = 0; i < arr.length; ++i) {
+		for (int i = 0; i < arr.length; ++i)
+		{
 			int in = (arr[i] >= 0) ? arr[i] : 256 + arr[i];
 			String x = Integer.toString(in, 16);
 			if (in < 16)
@@ -93,18 +102,24 @@ public class ImageType extends ScalarType<Image> {
 	}
 
 	@Override
-	public String marshall(Image i, TranslationContext suc) {
-		try {
+	public String marshall(Image i, TranslationContext suc)
+	{
+		try
+		{
 			BufferedImage img = (BufferedImage) i;
 
 			ByteArrayOutputStream baos = new ByteArrayOutputStream();
 			ImageIO.write(img, "png", baos);
 
 			return fix(baos.toByteArray());
-		} catch (IOException e) {
+		}
+		catch (IOException e)
+		{
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-		} catch (ClassCastException e) {
+		}
+		catch (ClassCastException e)
+		{
 			e.printStackTrace();
 		}
 
