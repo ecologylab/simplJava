@@ -47,7 +47,7 @@ import ecologylab.serialization.ScalarUnmarshallingContext;
 import ecologylab.serialization.TranslationContext;
 import ecologylab.serialization.types.ScalarType;
 
-public class ImageType extends ScalarType<Image>
+public class ImageType<I extends Image> extends ScalarType<I>
 {
 
 	public ImageType()
@@ -55,13 +55,13 @@ public class ImageType extends ScalarType<Image>
 		this(Image.class);
 	}
 
-	protected ImageType(Class<Image> thatClass)
+	protected ImageType(Class thatClass)
 	{
-		super(thatClass, null, null, null);
+		super(thatClass);
 	}
 
 	@Override
-	public Image getInstance(String value, String[] formatStrings,
+	public I getInstance(String value, String[] formatStrings,
 			ScalarUnmarshallingContext scalarUnmarshallingContext)
 	{
 		value = value.trim();
@@ -73,7 +73,7 @@ public class ImageType extends ScalarType<Image>
 
 		try
 		{
-			return ImageIO.read(new ByteArrayInputStream(data));
+			return (I) ImageIO.read(new ByteArrayInputStream(data));
 		}
 		catch (IOException e)
 		{
@@ -102,7 +102,7 @@ public class ImageType extends ScalarType<Image>
 	}
 
 	@Override
-	public String marshall(Image i, TranslationContext suc)
+	public String marshall(I i, TranslationContext suc)
 	{
 		try
 		{
