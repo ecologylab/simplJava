@@ -8,5 +8,8 @@
 	<classpathentry combineaccessrules="false" kind="src" path="/ecologylabSemanticsCyberneko"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/ecologylabSemantics"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/cyberneko"/>
+	<classpathentry kind="lib" path="libs/json_simple-1.1.jar"/>
+	<classpathentry kind="lib" path="libs/xercesMinimal.jar"/>
+	<classpathentry kind="lib" path="libs/xml-addon.jar"/>
 	<classpathentry kind="output" path="bin/classes"/>
 </classpath>
