@@ -435,9 +435,7 @@ public class ClassDescriptor<FD extends FieldDescriptor> extends DescriptorBase 
 						Object[] args = new Object[1];
 						args[0] = thatClass;
 
-						result = (ClassDescriptor<? extends FieldDescriptor>) ReflectionTools.getInstance(aClass,
-																																															CONSTRUCTOR_ARGS,
-																																															args);
+						result = (ClassDescriptor<? extends FieldDescriptor>) ReflectionTools.getInstance(aClass, CONSTRUCTOR_ARGS, args);
 					}
 					globalClassDescriptorsMap.put(className, result);
 
