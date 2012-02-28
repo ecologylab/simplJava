@@ -232,6 +232,8 @@ public class XMLPullDeserializerSun extends StringPullDeserializer
 				{
 					if (event == XMLStreamConstants.CHARACTERS)
 						xmlText += xmlStreamReader.getText();
+					else if (event == XMLStreamConstants.END_ELEMENT && currentFieldDescriptor.getType() == WRAPPER)
+						currentFieldDescriptor = currentFieldDescriptor.getWrappedFD();
 					event = nextEvent();
 					continue;
 				}
@@ -313,32 +315,40 @@ public class XMLPullDeserializerSun extends StringPullDeserializer
 	{
 		int event = xmlStreamReader.getEventType();
 
-		while (fd.isCollectionTag(getTagName()))
+		String tagName = getTagName();
+		if (!fd.isCollectionTag(tagName))
 		{
-			String tag = getTagName();
-			if (event != XMLStreamConstants.START_ELEMENT)
+			event = ignoreTag(tagName);
+		}
+		else
+		{
+			while (fd.isCollectionTag(tagName))
 			{
-				// end of collection
-				break;
-			}
-
-			event = xmlStreamReader.next();
-
-			if (event == XMLStreamConstants.CHARACTERS && event != XMLStreamConstants.END_ELEMENT)
-			{
-				StringBuilder text = new StringBuilder();
-				text.append(xmlStreamReader.getText());
-				while (xmlStreamReader.next() != XMLStreamConstants.END_ELEMENT)
+				if (event != XMLStreamConstants.START_ELEMENT)
 				{
-					if (xmlStreamReader.getEventType() == XMLStreamConstants.CHARACTERS)
-						text.append(xmlStreamReader.getText());
+					// end of collection
+					break;
 				}
-
-				String value = text.toString();
-				fd.addLeafNodeToCollection(root, value, translationContext);
+	
+				event = xmlStreamReader.next();
+	
+				if (event == XMLStreamConstants.CHARACTERS && event != XMLStreamConstants.END_ELEMENT)
+				{
+					StringBuilder text = new StringBuilder();
+					text.append(xmlStreamReader.getText());
+					while (xmlStreamReader.next() != XMLStreamConstants.END_ELEMENT)
+					{
+						if (xmlStreamReader.getEventType() == XMLStreamConstants.CHARACTERS)
+							text.append(xmlStreamReader.getText());
+					}
+	
+					String value = text.toString();
+					fd.addLeafNodeToCollection(root, value, translationContext);
+				}
+	
+				event 	= xmlStreamReader.nextTag();
+				tagName = getTagName();
 			}
-
-			event = xmlStreamReader.nextTag();
 		}
 
 		return event;
@@ -416,20 +426,28 @@ public class XMLPullDeserializerSun extends StringPullDeserializer
 	{
 		Object subRoot;
 		int event = xmlStreamReader.getEventType();
-		while (fd.isCollectionTag(getTagName()))
+		String tagName = getTagName();
+		if (!fd.isCollectionTag(tagName))
 		{
-			if (event != XMLStreamConstants.START_ELEMENT)
+			event = ignoreTag(tagName);
+		}
+		else
+		{
+			while (fd.isCollectionTag(tagName))
 			{
-				// end of collection
-				break;
+				if (event != XMLStreamConstants.START_ELEMENT)
+				{
+					// end of collection
+					break;
+				}
+	
+				subRoot = getSubRoot(fd, tagName, root);
+				Collection collection = (Collection) fd.automaticLazyGetCollectionOrMap(root);
+				collection.add(subRoot);
+	
+				event 	= xmlStreamReader.nextTag();
+				tagName = getTagName();
 			}
-
-			String compositeTagName = getTagName();
-			subRoot = getSubRoot(fd, compositeTagName, root);
-			Collection collection = (Collection) fd.automaticLazyGetCollectionOrMap(root);
-			collection.add(subRoot);
-
-			event = xmlStreamReader.nextTag();
 		}
 
 		return event;
