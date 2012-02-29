@@ -169,7 +169,7 @@ public class ClassDescriptor<FD extends FieldDescriptor> extends DescriptorBase 
 	
 	private ClassDescriptor																														clonedFrom;
 	
-	private List<FieldDescriptorsDerivedEventListener>																fieldDescriptorsDerivedEventListeners = new ArrayList<FieldDescriptorsDerivedEventListener>();
+	private List<FieldDescriptorsDerivedEventListener>																fieldDescriptorsDerivedEventListeners;
 	
 	static
 	{
@@ -449,21 +449,18 @@ public class ClassDescriptor<FD extends FieldDescriptor> extends DescriptorBase 
 					}
 					else
 					{
-						synchronized (superCD.fieldDescriptorsDerivedEventListeners)
+						final ClassDescriptor resultFinalCopy = result;
+						FieldDescriptorsDerivedEventListener listener = new FieldDescriptorsDerivedEventListener()
 						{
-							final ClassDescriptor resultFinalCopy = result;
-							FieldDescriptorsDerivedEventListener listener = new FieldDescriptorsDerivedEventListener()
+							@Override
+							public void fieldDescriptorsDerived(Object... eventArgs)
 							{
-								@Override
-								public void fieldDescriptorsDerived(Object... eventArgs)
-								{
-									resultFinalCopy.deriveAndOrganizeFieldsRecursive(thatClass);
-									resultFinalCopy.isGetAndOrganizeComplete = true;
-									resultFinalCopy.handleFieldDescriptorsDerivedEvent();
-								}
-							};
-							superCD.addFieldDescriptorDerivedEventListener(listener);
-						}
+								resultFinalCopy.deriveAndOrganizeFieldsRecursive(thatClass);
+								resultFinalCopy.isGetAndOrganizeComplete = true;
+								resultFinalCopy.handleFieldDescriptorsDerivedEvent();
+							}
+						};
+						superCD.addFieldDescriptorDerivedEventListener(listener);
 					}
 					
 //					result.deriveAndOrganizeFieldsRecursive(thatClass);
@@ -474,27 +471,28 @@ public class ClassDescriptor<FD extends FieldDescriptor> extends DescriptorBase 
 		}
 		return result;
 	}
+	
+	private List<FieldDescriptorsDerivedEventListener> fieldDescriptorsDerivedEventListeners()
+	{
+		if (fieldDescriptorsDerivedEventListeners == null)
+			this.fieldDescriptorsDerivedEventListeners = new ArrayList<FieldDescriptorsDerivedEventListener>();
+		return fieldDescriptorsDerivedEventListeners;
+	}
 
 	private void addFieldDescriptorDerivedEventListener(FieldDescriptorsDerivedEventListener listener)
 	{
-		synchronized (fieldDescriptorsDerivedEventListeners)
-		{
-			fieldDescriptorsDerivedEventListeners.add(listener);
-		}
+		fieldDescriptorsDerivedEventListeners().add(listener);
 	}
 
 	private void handleFieldDescriptorsDerivedEvent()
 	{
 		if (fieldDescriptorsDerivedEventListeners != null)
 		{
-			synchronized (fieldDescriptorsDerivedEventListeners)
+			for (FieldDescriptorsDerivedEventListener listener : fieldDescriptorsDerivedEventListeners)
 			{
-				for (FieldDescriptorsDerivedEventListener listener : fieldDescriptorsDerivedEventListeners)
-				{
-					listener.fieldDescriptorsDerived();
-				}
-				fieldDescriptorsDerivedEventListeners.clear();
+				listener.fieldDescriptorsDerived();
 			}
+			fieldDescriptorsDerivedEventListeners.clear();
 		}
 	}
 
