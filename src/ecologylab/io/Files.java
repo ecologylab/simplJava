@@ -980,7 +980,6 @@ public class Files extends Debug
 				if (dirFile.isDirectory())
 				{
 					succeeded = succeeded && deleteDirectory(dirFile);
-					succeeded = succeeded && dirFile.delete();
 				}
 				else
 				{

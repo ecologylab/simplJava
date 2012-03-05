@@ -266,6 +266,8 @@ public class Assets extends Debug implements ApplicationProperties
 		if (forceDownload || !zipFileDestination.canRead()
 				|| !localVersionIsUpToDate(zipFileName, version))
 		{
+			if (targetDir.exists())
+				Files.deleteDirectory(targetDir);
 			ZipDownload downloadingZip = ZipDownload.downloadAndPerhapsUncompress(sourceZip,
 																																						targetDir,
 																																						status,
