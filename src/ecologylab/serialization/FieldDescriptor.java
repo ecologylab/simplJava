@@ -925,8 +925,7 @@ public class FieldDescriptor extends DescriptorBase implements FieldTypes, IMapp
 		// to null?!
 		if (context != null && isScalar() /* do we really need this check??? */)
 		{
-			scalarType.setField(context, field, valueString, null, scalarUnMarshallingContext);
-			result = true;
+			result = scalarType.setField(context, field, valueString, null, scalarUnMarshallingContext);
 		}
 		return result;
 	}
