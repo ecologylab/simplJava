@@ -12,6 +12,7 @@ import ecologylab.serialization.SimplTypesScope;
 import ecologylab.serialization.SimplTypesScope.GRAPH_SWITCH;
 import ecologylab.serialization.TranslationContext;
 import ecologylab.serialization.XMLTools;
+import ecologylab.serialization.annotations.FieldUsage;
 import ecologylab.serialization.formatenums.Format;
 
 /***
@@ -114,6 +115,8 @@ public class JSONSerializer extends StringSerializer implements FieldTypes
 
 		for (FieldDescriptor childFd : allFieldDescriptors)
 		{
+			if (childFd.isUsageExcluded(FieldUsage.SERIALIZATION_IN_STREAM))
+				continue;
 
 			if (isSerializable(childFd, object))
 			{

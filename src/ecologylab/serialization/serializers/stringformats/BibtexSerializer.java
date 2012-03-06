@@ -10,6 +10,7 @@ import ecologylab.serialization.FieldTypes;
 import ecologylab.serialization.SIMPLTranslationException;
 import ecologylab.serialization.TranslationContext;
 import ecologylab.serialization.XMLTools;
+import ecologylab.serialization.annotations.FieldUsage;
 import ecologylab.serialization.formatenums.Format;
 
 /**
@@ -88,6 +89,9 @@ public class BibtexSerializer extends StringSerializer implements FieldTypes
 
 		for (FieldDescriptor childFd : allFieldDescriptors)
 		{
+			if (childFd.isUsageExcluded(FieldUsage.SERIALIZATION_IN_STREAM))
+				continue;
+
 			switch (childFd.getType())
 			{
 			case SCALAR:

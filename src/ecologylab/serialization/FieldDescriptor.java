@@ -27,10 +27,12 @@ import ecologylab.generic.StringBuilderBaseUtils;
 import ecologylab.generic.StringTools;
 import ecologylab.platformspecifics.FundamentalPlatformSpecifics;
 import ecologylab.serialization.MetaInformation.Argument;
+import ecologylab.serialization.annotations.FieldUsage;
 import ecologylab.serialization.annotations.Hint;
 import ecologylab.serialization.annotations.simpl_classes;
 import ecologylab.serialization.annotations.simpl_collection;
 import ecologylab.serialization.annotations.simpl_composite;
+import ecologylab.serialization.annotations.simpl_exclude_usage;
 import ecologylab.serialization.annotations.simpl_filter;
 import ecologylab.serialization.annotations.simpl_hints;
 import ecologylab.serialization.annotations.simpl_inherit;
@@ -210,6 +212,9 @@ public class FieldDescriptor extends DescriptorBase implements FieldTypes, IMapp
 	protected String																	genericParametersString;
 
 	private ArrayList<ClassDescriptor>								dependencies								= new ArrayList<ClassDescriptor>();
+	
+	@simpl_collection("excluded_usage")
+	private ArrayList<FieldUsage>											excludedUsages;
 
 	/**
 	 * if is null, this field is not a cloned one. <br />
@@ -278,6 +283,12 @@ public class FieldDescriptor extends DescriptorBase implements FieldTypes, IMapp
 		this.fieldType = field.getType().getSimpleName();
 		if (field.isAnnotationPresent(simpl_map_key_field.class))
 			this.mapKeyFieldName = field.getAnnotation(simpl_map_key_field.class).value();
+		if (field.isAnnotationPresent(simpl_exclude_usage.class))
+		{
+			this.excludedUsages = new ArrayList<FieldUsage>();
+			for (FieldUsage usage : field.getAnnotation(simpl_exclude_usage.class).value())
+				this.excludedUsages.add(usage);
+		}
 		// this.name = (field != null) ? field.getName() : "NULL";
 
 		derivePolymorphicDescriptors(field);
@@ -2197,6 +2208,16 @@ public class FieldDescriptor extends DescriptorBase implements FieldTypes, IMapp
 	public EnumeratedType getEnumerateType()
 	{
 		return enumType;
+	}
+	
+	public ArrayList<FieldUsage> getExcludedUsages()
+	{
+		return excludedUsages;
+	}
+	
+	public boolean isUsageExcluded(FieldUsage usage)
+	{
+		return excludedUsages != null && excludedUsages.contains(usage);
 	}
 
 }
