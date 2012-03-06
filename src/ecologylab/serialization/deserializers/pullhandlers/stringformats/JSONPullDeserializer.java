@@ -304,7 +304,7 @@ public class JSONPullDeserializer extends StringPullDeserializer
 
 		deserializationPostHook(root, translationContext);
 		if (deserializationHookStrategy != null)
-			deserializationHookStrategy.deserializationPostHook(root, null);
+			deserializationHookStrategy.deserializationPostHook(root, currentFieldDescriptor);
 	}
 
 	/**
