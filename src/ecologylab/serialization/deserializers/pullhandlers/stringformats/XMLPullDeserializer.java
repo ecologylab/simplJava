@@ -286,7 +286,7 @@ public class XMLPullDeserializer extends StringPullDeserializer
 			}
 			deserializationPostHook(root, translationContext);
 			if (deserializationHookStrategy != null)
-				deserializationHookStrategy.deserializationPostHook(root, null);
+				deserializationHookStrategy.deserializationPostHook(root, currentFieldDescriptor);
 		}
 
 		catch (Exception ex)
