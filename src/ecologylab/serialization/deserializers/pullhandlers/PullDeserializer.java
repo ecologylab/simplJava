@@ -24,8 +24,10 @@ import ecologylab.serialization.deserializers.ISimplDeserializationPre;
 import ecologylab.serialization.deserializers.ISimplDeserializationPost;
 import ecologylab.serialization.deserializers.pullhandlers.binaryformats.BinaryPullDeserializer;
 import ecologylab.serialization.deserializers.pullhandlers.binaryformats.TLVPullDeserializer;
+import ecologylab.serialization.deserializers.pullhandlers.stringformats.BibTeXPullDeserializer;
 import ecologylab.serialization.deserializers.pullhandlers.stringformats.JSONPullDeserializer;
 import ecologylab.serialization.deserializers.pullhandlers.stringformats.StringPullDeserializer;
+import ecologylab.serialization.deserializers.pullhandlers.stringformats.XMLPullDeserializer;
 import ecologylab.serialization.formatenums.BinaryFormat;
 import ecologylab.serialization.formatenums.Format;
 import ecologylab.serialization.formatenums.StringFormat;
@@ -210,7 +212,7 @@ public abstract class PullDeserializer extends Debug implements FieldTypes
 		switch (format)
 		{
 		case XML:
-			return FundamentalPlatformSpecifics.get().getXMLPullDeserializer(translationScope,
+			return new XMLPullDeserializer(translationScope,
 					translationContext, deserializationHookStrategy);
 		case JSON:
 			return new JSONPullDeserializer(translationScope, translationContext,
@@ -219,7 +221,8 @@ public abstract class PullDeserializer extends Debug implements FieldTypes
 			return new TLVPullDeserializer(translationScope, translationContext,
 					deserializationHookStrategy);
 		case BIBTEX:
-
+			// TODO bibtex pull deserializer not implemented!
+//			return new BibTeXPullDeserializer(translationScope, translationContext);
 		default:
 			throw new SIMPLTranslationException(format + " format not supported");
 		}
@@ -257,12 +260,14 @@ public abstract class PullDeserializer extends Debug implements FieldTypes
 		switch (stringFormat)
 		{
 		case XML:
-			return FundamentalPlatformSpecifics.get().getXMLPullDeserializer(translationScope,
+			return new XMLPullDeserializer(translationScope,
 					translationContext, deserializationHookStrategy);
 		case JSON:
 			return new JSONPullDeserializer(translationScope, translationContext,
 					deserializationHookStrategy);
 		case BIBTEX:
+			// TODO bibtex pull deserializer not implemented!
+//			return new BibTeXPullDeserializer(translationScope, translationContext);
 		default:
 			throw new SIMPLTranslationException(stringFormat + " format not supported");
 		}

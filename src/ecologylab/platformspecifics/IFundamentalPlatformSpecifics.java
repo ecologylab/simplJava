@@ -1,7 +1,9 @@
 package ecologylab.platformspecifics;
 
+import java.io.InputStream;
 import java.lang.reflect.Field;
 import java.lang.reflect.Type;
+import java.nio.charset.Charset;
 
 import ecologylab.appframework.types.prefs.MetaPrefSet;
 import ecologylab.appframework.types.prefs.PrefSet;
@@ -10,13 +12,16 @@ import ecologylab.serialization.ClassDescriptor;
 import ecologylab.serialization.DeserializationHookStrategy;
 import ecologylab.serialization.FieldDescriptor;
 import ecologylab.serialization.GenericTypeVar;
+import ecologylab.serialization.SIMPLTranslationException;
 import ecologylab.serialization.SimplTypesScope;
 import ecologylab.serialization.TranslationContext;
 import ecologylab.serialization.deserializers.pullhandlers.stringformats.StringPullDeserializer;
+import ecologylab.serialization.deserializers.pullhandlers.stringformats.XMLParser;
 import ecologylab.serialization.formatenums.StringFormat;
 
 public interface IFundamentalPlatformSpecifics
 {
+	
 	// in ApplicationEnvironment
 	void initializePlatformSpecificTranslation();
 
@@ -56,11 +61,17 @@ public interface IFundamentalPlatformSpecifics
 
 	Class[] additionalPrefSetBaseTranslations();
 
-	// in Serialization.deserializers
-	StringPullDeserializer getXMLPullDeserializer(SimplTypesScope translationScope,
-			TranslationContext translationContext,
-			DeserializationHookStrategy deserializationHookStrategy);
-	
 	// platform specific types
 	void initializePlatformSpecificTypes();
+
+	
+	// XMLParser
+	XMLParser getXMLParser(InputStream inputStream, Charset charSet) throws SIMPLTranslationException;
+
+	XMLParser getXMLParser(InputStream inputStream) throws SIMPLTranslationException;
+
+	XMLParser getXMLParser(CharSequence charSequence) throws SIMPLTranslationException;
+	
+	
+	
 }
