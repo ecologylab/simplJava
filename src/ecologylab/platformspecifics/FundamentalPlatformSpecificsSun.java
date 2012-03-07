@@ -2,13 +2,15 @@ package ecologylab.platformspecifics;
 
 import java.awt.Color;
 import java.awt.Toolkit;
+import java.io.InputStream;
 import java.lang.reflect.Field;
 import java.lang.reflect.Type;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 
 import javax.imageio.ImageIO;
 import javax.swing.JOptionPane;
-
+import javax.xml.stream.XMLInputFactory;
 import sun.reflect.generics.reflectiveObjects.ParameterizedTypeImpl;
 import sun.reflect.generics.reflectiveObjects.TypeVariableImpl;
 import sun.reflect.generics.reflectiveObjects.WildcardTypeImpl;
@@ -22,15 +24,14 @@ import ecologylab.appframework.types.prefs.PrefSet;
 import ecologylab.appframework.types.prefs.gui.PrefsEditor;
 import ecologylab.generic.Debug;
 import ecologylab.generic.ReflectionTools;
+import ecologylab.generic.StringInputStream;
 import ecologylab.net.ParsedURL;
 import ecologylab.serialization.ClassDescriptor;
-import ecologylab.serialization.DeserializationHookStrategy;
 import ecologylab.serialization.FieldDescriptor;
 import ecologylab.serialization.GenericTypeVar;
-import ecologylab.serialization.SimplTypesScope;
-import ecologylab.serialization.TranslationContext;
-import ecologylab.serialization.deserializers.pullhandlers.stringformats.StringPullDeserializer;
-import ecologylab.serialization.deserializers.pullhandlers.stringformats.XMLPullDeserializerSun;
+import ecologylab.serialization.SIMPLTranslationException;
+import ecologylab.serialization.deserializers.pullhandlers.stringformats.XMLParser;
+import ecologylab.serialization.deserializers.pullhandlers.stringformats.XMLParserSun;
 import ecologylab.serialization.types.PlatformSpecificTypesSun;
 
 public class FundamentalPlatformSpecificsSun implements IFundamentalPlatformSpecifics
@@ -260,18 +261,50 @@ public class FundamentalPlatformSpecificsSun implements IFundamentalPlatformSpec
 	}
 
 	@Override
-	public StringPullDeserializer getXMLPullDeserializer(SimplTypesScope translationScope,
-			TranslationContext translationContext, DeserializationHookStrategy deserializationHookStrategy)
-	{
-		// TODO Auto-generated method stub
-		return new XMLPullDeserializerSun(translationScope, translationContext,
-				deserializationHookStrategy);
-	}
-
-	@Override
 	public void initializePlatformSpecificTypes() 
 	{
 		new PlatformSpecificTypesSun();
+	}
+
+	@Override
+	public XMLParser getXMLParser(InputStream inputStream, Charset charSet)
+			throws SIMPLTranslationException
+	{
+		try
+		{
+			return new XMLParserSun(XMLInputFactory.newInstance().createXMLStreamReader(inputStream, charSet.name()));
+		}
+		catch (Exception ex)
+		{
+			throw new SIMPLTranslationException("exception occurred in deserialzation ", ex);
+		}
+	}
+
+	@Override
+	public XMLParser getXMLParser(InputStream inputStream) throws SIMPLTranslationException
+	{
+		try
+		{
+			return new XMLParserSun(XMLInputFactory.newInstance().createXMLStreamReader(inputStream));
+		}
+		catch (Exception ex)
+		{
+			throw new SIMPLTranslationException("exception occurred in deserialzation ", ex);
+		}
+	}
+
+	@Override
+	public XMLParser getXMLParser(CharSequence charSequence) throws SIMPLTranslationException
+	{
+		try
+		{
+			InputStream xmlStream = new StringInputStream(charSequence, StringInputStream.UTF8);
+			return new XMLParserSun(XMLInputFactory.newInstance().createXMLStreamReader(xmlStream, "UTF-8"));
+		}
+		catch (Exception ex)
+		{
+			throw new SIMPLTranslationException("exception occurred in deserialzation ", ex);
+		}
 	}
 
 }
