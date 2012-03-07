@@ -1,8 +1,13 @@
 package ecologylab.platformspecifics;
 
+import java.io.InputStream;
+import java.io.StringReader;
 import java.lang.reflect.Field;
 import java.lang.reflect.Type;
+import java.nio.charset.Charset;
 
+import org.xmlpull.v1.XmlPullParser;
+import org.xmlpull.v1.XmlPullParserFactory;
 
 import android.graphics.Color;
 import ecologylab.appframework.types.prefs.MetaPrefColor;
@@ -18,10 +23,12 @@ import ecologylab.serialization.ClassDescriptor;
 import ecologylab.serialization.DeserializationHookStrategy;
 import ecologylab.serialization.FieldDescriptor;
 import ecologylab.serialization.GenericTypeVar;
+import ecologylab.serialization.SIMPLTranslationException;
 import ecologylab.serialization.SimplTypesScope;
 import ecologylab.serialization.TranslationContext;
-import ecologylab.serialization.deserializers.pullhandlers.stringformats.AndroidXMLDeserializer;
 import ecologylab.serialization.deserializers.pullhandlers.stringformats.StringPullDeserializer;
+import ecologylab.serialization.deserializers.pullhandlers.stringformats.XMLParser;
+import ecologylab.serialization.deserializers.pullhandlers.stringformats.XMLParserAndroid;
 import ecologylab.serialization.types.PlatformSpecificTypesAndroid;
 
 public class FundamentalPlatformSpecificsAndroid implements IFundamentalPlatformSpecifics
@@ -233,15 +240,58 @@ public class FundamentalPlatformSpecificsAndroid implements IFundamentalPlatform
 		return PREF_SET_BASE_SUNTRANSLATIONS;
 	}
 
-	public StringPullDeserializer getXMLPullDeserializer(SimplTypesScope translationScope,
-			TranslationContext translationContext, DeserializationHookStrategy deserializationHookStrategy)
-	{
-    return new AndroidXMLDeserializer(translationScope, translationContext);
-	}
-
 	public void initializePlatformSpecificTypes() 
 	{
 		new PlatformSpecificTypesAndroid();	
+	}
+
+	public XMLParser getXMLParser(InputStream inputStream, Charset charSet)
+			throws SIMPLTranslationException
+	{
+		try
+		{
+			XmlPullParserFactory factory = XmlPullParserFactory.newInstance();
+			factory.setNamespaceAware(true);
+			XmlPullParser xmlPullParser =  factory.newPullParser();
+			xmlPullParser.setInput(inputStream, charSet.name());
+			return new XMLParserAndroid(xmlPullParser);
+		}
+		catch (Exception ex)
+		{
+			throw new SIMPLTranslationException("exception occurred in deserialzation ", ex);
+		}
+	}
+
+	public XMLParser getXMLParser(InputStream inputStream) throws SIMPLTranslationException
+	{
+		try
+		{
+			XmlPullParserFactory factory = XmlPullParserFactory.newInstance();
+			factory.setNamespaceAware(true);
+			XmlPullParser xmlPullParser =  factory.newPullParser();
+			xmlPullParser.setInput(inputStream, "UTF-8");
+			return new XMLParserAndroid(xmlPullParser);
+		}
+		catch (Exception ex)
+		{
+			throw new SIMPLTranslationException("exception occurred in deserialzation ", ex);
+		}
+	}
+
+	public XMLParser getXMLParser(CharSequence charSequence) throws SIMPLTranslationException
+	{
+		try
+		{
+			XmlPullParserFactory factory = XmlPullParserFactory.newInstance();
+			factory.setNamespaceAware(true);
+			XmlPullParser xmlPullParser =  factory.newPullParser();
+			xmlPullParser.setInput(new StringReader(charSequence.toString()));
+			return new XMLParserAndroid(xmlPullParser);
+		}
+		catch (Exception ex)
+		{
+			throw new SIMPLTranslationException("exception occurred in deserialzation ", ex);
+		}
 	}
 
 }
