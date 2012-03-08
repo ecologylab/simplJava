@@ -5,6 +5,8 @@ import java.io.IOException;
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
 
+import ecologylab.serialization.SIMPLTranslationException;
+
 public class XMLParserAndroid implements XMLParser
 {
   private XmlPullParser	xmlPullParser;
@@ -45,7 +47,7 @@ public class XMLParserAndroid implements XMLParser
 		}
 	}
 
-	public int getEventType()
+	public int getEventType() throws SIMPLTranslationException
 	{
 		try
 		{
@@ -53,10 +55,8 @@ public class XMLParserAndroid implements XMLParser
 		}
 		catch (XmlPullParserException e)
 		{
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			throw new SIMPLTranslationException("exception occurred in deserialzation ", e);
 		}
-		return ELSE;
 	}
 
 	public String getText()
@@ -69,7 +69,7 @@ public class XMLParserAndroid implements XMLParser
 		return xmlPullParser.getName();
 	}
 
-	public int next()
+	public int next() throws SIMPLTranslationException
 	{
 		try
 		{
@@ -77,18 +77,15 @@ public class XMLParserAndroid implements XMLParser
 		}
 		catch (XmlPullParserException e)
 		{
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			throw new SIMPLTranslationException("exception occurred in deserialzation ", e);
 		}
 		catch (IOException e)
 		{
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			throw new SIMPLTranslationException("exception occurred in deserialzation ", e);
 		}
-		return ELSE;
 	}
 
-	public int nextTag()
+	public int nextTag() throws SIMPLTranslationException
 	{
 		 try
 		{
@@ -96,15 +93,12 @@ public class XMLParserAndroid implements XMLParser
 		}
 		catch (XmlPullParserException e)
 		{
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			throw new SIMPLTranslationException("exception occurred in deserialzation ", e);
 		}
 		catch (IOException e)
 		{
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			throw new SIMPLTranslationException("exception occurred in deserialzation ", e);
 		}
-		return ELSE;
 	}
 
 	public String getPrefix()
