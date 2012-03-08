@@ -277,8 +277,10 @@ public class XMLPullDeserializer extends StringPullDeserializer
 				rootClassDescriptor.getScalarTextFD().setFieldToScalar(root, xmlText, translationContext);
 			}
 			deserializationPostHook(root, translationContext);
-			if (deserializationHookStrategy != null && (currentFieldDescriptor == null || currentFieldDescriptor.getType() != IGNORED_ELEMENT))
-				deserializationHookStrategy.deserializationPostHook(root, currentFieldDescriptor);
+			if (deserializationHookStrategy != null)
+				deserializationHookStrategy.deserializationPostHook(root,
+						currentFieldDescriptor == null || currentFieldDescriptor.getType() == IGNORED_ELEMENT
+						? null : currentFieldDescriptor);
 //				deserializationHookStrategy.deserializationPostHook(root, null);
 		}
 		catch (Exception ex)
