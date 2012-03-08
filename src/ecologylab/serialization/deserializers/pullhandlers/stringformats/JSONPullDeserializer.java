@@ -304,7 +304,8 @@ public class JSONPullDeserializer extends StringPullDeserializer
 
 		deserializationPostHook(root, translationContext);
 		if (deserializationHookStrategy != null)
-			deserializationHookStrategy.deserializationPostHook(root, currentFieldDescriptor);
+			deserializationHookStrategy.deserializationPostHook(root, 
+					currentFieldDescriptor.getType() == IGNORED_ELEMENT ? null : currentFieldDescriptor);
 	}
 
 	/**
@@ -349,6 +350,12 @@ public class JSONPullDeserializer extends StringPullDeserializer
 			}
 		}
 
+		if (deserializationHookStrategy != null && subRoot != null)
+		{
+			Object newSubRoot= deserializationHookStrategy.changeObjectIfNecessary(subRoot, currentFieldDescriptor);
+			if (newSubRoot != null)
+				subRoot = newSubRoot;
+		}
 		return subRoot;
 	}
 

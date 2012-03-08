@@ -175,6 +175,9 @@ public class TLVPullDeserializer extends BinaryPullDeserializer
 				break;
 			}
 		}
+		
+		// TODO deserializePostHookStrategy: post hook; change object if necessary -- test cases!
+		
 		return root;
 	}
 
