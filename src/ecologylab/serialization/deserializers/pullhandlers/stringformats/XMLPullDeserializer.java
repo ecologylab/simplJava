@@ -207,7 +207,7 @@ public class XMLPullDeserializer extends StringPullDeserializer
 			int event = 0;
 			event = nextEvent();
 
-			FieldDescriptor currentFieldDescriptor = new FieldDescriptor();
+			FieldDescriptor currentFieldDescriptor = null; // new FieldDescriptor();
 
 			String xmlText = "";
 
@@ -218,7 +218,7 @@ public class XMLPullDeserializer extends StringPullDeserializer
 				{
 					if (event == XMLParser.CHARACTERS)
 						xmlText += xmlParser.getText();
-					else if (event == XMLParser.END_ELEMENT && currentFieldDescriptor.getType() == WRAPPER)
+					else if (event == XMLParser.END_ELEMENT && currentFieldDescriptor != null && currentFieldDescriptor.getType() == WRAPPER)
 						currentFieldDescriptor = currentFieldDescriptor.getWrappedFD();
 					event = nextEvent();
 					continue;
@@ -226,8 +226,8 @@ public class XMLPullDeserializer extends StringPullDeserializer
 
 				String tag = getTagName();
 
-				currentFieldDescriptor = currentFieldDescriptor.getType() == WRAPPER ? currentFieldDescriptor
-						.getWrappedFD()
+				currentFieldDescriptor = currentFieldDescriptor != null &&currentFieldDescriptor.getType() == WRAPPER
+						? currentFieldDescriptor.getWrappedFD()
 						: rootClassDescriptor.getFieldDescriptorByTag(tag, translationScope, null);
 
 				if (currentFieldDescriptor == null)
@@ -277,12 +277,13 @@ public class XMLPullDeserializer extends StringPullDeserializer
 				rootClassDescriptor.getScalarTextFD().setFieldToScalar(root, xmlText, translationContext);
 			}
 			deserializationPostHook(root, translationContext);
-			if (deserializationHookStrategy != null)
-				deserializationHookStrategy.deserializationPostHook(root, 
-						currentFieldDescriptor.getType() == IGNORED_ELEMENT ? null : currentFieldDescriptor);
+			if (deserializationHookStrategy != null && (currentFieldDescriptor == null || currentFieldDescriptor.getType() != IGNORED_ELEMENT))
+				deserializationHookStrategy.deserializationPostHook(root, currentFieldDescriptor);
+//				deserializationHookStrategy.deserializationPostHook(root, null);
 		}
 		catch (Exception ex)
 		{
+			ex.printStackTrace();
 			printParse();
 			System.out.println(ex);
 		}
