@@ -49,7 +49,7 @@ public class PropertiesAndDirectories extends Debug
 			osName = osName.toLowerCase();
 			if (StringTools.contains(osName, "xp"))
 				os = XP;
-			else if (StringTools.contains(osName, "vista") || StringTools.contains(osName, "windows 7"))
+			else if (StringTools.contains(osName, "windows"))
 				os = VISTA_AND_7;
 			else if (StringTools.contains(osName, "mac os x"))
 				os = MAC;
@@ -82,7 +82,7 @@ public class PropertiesAndDirectories extends Debug
 				osPreference = osPreference.toLowerCase();
 				if (osPreference.indexOf("xp") != -1)
 					os = XP;
-				else if ((osPreference.indexOf("vista") != -1) || (osPreference.indexOf("windows 7") != -1))
+				else if (osPreference.indexOf("windows") != -1)
 					os = VISTA_AND_7;
 				else if (osPreference.indexOf("mac") != -1)
 					os = MAC;
