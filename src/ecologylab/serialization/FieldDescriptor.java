@@ -168,6 +168,9 @@ public class FieldDescriptor extends DescriptorBase implements FieldTypes, IMapp
 
 	@simpl_scalar
 	Pattern																						filterRegex;
+	
+	@simpl_scalar
+	int																								filterGroup;
 
 	@simpl_scalar
 	String																						filterReplace;
@@ -641,6 +644,7 @@ public class FieldDescriptor extends DescriptorBase implements FieldTypes, IMapp
 			if (regexString != null && regexString.length() > 0)
 			{
 				filterRegex = Pattern.compile(regexString);
+				filterGroup = filterAnnotation.group();
 				filterReplace = filterAnnotation.replace();
 			}
 		}
@@ -1382,9 +1386,10 @@ public class FieldDescriptor extends DescriptorBase implements FieldTypes, IMapp
 		}
 	}
 
-	public void setRegexFilter(Pattern regex, String replacement)
+	public void setRegexFilter(Pattern regex, int group, String replacement)
 	{
 		filterRegex = regex;
+		filterGroup = group;
 		filterReplace = replacement;
 	}
 
@@ -1403,7 +1408,7 @@ public class FieldDescriptor extends DescriptorBase implements FieldTypes, IMapp
 			{
 				if (matcher.find())
 				{
-					value = matcher.group();
+					value = matcher.group(filterGroup);
 				}
 				else
 				{
@@ -2166,6 +2171,27 @@ public class FieldDescriptor extends DescriptorBase implements FieldTypes, IMapp
 				{
 					addDependency(Hint.class);
 					metaInfo.add(new MetaInformation(simpl_hints.class, true, hint));
+				}
+				
+				// @simpl_filter
+				if (filterRegex != null && filterRegex.pattern().length() > 0)
+				{
+					List<String> argNames = new ArrayList<String>();
+					List<Object> argValues = new ArrayList<Object>();
+					argNames.add("regex");
+					argValues.add(filterRegex.pattern());
+					if (filterGroup > 0)
+					{
+						argNames.add("group");
+						argValues.add(filterGroup);
+					}
+					if (filterReplace != null)
+					{
+						argNames.add("replace");
+						argValues.add(filterReplace);
+					}
+					metaInfo.add(new MetaInformation(simpl_filter.class, argNames.toArray(new String[] {}),
+							argValues.toArray()));
 				}
 			}
 

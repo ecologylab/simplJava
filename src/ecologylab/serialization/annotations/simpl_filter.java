@@ -22,6 +22,8 @@ import java.lang.annotation.Target;
 public @interface simpl_filter
 {
 	String regex();
+	
+	int group() default 0;
 
-	String replace() default "";
+	String replace();
 }
