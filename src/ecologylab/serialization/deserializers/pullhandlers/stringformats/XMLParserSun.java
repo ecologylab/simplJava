@@ -4,6 +4,8 @@ import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
 import javax.xml.stream.XMLStreamConstants;
 
+import ecologylab.serialization.SIMPLTranslationException;
+
 public class XMLParserSun implements XMLParser
 {
 	XMLStreamReader	xmlStreamReader;
@@ -63,7 +65,7 @@ public class XMLParserSun implements XMLParser
 	}
 
 	@Override
-	public int next()
+	public int next() throws SIMPLTranslationException
 	{
 		try
 		{
@@ -71,14 +73,12 @@ public class XMLParserSun implements XMLParser
 		}
 		catch (XMLStreamException e)
 		{
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			throw new SIMPLTranslationException("exception occurred in deserialzation ", e);
 		}
-		return ELSE;
 	}
 
 	@Override
-	public int nextTag()
+	public int nextTag() throws SIMPLTranslationException
 	{
 		try
 		{
@@ -86,10 +86,8 @@ public class XMLParserSun implements XMLParser
 		}
 		catch (XMLStreamException e)
 		{
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			throw new SIMPLTranslationException("exception occurred in deserialzation ", e);
 		}
-		return ELSE;
 	}
 
 	@Override
