@@ -1,5 +1,7 @@
 package ecologylab.serialization.deserializers.pullhandlers.stringformats;
 
+import ecologylab.serialization.SIMPLTranslationException;
+
 public interface XMLParser
 {
 	static final int START_DOCUMENT= 0;
@@ -10,11 +12,11 @@ public interface XMLParser
 	static final int CDATA = 5;
 	static final int ELSE = 99;
 	
-	int getEventType();
+	int getEventType() throws SIMPLTranslationException;
 	String getText();
 	String getName();
-	int next();
-	int nextTag();
+	int next() throws SIMPLTranslationException;
+	int nextTag() throws SIMPLTranslationException;
 	String getPrefix();
 	String getLocalName();
 	int getAttributeCount();
