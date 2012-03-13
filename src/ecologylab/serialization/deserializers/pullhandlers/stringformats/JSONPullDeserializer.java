@@ -23,6 +23,7 @@ import ecologylab.serialization.SIMPLTranslationException;
 import ecologylab.serialization.ScalarUnmarshallingContext;
 import ecologylab.serialization.TranslationContext;
 import ecologylab.serialization.SimplTypesScope;
+import ecologylab.serialization.deserializers.pullhandlers.DeserializationProcedureState;
 import ecologylab.serialization.deserializers.pullhandlers.PullDeserializer;
 import ecologylab.serialization.types.element.IMappable;
 
@@ -145,11 +146,11 @@ public class JSONPullDeserializer extends StringPullDeserializer
 				.getCurrentName());
 
 		root = rootClassDescriptor.getInstance();
-
 		// root.setupRoot();
-		// root.deserializationPreHook();
-		// if (deserializationHookStrategy != null)
-		// deserializationHookStrategy.deserializationPreHook(root, null);
+		
+		deserializationPreHook(root, translationContext);
+		if (deserializationHookStrategy != null)
+			deserializationHookStrategy.deserializationPreHook(root, null);
 
 		// move to the first field of the root element.
 		jp.nextToken();
@@ -178,6 +179,8 @@ public class JSONPullDeserializer extends StringPullDeserializer
 	{
 		FieldDescriptor currentFieldDescriptor = null;
 		Object subRoot = null;
+		
+		DeserializationProcedureState state = DeserializationProcedureState.INIT;
 
 		// iterate through each element of the current composite element.
 		while (jp.getCurrentToken() != JsonToken.END_OBJECT)
@@ -214,6 +217,7 @@ public class JSONPullDeserializer extends StringPullDeserializer
 					break;
 				case COLLECTION_ELEMENT:
 					jp.nextToken();
+
 					if (currentFieldDescriptor.isPolymorphic())
 					{
 						// ignore the wrapper tag
@@ -247,6 +251,7 @@ public class JSONPullDeserializer extends StringPullDeserializer
 					break;
 				case MAP_ELEMENT:
 					jp.nextToken();
+
 					if (currentFieldDescriptor.isPolymorphic())
 					{
 						// ignore the wrapper tag
@@ -287,25 +292,40 @@ public class JSONPullDeserializer extends StringPullDeserializer
 					break;
 				case COLLECTION_SCALAR:
 					jp.nextToken();
+
 					while (jp.nextToken() != JsonToken.END_ARRAY)
 					{
 						currentFieldDescriptor.addLeafNodeToCollection(root, jp.getText(), translationContext);
 					}
 					break;
 				case WRAPPER:
+
 					if (!currentFieldDescriptor.getWrappedFD().isPolymorphic())
 						jp.nextToken();
 					break;
+				}
+				
+				state = nextDeserializationProcedureState(state, fieldType);
+				if (state == DeserializationProcedureState.ATTRIBUTES_DONE)
+				{
+					// when we know that definitely all attributes are done, we do the in-hook
+					deserializationInHook(subRoot, translationContext);
+					if (deserializationHookStrategy != null)
+						deserializationHookStrategy.deserializationInHook(subRoot, currentFieldDescriptor);
+					state = DeserializationProcedureState.ELEMENTS;
 				}
 			}
 
 			jp.nextToken();
 		}
+		
+		state = DeserializationProcedureState.ELEMENTS_DONE;
 
 		deserializationPostHook(root, translationContext);
 		if (deserializationHookStrategy != null)
 			deserializationHookStrategy.deserializationPostHook(root, 
-					currentFieldDescriptor.getType() == IGNORED_ELEMENT ? null : currentFieldDescriptor);
+					currentFieldDescriptor == null || currentFieldDescriptor.getType() == IGNORED_ELEMENT
+					? null : currentFieldDescriptor);
 	}
 
 	/**

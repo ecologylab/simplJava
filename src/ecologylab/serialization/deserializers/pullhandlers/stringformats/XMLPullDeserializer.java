@@ -178,6 +178,10 @@ public class XMLPullDeserializer extends StringPullDeserializer
 
 		deserializeAttributes(root, rootClassDescriptor);
 
+		deserializationInHook(root, translationContext);
+		if (deserializationHookStrategy != null)
+			deserializationHookStrategy.deserializationInHook(root, null);
+			
 		createObjectModel(root, rootClassDescriptor, rootTag);
 
 		return root;
@@ -202,8 +206,6 @@ public class XMLPullDeserializer extends StringPullDeserializer
 			ClassDescriptor<? extends FieldDescriptor> rootClassDescriptor, String rootTag)
 			throws IOException, SIMPLTranslationException
 	{
-		try
-		{
 			int event = 0;
 			event = nextEvent();
 
@@ -282,13 +284,6 @@ public class XMLPullDeserializer extends StringPullDeserializer
 						currentFieldDescriptor == null || currentFieldDescriptor.getType() == IGNORED_ELEMENT
 						? null : currentFieldDescriptor);
 //				deserializationHookStrategy.deserializationPostHook(root, null);
-		}
-		catch (Exception ex)
-		{
-			ex.printStackTrace();
-			printParse();
-			System.out.println(ex);
-		}
 	}
 
 	/**
@@ -531,6 +526,11 @@ public class XMLPullDeserializer extends StringPullDeserializer
 			}
 
 			deserializeAttributes(subRoot, subRootClassDescriptor);
+			
+			deserializationInHook(subRoot, translationContext);
+			if (deserializationHookStrategy != null)
+				deserializationHookStrategy.deserializationInHook(subRoot, currentFieldDescriptor);
+			
 			createObjectModel(subRoot, subRootClassDescriptor, tagName);
 		}
 		

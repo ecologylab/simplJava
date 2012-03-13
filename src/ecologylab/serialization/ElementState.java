@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.Stack;
 
 import ecologylab.generic.Debug;
+import ecologylab.serialization.deserializers.ISimplDeserializationIn;
 import ecologylab.serialization.deserializers.ISimplDeserializationPre;
 import ecologylab.serialization.deserializers.ISimplDeserializationPost;
 import ecologylab.serialization.serializers.ISimplSerializationPost;
@@ -11,7 +12,7 @@ import ecologylab.serialization.serializers.ISimplSerializationPre;
 
 public class ElementState<PES extends ElementState> extends Debug implements FieldTypes,
 		XMLTranslationExceptionTypes, ISimplSerializationPre, ISimplSerializationPost,
-		ISimplDeserializationPre, ISimplDeserializationPost
+		ISimplDeserializationPre, ISimplDeserializationPost, ISimplDeserializationIn
 {
 
 	private boolean													isRoot										= false;
@@ -215,4 +216,12 @@ public class ElementState<PES extends ElementState> extends Debug implements Fie
 		// TODO Auto-generated method stub
 
 	}
+
+	@Override
+	public void deserializationInHook(TranslationContext translationContext)
+	{
+		// TODO Auto-generated method stub
+		
+	}
+	
 }

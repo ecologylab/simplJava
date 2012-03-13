@@ -15,6 +15,8 @@ public interface DeserializationHookStrategy<O extends Object, FD extends FieldD
 	
 	void deserializationPreHook(O o, FD fd);
 	
+	void deserializationInHook(O o, FD fd);
+	
 	void deserializationPostHook(O o, FD fd);
 	
 	/**

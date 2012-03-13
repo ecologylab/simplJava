@@ -24,6 +24,8 @@ import ecologylab.serialization.formatenums.Format;
  */
 public class JSONSerializer extends StringSerializer implements FieldTypes
 {
+	private int	numOfFields;
+
 	public JSONSerializer()
 	{
 
@@ -79,10 +81,11 @@ public class JSONSerializer extends StringSerializer implements FieldTypes
 
 		writeObjectStart(rootObjectFieldDescriptor, appendable, withTag);
 
-		ArrayList<? extends FieldDescriptor> allFieldDescriptors = getClassDescriptor(object)
-				.allFieldDescriptors();
-
-		serializeFields(object, appendable, translationContext, allFieldDescriptors);
+		numOfFields = 0;
+		
+		ClassDescriptor<? extends FieldDescriptor> classDescriptor = getClassDescriptor(object);
+		
+		serializeFields(object, appendable, translationContext, classDescriptor);
 
 		writeClose(appendable);
 
@@ -100,10 +103,10 @@ public class JSONSerializer extends StringSerializer implements FieldTypes
 	 */
 	private void serializeFields(Object object, Appendable appendable,
 			TranslationContext translationContext,
-			ArrayList<? extends FieldDescriptor> allFieldDescriptors) throws SIMPLTranslationException,
+			ClassDescriptor<? extends FieldDescriptor> classDescriptor) throws SIMPLTranslationException,
 			IOException
 	{
-		int numOfFields = 0;
+		ArrayList<? extends FieldDescriptor> allFieldDescriptors = classDescriptor.allFieldDescriptors();
 
 		if (SimplTypesScope.graphSwitch == GRAPH_SWITCH.ON)
 		{
@@ -112,8 +115,19 @@ public class JSONSerializer extends StringSerializer implements FieldTypes
 				writeSimplIdAttribute(object, appendable, allFieldDescriptors.size() <= 0);
 			}
 		}
+		
+		ArrayList<? extends FieldDescriptor> attributeFieldDescriptors = classDescriptor.attributeFieldDescriptors();
+		serializeFieldsHelper(appendable, object, translationContext, attributeFieldDescriptors);
+		ArrayList<? extends FieldDescriptor> elementFieldDescriptors = classDescriptor.elementFieldDescriptors();
+		serializeFieldsHelper(appendable, object, translationContext, elementFieldDescriptors);
+	}
 
-		for (FieldDescriptor childFd : allFieldDescriptors)
+	private void serializeFieldsHelper(Appendable appendable, Object object,
+			TranslationContext translationContext,
+			ArrayList<? extends FieldDescriptor> fieldDescriptorList) throws SIMPLTranslationException,
+			IOException
+	{
+		for (FieldDescriptor childFd : fieldDescriptorList)
 		{
 			if (childFd.isUsageExcluded(FieldUsage.SERIALIZATION_IN_STREAM))
 				continue;

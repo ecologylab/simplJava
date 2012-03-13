@@ -93,10 +93,7 @@ public class TLVSerializer extends BinarySerializer implements FieldTypes
 
 		int id = rootObjectFieldDescriptor.getTLVId();
 
-		ArrayList<? extends FieldDescriptor> elementFieldDescriptors = rootObjectClassDescriptor
-				.allFieldDescriptors();
-
-		serializeFields(object, outputBuffer, translationContext, elementFieldDescriptors);
+		serializeFields(object, outputBuffer, translationContext, rootObjectClassDescriptor);
 
 		writeHeader(dataOutputStream, byteArrayOutputStream, id);
 
@@ -139,10 +136,9 @@ public class TLVSerializer extends BinarySerializer implements FieldTypes
 	 */
 	private void serializeFields(Object object, DataOutputStream outputBuffer,
 			TranslationContext translationContext,
-			ArrayList<? extends FieldDescriptor> allFieldDescriptors) throws SIMPLTranslationException,
+			ClassDescriptor<? extends FieldDescriptor> classDescriptor) throws SIMPLTranslationException,
 			IOException
 	{
-
 		if (SimplTypesScope.graphSwitch == GRAPH_SWITCH.ON)
 		{
 			if (translationContext.needsHashCode(object))
@@ -151,7 +147,17 @@ public class TLVSerializer extends BinarySerializer implements FieldTypes
 			}
 		}
 
-		for (FieldDescriptor childFd : allFieldDescriptors)
+		ArrayList<? extends FieldDescriptor> attributeFieldDescriptors = classDescriptor.attributeFieldDescriptors();
+		serializeFieldsHelper(outputBuffer, object, translationContext, attributeFieldDescriptors);
+		ArrayList<? extends FieldDescriptor> elementFieldDescriptors = classDescriptor.elementFieldDescriptors();
+		serializeFieldsHelper(outputBuffer, object, translationContext, elementFieldDescriptors);
+	}
+
+	private void serializeFieldsHelper(DataOutputStream outputBuffer, Object object,
+			TranslationContext translationContext, ArrayList<? extends FieldDescriptor> fieldDescriptors)
+			throws SIMPLTranslationException, IOException
+	{
+		for (FieldDescriptor childFd : fieldDescriptors)
 		{
 			if (childFd.isUsageExcluded(FieldUsage.SERIALIZATION_IN_STREAM))
 				continue;

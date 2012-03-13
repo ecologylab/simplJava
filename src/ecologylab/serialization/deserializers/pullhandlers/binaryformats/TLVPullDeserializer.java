@@ -13,8 +13,9 @@ import ecologylab.serialization.DeserializationHookStrategy;
 import ecologylab.serialization.ElementState;
 import ecologylab.serialization.FieldDescriptor;
 import ecologylab.serialization.SIMPLTranslationException;
-import ecologylab.serialization.TranslationContext;
 import ecologylab.serialization.SimplTypesScope;
+import ecologylab.serialization.TranslationContext;
+import ecologylab.serialization.deserializers.pullhandlers.DeserializationProcedureState;
 import ecologylab.serialization.types.element.IMappable;
 
 /**
@@ -113,8 +114,10 @@ public class TLVPullDeserializer extends BinaryPullDeserializer
 			throws IOException, SIMPLTranslationException
 	{
 
-		FieldDescriptor currentFieldDescriptor = new FieldDescriptor();
+		FieldDescriptor currentFieldDescriptor = null;
 		int bytesRead = 0;
+
+		DeserializationProcedureState state = DeserializationProcedureState.INIT;
 
 		while (!isEos && bytesRead < length)
 		{
@@ -174,9 +177,25 @@ public class TLVPullDeserializer extends BinaryPullDeserializer
 				}
 				break;
 			}
+			
+			state = nextDeserializationProcedureState(state, fieldType);
+			if (state == DeserializationProcedureState.ATTRIBUTES_DONE)
+			{
+				// when we know that definitely all attributes are done, we do the in-hook
+				deserializationInHook(root, translationContext);
+				if (deserializationHookStrategy != null)
+					deserializationHookStrategy.deserializationInHook(root, currentFieldDescriptor);
+				state = DeserializationProcedureState.ELEMENTS;
+			}
 		}
 		
-		// TODO deserializePostHookStrategy: post hook; change object if necessary -- test cases!
+		state = DeserializationProcedureState.ELEMENTS_DONE;
+		
+		deserializationPostHook(root, translationContext);
+		if (deserializationHookStrategy != null)
+			deserializationHookStrategy.deserializationPostHook(root, 
+					currentFieldDescriptor == null || currentFieldDescriptor.getType() == IGNORED_ELEMENT
+					? null : currentFieldDescriptor);
 		
 		return root;
 	}
@@ -337,7 +356,16 @@ public class TLVPullDeserializer extends BinaryPullDeserializer
 			}
 		}
 
-		return createObjectModel(subRoot, subRootClassDescriptor, type(), length());
+		createObjectModel(subRoot, subRootClassDescriptor, type(), length());
+		
+		if (deserializationHookStrategy != null && subRoot != null)
+		{
+			Object newSubRoot= deserializationHookStrategy.changeObjectIfNecessary(subRoot, currentFieldDescriptor);
+			if (newSubRoot != null)
+				subRoot = newSubRoot;
+		}
+		
+		return subRoot;
 	}
 
 	/**

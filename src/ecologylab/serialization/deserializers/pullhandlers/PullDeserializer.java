@@ -20,6 +20,7 @@ import ecologylab.serialization.FieldTypes;
 import ecologylab.serialization.SIMPLTranslationException;
 import ecologylab.serialization.TranslationContext;
 import ecologylab.serialization.SimplTypesScope;
+import ecologylab.serialization.deserializers.ISimplDeserializationIn;
 import ecologylab.serialization.deserializers.ISimplDeserializationPre;
 import ecologylab.serialization.deserializers.ISimplDeserializationPost;
 import ecologylab.serialization.deserializers.pullhandlers.binaryformats.BinaryPullDeserializer;
@@ -158,11 +159,24 @@ public abstract class PullDeserializer extends Debug implements FieldTypes
 	 * @param translationContext
 	 *          TODO
 	 */
-	protected void deserializationPostHook(Object object, TranslationContext translationContext)
+	protected void deserializationPreHook(Object object, TranslationContext translationContext)
 	{
-		if (object instanceof ISimplDeserializationPost)
+		if (object instanceof ISimplDeserializationPre)
 		{
-			((ISimplDeserializationPost) object).deserializationPostHook(translationContext, object);
+			((ISimplDeserializationPre) object).deserializationPreHook(translationContext);
+		}
+	}
+
+	/**
+	 * 
+	 * @param subRoot
+	 * @param translationContext
+	 */
+	protected void deserializationInHook(Object object, TranslationContext translationContext)
+	{
+		if (object instanceof ISimplDeserializationIn)
+		{
+			((ISimplDeserializationIn) object).deserializationInHook(translationContext);
 		}
 	}
 
@@ -172,11 +186,11 @@ public abstract class PullDeserializer extends Debug implements FieldTypes
 	 * @param translationContext
 	 *          TODO
 	 */
-	protected void deserializationPreHook(Object object, TranslationContext translationContext)
+	protected void deserializationPostHook(Object object, TranslationContext translationContext)
 	{
-		if (object instanceof ISimplDeserializationPre)
+		if (object instanceof ISimplDeserializationPost)
 		{
-			((ISimplDeserializationPre) object).deserializationPreHook(translationContext);
+			((ISimplDeserializationPost) object).deserializationPostHook(translationContext, object);
 		}
 	}
 
@@ -308,6 +322,31 @@ public abstract class PullDeserializer extends Debug implements FieldTypes
 		default:
 			throw new SIMPLTranslationException(binaryFormat + " format not supported");
 		}
+	}
+
+	/**
+	 * a state machine of deserialization states, e.g. now dealing with attributes or elements
+	 * 
+	 * @param state
+	 * @param fieldType
+	 * @return
+	 */
+	protected DeserializationProcedureState nextDeserializationProcedureState(
+			DeserializationProcedureState state, int fieldType)
+	{
+		switch (fieldType)
+		{
+		case SCALAR:
+			if (state == DeserializationProcedureState.INIT)
+				state = DeserializationProcedureState.ATTRIBUTES;
+			// otherwise remain the same
+			break;
+		default:
+			if (state == DeserializationProcedureState.INIT || state == DeserializationProcedureState.ATTRIBUTES)
+				state = DeserializationProcedureState.ATTRIBUTES_DONE;
+			// otherwise remain the same
+		}
+		return state;
 	}
 
 }
