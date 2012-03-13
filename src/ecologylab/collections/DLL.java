@@ -3,7 +3,7 @@
  * CONFIDENTIAL. Use is subject to license terms.
  */
 package ecologylab.collections;
-import java.awt.Toolkit;
+//import java.awt.Toolkit;
 import java.util.Iterator;
 
 import ecologylab.generic.Debug;
@@ -54,7 +54,7 @@ implements Iterable<T>
    		if (sibs == this)
    		{
    			debug("ERROR!!!! adding to end of self!!!!");
-   			Toolkit.getDefaultToolkit().beep();
+   			//Toolkit.getDefaultToolkit().beep();
    			Thread.dumpStack();
    		}
    		
@@ -72,7 +72,7 @@ implements Iterable<T>
    		if (sibs == this)
    		{
    			debug("ERROR!!!! adding to end of self!!!!");
-   			Toolkit.getDefaultToolkit().beep();
+//   			/Toolkit.getDefaultToolkit().beep();
    			Thread.dumpStack();
    		}
    		
