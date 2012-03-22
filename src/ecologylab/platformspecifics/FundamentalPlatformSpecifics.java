@@ -41,7 +41,7 @@ public class FundamentalPlatformSpecifics
 
 				if (className != null)
 				{
-					Class platformSpecificsClass;
+					Class platformSpecificsClass = null;
 					try
 					{
 						platformSpecificsClass = Class.forName("ecologylab.platformspecifics." + className);
@@ -50,7 +50,7 @@ public class FundamentalPlatformSpecifics
 					{
 						// TODO Auto-generated catch block
 						e.printStackTrace();
-						throw new RuntimeException("Can't initialize FundamentalPlatformSpecifics" + className);
+//						throw new RuntimeException("Can't initialize FundamentalPlatformSpecifics" + className);
 					}
 					if (platformSpecificsClass == null)
 					{

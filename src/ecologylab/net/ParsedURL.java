@@ -622,20 +622,13 @@ public class ParsedURL extends Debug implements MimeType
 	static final HashMap									supportedProtocols					= CollectionTools
 																																				.buildHashMapFromStrings(supportedProtocolStrings);
 
-	static final String[]									imgSuffixStrings						= FundamentalPlatformSpecifics.get().getReaderFormatNames(); 
+	static final String[]									imgSuffixStrings;
 
+	static final String[] SOME_IMG_SUFFIXES = { "jpg", "jpeg", "pjpg", "pjpeg", "gif", "png", };
 	/*
 	 * { "jpg", "jpeg", "pjpg", "pjpeg", "gif", "png", };
 	 */
-	static final HashMap									imgSuffixMap								= CollectionTools
-																																				.buildHashMapFromLCStrings(imgSuffixStrings);				// formats
-																																																															// from
-																																																															// jdk
-																																																															// contain
-																																																															// lower
-																																																															// &
-																																																															// upper
-																																																															// case
+	static final HashMap									imgSuffixMap;																																													// case
 
 	static final String[]									jpegMimeStrings							=
 																																		{ "jpg", "JPG", "jpeg", "JPEG",
@@ -682,6 +675,16 @@ public class ParsedURL extends Debug implements MimeType
 	static final HashMap<String, IntSlot>	suffixesToMap								= new HashMap<String, IntSlot>();
 	static
 	{
+		String[] platformSpecificImgFormats = null;
+		try
+		{
+			platformSpecificImgFormats = FundamentalPlatformSpecifics.get().getReaderFormatNames(); 
+		} catch (Throwable e)
+		{
+		}
+		imgSuffixStrings	= (platformSpecificImgFormats == null) ? SOME_IMG_SUFFIXES : platformSpecificImgFormats;
+		imgSuffixMap		= CollectionTools.buildHashMapFromLCStrings(imgSuffixStrings);
+
 		for (int i = 0; i < pdfMimeStrings.length; i++)
 			CollectionTools.stringIntMapEntry(suffixesToMap, pdfMimeStrings[i], PDF);
 		for (int i = 0; i < htmlSuffixStrings.length; i++)
