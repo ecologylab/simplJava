@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 import ecologylab.serialization.ElementState;
+import ecologylab.serialization.TranslationContext;
 import ecologylab.serialization.annotations.simpl_collection;
 import ecologylab.serialization.annotations.simpl_inherit;
 import ecologylab.serialization.annotations.simpl_nowrap;
@@ -28,21 +29,13 @@ import ecologylab.serialization.annotations.simpl_nowrap;
 		return assetStates = new ArrayList<AssetState>();
 	}
 
-	/**
-	 * Perform custom processing on the newly created child node,
-	 * just before it is added to this.
-	 * <p/>
-	 * This is part of depth-first traversal during translateFromXML().
-	 * <p/>
-	 * This, the default implementation, does nothing.
-	 * Sub-classes may wish to override.
-	 * 
-	 * @param child
-	 */
-	protected void createChildHook(ElementState child)
+	@Override
+	public void deserializationPostHook(TranslationContext translationContext, Object object)
 	{
-		AssetState asset	= (AssetState) child;
-		register(asset);
+		for(AssetState asset : assetStates)
+		{
+			register(asset);
+		}
 	}
 
 	/**
