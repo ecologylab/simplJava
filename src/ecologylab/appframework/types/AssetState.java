@@ -5,23 +5,24 @@ package ecologylab.appframework.types;
 
 import ecologylab.serialization.ElementState;
 import ecologylab.serialization.annotations.simpl_scalar;
+import ecologylab.serialization.types.element.IMappable;
 
 /**
  * @author robinson
  *
  */
-public class AssetState extends ElementState 
+public class AssetState extends ElementState implements IMappable<String>
 {
-	@simpl_scalar	String	id;
+	@simpl_scalar	String	name;
 	@simpl_scalar	float	version;
 	
 	public AssetState()
 	{
 		
 	}
-	public AssetState(String id)
+	public AssetState(String name)
 	{
-		this.id		= id;
+		this.name		= name;
 	}
 	/**
 	 * @return Returns the version.
@@ -30,6 +31,7 @@ public class AssetState extends ElementState
 	{
 		return version;
 	}
+	
 	/**
 	 * @param version The version to set.
 	 */
@@ -37,18 +39,18 @@ public class AssetState extends ElementState
 	{
 		this.version = version;
 	}
+	
 	/**
 	 * @return Returns the id.
 	 */
-	public String getId()
+	public String getName()
 	{
-		return id;
+		return name;
 	}
-	/**
-	 * @param id The id to set.
-	 */
-	public void setId(String id)
+
+	@Override
+	public String key()
 	{
-		this.id = id;
+		return name;
 	}
 }

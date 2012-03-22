@@ -1,12 +1,14 @@
 package ecologylab.appframework.types;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 
 import ecologylab.serialization.ElementState;
 import ecologylab.serialization.TranslationContext;
 import ecologylab.serialization.annotations.simpl_collection;
 import ecologylab.serialization.annotations.simpl_inherit;
+import ecologylab.serialization.annotations.simpl_map;
 import ecologylab.serialization.annotations.simpl_nowrap;
 
 /**
@@ -17,25 +19,13 @@ import ecologylab.serialization.annotations.simpl_nowrap;
  */
 @simpl_inherit public class AssetsState extends ElementState
 {
+	@simpl_map("asset")
+	@simpl_nowrap
 	HashMap<String, AssetState>	assetsMap	= new HashMap<String, AssetState>();
 	
-	@simpl_collection("asset")
-	@simpl_nowrap
-	ArrayList<AssetState> assetStates;
-	
-	public ArrayList<AssetState> getAssetStates() {
-		if (assetStates != null)
-			return assetStates;
-		return assetStates = new ArrayList<AssetState>();
-	}
-
-	@Override
-	public void deserializationPostHook(TranslationContext translationContext, Object object)
+	public Collection<AssetState> getAssetStates() 
 	{
-		for(AssetState asset : assetStates)
-		{
-			register(asset);
-		}
+		return assetsMap.values();
 	}
 
 	/**
@@ -43,19 +33,20 @@ import ecologylab.serialization.annotations.simpl_nowrap;
 	 */
 	private void register(AssetState asset)
 	{
-		assetsMap.put(asset.getId(), asset);
+		assetsMap.put(asset.getName(), asset);
 	}
 	
-	public AssetState lookup(String id)
+	public AssetState lookup(String name)
 	{
-		return assetsMap.get(id);
+		return assetsMap.get(name);
 	}
-	public AssetState lookupAndUpdate(String id)
+	
+	public AssetState lookupAndUpdate(String name)
 	{
-		AssetState asset = lookup(id);
+		AssetState asset = lookup(name);
 		if (asset == null)
 		{
-			asset = update(id);
+			asset = update(name);
 		}
 		return asset;
 	}
@@ -63,17 +54,10 @@ import ecologylab.serialization.annotations.simpl_nowrap;
 	/**
 	 * @return
 	 */
-	public AssetState update(String id)
+	public AssetState update(String name)
 	{
-		AssetState asset	= new AssetState(id);
-		getAssetStates().add(asset);
+		AssetState asset	= new AssetState(name);
 		register(asset);
 		return asset;
-	}
-
-	public boolean contains(String id)
-	{
-		HashMap<String, AssetState> hashMap = assetsMap;
-		return hashMap.containsKey(id);
 	}
 }
