@@ -106,27 +106,29 @@ public class PrefixCollection  extends PrefixPhrase
 	{
 //		ParsedURL.getAbsolute("http://nytimes.com"), 
 //		ParsedURL.getAbsolute("http://www.nytimes.com/2008"),
-		ParsedURL.getAbsolute("http://nytimes.com/pages/sports/foo/bar/baz/bloch"),
-		ParsedURL.getAbsolute("http://nytimes.com/pages/sports/"),
-		ParsedURL.getAbsolute("http://nytimes.com/pages/sports/foo/"),
-		ParsedURL.getAbsolute("http://nytimes.com/pages/sports/foo/bar/baz/bloch"),
-		ParsedURL.getAbsolute("http://nytimes.com/pages/arts/interactive"),
-		ParsedURL.getAbsolute("http://nytimes.com/pages/sports/foo"),
-		ParsedURL.getAbsolute("http://nytimes.com/pages/arts"),
-		ParsedURL.getAbsolute("http://www.nytimes.com/2008/01/26/sports/football/26giants.html?ref=sports"),
+//		ParsedURL.getAbsolute("http://nytimes.com/pages/sports/foo/bar/baz/bloch"),
+//		ParsedURL.getAbsolute("http://nytimes.com/pages/sports/"),
+//		ParsedURL.getAbsolute("http://nytimes.com/pages/sports/foo/"),
+//		ParsedURL.getAbsolute("http://nytimes.com/pages/sports/foo/bar/baz/bloch"),
+//		ParsedURL.getAbsolute("http://nytimes.com/pages/arts/interactive"),
+//		ParsedURL.getAbsolute("http://nytimes.com/pages/sports/foo"),
+//		ParsedURL.getAbsolute("http://nytimes.com/pages/arts"),
+//		ParsedURL.getAbsolute("http://www.nytimes.com/2008/01/26/sports/football/26giants.html?ref=sports"),
+		ParsedURL.getAbsolute("http://www.amazon.com/*/lm"),
 		
 	};
 	
 	static final ParsedURL[] TEST_MATCH	=
 	{
-		ParsedURL.getAbsolute("http://nytimes.com/pages/sports/hoops"),
-		ParsedURL.getAbsolute("http://nytimes.com/pages/"),
-		ParsedURL.getAbsolute("http://nytimes.com/pages/sports/"),
-		ParsedURL.getAbsolute("http://nytimes.mom/"),
-		ParsedURL.getAbsolute("http://nytimes.com/pages/arts/interactive"),
-		ParsedURL.getAbsolute("http://nytimes.com/"),
-		ParsedURL.getAbsolute("http://nytimes.com/pages/arts/"),
-		ParsedURL.getAbsolute("http://www.nytimes.com/2008/01/26/sports/baseball"),
+//		ParsedURL.getAbsolute("http://nytimes.com/pages/sports/hoops"),
+//		ParsedURL.getAbsolute("http://nytimes.com/pages/"),
+//		ParsedURL.getAbsolute("http://nytimes.com/pages/sports/"),
+//		ParsedURL.getAbsolute("http://nytimes.mom/"),
+//		ParsedURL.getAbsolute("http://nytimes.com/pages/arts/interactive"),
+//		ParsedURL.getAbsolute("http://nytimes.com/"),
+//		ParsedURL.getAbsolute("http://nytimes.com/pages/arts/"),
+//		ParsedURL.getAbsolute("http://www.nytimes.com/2008/01/26/sports/baseball"),
+		ParsedURL.getAbsolute("http://www.amazon.com/Cook-Books-amp-more/lm/R1PADW7FZALCHA"),
 
 	};
 	public static void main(String[] s)

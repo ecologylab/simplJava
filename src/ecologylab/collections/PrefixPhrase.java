@@ -154,6 +154,10 @@ public class PrefixPhrase<O extends Object> extends Debug
 	private PrefixPhrase matchChild(String source, int start, int end)
 	{
 		// FIXME concurrent modification exception :-(
+		PrefixPhrase wildcardPhrase	= childPhraseMap.getWildcardMatch();
+		if (wildcardPhrase != null)
+			return wildcardPhrase;
+		
 		Set<String> keySet = childPhraseMap.keySet();
 		for (String thatPhrase : keySet)
 		{
