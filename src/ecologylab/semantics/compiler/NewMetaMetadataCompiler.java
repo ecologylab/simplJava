@@ -76,7 +76,7 @@ public class NewMetaMetadataCompiler extends Debug // ApplicationEnvironment
 		newConfig.setLibraryTScopeClassPackage("ecologylab.semantics.metadata.builtins.declarations");
 		newConfig.setLibraryTScopeClassSimpleName("MetadataBuiltinDeclarationsTranslationScope");
 		newConfig.setGenerateAbstractClass(true);
-		newConfig.setBuiltinDeclarationScopeName(SemanticsNames.REPOSITORY_BUILTIN_DECLARATIONS_SCOPE);
+		newConfig.setBuiltinDeclarationScopeName(SemanticsNames.REPOSITORY_BUILTIN_DECLARATIONS_TYPE_SCOPE);
 		compiler.translate(config.getGeneratedBuiltinDeclarationsLocation(), builtinDeclarationsScope, newConfig);
 		
 		// generate normal metadata classes

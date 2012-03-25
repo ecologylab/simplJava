@@ -267,7 +267,7 @@ public class MetaMetadataDotNetTranslator extends DotNetTranslator implements Mm
 			appendable.append("\n");
 			appendable.append("\t\tpublic static SimplTypesScope Get()\n");
 			appendable.append("\t\t{\n");
-			appendable.append("\t\t\treturn SimplTypesScope.Get(\"").append(SemanticsNames.REPOSITORY_BUILTIN_DECLARATIONS_SCOPE).append("\"");
+			appendable.append("\t\t\treturn SimplTypesScope.Get(\"").append(SemanticsNames.REPOSITORY_BUILTIN_DECLARATIONS_TYPE_SCOPE).append("\"");
 			super.appendTranslatedClassList(tScope, appendable);
 			appendable.append(");\n");
 			appendable.append("\t\t}\n\n");
@@ -277,7 +277,7 @@ public class MetaMetadataDotNetTranslator extends DotNetTranslator implements Mm
 	@Override
 	protected void appendTranslatedClassList(SimplTypesScope tScope, Appendable appendable) throws IOException
 	{
-		appendable.append(", MetadataBuiltinsTranslationScope.Get()");
+		appendable.append(", MetadataBuiltinsTypesScope.Get()");
 		super.appendTranslatedClassList(tScope, appendable);
 		
 //		CompilerConfig config = (CompilerConfig) this.config;

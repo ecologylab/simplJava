@@ -7,7 +7,7 @@ import ecologylab.generic.Debug;
 import ecologylab.generic.StringTools;
 import ecologylab.semantics.metadata.MetadataClassDescriptor;
 import ecologylab.semantics.metadata.MetadataFieldDescriptor;
-import ecologylab.semantics.metadata.builtins.MetadataBuiltinsTranslationScope;
+import ecologylab.semantics.metadata.builtins.MetadataBuiltinsTypesScope;
 import ecologylab.semantics.metametadata.MetaMetadata;
 import ecologylab.semantics.metametadata.MetaMetadataCompositeField;
 import ecologylab.semantics.metametadata.MetaMetadataField;
@@ -36,7 +36,7 @@ public class MetaMetadataJavaTranslator extends JavaTranslator implements MmdCom
 	private static String[]			metaMetadataDefaultDependencies	= {
 			MetaMetadataCompositeField.class.getName(),
 			SemanticsNames.class.getName(),
-			MetadataBuiltinsTranslationScope.class.getName(),
+			MetadataBuiltinsTypesScope.class.getName(),
 	};
 
 	public MetaMetadataJavaTranslator()
@@ -352,7 +352,7 @@ public class MetaMetadataJavaTranslator extends JavaTranslator implements MmdCom
 		CompilerConfig cconfig = (CompilerConfig) config; 
 		if (cconfig.getBuiltinDeclarationScopeName() == null)
 		{
-			appendable.append("SemanticsNames.REPOSITORY_METADATA_TRANSLATIONS, MetadataBuiltinsTranslationScope.get()");
+			appendable.append("SemanticsNames.REPOSITORY_METADATA_TYPE_SCOPE, MetadataBuiltinsTypesScope.get()");
 		}
 		else
 		{
