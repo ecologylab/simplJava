@@ -52,14 +52,14 @@ public final class SimplTypesScope extends ElementState
 	@simpl_scalar
 	private/* final */String																							name;
 
-	private SimplTypesScope[]																						inheritedTranslationScopes;
+	private SimplTypesScope[]																							inheritedTypesScopes;
 
 	/**
-	 * Fundamentally, a TranslationScope consists of a set of class simple names. These are mapped to
+	 * Fundamentally, a SimplTypesScope consists of a set of class simple names. These are mapped to
 	 * tag names (camel case conversion), and to Class objects. Because there are many packages,
 	 * globally, there could be more than one class with one single name.
 	 * <p/>
-	 * Among other things, a TranslationScope tells us *which* package's version will be used, if
+	 * Among other things, a SimplTypesScope tells us *which* package's version will be used, if
 	 * there are multiple possibilities. This is the case when internal and external versions of a
 	 * message and its constituents are defined for a messaging API.
 	 */
@@ -77,7 +77,7 @@ public final class SimplTypesScope extends ElementState
 
 	private final Scope<Class<?>>																					nameSpaceClassesByURN			= new Scope<Class<?>>();
 
-	private static HashMap<String, SimplTypesScope>											allTranslationScopes			= new HashMap<String, SimplTypesScope>();
+	private static HashMap<String, SimplTypesScope>												allTypesScopes						= new HashMap<String, SimplTypesScope>();
 
 	public static final String																						STATE											= "State";
 
@@ -107,72 +107,72 @@ public final class SimplTypesScope extends ElementState
 	}
 
 	/**
-	 * Create a new TranslationScope that defines how to translate xml tag names into class names of
+	 * Create a new SimplTypesScope that defines how to translate xml tag names into class names of
 	 * subclasses of ElementState. Begin by copying in the translations from another, pre-existing
-	 * "base" TranslationScope.
+	 * "base" SimplTypesScope.
 	 * 
 	 * @param name
-	 * @param inheritedTranslationScope
+	 * @param inheritedSimplTypesScope
 	 */
-	private SimplTypesScope(String name, SimplTypesScope inheritedTranslationScope)
+	private SimplTypesScope(String name, SimplTypesScope inheritedSimplTypesScope)
 	{
 		this(name);
-		addTranslations(inheritedTranslationScope);
-		SimplTypesScope[] inheritedTranslationScopes = new SimplTypesScope[1];
-		inheritedTranslationScopes[0] = inheritedTranslationScope;
-		this.inheritedTranslationScopes = inheritedTranslationScopes;
+		addTranslations(inheritedSimplTypesScope);
+		SimplTypesScope[] inheritedSimplTypesScopes = new SimplTypesScope[1];
+		inheritedSimplTypesScopes[0] = inheritedSimplTypesScope;
+		this.inheritedTypesScopes = inheritedSimplTypesScopes;
 	}
 
-	private SimplTypesScope(String name, SimplTypesScope inheritedTranslationScope,
+	private SimplTypesScope(String name, SimplTypesScope inheritedSimplTypesScope,
 			Class<?> translation)
 	{
-		this(name, inheritedTranslationScope);
+		this(name, inheritedSimplTypesScope);
 		addTranslation(translation);
-		addTranslationScope(name);
+		addSimplTypesScope(name);
 	}
 
 	/**
-	 * Create a new TranslationScope that defines how to translate xml tag names into class names of
-	 * subclasses of ElementState. Begin by creating the inherited TranslationScope ad then adding the
+	 * Create a new SimplTypesScope that defines how to translate xml tag names into class names of
+	 * subclasses of ElementState. Begin by creating the inherited SimplTypesScope ad then adding the
 	 * new ClassDescriptor intothat
 	 * 
 	 * @param name
-	 * @param inheritedTranslationScope
+	 * @param inheritedSimplTypesScope
 	 * @param translation
 	 */
-	private SimplTypesScope(String name, SimplTypesScope inheritedTranslationScope,
+	private SimplTypesScope(String name, SimplTypesScope inheritedSimplTypesScope,
 			ClassDescriptor translation)
 	{
-		this(name, inheritedTranslationScope);
+		this(name, inheritedSimplTypesScope);
 		addTranslation(translation);
-		addTranslationScope(name);
+		addSimplTypesScope(name);
 	}
 
 	/**
-	 * Create a new TranslationScope that defines how to translate xml tag names into class names of
+	 * Create a new SimplTypesScope that defines how to translate xml tag names into class names of
 	 * subclasses of ElementState. Begin by copying in the translations from another, pre-existing
-	 * "base" TranslationScope.
+	 * "base" SimplTypesScope.
 	 * 
 	 * @param name
 	 * @param baseTranslationSet
 	 */
-	private SimplTypesScope(String name, SimplTypesScope... inheritedTranslationScopes)
+	private SimplTypesScope(String name, SimplTypesScope... inheritedSimplTypesScopes)
 	{
 		this(name);
 
-		if (inheritedTranslationScopes != null)
+		if (inheritedSimplTypesScopes != null)
 		{
-			this.inheritedTranslationScopes = inheritedTranslationScopes;
-			int n = inheritedTranslationScopes.length;
+			this.inheritedTypesScopes = inheritedSimplTypesScopes;
+			int n = inheritedSimplTypesScopes.length;
 			for (int i = 0; i < n; i++)
-				addTranslations(inheritedTranslationScopes[i]);
+				addTranslations(inheritedSimplTypesScopes[i]);
 		}
 	}
 
 	/**
-	 * Create a new TranslationScope that defines how to translate xml tag names into class names of
+	 * Create a new SimplTypesScope that defines how to translate xml tag names into class names of
 	 * subclasses of ElementState. Begin by copying in the translations from another, pre-existing
-	 * "base" TranslationScope.
+	 * "base" SimplTypesScope.
 	 * 
 	 * @param name
 	 * @param baseTranslationSet
@@ -180,13 +180,13 @@ public final class SimplTypesScope extends ElementState
 	private SimplTypesScope(String name, Collection<SimplTypesScope> baseTranslationsSet)
 	{
 		this(name);
-		for (SimplTypesScope thatTranslationScope : baseTranslationsSet)
-			addTranslations(thatTranslationScope);
-		inheritedTranslationScopes = (SimplTypesScope[]) baseTranslationsSet.toArray();
+		for (SimplTypesScope thatSimplTypesScope : baseTranslationsSet)
+			addTranslations(thatSimplTypesScope);
+		inheritedTypesScopes = (SimplTypesScope[]) baseTranslationsSet.toArray();
 	}
 
 	/**
-	 * Create a new TranslationScope that defines how to translate xml tag names into class names of
+	 * Create a new SimplTypesScope that defines how to translate xml tag names into class names of
 	 * subclasses of ElementState.
 	 * 
 	 * Set a new default package, and a set of defined translations.
@@ -200,11 +200,11 @@ public final class SimplTypesScope extends ElementState
 	private SimplTypesScope(String name, Class<?>... translations)
 	{
 		this(name, (SimplTypesScope[]) null, translations);
-		addTranslationScope(name);
+		addSimplTypesScope(name);
 	}
 
 	/**
-	 * Create a new TranslationScope that defines how to translate xml tag names into class names of
+	 * Create a new SimplTypesScope that defines how to translate xml tag names into class names of
 	 * subclasses of ElementState.
 	 * 
 	 * Set a new default package, and a set of defined translations.
@@ -217,41 +217,41 @@ public final class SimplTypesScope extends ElementState
 	private SimplTypesScope(String name, ClassDescriptor... translation)
 	{
 		this(name, (SimplTypesScope[]) null, translation);
-		addTranslationScope(name);
+		addSimplTypesScope(name);
 	}
 
 	/**
-	 * Construct a new TranslationScope, with this name, using the baseTranslations first. Then, add
+	 * Construct a new SimplTypesScope, with this name, using the baseTranslations first. Then, add
 	 * the array of translations, then, make the defaultPackageName available.
 	 * 
 	 * @param name
-	 * @param inheritedTranslationScopes
+	 * @param inheritedSimplTypesScopes
 	 * @param translations
 	 */
-	private SimplTypesScope(String name, SimplTypesScope[] inheritedTranslationScopes,
+	private SimplTypesScope(String name, SimplTypesScope[] inheritedSimplTypesScopes,
 			Class<?>[]... translations)
 	{
-		this(name, inheritedTranslationScopes);
+		this(name, inheritedSimplTypesScopes);
 		addTranslations(translations);
 	}
 
 	/**
-	 * Construct a new TranslationScope, with this name, using the baseTranslations first. Then, add
+	 * Construct a new SimplTypesScope, with this name, using the baseTranslations first. Then, add
 	 * the array of translations, then, make the defaultPackageName available.
 	 * 
 	 * @param name
-	 * @param inheritedTranslationScopes
+	 * @param inheritedSimplTypesScopes
 	 * @param translations
 	 */
-	private SimplTypesScope(String name, SimplTypesScope[] inheritedTranslationScopes,
+	private SimplTypesScope(String name, SimplTypesScope[] inheritedSimplTypesScopes,
 			ClassDescriptor[]... translations)
 	{
-		this(name, inheritedTranslationScopes);
+		this(name, inheritedSimplTypesScopes);
 		addTranslations(translations);
 	}
 
 	/**
-	 * Construct a new TranslationScope, with this name, using the baseTranslations first. Then, add
+	 * Construct a new SimplTypesScope, with this name, using the baseTranslations first. Then, add
 	 * the array of translations, then, make the defaultPackageName available.
 	 * 
 	 * @param name
@@ -264,11 +264,11 @@ public final class SimplTypesScope extends ElementState
 		this(name, inheritedTranslationsSet);
 		addTranslations(translations);
 
-		addTranslationScope(name);
+		addSimplTypesScope(name);
 	}
 
 	/**
-	 * Construct a new TranslationScope, with this name, using the baseTranslations first. Then, add
+	 * Construct a new SimplTypesScope, with this name, using the baseTranslations first. Then, add
 	 * the array of translations, then, make the defaultPackageName available.
 	 * 
 	 * @param name
@@ -281,80 +281,80 @@ public final class SimplTypesScope extends ElementState
 		this(name, inheritedTranslationsSet);
 		addTranslations(translations);
 
-		addTranslationScope(name);
+		addSimplTypesScope(name);
 	}
 
 	/**
-	 * Construct a new TranslationScope, with this name, using the baseTranslations first. Then, add
+	 * Construct a new SimplTypesScope, with this name, using the baseTranslations first. Then, add
 	 * the array of translations, then, make the defaultPackageName available.
 	 * 
 	 * @param name
-	 * @param inheritedTranslationScope
+	 * @param inheritedSimplTypesScope
 	 * @param translations	A set of arrays of classes.
 	 */
-	private SimplTypesScope(String name, SimplTypesScope inheritedTranslationScope,
+	private SimplTypesScope(String name, SimplTypesScope inheritedSimplTypesScope,
 			Class<?>[]... translations)
 	{
-		this(name, inheritedTranslationScope);
+		this(name, inheritedSimplTypesScope);
 		addTranslations(translations);
 
-		addTranslationScope(name);
+		addSimplTypesScope(name);
 	}
 
 	/**
-	 * Construct a new TranslationScope, with this name, using the baseTranslations first. Then, add
+	 * Construct a new SimplTypesScope, with this name, using the baseTranslations first. Then, add
 	 * the array of translations, then, make the defaultPackageName available.
 	 * 
 	 * @param name
-	 * @param inheritedTranslationScope
+	 * @param inheritedSimplTypesScope
 	 * @param translations
 	 */
-	private SimplTypesScope(String name, SimplTypesScope inheritedTranslationScope,
+	private SimplTypesScope(String name, SimplTypesScope inheritedSimplTypesScope,
 			ClassDescriptor[]... translations)
 	{
-		this(name, inheritedTranslationScope);
+		this(name, inheritedSimplTypesScope);
 		addTranslations(translations);
 
-		addTranslationScope(name);
+		addSimplTypesScope(name);
 	}
 
 	/**
-	 * Construct a new TranslationScope, with this name, using the baseTranslations first. Then, add
+	 * Construct a new SimplTypesScope, with this name, using the baseTranslations first. Then, add
 	 * the array of translations, then, make the defaultPackageName available. Map XML Namespace
 	 * declarations.
 	 * 
 	 * @param name
 	 * @param nameSpaceDecls
-	 * @param inheritedTranslationScopes
+	 * @param inheritedSimplTypesScopes
 	 * @param translations
 	 * @param defaultPackgeName
 	 */
 	private SimplTypesScope(String name, NameSpaceDecl[] nameSpaceDecls,
-			SimplTypesScope[] inheritedTranslationScopes, Class<?>[] translations)
+			SimplTypesScope[] inheritedSimplTypesScopes, Class<?>[] translations)
 	{
-		this(name, inheritedTranslationScopes, translations);
+		this(name, inheritedSimplTypesScopes, translations);
 		addNameSpaceDecls(nameSpaceDecls);
 
-		addTranslationScope(name);
+		addSimplTypesScope(name);
 	}
 
 	/**
-	 * Construct a new TranslationScope, with this name, using the baseTranslations first. Then, add
+	 * Construct a new SimplTypesScope, with this name, using the baseTranslations first. Then, add
 	 * the array of translations, then, make the defaultPackageName available. Map XML Namespace
 	 * declarations.
 	 * 
 	 * @param name
 	 * @param nameSpaceDecls
-	 * @param inheritedTranslationScopes
+	 * @param inheritedSimplTypesScopes
 	 * @param translations
 	 */
 	private SimplTypesScope(String name, NameSpaceDecl[] nameSpaceDecls,
-			SimplTypesScope[] inheritedTranslationScopes, ClassDescriptor[] translations)
+			SimplTypesScope[] inheritedSimplTypesScopes, ClassDescriptor[] translations)
 	{
-		this(name, inheritedTranslationScopes, translations);
+		this(name, inheritedSimplTypesScopes, translations);
 		addNameSpaceDecls(nameSpaceDecls);
 
-		addTranslationScope(name);
+		addSimplTypesScope(name);
 	}
 
 	/**
@@ -405,7 +405,7 @@ public final class SimplTypesScope extends ElementState
 			}
 		}
 
-		allTranslationScopes.put(name, this);
+		allTypesScopes.put(name, this);
 	}
 
 	/**
@@ -432,29 +432,29 @@ public final class SimplTypesScope extends ElementState
 			}
 		}
 
-		allTranslationScopes.put(name, this);
+		allTypesScopes.put(name, this);
 	}
 
 	/**
-	 * Utility for composing <code>TranslationScope</code>s. Performs composition by value. That is,
+	 * Utility for composing <code>SimplTypesScope</code>s. Performs composition by value. That is,
 	 * the entries are copied.
 	 * 
 	 * Unlike in union(), if there are duplicates, they will override identical entries in this.
 	 * 
-	 * @param inheritedTranslationScope
+	 * @param inheritedTypesScope
 	 */
-	private void addTranslations(SimplTypesScope inheritedTranslationScope)
+	private void addTranslations(SimplTypesScope inheritedTypesScope)
 	{
-		if (inheritedTranslationScope != null)
+		if (inheritedTypesScope != null)
 		{
 			// copy map entries from inherited maps into new maps
-			updateMapWithValues(inheritedTranslationScope.entriesByClassSimpleName,
+			updateMapWithValues(inheritedTypesScope.entriesByClassSimpleName,
 					entriesByClassSimpleName, "classSimpleName");
-			updateMapWithValues(inheritedTranslationScope.entriesByClassName, entriesByClassName,
+			updateMapWithValues(inheritedTypesScope.entriesByClassName, entriesByClassName,
 					"className");
-			updateMapWithValues(inheritedTranslationScope.entriesByTag, entriesByTag, "tagName");
+			updateMapWithValues(inheritedTypesScope.entriesByTag, entriesByTag, "tagName");
 
-			HashMap<String, Class<?>> inheritedNameSpaceClassesByURN = inheritedTranslationScope.nameSpaceClassesByURN;
+			HashMap<String, Class<?>> inheritedNameSpaceClassesByURN = inheritedTypesScope.nameSpaceClassesByURN;
 			if (inheritedNameSpaceClassesByURN != null)
 			{
 				for (String urn : inheritedNameSpaceClassesByURN.keySet())
@@ -586,7 +586,7 @@ public final class SimplTypesScope extends ElementState
 
 	/**
 	 * Look-up a <code>Class</code> object for the xmlTag, using translations in this, and in
-	 * inherited TranslationScopes. Will use defaultPackage name here and, recursivley, in inherited
+	 * inherited SimplTypesScopes. Will use defaultPackage name here and, recursivley, in inherited
 	 * scopes, as necessary.
 	 * 
 	 * @param xmlTag
@@ -600,7 +600,7 @@ public final class SimplTypesScope extends ElementState
 	}
 
 	/**
-	 * Seek the entry associated with the tag. Recurse through inherited TranslationScopes, if
+	 * Seek the entry associated with the tag. Recurse through inherited SimplTypesScopes, if
 	 * necessary.
 	 * 
 	 * @param xmlTag
@@ -695,9 +695,9 @@ public final class SimplTypesScope extends ElementState
 		Collection<ClassDescriptor<? extends FieldDescriptor>> classDescriptors = this
 				.getClassDescriptors();
 
-		for (SimplTypesScope translationScope : allTranslationScopes.values())
+		for (SimplTypesScope typesScope : allTypesScopes.values())
 		{
-			for (ClassDescriptor<? extends FieldDescriptor> classDescriptor : translationScope.entriesByClassSimpleName
+			for (ClassDescriptor<? extends FieldDescriptor> classDescriptor : typesScope.entriesByClassSimpleName
 					.values())
 			{
 				classes.add(classDescriptor.getDescribedClass());
@@ -707,7 +707,7 @@ public final class SimplTypesScope extends ElementState
 	}
 
 	/**
-	 * Use this TranslationScope to lookup a class that has the same simple name as the argument
+	 * Use this SimplTypesScope to lookup a class that has the same simple name as the argument
 	 * passed in here. It may have a different full name, that is, a different package, which could be
 	 * quite convenient for overriding with subclasses.
 	 * 
@@ -764,20 +764,20 @@ public final class SimplTypesScope extends ElementState
 	{
 		if (toStringCache == null)
 		{
-			toStringCache = "TranslationScope[" + name + "]";
+			toStringCache = "SimplTypesScope[" + name + "]";
 		}
 		return toStringCache;
 	}
 
 	/**
-	 * Find the TranslationScope called <code>name</code>, if there is one.
+	 * Find the SimplTypesScope called <code>name</code>, if there is one.
 	 * 
 	 * @param name
 	 * @return
 	 */
 	public static SimplTypesScope lookup(String name)
 	{
-		return (SimplTypesScope) allTranslationScopes.get(name);
+		return (SimplTypesScope) allTypesScopes.get(name);
 	}
 
 	/**
@@ -793,12 +793,12 @@ public final class SimplTypesScope extends ElementState
 	}
 
 	/**
-	 * Find an existing TranslationScope by this name, or create a new one.
+	 * Find an existing SimplTypesScope by this name, or create a new one.
 	 * 
 	 * @param name
-	 *          the name of the TranslationScope
+	 *          the name of the SimplTypesScope
 	 * @param translations
-	 *          a set of Classes to be used as a part of this TranslationScope
+	 *          a set of Classes to be used as a part of this SimplTypesScope
 	 * @return
 	 */
 	@SuppressWarnings("unchecked")
@@ -818,10 +818,10 @@ public final class SimplTypesScope extends ElementState
 	}
 
 	/**
-	 * Find an existing TranslationScope by this name, or create a new one. Inherit from the previous
-	 * TranslationScope, by including all mappings from there.
+	 * Find an existing SimplTypesScope by this name, or create a new one. Inherit from the previous
+	 * SimplTypesScope, by including all mappings from there.
 	 * 
-	 * If new translations are provided when the TranslationScope already exists in the static scope
+	 * If new translations are provided when the SimplTypesScope already exists in the static scope
 	 * map, they are ignored.
 	 * 
 	 * @param name
@@ -847,10 +847,10 @@ public final class SimplTypesScope extends ElementState
 	}
 
 	/**
-	 * Find an existing TranslationScope by this name, or create a new one. Inherit from the previous
-	 * TranslationScope, by including all mappings from there.
+	 * Find an existing SimplTypesScope by this name, or create a new one. Inherit from the previous
+	 * SimplTypesScope, by including all mappings from there.
 	 * 
-	 * If new translations are provided when the TranslationScope already exists in the static scope
+	 * If new translations are provided when the SimplTypesScope already exists in the static scope
 	 * map, they are ignored.
 	 * 
 	 * @param name
@@ -876,8 +876,8 @@ public final class SimplTypesScope extends ElementState
 	}
 
 	/**
-	 * Find an existing TranslationScope by this name, or create a new one. Build on a previous
-	 * TranslationScope, by including all mappings from there. Add just a single new class.
+	 * Find an existing SimplTypesScope by this name, or create a new one. Build on a previous
+	 * SimplTypesScope, by including all mappings from there. Add just a single new class.
 	 * 
 	 * @param name
 	 * @param inheritedTranslations
@@ -901,7 +901,7 @@ public final class SimplTypesScope extends ElementState
 	}
 
 	/**
-	 * Find an existing TranslationScope by this name, or create a new one. Add just a single new
+	 * Find an existing SimplTypesScope by this name, or create a new one. Add just a single new
 	 * class.
 	 * 
 	 * @param name
@@ -914,11 +914,11 @@ public final class SimplTypesScope extends ElementState
 	}
 
 	/**
-	 * Find an existing TranslationScope by this name, or create a new one. Build on the previous
-	 * TranslationScope, by including all mappings from there.
+	 * Find an existing SimplTypesScope by this name, or create a new one. Build on the previous
+	 * SimplTypesScope, by including all mappings from there.
 	 * 
 	 * @param name
-	 *          the name of the TranslationScope to acquire.
+	 *          the name of the SimplTypesScope to acquire.
 	 * @param translations
 	 *          an array of translations to add to the scope.
 	 * @param inheritedTranslations
@@ -943,11 +943,11 @@ public final class SimplTypesScope extends ElementState
 	}
 
 	/**
-	 * Find an existing TranslationScope by this name, or create a new one. Build on the previous
-	 * TranslationScope, by including all mappings from there.
+	 * Find an existing SimplTypesScope by this name, or create a new one. Build on the previous
+	 * SimplTypesScope, by including all mappings from there.
 	 * 
 	 * @param name
-	 *          the name of the TranslationScope to acquire.
+	 *          the name of the SimplTypesScope to acquire.
 	 * @param translations
 	 *          an array of translations to add to the scope.
 	 * @param inheritedTranslations
@@ -987,8 +987,8 @@ public final class SimplTypesScope extends ElementState
 	}
 
 	/**
-	 * Find an existing TranslationScope by this name, or create a new one. Build on a set of
-	 * inherited TranslationScopes, by including all mappings from them.
+	 * Find an existing SimplTypesScope by this name, or create a new one. Build on a set of
+	 * inherited SimplTypesScopes, by including all mappings from them.
 	 * 
 	 * @param name
 	 * @param nameSpaceDecls
@@ -1017,8 +1017,8 @@ public final class SimplTypesScope extends ElementState
 	}
 
 	/**
-	 * Find an existing TranslationScope by this name, or create a new one. Build on a set of
-	 * inherited TranslationScopes, by including all mappings from them.
+	 * Find an existing SimplTypesScope by this name, or create a new one. Build on a set of
+	 * inherited SimplTypesScopes, by including all mappings from them.
 	 * 
 	 * @param name
 	 * @param inheritedTranslations
@@ -1030,8 +1030,8 @@ public final class SimplTypesScope extends ElementState
 	}
 
 	/**
-	 * Find an existing TranslationScope by this name, or create a new one. Build on a set of
-	 * inherited TranslationScopes, by including all mappings from them.
+	 * Find an existing SimplTypesScope by this name, or create a new one. Build on a set of
+	 * inherited SimplTypesScopes, by including all mappings from them.
 	 * 
 	 * @param name
 	 * @param inheritedTranslationsSet
@@ -1067,9 +1067,9 @@ public final class SimplTypesScope extends ElementState
 
 	public HashSet<String> addClassNamesToHashSet(HashSet<String> hashSet)
 	{
-		if (inheritedTranslationScopes != null)
+		if (inheritedTypesScopes != null)
 		{
-			for (SimplTypesScope inheritedTScope : inheritedTranslationScopes)
+			for (SimplTypesScope inheritedTScope : inheritedTypesScopes)
 			{
 				inheritedTScope.generateImports(hashSet);
 			}
@@ -1134,9 +1134,9 @@ public final class SimplTypesScope extends ElementState
 
 	public static final String	BASIC_TRANSLATIONS	= "basic_translations";
 
-	private void addTranslationScope(String name)
+	private void addSimplTypesScope(String name)
 	{
-		allTranslationScopes.put(name, this);
+		allTypesScopes.put(name, this);
 	}
 
 	
@@ -1331,15 +1331,15 @@ public Object deserialize(InputStream inputStream, TranslationContext translatio
 				ClassDescriptor.class);
 	}
 
-	public static SimplTypesScope augmentTranslationScope(SimplTypesScope translationScope)
+	public static SimplTypesScope augmentTranslationScope(SimplTypesScope simplTypesScope)
 	{
-		ArrayList<Class<?>> allClasses = translationScope.getAllClasses();
+		ArrayList<Class<?>> allClasses = simplTypesScope.getAllClasses();
 		Collection<Class<?>> augmentedClasses = augmentTranslationScope(allClasses).values();
 
 		Class<?>[] augmentedClassesArray = (Class<?>[]) augmentedClasses
 				.toArray(new Class<?>[augmentedClasses.size()]);
 
-		return new SimplTypesScope(translationScope.getName(), augmentedClassesArray);
+		return new SimplTypesScope(simplTypesScope.getName(), augmentedClassesArray);
 	}
 
 	private static HashMap<String, Class<?>> augmentTranslationScope(ArrayList<Class<?>> allClasses)
@@ -1347,12 +1347,12 @@ public Object deserialize(InputStream inputStream, TranslationContext translatio
 		HashMap<String, Class<?>> augmentedClasses = new HashMap<String, Class<?>>();
 		for (Class<?> thatClass : allClasses)
 		{
-			augmentTranslationScope(thatClass, augmentedClasses);
+			augmentSimplTypesScope(thatClass, augmentedClasses);
 		}
 		return augmentedClasses;
 	}
 
-	private static void augmentTranslationScope(Class<?> thatClass,
+	private static void augmentSimplTypesScope(Class<?> thatClass,
 			HashMap<String, Class<?>> augmentedClasses)
 	{
 		if (augmentedClasses.put(thatClass.getSimpleName(), thatClass) != null)
@@ -1360,7 +1360,7 @@ public Object deserialize(InputStream inputStream, TranslationContext translatio
 
 		if (thatClass.getSuperclass() != ElementState.class)
 		{
-			augmentTranslationScope(thatClass.getSuperclass().asSubclass(ElementState.class),
+			augmentSimplTypesScope(thatClass.getSuperclass().asSubclass(ElementState.class),
 					augmentedClasses);
 		}
 
@@ -1378,7 +1378,7 @@ public Object deserialize(InputStream inputStream, TranslationContext translatio
 			{
 				if (fieldDescriptor.isNested())
 				{
-					augmentTranslationScope(fieldDescriptor.getFieldType().asSubclass(ElementState.class),
+					augmentSimplTypesScope(fieldDescriptor.getFieldType().asSubclass(ElementState.class),
 							augmentedClasses);
 				}
 				else
@@ -1392,7 +1392,7 @@ public Object deserialize(InputStream inputStream, TranslationContext translatio
 						{
 							if (genericClass != null && ElementState.class.isAssignableFrom(genericClass))
 							{
-								augmentTranslationScope(genericClass.asSubclass(ElementState.class),
+								augmentSimplTypesScope(genericClass.asSubclass(ElementState.class),
 										augmentedClasses);
 							}
 						}
@@ -1406,7 +1406,7 @@ public Object deserialize(InputStream inputStream, TranslationContext translatio
 						{
 							for (ClassDescriptor<? extends FieldDescriptor> classDescriptor : polymorphDescriptors)
 							{
-								augmentTranslationScope(classDescriptor.getDescribedClass(), augmentedClasses);
+								augmentSimplTypesScope(classDescriptor.getDescribedClass(), augmentedClasses);
 							}
 						}
 					}
@@ -1422,9 +1422,9 @@ public Object deserialize(InputStream inputStream, TranslationContext translatio
 		this.addTranslations(augmentedClassesArray);
 	}
 
-	private static Class<?>[] getClassesArray(SimplTypesScope translationScope)
+	private static Class<?>[] getClassesArray(SimplTypesScope simplTypesScope)
 	{
-		ArrayList<Class<?>> allClasses = translationScope.getAllClasses();
+		ArrayList<Class<?>> allClasses = simplTypesScope.getAllClasses();
 		Collection<Class<?>> augmentedClasses = augmentTranslationScope(allClasses).values();
 
 		Class<?>[] augmentedClassesArray = (Class<?>[]) augmentedClasses
@@ -1450,26 +1450,26 @@ public Object deserialize(InputStream inputStream, TranslationContext translatio
 	}
 
 	/**
-	 * Augment the given translationScope and return the augmented one
+	 * Augment the given SimplTypesScope and return the augmented one
 	 * 
-	 * @param translationScope
+	 * @param simplTypesScope
 	 * @return
 	 */
 	public static SimplTypesScope augmentTranslationScopeWithClassDescriptors(
-			SimplTypesScope translationScope)
+			SimplTypesScope simplTypesScope)
 	{
-		Collection<ClassDescriptor<? extends FieldDescriptor>> allClassDescriptors = translationScope
+		Collection<ClassDescriptor<? extends FieldDescriptor>> allClassDescriptors = simplTypesScope
 				.getClassDescriptors();
 
-		ArrayList<ClassDescriptor<? extends FieldDescriptor>> allClasses = translationScope
+		ArrayList<ClassDescriptor<? extends FieldDescriptor>> allClasses = simplTypesScope
 				.getAllClassDescriptors();
-		Collection<ClassDescriptor<? extends FieldDescriptor>> augmentedClasses = augmentTranslationScopeWithClassDescriptors(
+		Collection<ClassDescriptor<? extends FieldDescriptor>> augmentedClasses = augmentSimplTypesScopeWithClassDescriptors(
 				allClasses).values();
 
 		ClassDescriptor<? extends FieldDescriptor>[] augmentedClassesArray = (ClassDescriptor[]) augmentedClasses
 				.toArray(new ClassDescriptor[augmentedClasses.size()]);
 
-		return new SimplTypesScope(translationScope.getName(), augmentedClassesArray);
+		return new SimplTypesScope(simplTypesScope.getName(), augmentedClassesArray);
 	}
 
 	/**
@@ -1478,13 +1478,13 @@ public Object deserialize(InputStream inputStream, TranslationContext translatio
 	 * @param allClasses
 	 * @return
 	 */
-	private static HashMap<String, ClassDescriptor<? extends FieldDescriptor>> augmentTranslationScopeWithClassDescriptors(
+	private static HashMap<String, ClassDescriptor<? extends FieldDescriptor>> augmentSimplTypesScopeWithClassDescriptors(
 			ArrayList<ClassDescriptor<? extends FieldDescriptor>> allClasses)
 	{
 		HashMap<String, ClassDescriptor<? extends FieldDescriptor>> augmentedClasses = new HashMap<String, ClassDescriptor<? extends FieldDescriptor>>();
 		for (ClassDescriptor<? extends FieldDescriptor> thatClass : allClasses)
 		{
-			augmentTranslationScope(thatClass, augmentedClasses);
+			augmentSimplTypesScope(thatClass, augmentedClasses);
 		}
 		return augmentedClasses;
 	}
@@ -1495,7 +1495,7 @@ public Object deserialize(InputStream inputStream, TranslationContext translatio
 	 * @param thatClass
 	 * @param augmentedClasses
 	 */
-	private static void augmentTranslationScope(ClassDescriptor<? extends FieldDescriptor> thatClass,
+	private static void augmentSimplTypesScope(ClassDescriptor<? extends FieldDescriptor> thatClass,
 			HashMap<String, ClassDescriptor<? extends FieldDescriptor>> augmentedClasses)
 	{
 		if (augmentedClasses.put(thatClass.getDescribedClassSimpleName(), thatClass) != null)
@@ -1504,7 +1504,7 @@ public Object deserialize(InputStream inputStream, TranslationContext translatio
 		ClassDescriptor<? extends FieldDescriptor> superClass = thatClass.getSuperClass();
 		if (superClass != null && !"ElementState".equals(superClass.getDescribedClassSimpleName()))
 		{
-			augmentTranslationScope(superClass, augmentedClasses);
+			augmentSimplTypesScope(superClass, augmentedClasses);
 		}
 
 		HashMapArrayList<String, ? extends FieldDescriptor> fieldDescriptors = thatClass
@@ -1518,7 +1518,7 @@ public Object deserialize(InputStream inputStream, TranslationContext translatio
 			{
 				if (fieldDescriptor.isNested())
 				{
-					augmentTranslationScope(fieldDescriptor.getElementClassDescriptor(), augmentedClasses);
+					augmentSimplTypesScope(fieldDescriptor.getElementClassDescriptor(), augmentedClasses);
 				}
 				else
 				{
@@ -1531,7 +1531,7 @@ public Object deserialize(InputStream inputStream, TranslationContext translatio
 						{
 							if (genericClass != null && ElementState.class.isAssignableFrom(genericClass))
 							{
-								augmentTranslationScope(ClassDescriptor.getClassDescriptor(genericClass
+								augmentSimplTypesScope(ClassDescriptor.getClassDescriptor(genericClass
 										.asSubclass(ElementState.class)), augmentedClasses);
 							}
 						}
@@ -1545,7 +1545,7 @@ public Object deserialize(InputStream inputStream, TranslationContext translatio
 						{
 							for (ClassDescriptor<? extends FieldDescriptor> classDescriptor : polymorphDescriptors)
 							{
-								augmentTranslationScope(classDescriptor, augmentedClasses);
+								augmentSimplTypesScope(classDescriptor, augmentedClasses);
 							}
 						}
 					}
@@ -1563,9 +1563,9 @@ public Object deserialize(InputStream inputStream, TranslationContext translatio
 	{
 		ArrayList<ClassDescriptor<? extends FieldDescriptor>> classes = new ArrayList<ClassDescriptor<? extends FieldDescriptor>>();
 
-		for (SimplTypesScope translationScope : allTranslationScopes.values())
+		for (SimplTypesScope simplTypesScope : allTypesScopes.values())
 		{
-			for (ClassDescriptor<? extends FieldDescriptor> classDescriptor : translationScope.entriesByTag
+			for (ClassDescriptor<? extends FieldDescriptor> classDescriptor : simplTypesScope.entriesByTag
 					.values())
 			{
 				classes.add(classDescriptor);
@@ -1575,15 +1575,15 @@ public Object deserialize(InputStream inputStream, TranslationContext translatio
 	}
 
 	/**
-	 * Make a new TranslationScope from a subset of this, making sure that the class of all entries in
+	 * Make a new SimplTypesScope from a subset of this, making sure that the class of all entries in
 	 * the subset is either superClassCriterion or a subclass thereof.
 	 * 
 	 * @param newName
-	 *          Name for new TranslationScope.
+	 *          Name for new SimplTypesScope.
 	 * @param superClassCriterion
 	 *          Super class discriminant for all classes in the subset.
 	 * 
-	 * @return New or existing TranslationScope with subset of classes in this, based on
+	 * @return New or existing SimplTypesScope with subset of classes in this, based on
 	 *         assignableCriterion.
 	 */
 	public SimplTypesScope getAssignableSubset(String newName, Class<?> superClassCriterion)
@@ -1597,11 +1597,47 @@ public Object deserialize(InputStream inputStream, TranslationContext translatio
 				if (result == null)
 				{
 					result = new SimplTypesScope(newName);
-					addTranslationScope(newName);
+					addSimplTypesScope(newName);
 					for (ClassDescriptor classDescriptor : entriesByClassName.values())
 					{
 						Class<?> thatClass = classDescriptor.getDescribedClass();
 						if (superClassCriterion.isAssignableFrom(thatClass))
+							result.addTranslation(classDescriptor);
+					}
+				}
+			}
+		}
+		return result;
+	}
+
+	/**
+	 * Make a new SimplTypesScope from a subset of this, making sure that the class of all entries in
+	 * never either superClassCriterion or a subclass thereof.
+	 * 
+	 * @param newName
+	 *          Name for new SimplTypesScope.
+	 * @param superClassCriterion
+	 *          Super class discriminant for all classes to remove from the subset.
+	 * 
+	 * @return New or existing SimplTypesScope with subset of classes in this, based on
+	 *         assignableCriterion.
+	 */
+	public SimplTypesScope getSubtractedSubset(String newName, Class<?> superClassCriterion)
+	{
+		SimplTypesScope result = lookup(newName);
+		if (result == null)
+		{
+			synchronized (entriesByClassName)
+			{
+				result = lookup(newName);
+				if (result == null)
+				{
+					result = new SimplTypesScope(newName);
+					addSimplTypesScope(newName);
+					for (ClassDescriptor classDescriptor : entriesByClassName.values())
+					{
+						Class<?> thatClass = classDescriptor.getDescribedClass();
+						if (!superClassCriterion.isAssignableFrom(thatClass))
 							result.addTranslation(classDescriptor);
 					}
 				}
@@ -1638,10 +1674,10 @@ public Object deserialize(InputStream inputStream, TranslationContext translatio
 			String simpleName = classDescriptor.getDescribedClassSimpleName();
 			entriesByClassSimpleName.put(simpleName, classDescriptor);
 		}
-		if (allTranslationScopes.containsKey(name))
-			warning("REPLACING another TranslationScope of the SAME NAME during deserialization!\t"
+		if (allTypesScopes.containsKey(name))
+			warning("REPLACING another SimplTypesScope of the SAME NAME during deserialization!\t"
 					+ name);
-		allTranslationScopes.put(name, this);
+		allTypesScopes.put(name, this);
 	}
 
 	/**
