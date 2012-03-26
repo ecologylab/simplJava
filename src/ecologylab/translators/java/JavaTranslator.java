@@ -14,14 +14,21 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
+
+import org.stringtemplate.v4.AttributeRenderer;
+import org.stringtemplate.v4.ST;
+import org.stringtemplate.v4.STGroup;
+import org.stringtemplate.v4.STGroupFile;
 
 import ecologylab.generic.Debug;
 import ecologylab.generic.HashMapArrayList;
 import ecologylab.semantics.html.utils.StringBuilderUtils;
 import ecologylab.serialization.ClassDescriptor;
 import ecologylab.serialization.FieldDescriptor;
+import ecologylab.serialization.FieldTypes;
 import ecologylab.serialization.GenericTypeVar;
 import ecologylab.serialization.MetaInformation;
 import ecologylab.serialization.MetaInformation.Argument;
@@ -44,6 +51,28 @@ import ecologylab.translators.CodeTranslatorConfig;
 @SuppressWarnings({ "unchecked", "rawtypes" })
 public class JavaTranslator extends AbstractCodeTranslator implements JavaTranslationConstants
 {
+	
+	public static STGroup templateGroup;
+	
+	static
+	{
+		templateGroup = new STGroupFile("resources/codeTranslators/javaCodeTranslator.stg");
+		templateGroup.registerRenderer(String.class, new AttributeRenderer()
+		{
+			@Override
+			public String toString(Object o, String formatString, Locale locale)
+			{
+				if (formatString == null || formatString.length() == 0)
+					return o.toString();
+				
+				String s = (String) o;
+				if (formatString.equals("capFirst") && s.length() > 0)
+					return s.substring(0, 1).toUpperCase() + s.substring(1);
+							
+				return s;
+			}
+		});
+	}
 
 	/**
 	 * These are import dependencies for the current source file.
@@ -536,6 +565,15 @@ public class JavaTranslator extends AbstractCodeTranslator implements JavaTransl
 		}
 
 		appendGettersHelper(fieldDescriptor, javaType, appendable, suffix);
+		
+		int fieldType = fieldDescriptor.getType();
+		if (fieldType == FieldTypes.COLLECTION_ELEMENT || fieldType == FieldTypes.COLLECTION_SCALAR)
+		{
+			ST listMethods = templateGroup.getInstanceOf("listMethods");
+			listMethods.add("fd", fieldDescriptor);
+			String listMethodsStr = listMethods.render();
+			appendable.append(listMethodsStr);
+		}
 	}
 
 	protected void appendGettersHelper(FieldDescriptor fieldDescriptor, String javaType,

@@ -1,0 +1,32 @@
+delimiters "$", "$"
+
+name(x) ::= "$x.name$"
+
+genericSuffix(t) ::= "$if(t.genericTypeVars)$<$t.genericTypeVars; separator=\",\"$>$endif$"
+
+collectionElementTypeName(fd) ::= "$first(fd.genericTypeVars).classDescriptor.describedClassSimpleName$$genericSuffix(first(fd.genericTypeVars))$"
+
+listMethods(fd) ::= <<
+
+
+  // lazy evaluation:
+  public List<$collectionElementTypeName(fd)$> $fd.name$()
+  {
+    if ($fd.name$ == null)
+      $fd.name$ = new ArrayList<$collectionElementTypeName(fd)$>();
+    return $fd.name$;
+  }
+  
+  // addTo:
+  public void addTo$fd.name;format="capFirst"$($collectionElementTypeName(fd)$ element)
+  {
+    $fd.name$().add(element);
+  }
+  
+  // size:
+  public int $fd.name$Size()
+  {
+    return $fd.name$ == null ? 0 : $fd.name$.size();
+  }
+
+>>
