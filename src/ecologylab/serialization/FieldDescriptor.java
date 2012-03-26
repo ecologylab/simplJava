@@ -1955,7 +1955,7 @@ public class FieldDescriptor extends DescriptorBase implements FieldTypes, IMapp
 	{
 		return genericParametersString;
 	}
-
+	
 	public ArrayList<ClassDescriptor> getDependencies()
 	{
 		return dependencies;
@@ -2245,5 +2245,5 @@ public class FieldDescriptor extends DescriptorBase implements FieldTypes, IMapp
 	{
 		return excludedUsages != null && excludedUsages.contains(usage);
 	}
-
+	
 }

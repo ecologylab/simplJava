@@ -37,6 +37,11 @@ public class GenericTypeVar extends Debug
 	@simpl_collection("generic_type_var")
 	ArrayList<GenericTypeVar>	genericTypeVars							= null;
 
+	public ArrayList<GenericTypeVar> getGenericTypeVars()
+	{
+		return genericTypeVars;
+	}
+
 	// This variable holds the ClassDecriptor of the class declared as a constraint to the generic type variable. 
 	// For example this variable will hold ClassDescriptor of class Media if generic type is declared as MediaSearchResult<M extends Media>
 	@simpl_composite
