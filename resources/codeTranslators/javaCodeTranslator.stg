@@ -30,3 +30,28 @@ listMethods(fd) ::= <<
   }
 
 >>
+
+mapMethods(fd) ::= <<
+
+
+// lazy evaluation:
+public Map<$keyType$, $valueType$> $name$()
+{
+  if ($name$ == null)
+    $name$ = new HashMap<$keyType$, $valueType$>();
+  return $name$;
+}
+
+// putTo:
+public void putTo$name;format="capFirst"$($keyType$ key, $valueType$ value)
+{
+  $name$().put(key, value);
+}
+
+// size:
+public int $name$Size()
+{
+  return $name$ == null ? 0 : $name$.size();
+}
+
+>>
