@@ -14,6 +14,8 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.HashMap;
 import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import ecologylab.collections.CollectionTools;
 import ecologylab.net.ParsedURL;
@@ -25,18 +27,17 @@ import ecologylab.serialization.XMLTools;
  */
 public class StringTools extends Debug
 {
-	private static final String	UTF_8	= "UTF-8";
+	private static final String	UTF_8														= "UTF-8";
 
-	static final String[]				oneDotDomainStrings	=
-																									{ "com", "edu", "gov", "org", "net", "tv", "info" };
+	static final String[]				oneDotDomainStrings							=
+																															{ "com", "edu", "gov", "org", "net",
+			"tv", "info"																						};
 
-	static final HashMap				oneDotDomains				= CollectionTools
-																											.buildHashMapFromStrings(oneDotDomainStrings);
+	static final HashMap				oneDotDomains										= CollectionTools.buildHashMapFromStrings(oneDotDomainStrings);
 
-	public static final String	EMPTY_STRING				= "";
-	
-	public static final int AVERAGE_PARAM_NAME_VALUE_LENGTH = 8;
+	public static final String	EMPTY_STRING										= "";
 
+	public static final int			AVERAGE_PARAM_NAME_VALUE_LENGTH	= 8;
 
 	/**
 	 * Changes the StringBuffer to lower case, in place, without any new storage allocation.
@@ -191,37 +192,40 @@ public class StringTools extends Debug
 	{
 		return noAnchorPageString(url, true);
 	}
+
 	/**
 	 * Very efficiently forms String representation of url (better than
-	 * <code>URL.toExternalForm(), URL.toString()</code>). Doesn't include anchor.
-	 * May include query, depending on param 2.
+	 * <code>URL.toExternalForm(), URL.toString()</code>). Doesn't include anchor. May include query,
+	 * depending on param 2.
 	 * 
-	 * @param url						Input URL.
-	 * @param includeQuery	include query or not.
+	 * @param url
+	 *          Input URL.
+	 * @param includeQuery
+	 *          include query or not.
 	 * 
-	 * @return							String representation of URL.
+	 * @return String representation of URL.
 	 */
 	public static final String noAnchorPageString(URL url, boolean includeQuery)
 	{
 		if (url == null)
 			return "";
 
-		String protocol 	= url.getProtocol();
-		String authority 	= url.getAuthority(); // authority is host:port
-		String path 			= url.getPath(); // doesn't include query
-		String query 			= includeQuery ? url.getQuery() : null;
+		String protocol = url.getProtocol();
+		String authority = url.getAuthority(); // authority is host:port
+		String path = url.getPath(); // doesn't include query
+		String query = includeQuery ? url.getQuery() : null;
 
-		int pathLength 		= (path == null) ? 0 : path.length();
-		int queryLength 	= (query == null) ? 0 : query.length();
-		includeQuery			= includeQuery && queryLength > 0;
-		
+		int pathLength = (path == null) ? 0 : path.length();
+		int queryLength = (query == null) ? 0 : query.length();
+		includeQuery = includeQuery && queryLength > 0;
+
 		// pre-compute length of StringBuffer
 		int length = 0;
 		try
 		{
 			length = protocol.length() + 3 /* :// */+ authority.length() + pathLength;
 			if (includeQuery)
-				length	+= 1/* ? */ + queryLength;
+				length += 1/* ? */+ queryLength;
 		}
 		catch (Exception e)
 		{
@@ -419,11 +423,25 @@ public class StringTools extends Debug
 
 	public static void main(String[] s)
 	{
+		String test = "<html><head></head><body bgcolor=3D\"#FFFFFF\"><div></div><div><h1 style=3D\"f=\n" + 
+				"ont-size:16pt\">SPOTRep</h1><table style=3D\"border:1px solid #ddd\" width=3D\"=\n" + 
+				"100%\" cellspacing=3D\"0\"><tbody><tr><td style=3D\"vertical-align:top;padding:=\n" + 
+				"5px;width:30%;font-weight:bold;border-bottom:1px solid #ddd;background-colo=\n" + 
+				"r:#fafafa\">";
+
+		System.out.println(decodeQuotedPrintable(test));
+		// String a = "39";
+		// String b = "3D";
+		//
+		// System.out.println((char) (Integer.parseInt(a, 16)));
+
 		/* create ParsedURL from url string. */
-		ParsedURL u = ParsedURL.getAbsolute(
-				"http://www.bbc.co.uk/eastenders/images/navigation/icon_bbc_one.gif", "foo");
+		// ParsedURL u =
+		// ParsedURL.getAbsolute("http://www.bbc.co.uk/eastenders/images/navigation/icon_bbc_one.gif",
+		// "foo");
+		// //
 		// println(removePunctuation("http://www.bbc.co.uk/eastenders/images/navigation/icon_bbc_one.gif"));
-		println(u.removePunctuation());
+		// println(u.removePunctuation());
 	}
 
 	public static void main2(String[] s)
@@ -488,7 +506,7 @@ public class StringTools extends Debug
 	 * second argument.
 	 * 
 	 * @param s
-	 * @param ignoreChars 
+	 * @param ignoreChars
 	 * @return
 	 */
 	public static boolean isLowerCaseExcept(String s, String ignoreChars)
@@ -576,7 +594,7 @@ public class StringTools extends Debug
 
 			// convert to normal characters and return as a String
 			return new String((new Base64Coder()).encode(encrypter.digest()));
-			
+
 		}
 		catch (NoSuchAlgorithmException e)
 		{
@@ -635,8 +653,8 @@ public class StringTools extends Debug
 
 	public static final Charset			UTF8_CHARSET			= Charset.forName(UTF_8);
 
-	static final CharsetDecoderPool	utf8DecoderPool		= new CharsetDecoderPool(UTF8_CHARSET,
-																												DECODER_POOL_SIZE);
+	static final CharsetDecoderPool	utf8DecoderPool		= new CharsetDecoderPool(	UTF8_CHARSET,
+																																							DECODER_POOL_SIZE);
 
 	/**
 	 * Reusable char[] arrays for the decodeUTF8() method.
@@ -743,12 +761,10 @@ public class StringTools extends Debug
 
 		return result;
 	}
-	
+
 	/**
-	 * performs 
-	 * 1) UnescapeXML
-	 * 2) StringTools.toLowerCase
-	 * 3) toString(buffy)
+	 * performs 1) UnescapeXML 2) StringTools.toLowerCase 3) toString(buffy)
+	 * 
 	 * @param buffy
 	 * @return
 	 */
@@ -757,77 +773,91 @@ public class StringTools extends Debug
 		String processedString;
 		XMLTools.unescapeXML(buffy);
 		StringTools.toLowerCase(buffy);
-		processedString				= StringTools.toString(buffy);
+		processedString = StringTools.toString(buffy);
 		return processedString;
 	}
-	
+
 	/**
-	 * Test to see if the String is null, then, if not, empty.
-	 * Works with Android or Java SE.
+	 * Test to see if the String is null, then, if not, empty. Works with Android or Java SE.
 	 * 
-	 * @param string	The input to test.
+	 * @param string
+	 *          The input to test.
 	 * 
-	 * @return				true if null, or if not null, if length is 0.
+	 * @return true if null, or if not null, if length is 0.
 	 */
 	public static boolean isNullOrEmpty(String string)
 	{
 		return string == null || string.length() == 0;
 	}
-	
+
 	/**
 	 * Extract a bunch of name value pairs from an input string from the query string of a URL.
 	 * 
-	 * @param input		The argument string.
-	 * @return				Map with arg names as keys, and arg values as values. Or null if no arg name/values were extracted.
+	 * @param input
+	 *          The argument string.
+	 * @return Map with arg names as keys, and arg values as values. Or null if no arg name/values
+	 *         were extracted.
 	 */
 	public static HashMap<String, String> doubleSplit(URL input)
 	{
 		return doubleSplit(input.getQuery());
 	}
+
 	/**
 	 * Extract a bunch of name value pairs from an input string from a URL.
 	 * 
-	 * @param input		The argument string.
-	 * @return				Map with arg names as keys, and arg values as values. Or null if no arg name/values were extracted.
+	 * @param input
+	 *          The argument string.
+	 * @return Map with arg names as keys, and arg values as values. Or null if no arg name/values
+	 *         were extracted.
 	 */
 	public static HashMap<String, String> doubleSplit(String input)
 	{
 		return doubleSplit(input, "&", "=", true);
 	}
+
 	/**
 	 * Extract a bunch of name value pairs from an input string.
 	 * 
-	 * @param input		The argument string.
-	 * @param regex1	Delimiter between argument pairs. For URLs, this is "&".
-	 * @param regex2	Delimiter between name and value amidst an argument pair. For URLs and Cookies, this is "=".
-	 * @param uudecodeArgs TODO
-	 * @return				Map with arg names as keys, and arg values as values. Or null if no arg name/values were extracted.
+	 * @param input
+	 *          The argument string.
+	 * @param regex1
+	 *          Delimiter between argument pairs. For URLs, this is "&".
+	 * @param regex2
+	 *          Delimiter between name and value amidst an argument pair. For URLs and Cookies, this
+	 *          is "=".
+	 * @param uudecodeArgs
+	 *          TODO
+	 * @return Map with arg names as keys, and arg values as values. Or null if no arg name/values
+	 *         were extracted.
 	 */
-	public static HashMap<String, String> doubleSplit(String input, String regex1, String regex2, boolean uudecodeArgs)
+	public static HashMap<String, String> doubleSplit(String input, String regex1, String regex2,
+			boolean uudecodeArgs)
 	{
-		HashMap<String, String> result	= null;
+		HashMap<String, String> result = null;
 		if (input != null && input.length() > 2)
 		{
-			String[] split1		= input.split(regex1);
-			for (String argPair: split1)
+			String[] split1 = input.split(regex1);
+			for (String argPair : split1)
 			{
-				String[] split2	= argPair.split(regex2);
+				String[] split2 = argPair.split(regex2);
 				if (split2.length == 2)
 				{
 					if (result == null)
-						result			= new HashMap<String, String>(split1.length);
-					String value	= split2[1];
+						result = new HashMap<String, String>(split1.length);
+					String value = split2[1];
 					if (uudecodeArgs)
 					{
 						try
 						{
-							value				= URLDecoder.decode(value, UTF_8);
+							value = URLDecoder.decode(value, UTF_8);
 						}
 						catch (UnsupportedEncodingException e)
 						{
 							// TODO Auto-generated catch block
 							e.printStackTrace();
-						};
+						}
+						;
 					}
 					result.put(split2[0], value);
 				}
@@ -835,55 +865,104 @@ public class StringTools extends Debug
 		}
 		return result;
 	}
+
 	/**
 	 * Assemble a String of URL parameters from a map of parameters.
 	 * 
-	 * @param parametersMap			Map of parameters, with names as keys and values as values.
+	 * @param parametersMap
+	 *          Map of parameters, with names as keys and values as values.
 	 * 
-	 * @return									Output String of parameters, or null, if the map was empty.
+	 * @return Output String of parameters, or null, if the map was empty.
 	 */
 	public static String unDoubleSplit(HashMap<String, String> parametersMap)
 	{
 		return unDoubleSplit(parametersMap, "&", "=", true);
 	}
+
 	/**
 	 * Assemble a String of parameters from a map of parameters.
 	 * 
-	 * @param parametersMap			Map of parameters, with names as keys and values as values.
+	 * @param parametersMap
+	 *          Map of parameters, with names as keys and values as values.
 	 * @param delim1
 	 * @param delim2
-	 * @param uuencodeArgs if true, UUEncode each parameter before adding it to the output String.
+	 * @param uuencodeArgs
+	 *          if true, UUEncode each parameter before adding it to the output String.
 	 * 
-	 * @return									Output String of parameters, or null, if the map was empty.
+	 * @return Output String of parameters, or null, if the map was empty.
 	 */
-	public static String unDoubleSplit(HashMap<String, String> parametersMap, String delim1, String delim2, boolean uuencodeArgs)
+	public static String unDoubleSplit(HashMap<String, String> parametersMap, String delim1,
+			String delim2, boolean uuencodeArgs)
 	{
 		if (parametersMap == null)
 			return null;
-		
+
 		int size = parametersMap.size();
 		if (size == 0)
 			return null;
-		
-		StringBuilder buffy	= new StringBuilder(size * AVERAGE_PARAM_NAME_VALUE_LENGTH);
-		Set<String> keySet 	= parametersMap.keySet();
-		for (String key: keySet)
+
+		StringBuilder buffy = new StringBuilder(size * AVERAGE_PARAM_NAME_VALUE_LENGTH);
+		Set<String> keySet = parametersMap.keySet();
+		for (String key : keySet)
 		{
-			if (buffy.length() > 0)			// (not the 1st time, though)
-				buffy.append(delim1);			// append outer delimiter after the previous key/value append
+			if (buffy.length() > 0) // (not the 1st time, though)
+				buffy.append(delim1); // append outer delimiter after the previous key/value append
 
 			String value = parametersMap.get(key);
 			try
 			{
-				value				= URLEncoder.encode(value, UTF_8);
+				value = URLEncoder.encode(value, UTF_8);
 			}
 			catch (UnsupportedEncodingException e)
 			{
 				// TODO Auto-generated catch block
 				e.printStackTrace();
-			};
+			}
+			;
 			buffy.append(key).append(delim2).append(value);
-		}	
+		}
 		return buffy.toString();
+	}
+
+	public static final String	QUOTED_PRINTABLE_CAPTURE_PATTERN_STRING	= "(=.{2})*(=\\s)*";
+
+	public static final Pattern	QUOTED_PRINTABLE_CAPTURE_PATTERN				= Pattern.compile(QUOTED_PRINTABLE_CAPTURE_PATTERN_STRING);
+
+	// public static final String QUOTED_PRINTABLE_CAPTURE_PATTERN = ".*[(\\=\\s)(\\=.{2})]*";
+
+	/**
+	 * Takes a String in quoted printable format and converts it back to its original String. See
+	 * http://en.wikipedia.org/wiki/Quoted-printable for details.
+	 * 
+	 * XXX I am not convinced this is the cheapest way to do this, but it is thorough.
+	 * 
+	 * @param input
+	 * @return
+	 */
+	public static String decodeQuotedPrintable(String input)
+	{
+		HashMap<String, String> replacements = new HashMap<String, String>();
+		replacements.put("=\n", "");
+
+		Matcher m = QUOTED_PRINTABLE_CAPTURE_PATTERN.matcher(input);
+
+		while (m.find())
+		{
+			String group = m.group();
+
+			if (!replacements.containsKey(group))
+			{
+				replacements.put(	group,
+													(group.length() > 2 ? String.valueOf((char) (Integer.parseInt(group.substring(1,3), 16)))
+															: ""));
+			}
+		}
+
+		for (String s : replacements.keySet())
+		{
+			input = input.replace(s, replacements.get(s));
+		}
+
+		return input;
 	}
 }
