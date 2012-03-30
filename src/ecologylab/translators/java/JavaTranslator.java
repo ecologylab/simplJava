@@ -6,6 +6,7 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.StringWriter;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -19,9 +20,11 @@ import java.util.Map;
 import java.util.Set;
 
 import org.stringtemplate.v4.AttributeRenderer;
+import org.stringtemplate.v4.AutoIndentWriter;
 import org.stringtemplate.v4.ST;
 import org.stringtemplate.v4.STGroup;
 import org.stringtemplate.v4.STGroupFile;
+import org.stringtemplate.v4.STWriter;
 
 import ecologylab.generic.Debug;
 import ecologylab.generic.HashMapArrayList;
@@ -571,7 +574,10 @@ public class JavaTranslator extends AbstractCodeTranslator implements JavaTransl
 		{
 			ST listMethods = templateGroup.getInstanceOf("listMethods");
 			listMethods.add("fd", fieldDescriptor);
-			String listMethodsStr = listMethods.render();
+			StringWriter sw = new StringWriter();
+			STWriter writer = new AutoIndentWriter(sw, "\n");
+			listMethods.write(writer);
+			String listMethodsStr = sw.toString();
 			appendable.append(listMethodsStr);
 		}
 	}
