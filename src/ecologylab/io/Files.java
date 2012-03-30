@@ -183,12 +183,12 @@ public class Files extends Debug
 		return openReader(newFile(fileName));
 	}
 
-//	public static BufferedReader openWebReader(String webAddr)
-//	{
-//		/* get ParsedURL from url string. */
-//		ParsedURL purl = EnvironmentGeneric.getRelativeOrAbsolute(webAddr, "");
-//		return openReader(purl.url());
-//	}
+	// public static BufferedReader openWebReader(String webAddr)
+	// {
+	// /* get ParsedURL from url string. */
+	// ParsedURL purl = EnvironmentGeneric.getRelativeOrAbsolute(webAddr, "");
+	// return openReader(purl.url());
+	// }
 
 	public static BufferedReader openReader(File file)
 	{
@@ -795,17 +795,17 @@ public class Files extends Debug
 		return result;
 	}
 
-//	public static void main(String[] s)
-//	{
-//		// println(removeExtension(new File("c:/temp/foo.xml")).toString());
-//		BufferedReader reader = openWebReader(s[0]);
-//		String thatLine = null;
-//		while ((thatLine = Files.readLine(reader)) != null)
-//		{
-//			println("read from URL " + thatLine);
-//		}
-//		closeReader(reader);
-//	}
+	// public static void main(String[] s)
+	// {
+	// // println(removeExtension(new File("c:/temp/foo.xml")).toString());
+	// BufferedReader reader = openWebReader(s[0]);
+	// String thatLine = null;
+	// while ((thatLine = Files.readLine(reader)) != null)
+	// {
+	// println("read from URL " + thatLine);
+	// }
+	// closeReader(reader);
+	// }
 
 	public static void main2(String[] args) throws Exception
 	{
@@ -833,7 +833,6 @@ public class Files extends Debug
 	public static String writeErrorMsg(Throwable e, String path)
 	{
 		return "Error [" + e.getMessage() + "] writing to file " + path;
-
 	}
 
 	/**
@@ -990,11 +989,11 @@ public class Files extends Debug
 		}
 		return succeeded;
 	}
-	
+
 	public static String getFilenameMinusExtension(File file)
 	{
 		String pathString = file.getAbsolutePath();
-		return pathString.substring(pathString.lastIndexOf(sep)+1, pathString.lastIndexOf('.'));
+		return pathString.substring(pathString.lastIndexOf(sep) + 1, pathString.lastIndexOf('.'));
 	}
 
 	public static boolean isZipFile(File file) throws IOException
@@ -1004,7 +1003,7 @@ public class Files extends Debug
 		fin.close();
 		return isZipStream;
 	}
-	
+
 	public static File findFirstExistingAncestor(File file)
 	{
 		if (file != null)
@@ -1014,6 +1013,39 @@ public class Files extends Debug
 				return parent;
 			return findFirstExistingAncestor(parent);
 		}
+		return null;
+	}
+	
+	/**
+	 * Given two absolute paths, find the deepest common ancestor between them.
+	 * 
+	 * @param file1
+	 * @param file2
+	 * @return
+	 */
+	public static String findMostCommonAncestor(String file1, String file2)
+	{
+		if (file1 != null && file2 != null)
+		{
+			if (file1.length() == 0 || file2.length() == 0)
+				return "";
+
+			int file1FirstDir = file1.indexOf(File.separatorChar);
+			int file2FirstDir = file2.indexOf(File.separatorChar);
+
+			if (file1FirstDir == -1 || file2FirstDir == -1)
+				return "";
+			
+			String substring = file1.substring(0, file1FirstDir + 1);
+			if (substring.equals(file2.substring(0, file2FirstDir + 1)))
+			{
+				return substring
+						+ findMostCommonAncestor(	file1.substring(file1FirstDir + 1),
+																			file2.substring(file2FirstDir + 1));
+			}
+			return "";
+		}
+
 		return null;
 	}
 }
