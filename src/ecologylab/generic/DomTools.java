@@ -14,6 +14,7 @@ import org.w3c.dom.NodeList;
  */
 public class DomTools extends Debug
 {
+	private static final int	TAB_WIDTH	= 3;
 	/**
 	 * Print your DOM tree in a readable way.
 	 * 
@@ -27,8 +28,13 @@ public class DomTools extends Debug
   {
     try 
     {
+    	if ("#document".equals(node.getNodeName()))
+    	{
+    		prettyPrint(node.getFirstChild(), level);
+    		return;
+    	}
     	for (int i=0; i< level; i++)
-    		System.out.print('\t');
+    		printTab();
     	
       System.out.print("<" + node.getNodeName());
       NamedNodeMap attrMap = node.getAttributes();
@@ -48,16 +54,26 @@ public class DomTools extends Debug
       if (nl != null)
       {
 	      int numChildren = nl.getLength();
+	      boolean printedNewline	= false;
 	      if (numChildren > 0)
 	      {
-	        System.out.print("\n");
 					for (int i = 0; i < numChildren; i++) 
 		      {
 		        Node childNode = nl.item(i);
-		        prettyPrint(childNode, level + 1);
+		        if ("#text".equals(childNode.getNodeName()))
+		        	System.out.print(childNode.getTextContent());
+		        else
+		        {
+		        	if (!printedNewline)
+		        	{
+		        		printedNewline	= true;
+		  	        System.out.print("\n");		        		
+		        	}
+		        	prettyPrint(childNode, level + 1);		        	
+		        }
 		      }
 		    	for (int i=0; i< level; i++)
-		    		System.out.print('\t');
+		    		printTab();
 	      }
       }
       System.out.println("</" + node.getNodeName() + ">");
@@ -67,6 +83,11 @@ public class DomTools extends Debug
       e.printStackTrace();
     }
   }
+	private static void printTab()
+	{
+		for (int i=0; i<TAB_WIDTH; i++)
+			System.out.print(' ');
+	}
 
 
 	
