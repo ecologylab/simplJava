@@ -438,7 +438,11 @@ public class DownloadMonitor<T extends Downloadable> extends Monitor implements
 				{
 					try
 					{
-						pending++;
+						synchronized (nonePendingLock)
+						{
+							pending++;
+						}
+						
 						// ThreadDebugger.waitIfPaused(downloadThread);
 						// NEW -- set the priority of the download, based on how backed up we are
 						setDownloadPriority();
@@ -494,7 +498,12 @@ public class DownloadMonitor<T extends Downloadable> extends Monitor implements
 					}
 					finally
 					{
-						pending--;
+						synchronized (nonePendingLock)
+						{
+							pending--;
+							notifyAll(nonePendingLock);
+						}
+						
 						BasicSite site	= downloadable.getSite();
 						if (site != null)
 							site.endDownload();
@@ -589,6 +598,19 @@ public class DownloadMonitor<T extends Downloadable> extends Monitor implements
 		return pending;
 	}
 
+	public final Object nonePendingLock	= new Object();
+	
+	public void waitUntilNonePending()
+	{
+		synchronized (nonePendingLock)
+		{
+			while (pending > 0)
+			{
+				wait(nonePendingLock);
+			}
+		}
+	}
+	
 	/**
 	 * Set whether or not this download monitor needs to wait after each download attempt
 	 * @param noWait
