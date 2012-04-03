@@ -2,14 +2,16 @@
 
   <!-- +++++++++++++++++++++++++++++++++ More Specific Types - Search & its Children +++++++++++++++++++++++++++++++++ -->
 
+<!-- 
   <meta_metadata name="search_result" extends="document" comment="">
     <scalar name="heading" scalar_type="String" comment="The heading of search result" />
     <scalar name="snippet" scalar_type="String" comment="The snippet of search result" />
     <scalar name="link" scalar_type="ParsedURL" comment="The link of the search result" />
   </meta_metadata>
-
+ -->
+ 
   <meta_metadata name="search" extends="document" comment="">
-    <collection name="search_results" child_type="search_result" no_wrap="true" />
+    <collection name="search_results" child_type="document" no_wrap="true" />
   </meta_metadata>
 
   <meta_metadata name="google_search" type="search" comment="The google Search class" user_agent_name="opera_9" parser="xpath">
@@ -157,6 +159,7 @@
   </meta_metadata>
 
   <!-- intermediate layers for source types. necessary for binding tags. -->
+  <!-- 
   <meta_metadata name="bing_search_web_section" extends="document">
     <collection name="web_search_results" child_type="bing_web_search_result" tag="web:Results" child_tag="web:WebResult" nowrap="false" />
   </meta_metadata>
@@ -164,8 +167,10 @@
   <meta_metadata name="bing_search_image_section" extends="document">
     <collection name="image_search_results" child_type="bing_image_search_result" tag="mms:Results" child_tag="mms:ImageResult" nowrap="false" />
   </meta_metadata>
-
+ -->
   <!-- Bing search. note that they put different types of search results (i.e. sources) into the same structure. -->
+  
+   <!--  
   <meta_metadata name="bing_search" extends="document" tag="SearchResponse" parser="direct" user_agent_name="opera_9">
     <selector url_stripped="http://api.bing.net/xml.aspx" />
 
@@ -202,7 +207,7 @@
       </if>
     </semantic_actions>
   </meta_metadata>
-
+-->
   <meta_metadata name="bing_search_xpath" type="search" comment="The bing Search class, using xpath parser." user_agent_name="opera_9" parser="xpath">
     <selector url_stripped="http://www.bing.com/search" />
     <collection name="search_results" xpath="//div[@id='results']/ul/li[*]">
