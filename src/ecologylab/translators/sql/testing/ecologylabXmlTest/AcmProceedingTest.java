@@ -10,7 +10,7 @@ This is a generated code. DO NOT edit or modify it.
 
 import java.util.ArrayList;
 
-import ecologylab.semantics.generated.library.search.SearchResult;
+//import ecologylab.semantics.generated.library.search.SearchResult;
 import ecologylab.semantics.metadata.builtins.Document;
 import ecologylab.semantics.metametadata.MetaMetadata;
 import ecologylab.serialization.annotations.simpl_collection;
@@ -22,13 +22,13 @@ import ecologylab.serialization.annotations.simpl_inherit;
 **/ 
 
 @simpl_inherit
-
+//rhema:  getting rid of SearchResult, I replaced SearchResult with document throughout
 public class  AcmProceedingTest
 extends  Document 
 {
 
-	@simpl_collection("search_result") private ArrayList<SearchResult>	proceedings;
-	@simpl_collection("search_result") private ArrayList<SearchResult>	papers;
+	@simpl_collection("search_result") private ArrayList<Document>	proceedings;
+	@simpl_collection("search_result") private ArrayList<Document>	papers;
 
 /**
 	Constructor
@@ -52,12 +52,12 @@ super(metaMetadata);
 	Lazy Evaluation for proceedings
 **/ 
 
-public  ArrayList<SearchResult>	proceedings()
+public  ArrayList<Document>	proceedings()
 {
- ArrayList<SearchResult>	result	=this.proceedings;
+ ArrayList<Document>	result	=this.proceedings;
 if(result == null)
 {
-result = new  ArrayList<SearchResult>();
+result = new  ArrayList<Document>();
 this.proceedings	=	 result;
 }
 return result;
@@ -67,7 +67,7 @@ return result;
 	Set the value of field proceedings
 **/ 
 
-public void setProceedings(  ArrayList<SearchResult> proceedings )
+public void setProceedings(  ArrayList<Document> proceedings )
 {
 this.proceedings = proceedings ;
 }
@@ -76,7 +76,7 @@ this.proceedings = proceedings ;
 	Get the value of field proceedings
 **/ 
 
-public  ArrayList<SearchResult> getProceedings(){
+public  ArrayList<Document> getProceedings(){
 return this.proceedings;
 }
 
@@ -84,12 +84,12 @@ return this.proceedings;
 	Lazy Evaluation for papers
 **/ 
 
-public  ArrayList<SearchResult>	papers()
+public  ArrayList<Document>	papers()
 {
- ArrayList<SearchResult>	result	=this.papers;
+ ArrayList<Document>	result	=this.papers;
 if(result == null)
 {
-result = new  ArrayList<SearchResult>();
+result = new  ArrayList<Document>();
 this.papers	=	 result;
 }
 return result;
@@ -99,7 +99,7 @@ return result;
 	Set the value of field papers
 **/ 
 
-public void setPapers(  ArrayList<SearchResult> papers )
+public void setPapers(  ArrayList<Document> papers )
 {
 this.papers = papers ;
 }
@@ -108,7 +108,7 @@ this.papers = papers ;
 	Get the value of field papers
 **/ 
 
-public  ArrayList<SearchResult> getPapers(){
+public  ArrayList<Document> getPapers(){
 return this.papers;
 }
 
