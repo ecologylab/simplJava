@@ -89,6 +89,18 @@ public class DomTools extends Debug
 			System.out.print(' ');
 	}
 
-
+	public static String getAttribute(Node node, String name)
+	{
+		String result	= null;
+		if (node != null)
+		{
+			Node attrNode	= node.getAttributes().getNamedItem(name);
+			if (attrNode != null)
+			{
+				result			= attrNode.getNodeValue();
+			}
+		}
+		return result;
+	}
 	
 }
