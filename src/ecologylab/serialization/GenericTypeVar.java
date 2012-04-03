@@ -21,6 +21,26 @@ import ecologylab.serialization.annotations.simpl_scalar;
  */
 public class GenericTypeVar extends Debug
 {
+	
+	public static enum Usage
+	{
+		
+		DEF, // used to define a generic type var, typically a name and a bound. the bound could be a
+		     // concrete class, another generic type var, or a mixture.
+		     // e.g. MediaSearch<M extends Media, T extends MediaSearchResult<M>> extends Search<T>
+				 // the 1st M and T are definitions.
+		
+		REF, // used to refer to a generic type var that has been defined. it is associated with 2
+		     // bounds: one from where it is originally defined, and one from where it is bounded again.
+         // the 2 bounds will be compared for type checking.
+		     // e.g. in the previous example, the 2nd M and T are references.
+		
+		INS, // used to instantiate a generic type var with a concrete class.
+		
+	}
+	
+	Usage											usage;
+	
 	// The declared name of the generic type variable. such as 'M' for Media<M> test;
 	// Wild card operator '?' will also be populated in this field. 
 	// The classDescriptor will be null if this parameter is populated. 
