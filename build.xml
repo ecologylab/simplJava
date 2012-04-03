@@ -1,10 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- requires: (1) ant4eclipse installed as an eclipse plugin; (2) ant-contrib installed; (3) jarsigner.exe be on the path -->
 
-<project name="MetaMetadataCompilers" default="build_compilers">
-	
-	<!-- Version Number for the release if any -->
-	<property name="app.version" value="2.0" />
+<project name="simpl_translators" default="build_compilers">
 	
 	<!-- declare ant4eclipse -->
 	<taskdef resource="org/ant4eclipse/antlib.xml">
@@ -14,9 +11,100 @@
 			<pathelement location="${basedir}/../ecologylabFundamental/lib/org.eclipse.osgi_3.6.0.v20100517.jar" />
 		</classpath>
 	</taskdef>
-		
-	<taskdef name="antform" classname="com.sardak.antform.AntForm" classpath="${basedir}/../ecologylabFundamental/lib/antform.jar"/>
+				
+	<!-- workspace directory -->
+	<property name="workspace.dir" value="${basedir}/.." />
+	<property name="repository.dir" value="${workspace.dir}/../MetaMetadataRepository" />
+	<property name="deploy.dir" value="${repository.dir}" />
+	
+	<property name="jar_file.csharp" value="${deploy.dir}/MetaMetadataCompilerForCSharp.jar" />
+	<property name="jar_file.java" value="${deploy.dir}/MetaMetadataCompilerForJava.jar" />
+	
+	<!-- configure eclipse -->
+	<target name="configure.eclipse" if="eclipse.running">
+		<echo message="Configuring compiler for Eclipse..."/>
+		<property name="build.compiler" value="org.eclipse.jdt.core.JDTCompilerAdapter"/>
+	</target>
 
+	<!-- targets -->
+	<target name="clean">
+	  <delete file="$jar_file.java" />
+	  <delete file="$jar_file.csharp" />
+	</target>
+		
+	<target name="compile-translators">
+	</target>
+		
+	<target name="compile-project">
+		<echo>compiling project ${project.name} ...</echo>
+		<getJdtSourcePath property="projectSourcePath" workspaceDirectory="${basedir}/.." projectName="${project.name}" allowMultipleFolders="true" />
+		<getJdtOutputPath property="projectOutputPath" workspaceDirectory="${basedir}/.." projectName="${project.name}" />
+		<getJdtClassPath pathId="projectClassPath" workspaceDirectory="${basedir}/.." projectName="${project.name}" />
+		<javac classpathref="projectClassPath" srcdir="${projectSourcePath}" destdir="${projectOutputPath}" excludes="**/standalone/**, **/deprecated/**" />
+	</target>
+
+	<target name="build-jars">
+		<!-- Get the build order for your projects according to their deps -->
+		<getBuildOrder buildOrderProperty="buildorder" teamProjectSet="${project.set}" workspaceDirectory="${workspace.dir}" />
+
+		<echo>List of projects to build: ${buildorder}</echo>
+
+		<!-- Build all projects (invoke 'build-project'-target for each project) -->
+		<foreach list="${buildorder}" target="jar-library" param="project.name" trim="yes" />
+	</target>
+		
+	<target name="build_compilers">
+		<!-- <antcall target="configure.eclipse"/> -->
+		<antcall target="clean"/>
+		<antcall target="build-jars"/>
+		<antcall target="sign-jars"/>
+	</target>
+
+	<target name="clean_generated_semantics_java">
+		<delete>
+	    <fileset dir="${workspace.dir}/ecologylabGeneratedSemantics/src" includes="**/*.java" />
+	    <fileset dir="${workspace.dir}/ecologylabSemantics/src/ecologylab/semantics/metadata/builtins/declarations" includes="**/*Declaration.java" />
+	  </delete>
+	</target>
+	
+	<target name="refresh_generated_semantics_java">
+		<eclipse.refreshLocal resource="ecologylabGeneratedSemantics/src" depth="infinite" />
+    <eclipse.refreshLocal resource="ecologylabSemantics/src/ecologylab/semantics/metadata/builtins/declarations" depth="infinite" />
+	</target>
+	
+	<target name="compile_meta_metadata_to_java">
+		<antcall target="compile-project">
+	    <param name="project.name" value="simplTranslators" />
+	  </antcall>
+	    	
+		<antcall target="clean_generated_semantics_java" />
+	    	
+	  <getJdtClassPath pathId="simplTranslators.classpath" workspaceDirectory="${workspace.dir}" projectName="simplTranslators" />
+	  <java classpathref="simplTranslators.classpath" classname="ecologylab.semantics.compiler.NewMetaMetadataCompiler" fork="true">
+	  	<jvmarg line="-ea" />
+	  	<arg line="java ../ecologylabGeneratedSemantics/src ../ecologylabSemantics/src" />
+	  </java>
+	  		
+		<antcall target="refresh_generated_semantics_java" />
+	</target>
+	
+	<target name="clean_generated_semantics_csharp">
+	</target>
+	
+	<target name="compile_meta_metadata_to_csharp">
+	</target>
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	<taskdef name="antform" classname="com.sardak.antform.AntForm" classpath="${basedir}/../ecologylabFundamental/lib/antform.jar"/>
+		
 	<!-- optional: declare ant-contrib -->
 	<taskdef resource="net/sf/antcontrib/antlib.xml">
 		<classpath>
@@ -31,46 +119,6 @@
 	
 	
 	
-	<!-- workspace directory -->
-	<property name="workspace.dir" value="${basedir}/.." />
-	<property name="repository.dir" value="${workspace.dir}/../MetaMetadataRepository" />
-	<property name="deploy.dir" value="${repository.dir}" />
-	
-	<property name="jar_file.csharp" value="${deploy.dir}/MetaMetadataCompilerForCSharp.jar" />
-	<property name="jar_file.java" value="${deploy.dir}/MetaMetadataCompilerForJava.jar" />
-	
-	<!-- targets -->
-	<target name="build_compilers">
-		<antcall target="configure.eclipse"/>
-		<antcall target="clean"/>
-		<antcall target="build-jars"/>
-		<antcall target="sign-jars"/>
-	</target>
-
-	<!-- configure eclipse -->
-	<target name="configure.eclipse" if="eclipse.running">
-		<property name="build.compiler" value="org.eclipse.jdt.core.JDTCompilerAdapter"/>
-		<echo message="Configuring compiler for Eclipse..."/>
-	</target>
-
-	<!-- Clean this project -->
-	<target name="clean">
-		<echo>cleaning: deleting jars...</echo>
-		<delete file="${jar_file.csharp}" />
-		<delete file="${jar_file.java}" />
-	</target>
-
-	<!-- Build other library projects specified by project.set -->
-	<target name="build-jars">
-		<!-- Get the build order for your projects according to their deps -->
-		<getBuildOrder buildOrderProperty="buildorder" teamProjectSet="${project.set}" workspaceDirectory="${workspace.dir}" />
-
-		<echo>List of projects to build: ${buildorder}</echo>
-
-		<!-- Build all projects (invoke 'build-project'-target for each project) -->
-		<foreach list="${buildorder}" target="jar-library" param="project.name" trim="yes" />
-	</target>
-
 	<target name="build-library">
 		<echo>building project ${project.name}</echo>
 
