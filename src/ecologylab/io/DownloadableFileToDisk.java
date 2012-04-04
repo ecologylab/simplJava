@@ -196,4 +196,17 @@ implements Downloadable, Continuation<Object>
 		return false;
 	}
 
+	@Override
+	public BasicSite getDownloadSite()
+	{
+		return null;
+	}
+
+	@Override
+	public ParsedURL getDownloadLocation()
+	{
+		// TODO Auto-generated method stub
+		return location();
+	}
+
 }

@@ -33,7 +33,7 @@ extends Debug
 		boolean result				= downloadable.isRecycled();
 		if (!result)
 		{
-			BasicSite site = downloadable.getSite();
+			BasicSite site = downloadable.getDownloadSite();
 			if (site != null)
 				result						= site.isDown();
 		}
@@ -53,7 +53,7 @@ extends Debug
 		if (downloadable != null && !downloadable.isRecycled())
 		{
 			//Update site statistics if available
-			BasicSite site = downloadable.getSite();
+			BasicSite site = downloadable.getDownloadSite();
 			if(site != null)
 				site.beginActualDownload();
 			downloadable.performDownload();

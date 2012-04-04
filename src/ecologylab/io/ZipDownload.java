@@ -465,4 +465,16 @@ public class ZipDownload extends Debug implements Downloadable, Continuation
 	{
 		return false;
 	}
+
+	@Override
+	public BasicSite getDownloadSite()
+	{
+		return null;
+	}
+
+	@Override
+	public ParsedURL getDownloadLocation()
+	{
+		return location();
+	}
 }

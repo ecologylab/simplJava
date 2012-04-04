@@ -34,7 +34,9 @@ public interface Downloadable
    public void recycle();
    
    public BasicSite getSite();
+   public BasicSite getDownloadSite();
    public ParsedURL location();
+   public ParsedURL getDownloadLocation();
    
    /**
     * Can be used to reduce image download waits, in conjunction with BasicSite;
