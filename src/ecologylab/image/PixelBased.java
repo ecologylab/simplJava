@@ -866,4 +866,16 @@ implements Downloadable, Colors
 		return true;
 	}
 
+	@Override
+	public BasicSite getDownloadSite()
+	{
+		return null;
+	}
+
+	@Override
+	public ParsedURL getDownloadLocation()
+	{
+		return location();
+	}
+
 }
