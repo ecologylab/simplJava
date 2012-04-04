@@ -4,6 +4,7 @@ import java.io.UnsupportedEncodingException;
 import java.nio.channels.SelectionKey;
 
 import ecologylab.collections.Scope;
+import ecologylab.net.ParsedURL;
 import ecologylab.oodss.distributed.impl.NIOServerIOThread;
 import ecologylab.oodss.distributed.server.NIOServerProcessor;
 import ecologylab.oodss.messages.HttpRequest;
@@ -11,9 +12,11 @@ import ecologylab.oodss.messages.RequestMessage;
 import ecologylab.oodss.messages.ResponseMessage;
 import ecologylab.serialization.SIMPLTranslationException;
 import ecologylab.serialization.SimplTypesScope;
+import ecologylab.serialization.formatenums.StringFormat;
 
 public class HTTPPostClientSessionManager extends HTTPClientSessionManager
-{
+{	
+	static final String	HTTP_RESPONSE_HEADERS			= HTTP_VERSION + " 200" + "\r\n";
 
 	static final String	HTTP_PREPEND				= "POST /";
 
@@ -35,9 +38,8 @@ public class HTTPPostClientSessionManager extends HTTPClientSessionManager
 	}
 
 	/**
-	 * This method only handles HttpGetRequest messages; it will report an error for any
-	 * non-HttpGetRequest. Otherwise, it will not add anything to the msgBufOutgoing, as
-	 * HttpGetRequests should only have a header and no contnents
+	 * This method only handles HttpPostRequest messages; it will report an error for any
+	 * non-HttpPostRequest. Otherwise, it will not add anything to the msgBufOutgoing
 	 * 
 	 * @see ecologylab.oodss.distributed.server.clientsessionmanager.ClientSessionManager#translateResponseMessageToString(ecologylab.oodss.messages.RequestMessage,
 	 *      ecologylab.oodss.messages.ResponseMessage)
@@ -51,6 +53,15 @@ public class HTTPPostClientSessionManager extends HTTPClientSessionManager
 		{
 			debug("ERROR! HTTPPostContextManager only handles HttpRequests!");
 		}
+		else
+		{
+			try {
+				SimplTypesScope.serialize(responseMessage, outgoingMessageBuf, StringFormat.JSON);
+			} catch (SIMPLTranslationException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}		
 	}
 
 	/**
@@ -67,6 +78,44 @@ public class HTTPPostClientSessionManager extends HTTPClientSessionManager
 			messageString = messageString.substring(messageString.indexOf('=') + 1);
 
 		return super.translateStringToRequestMessage(messageString);
+	}
+	
+	/**
+	 * @see ecologylab.oodss.distributed.server.clientsessionmanager.ClientSessionManager#createHeader(java.lang.StringBuilder,
+	 *      java.lang.StringBuilder, RequestMessage, ResponseMessage)
+	 */
+	@Override
+	protected void createHeader(int messageSize, StringBuilder outgoingMessageHeaderBuf,
+			RequestMessage incomingRequest, ResponseMessage outgoingResponse, long uid)
+	{
+		boolean isOK = outgoingResponse.isOK();
+		ParsedURL responseUrl = isOK ? incomingRequest.okRedirectUrl(localScope) : incomingRequest
+				.errorRedirectUrl(localScope);
+
+			debugA("responseUrl: " + responseUrl);
+			
+				outgoingMessageHeaderBuf.append(HTTP_RESPONSE_HEADERS
+						+ HTTP_CONTENT_TYPE
+						+ "Content-Length: " + messageSize);
+			
+
+			debugA("Server sending response!!!\n" + outgoingMessageHeaderBuf.toString());
+	}
+	
+	/**
+	 * Translates an incoming character sequence identified to be an OODSS request message (not a GET
+	 * or POST request).
+	 * 
+	 * @param messageCharSequence
+	 * @param startLineString
+	 *          TODO
+	 * @return The request message contained in the message.
+	 * @throws SIMPLTranslationException
+	 */
+	protected RequestMessage translateOODSSRequest(CharSequence messageCharSequence,
+			String startLineString) throws SIMPLTranslationException
+	{
+		return (RequestMessage) translationScope.deserialize(messageCharSequence, StringFormat.JSON);
 	}
 
 }
