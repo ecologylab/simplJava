@@ -1,6 +1,7 @@
 package ecologylab.oodss.distributed.server.clientsessionmanager;
 
 import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
 import java.nio.channels.SelectionKey;
 
 import ecologylab.collections.Scope;
@@ -58,7 +59,6 @@ public class HTTPPostClientSessionManager extends HTTPClientSessionManager
 			try {
 				SimplTypesScope.serialize(responseMessage, outgoingMessageBuf, StringFormat.JSON);
 			} catch (SIMPLTranslationException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 		}		
@@ -73,9 +73,7 @@ public class HTTPPostClientSessionManager extends HTTPClientSessionManager
 			throws SIMPLTranslationException, UnsupportedEncodingException
 	{
 		String messageString = incomingMessage.toString();
-		// messageString = URLDecoder.decode(messageString, "UTF-8");
-		if (!messageString.startsWith("<"))
-			messageString = messageString.substring(messageString.indexOf('=') + 1);
+		messageString = URLDecoder.decode(messageString, "UTF-8");
 
 		return super.translateStringToRequestMessage(messageString);
 	}
@@ -89,17 +87,14 @@ public class HTTPPostClientSessionManager extends HTTPClientSessionManager
 			RequestMessage incomingRequest, ResponseMessage outgoingResponse, long uid)
 	{
 		boolean isOK = outgoingResponse.isOK();
-		ParsedURL responseUrl = isOK ? incomingRequest.okRedirectUrl(localScope) : incomingRequest
-				.errorRedirectUrl(localScope);
-
-			debugA("responseUrl: " + responseUrl);
+		if(isOK)
+		{			
+			outgoingMessageHeaderBuf.append(HTTP_RESPONSE_HEADERS
+					+ HTTP_CONTENT_TYPE
+					+ "Content-Length: " + messageSize);
 			
-				outgoingMessageHeaderBuf.append(HTTP_RESPONSE_HEADERS
-						+ HTTP_CONTENT_TYPE
-						+ "Content-Length: " + messageSize);
-			
-
 			debugA("Server sending response!!!\n" + outgoingMessageHeaderBuf.toString());
+		}
 	}
 	
 	/**
