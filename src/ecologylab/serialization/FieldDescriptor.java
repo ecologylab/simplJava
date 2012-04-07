@@ -1709,6 +1709,11 @@ public class FieldDescriptor extends DescriptorBase implements FieldTypes, IMapp
 	{
 		return wrappedFD;
 	}
+	
+	protected void setWrappedFD(FieldDescriptor wrappedFD)
+	{
+		this.wrappedFD = wrappedFD;
+	}
 
 	public boolean belongsTo(ClassDescriptor c)
 	{
