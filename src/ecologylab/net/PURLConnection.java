@@ -33,8 +33,7 @@ public class PURLConnection extends Debug
 
 	boolean	good		= false;
 
-	/**
-	 * Fill out the instance of this resulting from a succcessful connect().
+	 /** Fill out the instance of this resulting from a succcessful connect().
 	 * @param purl TODO
 	 * @param urlConnection
 	 * @param inputStream
@@ -304,7 +303,20 @@ public class PURLConnection extends Debug
 	@Override
 	public String toString()
 	{
-		return urlConnection != null ? urlConnection.toString() : "PURLConnection";
+		String u = urlConnection != null ? urlConnection.toString() : "null";
+		String p = purl != null ? purl.toString() : "null";
+		String f = purl != null ? (purl.file() != null ? "path: "+ purl.file().toString() + " exists: " + purl.file().exists(): "null file") : "null purl"; 
+		StringBuilder sb = new StringBuilder();
+		
+		sb.append("urlConnection: ");
+		sb.append(u);
+		sb.append("\t purl: ");
+		sb.append(p);
+		sb.append("\t file: ");
+		sb.append(f);
+		
+		return sb.toString();
+		
 	}
 	
 	public ParsedURL getPurl()
