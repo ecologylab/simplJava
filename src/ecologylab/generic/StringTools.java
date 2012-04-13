@@ -91,6 +91,22 @@ public class StringTools extends Debug
 		}
 	}
 
+	public static String trimUntil(String input, String s, boolean include)
+	{
+		int p = input.indexOf(s);
+		if (p >= 0)
+			return input.substring(p + (include ? s.length() : 0));
+		return input;
+	}
+	
+	public static String trimAfter(String input, String s, boolean include)
+	{
+		int p = input.indexOf(s);
+		if (p >= 0)
+			return input.substring(0, p + (include ? 0 : s.length()));
+		return input;
+	}
+	
 	public static final boolean sameDomain(URL url1, URL url2)
 	{
 		return domain(url1).equals(domain(url2));
