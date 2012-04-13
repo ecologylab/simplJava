@@ -1879,7 +1879,21 @@ public class FieldDescriptor extends DescriptorBase implements FieldTypes, IMapp
 	{
 		return this.mapKeyFieldName;
 	}
-
+	
+	public Object getMapKeyFieldValue(Object mapElement)
+	{
+		if (this.mapKeyFieldName != null)
+		{
+			ClassDescriptor cd = ClassDescriptor.getClassDescriptor(mapElement);
+			if (cd != null)
+			{
+				FieldDescriptor fd = cd.getFieldDescriptorByFieldName(mapKeyFieldName);
+				return fd.getValue(mapElement);
+			}
+		}
+		return null;
+	}
+	
 	public void setElementClassDescriptor(ClassDescriptor elementClassDescriptor)
 	{
 		this.elementClassDescriptor = elementClassDescriptor;

@@ -382,9 +382,9 @@ public class XMLPullDeserializer extends StringPullDeserializer
 
 			String compositeTagName = getTagName();
 			subRoot = getSubRoot(fd, compositeTagName, root);
-			if (subRoot instanceof IMappable<?>)
+			final Object key = (subRoot instanceof IMappable<?>) ? ((IMappable<?>) subRoot).key() : fd.getMapKeyFieldValue(subRoot); 
+			if (key != null)
 			{
-				final Object key = ((IMappable<?>) subRoot).key();
 				Map map = (Map) fd.automaticLazyGetCollectionOrMap(root);
 				map.put(key, subRoot);
 			}
