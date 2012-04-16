@@ -811,12 +811,13 @@ public class StringTools extends Debug
 	 * 
 	 * @param input
 	 *          The argument string.
+	 * @param keepEmptyParams TODO
 	 * @return Map with arg names as keys, and arg values as values. Or null if no arg name/values
 	 *         were extracted.
 	 */
-	public static HashMap<String, String> doubleSplit(URL input)
+	public static HashMap<String, String> doubleSplit(URL input, boolean keepEmptyParams)
 	{
-		return doubleSplit(input.getQuery());
+		return doubleSplit(input.getQuery(), "&", "=", true, keepEmptyParams);
 	}
 
 	/**
@@ -850,6 +851,12 @@ public class StringTools extends Debug
 	public static HashMap<String, String> doubleSplit(String input, String regex1, String regex2,
 			boolean uudecodeArgs)
 	{
+		return doubleSplit(input, regex1, regex2, uudecodeArgs, false);
+	}
+	
+	public static HashMap<String, String> doubleSplit(String input, String regex1, String regex2,
+			boolean uudecodeArgs, boolean keepKeys)
+	{
 		HashMap<String, String> result = null;
 		if (input != null && input.length() > 2)
 		{
@@ -857,11 +864,11 @@ public class StringTools extends Debug
 			for (String argPair : split1)
 			{
 				String[] split2 = argPair.split(regex2);
-				if (split2.length == 2)
+				if (split2.length == 2 || split2.length == 1 && keepKeys)
 				{
 					if (result == null)
 						result = new HashMap<String, String>(split1.length);
-					String value = split2[1];
+					String value = split2.length == 2 ? split2[1] : "";
 					if (uudecodeArgs)
 					{
 						try

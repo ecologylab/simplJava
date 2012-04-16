@@ -1497,14 +1497,13 @@ public class ParsedURL extends Debug implements MimeType
 	
 	/**
 	 * Extract arguments from the "query" portion of the URL (the part after ?).
+	 * @param keepEmptyParams TODO
 	 * 
 	 * @return	HashMap of String name / value pairs.
 	 */
-	public HashMap<String, String> extractParams()
+	public HashMap<String, String> extractParams(boolean keepEmptyParams)
 	{
-		HashMap<String, String> result	= null;
-		
-		return StringTools.doubleSplit(url);
+		return StringTools.doubleSplit(url, keepEmptyParams);
 	}
 	
 	/**
@@ -1516,7 +1515,7 @@ public class ParsedURL extends Debug implements MimeType
 	 */
 	public ParsedURL updateParams(HashMap<String, String> newParamMap)
 	{
-		HashMap<String, String> oldParamMap	= extractParams();
+		HashMap<String, String> oldParamMap	= extractParams(true);
 		
 		String newArgString	= StringTools.unDoubleSplit(newParamMap);
 		String noArgsNoQuery= StringTools.noAnchorPageString(url, false);
