@@ -541,6 +541,7 @@ public final class SimplTypesScope extends ElementState
 
 		ArrayList<String> otherTags = entry.otherTags();
 		if (otherTags != null)
+		{
 			for (String otherTag : otherTags)
 			{
 				if ((otherTag != null) && (otherTag.length() > 0))
@@ -549,7 +550,80 @@ public final class SimplTypesScope extends ElementState
 					entriesByTLVId.put(otherTag.hashCode(), entry);
 				}
 			}
+		}
 	}
+	
+	/**
+	 * Given a shallow translation*, which is effectively a mock object with overridden or removed functionality
+	 * and annotated with @simpl_inherit_parent_tag 
+	 * (For example: A translation with the deserializationPostHook implemented as an empty method) 
+	 * 
+	 * This method will: 
+	 * 
+	 * 	1. Remove the translation class the "shallow translation" is meant to replace
+	 *  2. Add the shallow translation to the type scope.
+	 *  
+	 *  Currently used for deserialization w/o dealing with file dependencies. 
+	 *  Could also be used for testing, etc.
+	 * @param classObj The Shallow Translation to use as an override.
+	 */
+	public void overrideWithShallowTranslation(Class<?> classObj)
+	{
+		removeTranslation(correspondingClassFor(classObj));
+		addTranslation(classObj);
+	}
+	// * You could even call it a ... Doppelgänger, if you wanted to. 
+	
+
+	private Class<?> correspondingClassFor(Class<?> dummyObj)
+	{
+		ClassDescriptor<?> entry = ClassDescriptor.getClassDescriptor(dummyObj);
+		String tagName = entry.getTagName();
+		
+		ClassDescriptor<?> corresp = entriesByTag.get(tagName);
+		
+		return corresp != null? corresp.getDescribedClass() : dummyObj;
+	}
+	
+	/**
+	 * Removes a given translation from the Type Scope
+	 * @param classObj The translation to remove. 
+	 */
+	public void removeTranslation(Class<?> classObj)
+	{
+		ClassDescriptor<?> entry = ClassDescriptor.getClassDescriptor(classObj);
+		
+		for (SimplTypesScope simplTypesScope : allTypesScopes.values())
+		{
+			simplTypesScope.removeTranslation(entry, classObj.getName());
+		}
+		
+		this.removeTranslation(entry, classObj.getName());
+	}
+	
+	private void removeTranslation(ClassDescriptor<?> entry, String className)
+	{
+		entriesByTag.remove(entry.getTagName());
+		entriesByClassSimpleName.remove(entry.getDescribedClassSimpleName());
+		entriesByClassName.remove(className);
+
+		entriesByTLVId.remove(entry.getTagName().hashCode());
+		entriesByBibTeXType.remove(entry.getBibtexType());
+
+		ArrayList<String> otherTags = entry.otherTags();
+		if (otherTags != null)
+		{
+			for (String otherTag : otherTags)
+			{
+				if ((otherTag != null) && (otherTag.length() > 0))
+				{
+					entriesByTag.remove(otherTag);
+					entriesByTLVId.remove(otherTag.hashCode());
+				}
+			}
+		}
+	}
+	
 
 	/**
 	 * Add a translation table entry for an ElementState derived sub-class. Assumes that the xmlTag

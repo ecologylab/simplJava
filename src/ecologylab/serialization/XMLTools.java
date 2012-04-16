@@ -49,6 +49,7 @@ import ecologylab.serialization.annotations.simpl_composite;
 import ecologylab.serialization.annotations.simpl_composite_as_scalar;
 import ecologylab.serialization.annotations.simpl_format;
 import ecologylab.serialization.annotations.simpl_hints;
+import ecologylab.serialization.annotations.simpl_inherit_parent_tag;
 import ecologylab.serialization.annotations.simpl_map;
 import ecologylab.serialization.annotations.simpl_scalar;
 import ecologylab.serialization.annotations.simpl_tag;
@@ -250,6 +251,20 @@ public class XMLTools extends Debug implements CharacterConstants, SpecialCharac
 	{
 		entityTable.put(name, Character.toString(c));
 	}
+	
+	
+	private static boolean inheritsTagNameFromParent(Class<?> c)
+	{
+		final simpl_inherit_parent_tag tagParent = c.getAnnotation(simpl_inherit_parent_tag.class);
+		if(tagParent != null)
+		{
+			return true;
+		}else{
+			return false;
+		}
+	}	
+	
+
 
 	private static final String	BOGUS	= "BOGUS";
 
@@ -287,10 +302,16 @@ public class XMLTools extends Debug implements CharacterConstants, SpecialCharac
 		String result = getXmlTagAnnotationIfPresent(tagAnnotation);
 		if (result == null)
 		{
-			result = getXmlTagName(getClassSimpleName(thatClass), suffix);
+			if(inheritsTagNameFromParent(thatClass))
+			{
+				return getXmlTagName(thatClass.getSuperclass(), suffix);
+			}else{
+				result = getXmlTagName(getClassSimpleName(thatClass), suffix);
+			}
 		}
 		return result;
 	}
+	
 
 	/**
 	 * This method generates a name for the xml tag given a reference type java object. This is used
@@ -365,32 +386,32 @@ public class XMLTools extends Debug implements CharacterConstants, SpecialCharac
 	 */
 	public static String getXmlTagName(String className, String suffix)
 	{
-		if ((suffix != null) && (className.endsWith(suffix)))
-		{
-			int suffixPosition = className.lastIndexOf(suffix);
-			className = className.substring(0, suffixPosition);
-		}
-
-		StringBuilder result = new StringBuilder(DEFAULT_TAG_LENGTH);
-
-		// translate mixed case class name word separation into
-		// _ word separtion
-		int classNameLength = className.length();
-		for (int i = 0; i < classNameLength; i++)
-		{
-			char c = className.charAt(i);
-
-			if ((c >= 'A') && (c <= 'Z'))
+			if ((suffix != null) && (className.endsWith(suffix)))
 			{
-				char lc = Character.toLowerCase(c);
-				if (i > 0)
-					result.append('_');
-				result.append(lc);
+				int suffixPosition = className.lastIndexOf(suffix);
+				className = className.substring(0, suffixPosition);
 			}
-			else
-				result.append(c);
-		}
-		return result.toString();
+	
+			StringBuilder result = new StringBuilder(DEFAULT_TAG_LENGTH);
+	
+			// translate mixed case class name word separation into
+			// _ word separtion
+			int classNameLength = className.length();
+			for (int i = 0; i < classNameLength; i++)
+			{
+				char c = className.charAt(i);
+	
+				if ((c >= 'A') && (c <= 'Z'))
+				{
+					char lc = Character.toLowerCase(c);
+					if (i > 0)
+						result.append('_');
+					result.append(lc);
+				}
+				else
+					result.append(c);
+			}
+			return result.toString();
 	}
 
 	/**
