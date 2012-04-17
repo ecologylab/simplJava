@@ -578,7 +578,7 @@ public class ClassDescriptor<FD extends FieldDescriptor> extends DescriptorBase 
 		return allFieldDescriptorsByBibTeXTag.get(bibTeXTag);
 	}
 
-	public FieldDescriptor getFieldDescriptorByFieldName(String fieldName)
+	public FD getFieldDescriptorByFieldName(String fieldName)
 	{
 		return fieldDescriptorsByFieldName.get(fieldName);
 	}
@@ -1404,6 +1404,31 @@ public class ClassDescriptor<FD extends FieldDescriptor> extends DescriptorBase 
 		// TODO Auto-generated method stub
 		// NOT YET IMPLEMENTED!
 		return false;
+	}
+
+	public void replace(FD oldFD, FD newFD)
+	{
+		// for deserialization: 
+		if (oldFD != null)
+			getAllFieldDescriptorsByTagNames().remove(oldFD.getTagName());
+		getAllFieldDescriptorsByTagNames().put(newFD.getTagName(), newFD);
+		// for serialization:
+		if (oldFD != null)
+		{
+			replace(attributeFieldDescriptors, oldFD, newFD);
+			replace(elementFieldDescriptors, oldFD, newFD);
+		}
+	}
+	
+	private static <T> void replace(List<T> list, T oldVal, T newVal)
+	{
+		if (list == null)
+			return;
+		int i = list.indexOf(oldVal);
+		if (i >= 0 && i < list.size())
+		{
+			list.set(i, newVal);
+		}
 	}
 
 }

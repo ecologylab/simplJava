@@ -179,6 +179,8 @@ public class FieldDescriptor extends DescriptorBase implements FieldTypes, IMapp
 	 * The FieldDescriptor for the field in a wrap.
 	 */
 	private FieldDescriptor														wrappedFD;
+	
+	private FieldDescriptor														wrapper;
 
 	private HashMap<Integer, ClassDescriptor>					tlvClassDescriptors;
 
@@ -263,6 +265,7 @@ public class FieldDescriptor extends DescriptorBase implements FieldTypes, IMapp
 		super(wrapperTag, null);
 		this.declaringClassDescriptor = baseClassDescriptor;
 		this.wrappedFD = wrappedFD;
+		wrappedFD.wrapper = this;
 		this.type = WRAPPER;
 	}
 
@@ -1713,6 +1716,7 @@ public class FieldDescriptor extends DescriptorBase implements FieldTypes, IMapp
 	protected void setWrappedFD(FieldDescriptor wrappedFD)
 	{
 		this.wrappedFD = wrappedFD;
+		wrappedFD.wrapper = this;
 	}
 
 	public boolean belongsTo(ClassDescriptor c)
@@ -2263,6 +2267,16 @@ public class FieldDescriptor extends DescriptorBase implements FieldTypes, IMapp
 	public boolean isUsageExcluded(FieldUsage usage)
 	{
 		return excludedUsages != null && excludedUsages.contains(usage);
+	}
+
+	public FieldDescriptor getWrapper()
+	{
+		return wrapper;
+	}
+
+	protected void setWrapper(FieldDescriptor wrapper)
+	{
+		this.wrapper = wrapper;
 	}
 	
 }
