@@ -30,7 +30,17 @@ public class DomTools extends Debug
     {
     	if ("#document".equals(node.getNodeName()))
     	{
-    		prettyPrint(node.getFirstChild(), level);
+    		Node nextChild = node.getFirstChild();
+				prettyPrint(nextChild, level);
+    		if (nextChild.getNextSibling() != null)
+    		{
+    			warning(node, "multiple root element!");
+    			while (nextChild != null)
+    			{
+    				prettyPrint(nextChild, level);
+    				nextChild = nextChild.getNextSibling();
+    			}
+    		}
     		return;
     	}
     	for (int i=0; i< level; i++)
