@@ -37,6 +37,8 @@ implements CrossLanguageTypeConstants
 	{
 		super(ParsedURL.class, JAVA_PARSED_URL, DOTNET_PARSED_URL, OBJC_PARSED_URL, null);
 	}
+	
+	private static Pattern spaceRegex = Pattern.compile("\\s");
 
 	/**
 	 * Looks for file in value, and creates a ParsedURL with file set if appropriate.
@@ -75,6 +77,10 @@ implements CrossLanguageTypeConstants
 	   }
 	   else
 	   {
+	  	  if(spaceRegex.matcher(value).matches())
+	  	  {
+	  	     value = value.replaceAll("\\s","%20");
+	  	  }
 	  	 //TODO -- do we need to check manually here to see if scalarUnmarshallingContext.fileContext() != null?
 	  	 // or will this resolve a relative file path properly, anyway.
 //		   File fileContext	= (scalarUnmarshallingContext == null) ? null : scalarUnmarshallingContext.fileContext();
