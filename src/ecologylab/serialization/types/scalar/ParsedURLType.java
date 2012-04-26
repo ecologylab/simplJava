@@ -77,7 +77,7 @@ implements CrossLanguageTypeConstants
 	   }
 	   else
 	   {
-	  	  if(spaceRegex.matcher(value).matches())
+	  	  if(spaceRegex.matcher(value).find())
 	  	  {
 	  	     value = value.replaceAll("\\s","%20");
 	  	  }
