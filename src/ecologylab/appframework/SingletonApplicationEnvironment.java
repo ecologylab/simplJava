@@ -955,6 +955,8 @@ public class SingletonApplicationEnvironment extends ApplicationEnvironment impl
 	static final String	FIREFOX_PATH_WINDOWS		= "C:\\Program Files\\Mozilla Firefox\\firefox.exe";
 
 	static final String	FIREFOX_PATH_WINDOWS_64	= "C:\\Program Files (x86)\\Mozilla Firefox\\firefox.exe";
+	
+	static final String FIREFOX_PATH_VIRT				= "C:\\Program Files (x86)\\Microsoft Application Virtualization Client\\sfttray.exe";
 
 	// TODO -- use "open" on the mac!!!
 	static final String	FIREFOX_PATH_MAC				= "/Applications/Firefox.app/Contents/MacOS/firefox";
@@ -1056,7 +1058,19 @@ public class SingletonApplicationEnvironment extends ApplicationEnvironment impl
 						result = new String[3];
 						result[0] = path;
 						result[1] = "-new-tab";
+					} else {
+						//Use the SCC Virtualization Path
+						path = FIREFOX_PATH_VIRT;
+						existentialTester = new File(path);
+						firefoxExists = existentialTester.exists();
+						if(firefoxExists)
+						{
+							result = new String[3];
+							result[0] = path;
+							result[1] = "/launch \"Mozilla Firefox 11\" -new-tab";
+						}
 					}
+
 				}
 				if (result == null)
 				{
