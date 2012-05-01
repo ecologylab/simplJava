@@ -1065,9 +1065,11 @@ public class SingletonApplicationEnvironment extends ApplicationEnvironment impl
 						firefoxExists = existentialTester.exists();
 						if(firefoxExists)
 						{
-							result = new String[3];
+							result = new String[5];
 							result[0] = path;
-							result[1] = "/launch \"Mozilla Firefox 11\" -new-tab";
+							result[1] = "/launch";
+							result[2] = "\"Mozilla Firefox 11\"";
+							result[3] = "-new-tab";
 						}
 					}
 
