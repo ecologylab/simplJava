@@ -76,18 +76,23 @@ implements CrossLanguageTypeConstants
 	  	 return new ParsedURL(file);
 	   }
 	   else
-	   {
-	  	  if(spaceRegex.matcher(value).find())
+	   {	  	 
+
+	  	 boolean hasUnmarshallingContext = scalarUnmarshallingContext != null;
+	  	 
+	  	 if((hasUnmarshallingContext && scalarUnmarshallingContext.fileContext() == null) && spaceRegex.matcher(value).find())
 	  	  {
 	  	     value = value.replaceAll("\\s","%20");
 	  	  }
+	  	  
 	  	 //TODO -- do we need to check manually here to see if scalarUnmarshallingContext.fileContext() != null?
 	  	 // or will this resolve a relative file path properly, anyway.
 //		   File fileContext	= (scalarUnmarshallingContext == null) ? null : scalarUnmarshallingContext.fileContext();
 //		   file					= (fileContext == null) ? new File(value) : new File(fileContext, value);
 
 	  	 // if no colon in first seven characters, must be relative path
-	  	 if (value.lastIndexOf(':', 7) == -1 && scalarUnmarshallingContext != null)
+	  	 
+			if (value.lastIndexOf(':', 7) == -1 && hasUnmarshallingContext)
 	  	 {
 	  		 // TODO Auto-generated catch block
 		  	 ParsedURL purlContext = scalarUnmarshallingContext.purlContext();
