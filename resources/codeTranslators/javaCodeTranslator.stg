@@ -2,23 +2,21 @@ delimiters "$", "$"
 
 name(x) ::= "$x.name$"
 
-genericSuffix(t) ::= "$if(t.genericTypeVars)$<$t.genericTypeVars; separator=\",\"$>$endif$"
-
-collectionElementTypeName(fd) ::= "$first(fd.genericTypeVars).classDescriptor.describedClassSimpleName$$genericSuffix(first(fd.genericTypeVars))$"
+elementType(fd) ::= "$fd.genericTypeVars; separator=\",\"$"
 
 listMethods(fd) ::= <<
 
 
   // lazy evaluation:
-  public List<$collectionElementTypeName(fd)$> $fd.name$()
+  public List<$elementType(fd)$> $fd.name$()
   {
     if ($fd.name$ == null)
-      $fd.name$ = new ArrayList<$collectionElementTypeName(fd)$>();
+      $fd.name$ = new ArrayList<$elementType(fd)$>();
     return $fd.name$;
   }
   
   // addTo:
-  public void addTo$fd.name;format="capFirst"$($collectionElementTypeName(fd)$ element)
+  public void addTo$fd.name;format="capFirst"$($elementType(fd)$ element)
   {
     $fd.name$().add(element);
   }
