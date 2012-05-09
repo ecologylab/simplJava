@@ -17,6 +17,8 @@ import ecologylab.serialization.annotations.simpl_scalar;
 abstract public class SimplBaseType extends ElementState
 {
 
+	public static final String	JAVA_PRIMITIVE_PACKAGE_NAME	= "java.lang";
+
 	public static final String	CSHARP_PRIMITIVE_NAMESPACE	= "System";
 
 	/**

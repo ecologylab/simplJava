@@ -14,7 +14,40 @@ import ecologylab.serialization.annotations.simpl_composite;
 import ecologylab.serialization.annotations.simpl_scalar;
 
 /**
- * This class encapsulates generic type variables declarations on classes and fields 
+ * This class encapsulates generic type variables declarations on classes and fields.
+ * 
+ * Different uses of this class:
+ * 
+ * <p>
+ * When used for definition before 'extends' (in ClassDescriptor): name + constraintClassDescriptor
+ * (+ constraintGenericTypeVarArgs) | constraintGenericTypeVar:<br>
+ * name: the name of the new generic type var,<br>
+ * constraintClassDescriptor: when the constraint is a concrete class, this holds the class
+ * descriptor;<br>
+ * constraintGenericTypeVar: when the constraint is another generic type var, this refers to the
+ * definition of that generic type var;<br>
+ * constraintGenericTypeVarArgs: when the constraint is parameterized, this holds type arguments.
+ * </p>
+ * 
+ * <p>
+ * When used with field types (in FieldDescriptor):
+ * <ul>
+ * <li>if the field is purely generic, name + referredGenericTypeVar:<br>
+ * name: the generic type var name used as the type,<br>
+ * referredGenericTypeVar: refers to the definition of this generic type var in class definition.</li>
+ * <li>if the field is parameterized, the FieldDescriptor should already have the class part of the
+ * field type, and its genericTypeVars field should have a list of type arguments. each type
+ * argument has classDescriptor / referredGenericTypeVar:<br>
+ * classDescriptor: if the argument is a concrete class,<br>
+ * referredGenericTypeVar: if the argument is parameterized or another generic type var. it should
+ * refer to the definition of that generic type var in class definition.</li>
+ * </ul>
+ * </p>
+ * 
+ * <p>
+ * When used with base type after 'extends' (in ClassDescriptor): similar to the parameterized case
+ * when it is used for field type.
+ * </p>
  * 
  * @author quyin
  * 
@@ -28,36 +61,39 @@ public class GenericTypeVar extends Debug
 	@simpl_scalar
 	String										name;
 
-	// ClassDescriptor of the declared generic type variable. Such as ClassDescriptor of class Media in MediaSearchResult<Media>; 
-	// The name field of the Generic type variable would be null if this field is populated. 
-	@simpl_composite
-	ClassDescriptor						classDescriptor							= null;
-
-	// If the declared generic type var is also generic. for example. MediaSearchResult<Media<M,T>> 
-	// then this collection will hold the generic type variables (such as M & T in example).
-	@simpl_collection("generic_type_var")
-	ArrayList<GenericTypeVar>	genericTypeVars							= null;
-
-	public ArrayList<GenericTypeVar> getGenericTypeVars()
-	{
-		return genericTypeVars;
-	}
-
 	// This variable holds the ClassDecriptor of the class declared as a constraint to the generic type variable. 
-	// For example this variable will hold ClassDescriptor of class Media if generic type is declared as MediaSearchResult<M extends Media>
+	// e.g. for M, this holds ClassDescriptor<Media> in class MediaSearchResult<M extends Media>.
 	@simpl_composite
-	ClassDescriptor						constraintClassDescriptor		= null;
-
-	// This variable holds the collection of generic type variables of a class declared as the constraint to the generic type variable. 
-	// For example this variable will hold R & S if generic type variable is declared as MediaSearchResult<M extends Media<R,S>>
-	@simpl_collection("generic_type_var")
-	ArrayList<GenericTypeVar>	constraintedGenericTypeVars	= null;
+	ClassDescriptor						constraintClassDescriptor				= null;
 	
-	// If a declared generic type variable is used, then this variable holds the reference of the decalared generic type var. 
-	// for example in case of MediaSearchResult<M extends Media, M> the use of generic type var M will refer to generic type var of its declaration M extends Media. 
-	// this variable will refer to M extends Media in the example. (the name field will contain M). 
+	// This variable holds the generic type variable as the constraint.
+	// e.g. for T1, this holds a reference to the definition of T in class MyClass<T1 extends T>. 
 	@simpl_composite
-	GenericTypeVar						referredGenericTypeVar			= null;
+	GenericTypeVar						constraintGenericTypeVar    		= null;
+
+	// This variable holds the args of generic type variables of a parameterized constraint. 
+	// e.g. for M, this holds references to definitions of R & S in class MediaSearchResult<M extends Media<R,S>>.
+	@simpl_collection("generic_type_var")
+	ArrayList<GenericTypeVar>	constraintGenericTypeVarArgs	= null;
+
+	// ClassDescriptor of the type arg. Not used for defining a new generic type var.
+	// e.g. ClassDescriptor<Media> in MediaSearchResult<Media>; 
+	@simpl_composite
+	ClassDescriptor						classDescriptor									= null;
+
+	// If the type arg is parameterized, this holds the type arguments. each element in this collection
+	// should have a name and a reference to the definition of that generic type var used as arg.
+	// e.g. M & T in MediaSearchResult<Media<M,T>> (in this case the field classDescriptor should be ClassDescriptor<MediaSearchResult>) 
+	@simpl_collection("generic_type_var")
+	ArrayList<GenericTypeVar>	genericTypeVarArgs							= null;
+
+	// Refers to another generic type var, typically the definition. 
+	// e.g. the 2nd M in class MediaSearchResult<M extends Media, M> (that GenericTypeVar object will have name=M and referredGenericTypeVar to the 1st M) 
+	// may be used in other cases. see the javadoc of this class.
+	@simpl_composite
+	GenericTypeVar						referredGenericTypeVar					= null;
+	
+	ArrayList<GenericTypeVar> scope;
 
 	public GenericTypeVar()
 	{
@@ -74,41 +110,24 @@ public class GenericTypeVar extends Debug
 		this.name = name;
 	}
 	
-	public ClassDescriptor getClassDescriptor()
-	{
-		return classDescriptor;
-	}
-	
-	// added a setter to enable platform specific
-	public void setClassDescriptor(ClassDescriptor classDescriptor)
-	{
-		this.classDescriptor = classDescriptor;
-	}
-	
 	public ClassDescriptor getConstraintClassDescriptor()
 	{
 		return constraintClassDescriptor;
 	}
-	
+
 	public void setConstraintClassDescriptor(ClassDescriptor constraintClassDescriptor)
 	{
 		this.constraintClassDescriptor = constraintClassDescriptor;
 	}
 
-	public void addGenericTypeVar(GenericTypeVar g)
+	public GenericTypeVar getConstraintGenericTypeVar()
 	{
-		if (genericTypeVars == null)
-			genericTypeVars = new ArrayList<GenericTypeVar>();
-
-		genericTypeVars.add(g);
+		return constraintGenericTypeVar;
 	}
 
-	public void addContraintGenericTypeVar(GenericTypeVar g)
+	public void setConstraintGenericTypeVar(GenericTypeVar constraintGenericTypeVar)
 	{
-		if (constraintedGenericTypeVars == null)
-			constraintedGenericTypeVars = new ArrayList<GenericTypeVar>();
-
-		constraintedGenericTypeVars.add(g);
+		this.constraintGenericTypeVar = constraintGenericTypeVar;
 	}
 
 	// this method has been moved to the platform specific package in the corresponding project
@@ -136,63 +155,216 @@ public class GenericTypeVar extends Debug
 //
 //		return returnValue;
 //	}
+	
+	public ArrayList<GenericTypeVar> getConstraintGenericTypeVarArgs()
+	{
+		return constraintGenericTypeVarArgs;
+	}
 
-	public static GenericTypeVar getGenericTypeVar(TypeVariable<?> typeVariable)
+	public void addContraintGenericTypeVarArg(GenericTypeVar g)
+	{
+		if (constraintGenericTypeVarArgs == null)
+			constraintGenericTypeVarArgs = new ArrayList<GenericTypeVar>();
+		constraintGenericTypeVarArgs.add(g);
+	}
+
+	public ClassDescriptor getClassDescriptor()
+	{
+		return classDescriptor;
+	}
+	
+	public void setClassDescriptor(ClassDescriptor classDescriptor)
+	{
+		this.classDescriptor = classDescriptor;
+	}
+	
+	public ArrayList<GenericTypeVar> getGenericTypeVarArgs()
+	{
+		return genericTypeVarArgs;
+	}
+
+	public void addGenericTypeVarArg(GenericTypeVar arg)
+	{
+		if (genericTypeVarArgs == null)
+			genericTypeVarArgs = new ArrayList<GenericTypeVar>();
+		genericTypeVarArgs.add(arg);
+	}
+
+	public GenericTypeVar getReferredGenericTypeVar()
+	{
+		return referredGenericTypeVar;
+	}
+
+	public void setReferredGenericTypeVar(GenericTypeVar referredGenericTypeVar)
+	{
+		this.referredGenericTypeVar = referredGenericTypeVar;
+	}
+	
+	public ArrayList<GenericTypeVar> getScope()
+	{
+		return scope;
+	}
+
+	/**
+	 * Creates a GenericTypeVar object as the definition of a new generic type var, from a java
+	 * reflection TypeVariable object.
+	 * 
+	 * @param typeVariable
+	 * @param scope
+	 *          the scope of current generic type vars; used to resolve generic type var names.
+	 * @return
+	 */
+	public static GenericTypeVar getGenericTypeVarDef(TypeVariable<?> typeVariable, ArrayList<GenericTypeVar> scope)
 	{
 		GenericTypeVar g = new GenericTypeVar();
+		g.scope = scope;
 		g.name = typeVariable.getName();
-
+		
 		// resolve constraints
-		resolveGenericConstraints(g, typeVariable.getBounds());
+		resolveGenericTypeVarDefinitionConstraints(g, typeVariable.getBounds());
 
+		g.scope = null;
 		return g;
 	}
 	
-	// added a helper method for resolveGenericConstraints
-	public static void checkBoundParameterizedTypeImpl (GenericTypeVar g, Type bounds)
+	/**
+	 * Creates a GenericTypeVar object as in a type reference (usage), from a java reflection Type
+	 * object.
+	 * 
+	 * @param type
+	 * @param scope
+	 * @return
+	 */
+	public static GenericTypeVar getGenericTypeVarRef(Type type, ArrayList<GenericTypeVar> scope)
 	{
-		FundamentalPlatformSpecifics.get().checkBoundParameterizedTypeImpl(g, bounds);
+		GenericTypeVar g = new GenericTypeVar();
+		g.scope = scope;
+
+		// case 1: arg is a concrete class
+		if (type instanceof Class<?>)
+		{
+			Class<?> typeClass = (Class<?>) type;
+			g.classDescriptor = ClassDescriptor.getClassDescriptor(typeClass);
+			return g;
+		}
+
+		// case 2: arg is another generic type var
+		if (type instanceof TypeVariable<?>)
+		{
+			TypeVariable<?> typeVar = (TypeVariable<?>) type;
+			String argName = typeVar.getName();
+			if (argName != null && scope != null)
+			{
+				for (GenericTypeVar var : scope)
+					if (argName.equals(var.getName()))
+					{
+						g.name = var.getName();
+						g.referredGenericTypeVar = var;
+						break;
+					}
+			}
+		}
+
+		// case 3: arg is a wildcard
+		checkTypeWildcardTypeImpl(g, type);
+
+		// case 4: arg is parameterized
+		checkTypeParameterizedTypeImpl(g, type);
+		
+		g.scope = null;
+		return g;
 	}
-	
-	// this method has been moved to the platform specific package in the corresponding project
-	public static void resolveGenericConstraints(GenericTypeVar g, Type[] bounds)
+
+	/**
+	 * Resolves constraints on the definition of a generic type var.
+	 * 
+	 * @param g
+	 * @param bounds
+	 */
+	public static void resolveGenericTypeVarDefinitionConstraints(GenericTypeVar g, Type[] bounds)
 	{
 		if (bounds == null)
 			return;
 
 		Type bound = bounds[0];
 
+		// case 1: constraint is a concrete class
 		if (bound instanceof Class<?>)
 		{
 			Class<?> boundClass = (Class<?>) bound;
-
 			if (Object.class != boundClass)
 				g.constraintClassDescriptor = ClassDescriptor.getClassDescriptor(boundClass);
 		}
 
-		checkBoundParameterizedTypeImpl(g, bound);
-		
-//		if (bound instanceof ParameterizedTypeImpl)
-//		{
-//			ParameterizedTypeImpl parmeterizedType = (ParameterizedTypeImpl) bound;
-//			g.constraintClassDescriptor = ClassDescriptor.getClassDescriptor(parmeterizedType
-//					.getRawType());
-//
-//			Type[] types = parmeterizedType.getActualTypeArguments();
-//
-//			for (Type type : types)
-//			{
-//				g.addContraintGenericTypeVar(getGenericTypeVar(type));
-//			}
-//		}
-
+		// case 2: constraint is another generic type var
 		if (bound instanceof TypeVariable<?>)
 		{
 			TypeVariable<?> boundTypeVar = (TypeVariable<?>) bound;
-			g.addContraintGenericTypeVar(getGenericTypeVar(boundTypeVar));
+			// look up the scope to find the bound generic type var (must have been defined)
+			String boundName = boundTypeVar.getName();
+			if (boundName != null && g.scope != null)
+			{
+				for (GenericTypeVar var : g.scope)
+					if (boundName.equals(var.getName()))
+					{
+						g.setConstraintGenericTypeVar(var);
+						break;
+					}
+			}
+//			g.addContraintGenericTypeVarArg(getGenericTypeVar(boundTypeVar));
 		}
+		
+		// case 3: constraint is parameterized -- the most complicated case
+		checkBoundParameterizedTypeImpl(g, bound);
 	}
 
+	/**
+	 * Resolves constraints on a generic type var that is used in a type reference (usage).
+	 * 
+	 * @param g
+	 * @param bounds
+	 */
+	public static void resolveGenericTypeVarReferenceConstraints(GenericTypeVar g, Type[] bounds)
+	{
+		if (bounds == null)
+			return;
+
+		Type bound = bounds[0];
+
+		// case 1: constraint is a concrete class
+		if (bound instanceof Class<?>)
+		{
+			Class<?> boundClass = (Class<?>) bound;
+			if (Object.class != boundClass)
+				g.classDescriptor = ClassDescriptor.getClassDescriptor(boundClass);
+		}
+
+		// case 2: constraint is another generic type var
+		if (bound instanceof TypeVariable<?>)
+		{
+			TypeVariable<?> boundTypeVar = (TypeVariable<?>) bound;
+			// look up the scope to find the bound generic type var (must have been defined)
+			String boundName = boundTypeVar.getName();
+			if (boundName != null && g.scope != null)
+			{
+				for (GenericTypeVar var : g.scope)
+					if (boundName.equals(var.getName()))
+					{
+						g.setConstraintGenericTypeVar(var);
+						break;
+					}
+			}
+		}
+		
+		// case 3: constraint is parameterized -- the most complicated case
+		checkBoundParameterizedTypeImpl(g, bound);
+	}
+	
+	public static void checkBoundParameterizedTypeImpl (GenericTypeVar g, Type bounds)
+	{
+		FundamentalPlatformSpecifics.get().checkBoundParameterizedTypeImpl(g, bounds);
+	}
+	
 	// added two helper functions for GenericTypeVar
 	public static void checkTypeWildcardTypeImpl(GenericTypeVar g, Type type)
 	{
@@ -204,86 +376,95 @@ public class GenericTypeVar extends Debug
 		FundamentalPlatformSpecifics.get().checkTypeParameterizedTypeImpl(g, type);
 	}
 	
-	public static GenericTypeVar getGenericTypeVar(Type type)
+	public boolean isDef()
 	{
-		GenericTypeVar g = new GenericTypeVar();
-
-		checkTypeWildcardTypeImpl(g, type);
-		
-//		if (type instanceof WildcardTypeImpl)
-//		{
-//			g.name = "?";
-//			WildcardTypeImpl wildCardType = (WildcardTypeImpl) type;
-//			resolveGenericConstraints(g, wildCardType.getUpperBounds());
-//		}
-
-		if (type instanceof Class<?>)
-		{
-			Class<?> typeClass = (Class<?>) type;
-			g.classDescriptor = ClassDescriptor.getClassDescriptor(typeClass);
-			return g;
-		}
-
-		if (type instanceof TypeVariable<?>)
-		{
-			TypeVariable<?> typeVar = (TypeVariable<?>) type;
-			return getGenericTypeVar(typeVar);
-		}
-
-		checkTypeParameterizedTypeImpl(g, type);
-		
-//		if (type instanceof ParameterizedTypeImpl)
-//		{
-//			ParameterizedTypeImpl parmeterizedType = (ParameterizedTypeImpl) type;
-//			g.classDescriptor = ClassDescriptor.getClassDescriptor(parmeterizedType.getRawType());
-//
-//			Type[] types = parmeterizedType.getActualTypeArguments();
-//
-//			for (Type t : types)
-//			{
-//				g.addGenericTypeVar(getGenericTypeVar(t));
-//			}
-//		}
-
-		return g;
+		return name != null && name.length() > 0 && (constraintClassDescriptor != null || constraintGenericTypeVar != null);
 	}
-
+	
 	@Override
 	public String toString()
 	{
-		String outputString = new String();
-
-		if (name != null && name != "")
-			outputString += name;
-		else if (classDescriptor != null)
-			outputString += classDescriptor.getDescribedClassSimpleName();
+		StringBuilder sb = new StringBuilder();
 		
-		if (genericTypeVars != null)
+		if (isDef())
 		{
-			for (GenericTypeVar g : genericTypeVars)
+			sb.append(name);
+			if (constraintGenericTypeVar != null)
 			{
-				outputString += "<";
-				outputString += g.toString();
-				outputString += ">";
+				sb.append(" extends ").append(constraintGenericTypeVar.name);
+			}
+			else if (constraintClassDescriptor != null)
+			{
+				sb.append(" extends ").append(constraintClassDescriptor.getDescribedClassSimpleName());
+				if (constraintGenericTypeVarArgs != null && constraintGenericTypeVarArgs.size() > 0)
+				{
+					sb.append("<");
+					for (int i = 0; i < constraintGenericTypeVarArgs.size(); ++i)
+					{
+						GenericTypeVar g = constraintGenericTypeVarArgs.get(i);
+						sb.append(i == 0 ? "" : ",").append(g.toString());
+					}
+					sb.append(">");
+				}
 			}
 		}
-
-		if (constraintClassDescriptor != null || constraintedGenericTypeVars != null)
-			outputString += " extends ";
-
-		if (constraintClassDescriptor != null)
-			outputString += constraintClassDescriptor.getDescribedClassSimpleName();
-
-		if (constraintedGenericTypeVars != null)
+		else
 		{
-			for (GenericTypeVar g : constraintedGenericTypeVars)
+			if (name != null || referredGenericTypeVar != null)
 			{
-				outputString += "<";
-				outputString += g.toString();
-				outputString += ">";
+				sb.append(name);
+			}
+			else if (classDescriptor != null)
+			{
+				sb.append(classDescriptor.getDescribedClassSimpleName());
+				if (genericTypeVarArgs != null && genericTypeVarArgs.size() > 0)
+				{
+					sb.append("<");
+					for (int i = 0; i < genericTypeVarArgs.size(); ++i)
+					{
+						GenericTypeVar g = genericTypeVarArgs.get(i);
+						sb.append(i == 0 ? "" : ",").append(g.toString());
+					}
+					sb.append(">");
+				}
 			}
 		}
+//		
+//		if (name != null && name.length() > 0)
+//			sb.append(name);
+//
+//		if (name != null && name != "")
+//			sb += name;
+//		else if (classDescriptor != null)
+//			sb += classDescriptor.getDescribedClassSimpleName();
+//		
+//		if (genericTypeVarArgs != null)
+//		{
+//			for (GenericTypeVar g : genericTypeVarArgs)
+//			{
+//				sb += "<";
+//				sb += g.toString();
+//				sb += ">";
+//			}
+//		}
+//		
+//		if (constraintClassDescriptor != null || constraintGenericTypeVarArgs != null)
+//			sb += " extends ";
+//
+//		if (constraintClassDescriptor != null)
+//			sb += constraintClassDescriptor.getDescribedClassSimpleName();
+//
+//		if (constraintGenericTypeVarArgs != null)
+//		{
+//			for (GenericTypeVar g : constraintGenericTypeVarArgs)
+//			{
+//				sb += "<";
+//				sb += g.toString();
+//				sb += ">";
+//			}
+//		}
 
-		return outputString;
+		return sb.toString();
 	}
+	
 }

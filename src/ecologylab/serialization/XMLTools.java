@@ -119,12 +119,12 @@ public class XMLTools extends Debug implements CharacterConstants, SpecialCharac
 
 		putEntityInTable("#8217", '\'');
 		// &#8220; is really ï¿½ = &#147;
-		putEntityInTable("#8220", 'Ò');
+		putEntityInTable("#8220", 'ï¿½');
 		// &#8221; is really ï¿½ = &#148;
-		putEntityInTable("#8221", 'Ó');
+		putEntityInTable("#8221", 'ï¿½');
 		// &#8212; is really ï¿½ = &#151; -- em dash
-		putEntityInTable("#8212", 'Ñ');
-		putEntityInTable("#151", 'Ñ');
+		putEntityInTable("#8212", 'ï¿½');
+		putEntityInTable("#151", 'ï¿½');
 		putEntityInTable("#xa0", ' ');
 		putEntityInTable("#x2019", '\'');
 		putEntityInTable("#x2013", '-');
@@ -1647,7 +1647,7 @@ public class XMLTools extends Debug implements CharacterConstants, SpecialCharac
 	 * @param field
 	 * @return
 	 */
-	public static boolean isGeneric(Field field)
+	public static boolean isParameterizedType(Field field)
 	{
 		if (field.getGenericType() instanceof ParameterizedType)
 		{
@@ -1762,7 +1762,7 @@ public class XMLTools extends Debug implements CharacterConstants, SpecialCharac
 	public static String getCSharpGenericParametersString(Field field)
 	{
 		String result;
-		if (isGeneric(field))
+		if (isParameterizedType(field))
 		{
 			result = getCSharpGenericParametersStringRecursive((ParameterizedType) field.getGenericType());
 			return result;
@@ -2139,7 +2139,8 @@ public class XMLTools extends Debug implements CharacterConstants, SpecialCharac
 						result.append(inferJavaType(rT) + getJavaGenericParametersStringRecursive(pT));
 					else
 						result.append(", " + inferJavaType(rT) + getJavaGenericParametersStringRecursive(pT));
-				}catch(Exception ex)
+				}
+				catch(Exception ex)
 				{
 					if (i == 0)
 						result.append("?");
@@ -2188,7 +2189,7 @@ public class XMLTools extends Debug implements CharacterConstants, SpecialCharac
 	public static String getJavaGenericParametersString(Field field)
 	{
 		String result;
-		if (isGeneric(field))
+		if (isParameterizedType(field))
 		{
 			result = getJavaGenericParametersStringRecursive((ParameterizedType) field.getGenericType());
 			return result;
@@ -2200,7 +2201,7 @@ public class XMLTools extends Debug implements CharacterConstants, SpecialCharac
 	public static ArrayList<Class> getJavaGenericDependencies(Field field)
 	{
 		ArrayList<Class> result;
-		if (isGeneric(field))
+		if (isParameterizedType(field))
 		{
 			result = getJavaGenericDependenciesRecursive((ParameterizedType) field.getGenericType());
 			return result;

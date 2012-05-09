@@ -9,15 +9,10 @@ import ecologylab.appframework.types.prefs.MetaPrefSet;
 import ecologylab.appframework.types.prefs.PrefSet;
 import ecologylab.net.ParsedURL;
 import ecologylab.serialization.ClassDescriptor;
-import ecologylab.serialization.DeserializationHookStrategy;
 import ecologylab.serialization.FieldDescriptor;
 import ecologylab.serialization.GenericTypeVar;
 import ecologylab.serialization.SIMPLTranslationException;
-import ecologylab.serialization.SimplTypesScope;
-import ecologylab.serialization.TranslationContext;
-import ecologylab.serialization.deserializers.pullhandlers.stringformats.StringPullDeserializer;
 import ecologylab.serialization.deserializers.pullhandlers.stringformats.XMLParser;
-import ecologylab.serialization.formatenums.StringFormat;
 
 public interface IFundamentalPlatformSpecifics
 {
@@ -26,10 +21,10 @@ public interface IFundamentalPlatformSpecifics
 	void initializePlatformSpecificTranslation();
 
 	// in ecologylab.serialization.ClassDescriptor;
-	void deriveSuperGenericTypeVariables(ClassDescriptor classDescriptor);
+	void deriveSuperClassGenericTypeVars(ClassDescriptor classDescriptor);
 
 	// in ecologylab.serialization.FieldDescriptor;
-	void deriveGenericTypeVariables(FieldDescriptor fieldDescriptor);
+	void deriveFieldGenericTypeVars(FieldDescriptor fieldDescriptor);
 
 	Class<?> getTypeArgClass(Field field, int i, FieldDescriptor fiedlDescriptor);
 

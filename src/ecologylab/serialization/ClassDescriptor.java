@@ -2,13 +2,17 @@ package ecologylab.serialization;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
 import java.lang.reflect.TypeVariable;
+import java.lang.reflect.WildcardType;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
@@ -159,6 +163,8 @@ public class ClassDescriptor<FD extends FieldDescriptor> extends DescriptorBase 
 	@simpl_collection("generic_type_var")
 	private ArrayList<GenericTypeVar>																									genericTypeVars											= null;
 
+	private ArrayList<String>																													declaredGenericTypeVarNames					= null;
+	
 	@simpl_collection("super_class_generic_type_var")
 	private ArrayList<GenericTypeVar>																									superClassGenericTypeVars						= null;
 
@@ -321,7 +327,7 @@ public class ClassDescriptor<FD extends FieldDescriptor> extends DescriptorBase 
 			{
 				if (superClassGenericTypeVars == null)
 				{
-					superClassGenericTypeVars = new ArrayList<GenericTypeVar>();
+//					superClassGenericTypeVars = new ArrayList<GenericTypeVar>();
 					deriveSuperGenericTypeVariables();
 				}
 			}
@@ -342,7 +348,7 @@ public class ClassDescriptor<FD extends FieldDescriptor> extends DescriptorBase 
 	// This method is modified, refer to FundamentalPlatformSpecific package -Fei
 	private void deriveSuperGenericTypeVariables()
 	{
-		FundamentalPlatformSpecifics.get().deriveSuperGenericTypeVariables(this);
+		FundamentalPlatformSpecifics.get().deriveSuperClassGenericTypeVars(this);
 	}
 
 	private void deriveGenericTypeVariables()
@@ -354,7 +360,7 @@ public class ClassDescriptor<FD extends FieldDescriptor> extends DescriptorBase 
 			{
 				for (TypeVariable<?> typeVariable : typeVariables)
 				{
-					GenericTypeVar g = GenericTypeVar.getGenericTypeVar(typeVariable);
+					GenericTypeVar g = GenericTypeVar.getGenericTypeVarDef(typeVariable, this.genericTypeVars);
 					this.genericTypeVars.add(g);
 				}
 			}
@@ -692,6 +698,7 @@ public class ClassDescriptor<FD extends FieldDescriptor> extends DescriptorBase 
 			FD fieldDescriptor = newFieldDescriptor(thatField,
 																							fieldType,
 																							(Class<FD>) fieldDescriptorClass);
+			fieldDescriptor.genericTypeVarsContextCD = this;
 			// create indexes for serialize
 			if (fieldDescriptor.getType() == SCALAR)
 			{
@@ -766,62 +773,66 @@ public class ClassDescriptor<FD extends FieldDescriptor> extends DescriptorBase 
 
 	private void referFieldDescriptorsFrom(ClassDescriptor<FD> superClassDescriptor)
 	{
+		initDeclaredGenericTypeVarNames();
+		
+		Map<FieldDescriptor, FieldDescriptor> bookkeeper = new HashMap<FieldDescriptor, FieldDescriptor>();
+		
 		for (Entry<String, FD> fieldDescriptorEntry : superClassDescriptor.getFieldDescriptorsByFieldName()
 																																			.entrySet())
 		{
 			fieldDescriptorsByFieldName.put(fieldDescriptorEntry.getKey(),
-																			fieldDescriptorEntry.getValue());
+																			perhapsCloneGenericField(fieldDescriptorEntry.getValue(), bookkeeper));
 		}
 
 		for (Entry<String, FD> fieldDescriptorEntry : superClassDescriptor.getDeclaredFieldDescriptorsByFieldName()
 																																			.entrySet())
 		{
 			declaredFieldDescriptorsByFieldName.put(fieldDescriptorEntry.getKey(),
-																							fieldDescriptorEntry.getValue());
+																							perhapsCloneGenericField(fieldDescriptorEntry.getValue(), bookkeeper));
 		}
 
 		for (Entry<String, FD> fieldDescriptorEntry : superClassDescriptor.getAllFieldDescriptorsByTagNames()
 																																			.entrySet())
 		{
 			allFieldDescriptorsByTagNames.put(fieldDescriptorEntry.getKey(),
-																				fieldDescriptorEntry.getValue());
+																				perhapsCloneGenericField(fieldDescriptorEntry.getValue(), bookkeeper));
 		}
 
 		for (Entry<Integer, FD> fieldDescriptorEntry : superClassDescriptor.getAllFieldDescriptorsByTLVIds()
 																																				.entrySet())
 		{
 			allFieldDescriptorsByTLVIds.put(fieldDescriptorEntry.getKey(),
-																			fieldDescriptorEntry.getValue());
+																			perhapsCloneGenericField(fieldDescriptorEntry.getValue(), bookkeeper));
 		}
 
 		for (Entry<String, FD> fieldDescriptorEntry : superClassDescriptor.getAllFieldDescriptorsByBibTeXTag()
 																																			.entrySet())
 		{
 			allFieldDescriptorsByBibTeXTag.put(	fieldDescriptorEntry.getKey(),
-																					fieldDescriptorEntry.getValue());
+																					perhapsCloneGenericField(fieldDescriptorEntry.getValue(), bookkeeper));
 		}
 
 		for (FD fieldDescriptor : superClassDescriptor.attributeFieldDescriptors())
 		{
-			attributeFieldDescriptors.add(fieldDescriptor);
+			attributeFieldDescriptors.add(perhapsCloneGenericField(fieldDescriptor, bookkeeper));
 		}
 
 		for (FD fieldDescriptor : superClassDescriptor.elementFieldDescriptors())
 		{
-			elementFieldDescriptors.add(fieldDescriptor);
+			elementFieldDescriptors.add(perhapsCloneGenericField(fieldDescriptor, bookkeeper));
 		}
 		
 		FieldDescriptor scalarTextFD = superClassDescriptor.getScalarTextFD();
 		if (scalarTextFD != null)
 		{ // added by Zach -- doesn't seem to be covered otherwise
-			this.setScalarTextFD(scalarTextFD);
+			this.setScalarTextFD(perhapsCloneGenericField(scalarTextFD, bookkeeper));
 		}
 
 		if (superClassDescriptor.getUnresolvedScopeAnnotationFDs() != null)
 		{
 			for (FD fd : superClassDescriptor.getUnresolvedScopeAnnotationFDs())
 			{
-				this.registerUnresolvedScopeAnnotationFD(fd);
+				this.registerUnresolvedScopeAnnotationFD(perhapsCloneGenericField(fd, bookkeeper));
 			}
 		}
 
@@ -829,9 +840,73 @@ public class ClassDescriptor<FD extends FieldDescriptor> extends DescriptorBase 
 		{
 			for (FD fd : superClassDescriptor.getUnresolvedClassesAnnotationFDs())
 			{
-				this.registerUnresolvedClassesAnnotationFD(fd);
+				this.registerUnresolvedClassesAnnotationFD(perhapsCloneGenericField(fd, bookkeeper));
 			}
 		}
+	}
+	
+	private void initDeclaredGenericTypeVarNames()
+	{
+		if (declaredGenericTypeVarNames == null && describedClass != null)
+		{
+			ArrayList<String> result = new ArrayList<String>();
+			TypeVariable<?>[] typeParams = describedClass.getTypeParameters();
+			if (typeParams != null && typeParams.length > 0)
+			{
+				for (TypeVariable<?> typeParam : typeParams)
+					result.add(typeParam.getName());
+			}
+			if (result.size() > 0)
+				declaredGenericTypeVarNames = result;
+		}
+	}
+	
+	private <FDT extends FieldDescriptor> FDT perhapsCloneGenericField(FDT fd, Map<FieldDescriptor, FieldDescriptor> bookkeeper)
+	{
+		if (declaredGenericTypeVarNames == null || fd.field == null)
+			return fd;
+		
+		if (bookkeeper.containsKey(fd))
+			return (FDT) bookkeeper.get(fd);
+		
+		FDT result = fd;
+		Type genericType = fd.field.getGenericType();
+		if (isTypeUsingGenericNames(genericType, declaredGenericTypeVarNames))
+		{
+			result = (FDT) fd.clone();
+			result.setGenericTypeVars(null);
+			result.genericTypeVarsContextCD = this;
+		}
+		bookkeeper.put(fd, result);
+		return result;
+	}
+
+	private boolean isTypeUsingGenericNames(Type genericType, ArrayList<String> names)
+	{
+		if (genericType != null)
+		{
+			if (genericType instanceof TypeVariable)
+			{
+				TypeVariable tv = (TypeVariable) genericType;
+				if (names.contains(tv.getName()) || tv.getBounds().length > 0 && isTypeUsingGenericNames(tv.getBounds()[0], names))
+					return true;
+			}
+			else if (genericType instanceof WildcardType)
+			{
+				WildcardType wt = (WildcardType) genericType;
+				if (wt.getUpperBounds().length > 0 && isTypeUsingGenericNames(wt.getUpperBounds()[0], names))
+					return true;
+			}
+			else if (genericType instanceof ParameterizedType)
+			{
+				ParameterizedType pt = (ParameterizedType) genericType;
+				Type[] args = pt.getActualTypeArguments();
+				for (Type arg : args)
+					if (isTypeUsingGenericNames(arg, names))
+						return true;
+			}
+		}
+		return false;
 	}
 
 	protected void mapOtherTagsToFdForDeserialize(FD fieldDescriptor, ArrayList<String> otherTags)

@@ -103,6 +103,21 @@ implements CrossLanguageTypeConstants
 	{
 		return javaTypeName;
 	}
+	
+	public String getJavaPackageName()
+	{
+		if (packageName == null)
+		{
+			String javaTypeName = this.getJavaTypeName();
+			if (javaTypeName != null)
+			{
+				int pos = javaTypeName.lastIndexOf('.');
+				packageName = pos > 0 ? javaTypeName.substring(0, pos) : JAVA_PRIMITIVE_PACKAGE_NAME;
+			}
+		}
+		return packageName;
+	}
+	
 	/**
 	 * The name to use when declaring a field in C# cross-compilation.
 	 * 
@@ -114,21 +129,25 @@ implements CrossLanguageTypeConstants
 		return cSharpTypeName != null ? cSharpTypeName : javaTypeName;
 	}
 	
+	private String cSharpNamespace;
+	
 	/**
 	 * The namespace to use in C# cross-compilation.
 	 */
 	@Override
 	public String getCSharpNamespace()
 	{
-		String csTypeName = this.getCSharpTypeName();
-		if (csTypeName != null)
+		if (cSharpNamespace == null)
 		{
-			// TODO use a look-up table to handle specific built-in types, 
-			int pos = csTypeName.lastIndexOf('.');
-			return pos > 0 ? csTypeName.substring(0, pos) : CSHARP_PRIMITIVE_NAMESPACE;
+			String csTypeName = this.getCSharpTypeName();
+			if (csTypeName != null)
+			{
+				// TODO use a look-up table to handle specific built-in types, 
+				int pos = csTypeName.lastIndexOf('.');
+				cSharpNamespace = pos > 0 ? csTypeName.substring(0, pos) : CSHARP_PRIMITIVE_NAMESPACE;
+			}
 		}
-		else
-			return null;
+		return cSharpNamespace;
 	}
 
 	/**
