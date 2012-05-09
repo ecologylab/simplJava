@@ -4,16 +4,17 @@ import java.awt.Color;
 import java.awt.Toolkit;
 import java.io.InputStream;
 import java.lang.reflect.Field;
+import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
+import java.lang.reflect.TypeVariable;
+import java.lang.reflect.WildcardType;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 
 import javax.imageio.ImageIO;
 import javax.swing.JOptionPane;
 import javax.xml.stream.XMLInputFactory;
-import sun.reflect.generics.reflectiveObjects.ParameterizedTypeImpl;
-import sun.reflect.generics.reflectiveObjects.TypeVariableImpl;
-import sun.reflect.generics.reflectiveObjects.WildcardTypeImpl;
+
 import ecologylab.appframework.types.prefs.MetaPrefColor;
 import ecologylab.appframework.types.prefs.MetaPrefSet;
 import ecologylab.appframework.types.prefs.MetaPrefsTranslationScope;
@@ -42,7 +43,7 @@ public class FundamentalPlatformSpecificsSun implements IFundamentalPlatformSpec
 	}
 
 	// in ecologylab.serialization.ClassDescriptor;
-	public void deriveSuperGenericTypeVariables(ClassDescriptor classDescriptor)
+	public void deriveSuperClassGenericTypeVars(ClassDescriptor classDescriptor)
 	{
 		Class<?> describedClass = classDescriptor.getDescribedClass();
 		// ArrayList<GenericTypeVar> superClassGenericTypeVars =
@@ -53,24 +54,29 @@ public class FundamentalPlatformSpecificsSun implements IFundamentalPlatformSpec
 
 		Type superClassType = describedClass.getGenericSuperclass();
 
-		if (superClassType instanceof ParameterizedTypeImpl)
+		if (superClassType instanceof ParameterizedType)
 		{
-			ParameterizedTypeImpl superClassParameterizedType = (ParameterizedTypeImpl) superClassType;
-			classDescriptor.setSuperClassGenericTypeVars(getGenericTypeVars(superClassParameterizedType));
+			ParameterizedType superClassParameterizedType = (ParameterizedType) superClassType;
+			classDescriptor.setSuperClassGenericTypeVars(getGenericTypeVars(superClassParameterizedType, classDescriptor.getGenericTypeVars()));
 		}
 	}
 
 	// in ecologylab.serialization.FieldDescriptor;
-	public void deriveGenericTypeVariables(FieldDescriptor fieldDescriptor)
+	public void deriveFieldGenericTypeVars(FieldDescriptor fieldDescriptor)
 	{
 		Field field = fieldDescriptor.getField();
 		Type genericType = field.getGenericType();
-		ArrayList<GenericTypeVar> derivedGenericTypeVars;
-		derivedGenericTypeVars = new ArrayList<GenericTypeVar>();
+		ArrayList<GenericTypeVar> derivedGenericTypeVars = new ArrayList<GenericTypeVar>();
 
-		if (genericType instanceof ParameterizedTypeImpl)
+		if (genericType instanceof TypeVariable)
 		{
-			ParameterizedTypeImpl parameterizedType = (ParameterizedTypeImpl) genericType;
+			TypeVariable tv = (TypeVariable) genericType;
+			GenericTypeVar g = GenericTypeVar.getGenericTypeVarRef(tv, fieldDescriptor.getGenericTypeVarsContext());
+			derivedGenericTypeVars.add(g);
+		}
+		else if (genericType instanceof ParameterizedType)
+		{
+			ParameterizedType parameterizedType = (ParameterizedType) genericType;
 
 			Type[] types = parameterizedType.getActualTypeArguments();
 
@@ -79,11 +85,12 @@ public class FundamentalPlatformSpecificsSun implements IFundamentalPlatformSpec
 
 			for (Type t : types)
 			{
-				GenericTypeVar g = GenericTypeVar.getGenericTypeVar(t);
+				GenericTypeVar g = GenericTypeVar.getGenericTypeVarRef(t, fieldDescriptor.getGenericTypeVarsContext());
 				derivedGenericTypeVars.add(g);
 			}
-			fieldDescriptor.setGenericTypeVars(derivedGenericTypeVars);
 		}
+		
+		fieldDescriptor.setGenericTypeVars(derivedGenericTypeVars);
 	};
 
 	public Class<?> getTypeArgClass(Field field, int i, FieldDescriptor fiedlDescriptor)
@@ -101,20 +108,19 @@ public class FundamentalPlatformSpecificsSun implements IFundamentalPlatformSpec
 			{
 				result = (Class) typeArg0;
 			}
-			// sun below
-			else if (typeArg0 instanceof ParameterizedTypeImpl)
-			{ // nested parameterized type
-				ParameterizedTypeImpl pti = (ParameterizedTypeImpl) typeArg0;
-				result = pti.getRawType();
-			}
-			else if (typeArg0 instanceof TypeVariableImpl)
+			else if (typeArg0 instanceof ParameterizedType)
 			{
-				TypeVariableImpl tvi = (TypeVariableImpl) typeArg0;
+				// nested parameterized type
+				ParameterizedType pti = (ParameterizedType) typeArg0;
+				result = (Class) pti.getRawType();
+			}
+			else if (typeArg0 instanceof TypeVariable)
+			{
+				TypeVariable tvi = (TypeVariable) typeArg0;
 				Type[] tviBounds = tvi.getBounds();
 				result = (Class) tviBounds[0];
 				Debug.debugT(this, "yo! " + result);
 			}
-			// sun above
 			else
 			{
 				Debug.error(this, "getTypeArgClass(" + field + ", " + i
@@ -124,13 +130,7 @@ public class FundamentalPlatformSpecificsSun implements IFundamentalPlatformSpec
 		return result;
 	};
 
-	// in ecologylab.serialization.GenericTypeVar;
-	public static ArrayList<GenericTypeVar> getGenericTypeVars(Type parameterizedType)
-	{
-		return getGenericTypeVars((ParameterizedTypeImpl) parameterizedType);
-	}
-
-	public static ArrayList<GenericTypeVar> getGenericTypeVars(ParameterizedTypeImpl parameterizedType)
+	public static ArrayList<GenericTypeVar> getGenericTypeVars(ParameterizedType parameterizedType, ArrayList scope)
 	{
 		Type[] types = parameterizedType.getActualTypeArguments();
 
@@ -140,7 +140,7 @@ public class FundamentalPlatformSpecificsSun implements IFundamentalPlatformSpec
 		ArrayList<GenericTypeVar> returnValue = new ArrayList<GenericTypeVar>();
 		for (Type t : types)
 		{
-			GenericTypeVar g = GenericTypeVar.getGenericTypeVar(t);
+			GenericTypeVar g = GenericTypeVar.getGenericTypeVarRef(t, scope);
 			returnValue.add(g);
 		}
 
@@ -149,43 +149,43 @@ public class FundamentalPlatformSpecificsSun implements IFundamentalPlatformSpec
 
 	public void checkBoundParameterizedTypeImpl(GenericTypeVar g, Type bound)
 	{
-		if (bound instanceof ParameterizedTypeImpl)
+		if (bound instanceof ParameterizedType)
 		{
-			ParameterizedTypeImpl parmeterizedType = (ParameterizedTypeImpl) bound;
-			g.setConstraintClassDescriptor(ClassDescriptor.getClassDescriptor(parmeterizedType
-					.getRawType()));
+			ParameterizedType parmeterizedType = (ParameterizedType) bound;
+			Class rawType = (Class) parmeterizedType.getRawType();
+			g.setConstraintClassDescriptor(ClassDescriptor.getClassDescriptor(rawType));
 
 			Type[] types = parmeterizedType.getActualTypeArguments();
 
 			for (Type type : types)
 			{
-				g.addContraintGenericTypeVar(GenericTypeVar.getGenericTypeVar(type));
+				g.addContraintGenericTypeVarArg(GenericTypeVar.getGenericTypeVarRef(type, g.getScope()));
 			}
 		}
 	}
 
 	public void checkTypeWildcardTypeImpl(GenericTypeVar g, Type type)
 	{
-		if (type instanceof WildcardTypeImpl)
+		if (type instanceof WildcardType)
 		{
 			g.setName("?");
-			WildcardTypeImpl wildCardType = (WildcardTypeImpl) type;
-			GenericTypeVar.resolveGenericConstraints(g, wildCardType.getUpperBounds());
+			WildcardType wildCardType = (WildcardType) type;
+			GenericTypeVar.resolveGenericTypeVarReferenceConstraints(g, wildCardType.getUpperBounds());
 		}
 	}
 
 	public void checkTypeParameterizedTypeImpl(GenericTypeVar g, Type type)
 	{
-		if (type instanceof ParameterizedTypeImpl)
+		if (type instanceof ParameterizedType)
 		{
-			ParameterizedTypeImpl parmeterizedType = (ParameterizedTypeImpl) type;
-			g.setClassDescriptor(ClassDescriptor.getClassDescriptor(parmeterizedType.getRawType()));
+			ParameterizedType parameterizedType = (ParameterizedType) type;
+			g.setClassDescriptor(ClassDescriptor.getClassDescriptor((Class) parameterizedType.getRawType()));
 
-			Type[] types = parmeterizedType.getActualTypeArguments();
+			Type[] types = parameterizedType.getActualTypeArguments();
 
 			for (Type t : types)
 			{
-				g.addGenericTypeVar(GenericTypeVar.getGenericTypeVar(t));
+				g.addGenericTypeVarArg(GenericTypeVar.getGenericTypeVarRef(t, g.getScope()));
 			}
 		}
 	}
