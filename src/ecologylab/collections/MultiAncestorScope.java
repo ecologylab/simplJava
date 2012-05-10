@@ -81,7 +81,7 @@ public class MultiAncestorScope<T> extends HashMap<String, T>
 		HashSet<Map<String, T>> visited = new HashSet<Map<String, T>>();
 		return getHelper(key, visited);
 	}
-
+	
 	/**
 	 * helper method that uses a visited hash set to reduce the time complexity of map look-up.
 	 * 
@@ -120,6 +120,56 @@ public class MultiAncestorScope<T> extends HashMap<String, T>
 	private T getFromCache(Object key)
 	{
 		return this.queryCache == null ? null : this.queryCache.get(key);
+	}
+	
+	/**
+	 * get a List of values from this scope AND its ancestors. values ordered from near to far.
+	 * 
+	 * @param key
+	 * @return
+	 */
+	public List<T> getAll(Object key)
+	{
+		List<T> results = new ArrayList<T>();
+		HashSet<Map<String, T>> visited = new HashSet<Map<String, T>>();
+		getAllHelper(key, visited, results);
+		return results;
+	}
+
+	private void getAllHelper(Object key, HashSet<Map<String, T>> visited, List<T> results)
+	{
+		T result = super.get(key);
+		if (result != null)
+			results.add(result);
+		if (this.ancestors != null)
+			for (Map<String, T> ancestor : this.ancestors)
+				if (containsSame(visited, ancestor))
+					continue;
+				else
+				{
+					visited.add(ancestor);
+					if (ancestor instanceof MultiAncestorScope)
+						((MultiAncestorScope<T>) ancestor).getAllHelper(key, visited, results);
+					else
+					{
+						result = ancestor.get(key);
+						if (result != null)
+							results.add(result);
+					}
+				}
+	}
+
+	/**
+	 * only put value into the scope when it is not null. this prevents shadowing values with the
+	 * same key in ancestors.
+	 * 
+	 * @param key
+	 * @param value
+	 */
+	public void putIfValueNotNull(String key, T value)
+	{
+		if (value != null)
+			put(key, value);
 	}
 
 	private void putToCache(Object key, T value)
@@ -177,6 +227,8 @@ public class MultiAncestorScope<T> extends HashMap<String, T>
 		else if (containsSame(this.ancestors, ancestor))
 			return;
 		this.ancestors.add(ancestor);
+		if (this.queryCache != null)
+			this.queryCache.clear();
 	}
 
 	/**
@@ -200,6 +252,8 @@ public class MultiAncestorScope<T> extends HashMap<String, T>
 	{
 		if (this.ancestors != null)
 			this.ancestors.remove(ancestor);
+		if (this.queryCache != null)
+			this.queryCache.clear();
 	}
 
 	@Override
@@ -225,6 +279,13 @@ public class MultiAncestorScope<T> extends HashMap<String, T>
 		String result = sb.toString();
 		StringBuilderBaseUtils.release(sb);
 		return result;
+	}
+	
+	public void reset()
+	{
+		this.ancestors = null;
+		this.queryCache = null;
+		this.clear();
 	}
 
 	/**

@@ -378,7 +378,7 @@ public class GenericTypeVar extends Debug
 	
 	public boolean isDef()
 	{
-		return name != null && name.length() > 0 && (constraintClassDescriptor != null || constraintGenericTypeVar != null);
+		return name != null && name.length() > 0 && (constraintClassDescriptor != null || constraintGenericTypeVar != null) && referredGenericTypeVar == null;
 	}
 	
 	@Override
