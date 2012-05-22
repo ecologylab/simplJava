@@ -1583,6 +1583,8 @@ public class FieldDescriptor extends DescriptorBase implements FieldTypes, IMapp
 
 	public ClassDescriptor getChildClassDescriptor(String tagName)
 	{
+		resolveUnresolvedClassesAnnotation();
+		resolveUnresolvedScopeAnnotation();
 		ClassDescriptor childClassDescriptor = !isPolymorphic() ? elementClassDescriptor
 				: polymorphClassDescriptors.get(tagName);
 
@@ -2123,6 +2125,8 @@ public class FieldDescriptor extends DescriptorBase implements FieldTypes, IMapp
 
 	public boolean isCollectionTag(String tagName)
 	{
+		resolveUnresolvedClassesAnnotation();
+		resolveUnresolvedScopeAnnotation();
 		return isPolymorphic() ? polymorphClassDescriptors.containsKey(tagName)
 				: collectionOrMapTagName.equals(tagName);
 	}
