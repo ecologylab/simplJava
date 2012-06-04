@@ -41,7 +41,7 @@ public class FundamentalPlatformSpecificsAndroid implements IFundamentalPlatform
 	};
 
 	// in ecologylab.serialization.ClassDescriptor;
-	public void deriveSuperGenericTypeVariables(ClassDescriptor classDescriptor)
+	public void deriveSuperClassGenericTypeVars(ClassDescriptor classDescriptor)
 	{
 //		Class<?> describedClass = classDescriptor.getDescribedClass();
 //		// ArrayList<GenericTypeVar> superClassGenericTypeVars =
@@ -60,7 +60,7 @@ public class FundamentalPlatformSpecificsAndroid implements IFundamentalPlatform
 	}
 
 	// in ecologylab.serialization.FieldDescriptor;
-	public void deriveGenericTypeVariables(FieldDescriptor fieldDescriptor)
+	public void deriveFieldGenericTypeVars(FieldDescriptor fieldDescriptor)
 	{
 //		Field field = fieldDescriptor.getField();
 //		Type genericType = field.getGenericType();
