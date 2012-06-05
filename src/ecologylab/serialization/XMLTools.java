@@ -119,12 +119,12 @@ public class XMLTools extends Debug implements CharacterConstants, SpecialCharac
 
 		putEntityInTable("#8217", '\'');
 		// &#8220; is really � = &#147;
-//	putEntityInTable("#8220", '�');//removed because osx
+	  putEntityInTable("#8220", '�');//If this line will not compile for you, set the encoding to UTF8
 		// &#8221; is really � = &#148;
-//		putEntityInTable("#8221", '�');//removed because osx
+		putEntityInTable("#8221", '�');
 		// &#8212; is really � = &#151; -- em dash
-//		putEntityInTable("#8212", '�');//removed because osx
-//		putEntityInTable("#151", '�');//removed because osx
+		putEntityInTable("#8212", '�');
+		putEntityInTable("#151", '�');
 		putEntityInTable("#xa0", ' ');
 		putEntityInTable("#x2019", '\'');
 		putEntityInTable("#x2013", '-');
