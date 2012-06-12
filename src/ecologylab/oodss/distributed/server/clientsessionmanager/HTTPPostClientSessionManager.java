@@ -112,5 +112,24 @@ public class HTTPPostClientSessionManager extends HTTPClientSessionManager
 	{
 		return (RequestMessage) translationScope.deserialize(messageCharSequence, StringFormat.JSON);
 	}
+	
+	/**
+	 * Translates an incoming character sequence identified to be a POST request.
+	 * 
+	 * This implementation expects the POST request to contain a nested OODSS request.
+	 * 
+	 * @param messageCharSequence
+	 * @param startLineString
+	 *          TODO
+	 * @return
+	 * @throws SIMPLTranslationException
+	 */
+	protected RequestMessage translatePostRequest(CharSequence messageCharSequence,
+			String startLineString) throws SIMPLTranslationException
+	{
+		String messageString = messageCharSequence.toString();
+
+		return this.translateOODSSRequest(messageString, startLineString);
+	}
 
 }
