@@ -1053,8 +1053,7 @@ public class ClassDescriptor<FD extends FieldDescriptor> extends DescriptorBase 
 	 */
 	public String getDescribedClassName()
 	{
-		return describedClass != null ? describedClass.getName() : describedClassPackageName + "."
-				+ describedClassSimpleName;
+		return getName();
 	}
 
 	/**
