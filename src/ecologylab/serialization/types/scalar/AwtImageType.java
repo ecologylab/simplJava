@@ -45,17 +45,16 @@ import javax.imageio.ImageIO;
 
 import ecologylab.serialization.ScalarUnmarshallingContext;
 import ecologylab.serialization.TranslationContext;
-import ecologylab.serialization.types.ScalarType;
 
-public class ImageType<I extends Image> extends ScalarType<I>
+public class AwtImageType<I extends Image> extends ImageType<I>
 {
 
-	public ImageType()
+	public AwtImageType()
 	{
 		this(Image.class);
 	}
 
-	protected ImageType(Class thatClass)
+	protected AwtImageType(Class thatClass)
 	{
 		super(thatClass);
 	}
@@ -64,13 +63,9 @@ public class ImageType<I extends Image> extends ScalarType<I>
 	public I getInstance(String value, String[] formatStrings,
 			ScalarUnmarshallingContext scalarUnmarshallingContext)
 	{
-		value = value.trim();
-		byte[] data = new byte[value.length() / 2];
 
-		// TODO: optimize
-		for (int i = 0; i < data.length; ++i)
-			data[i] = (byte) Integer.parseInt(value.substring(2 * i, 2 * i + 2), 16);
-
+		byte[] data = stringToByteArray(value);
+		
 		try
 		{
 			return (I) ImageIO.read(new ByteArrayInputStream(data));
@@ -84,23 +79,6 @@ public class ImageType<I extends Image> extends ScalarType<I>
 		return null;
 	}
 
-	public String fix(byte[] arr)
-	{
-
-		StringBuilder res = new StringBuilder(arr.length * 2);
-
-		for (int i = 0; i < arr.length; ++i)
-		{
-			int in = (arr[i] >= 0) ? arr[i] : 256 + arr[i];
-			String x = Integer.toString(in, 16);
-			if (in < 16)
-				res.append("0");
-			res.append(x);
-		}
-
-		return res.toString();
-	}
-
 	@Override
 	public String marshall(I i, TranslationContext suc)
 	{
@@ -111,7 +89,7 @@ public class ImageType<I extends Image> extends ScalarType<I>
 			ByteArrayOutputStream baos = new ByteArrayOutputStream();
 			ImageIO.write(img, "png", baos);
 
-			return fix(baos.toByteArray());
+			return byteArrayToString(baos.toByteArray());
 		}
 		catch (IOException e)
 		{

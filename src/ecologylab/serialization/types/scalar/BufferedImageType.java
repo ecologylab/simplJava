@@ -37,7 +37,7 @@ package ecologylab.serialization.types.scalar;
 
 import java.awt.image.BufferedImage;
 
-public class BufferedImageType extends ImageType<BufferedImage>
+public class BufferedImageType extends AwtImageType<BufferedImage>
 {
 
 	public BufferedImageType()
