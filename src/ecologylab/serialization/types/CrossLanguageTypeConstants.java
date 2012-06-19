@@ -173,5 +173,5 @@ public interface CrossLanguageTypeConstants
 	
 	public static final String	OBJC_PATTERN					= "NSRegularExpression";
 	
-
+	public static final String  JAVA_BINARY_DATA		= "ByteBuffer";
 }

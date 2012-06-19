@@ -15,16 +15,11 @@ implements CrossLanguageTypeConstants
 {
 	public BinaryDataType()
 	{
-		super();
-	}
-	
-	public BinaryDataType(Class thatClass)
-	{
-		super(thatClass);
+		super(ByteBuffer.class, JAVA_BINARY_DATA, null, null);
 	}
 	
 	/**
-	 * read the Base64 encoded binary representation of a file. create a temp file. 
+	 * read the Base64 encoded string . convert to byte array. 
 	 */
 	@Override
 	public ByteBuffer getInstance(String value, String[] formatStrings,
@@ -34,7 +29,7 @@ implements CrossLanguageTypeConstants
 	}
 
 	/**
-	 * read the binary content of the input file, and encode it using Base64
+	 * read the binary content of the input byteBuffer, and encode it using Base64
 	 */
 	@Override
 	public String marshall(ByteBuffer input, TranslationContext serializationContext)
