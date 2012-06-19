@@ -3,6 +3,7 @@ package ecologylab.serialization.types;
 import java.io.File;
 import java.lang.reflect.Field;
 import java.net.URL;
+import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -12,6 +13,7 @@ import java.util.regex.Pattern;
 import ecologylab.collections.Scope;
 import ecologylab.generic.HashMapArrayList;
 import ecologylab.net.ParsedURL;
+import ecologylab.serialization.types.scalar.BinaryDataType;
 import ecologylab.serialization.types.scalar.BooleanType;
 import ecologylab.serialization.types.scalar.ByteType;
 import ecologylab.serialization.types.scalar.CharType;
@@ -98,6 +100,8 @@ implements CrossLanguageTypeConstants
 	public static final ScalarType<ParsedURL> PARSED_URL_TYPE 			= new ParsedURLType();
 	
 	public static final ScalarType<File> FILE_TYPE 						= new FileType();
+	
+	public static final ScalarType<ByteBuffer> BINARY_FILE_TYPE				= new BinaryDataType();
 	
 	public static final ScalarType<UUID> UUID_TYPE 						= new UUIDType();
 	
