@@ -34,6 +34,6 @@ implements CrossLanguageTypeConstants
 	@Override
 	public String marshall(ByteBuffer input, TranslationContext serializationContext)
 	{	
-		return Base64Coder.encode(input.array()).toString();
+		return new String(Base64Coder.encode(input.array()));
 	}
 }
