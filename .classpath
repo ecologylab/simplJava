@@ -8,5 +8,8 @@
 	<classpathentry kind="lib" path="libs/xercesMinimal.jar"/>
 	<classpathentry kind="lib" path="libs/xml-addon.jar"/>
 	<classpathentry kind="lib" path="libs/jackson-core-lgpl-1.7.8.jar"/>
+	<classpathentry kind="lib" path="libs/jWebSocketClientAPI-1.0.jar" sourcepath="C:/Users/shenfeng/workspace/OODSS/jWebSocketDev/branches/jWebSocket-1.0/shared/J2SE"/>
+	<classpathentry kind="lib" path="libs/jWebSocketCommon-1.0.jar" sourcepath="C:/Users/shenfeng/workspace/OODSS/jWebSocketDev/branches/jWebSocket-1.0/shared/J2SE"/>
+	<classpathentry kind="lib" path="libs/jWebSocketJavaSEClient-1.0.jar"/>
 	<classpathentry kind="output" path="bin/classes"/>
 </classpath>
