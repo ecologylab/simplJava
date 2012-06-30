@@ -1,7 +1,14 @@
 package ecologylab.oodss.distributed.client;
 
 import java.io.UnsupportedEncodingException;
+import java.nio.ByteBuffer;
+import java.nio.LongBuffer;
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Queue;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.TimeUnit;
 
 import org.jwebsocket.api.WebSocketClientEvent;
 import org.jwebsocket.api.WebSocketClientTokenListener;
@@ -10,15 +17,18 @@ import org.jwebsocket.client.token.BaseTokenClient;
 import org.jwebsocket.kit.WebSocketException;
 import org.jwebsocket.token.Token;
 
-import com.sun.corba.se.impl.protocol.giopmsgheaders.RequestMessage;
-
 import android.util.Log;
 
 import ecologylab.collections.Scope;
 import ecologylab.generic.Debug;
 import ecologylab.oodss.distributed.common.ClientConstants;
+import ecologylab.oodss.distributed.exception.MessageTooLargeException;
+import ecologylab.oodss.distributed.impl.PreppedRequest;
+import ecologylab.oodss.distributed.impl.PreppedRequestPool;
 import ecologylab.oodss.messages.InitConnectionRequest;
 import ecologylab.oodss.messages.InitConnectionResponse;
+import ecologylab.oodss.messages.RequestMessage;
+import ecologylab.oodss.messages.SendableRequest;
 import ecologylab.oodss.messages.ServiceMessage;
 import ecologylab.oodss.messages.ResponseMessage;
 import ecologylab.oodss.messages.UpdateMessage;
@@ -40,7 +50,11 @@ public class WebSocketOODSSClient <S extends Scope> extends Debug implements Cli
 
 	private int	uidIndex = 1;
 	
+	ResponseMessage initResponse;
 	
+	Map<Long, RequestMessage> unfulfilledRequests = new HashMap<Long, RequestMessage>();
+	Map<Long, ResponseMessage> unprocessedResponse = new HashMap<Long, ResponseMessage>();
+
 	public WebSocketOODSSClient(String ipAddress, int portNumber, SimplTypesScope translationScope, S objectRegistry)
 	{
 		this.objectRegistry = objectRegistry;
@@ -76,7 +90,9 @@ public class WebSocketOODSSClient <S extends Scope> extends Debug implements Cli
 		if (connectedImpl())
 		{
 			// TODO: open up a new thread to do this. 
-			ResponseMessage initResponse = sendMessage((RequestMessage) new InitConnectionRequest(sessionId));
+			new Thread(new Runnable() {public void run() {
+				initResponse = sendMessage((RequestMessage) new InitConnectionRequest(sessionId));
+			}}).start();
 			if (initResponse instanceof InitConnectionResponse)
 			{
 				Log.d(TAG, "Received initial connection response");
@@ -103,14 +119,12 @@ public class WebSocketOODSSClient <S extends Scope> extends Debug implements Cli
 
 	private boolean connected()
 	{
-		// TODO Auto-generated method stub
-		return true;
+		return webSocketClient.isConnected();
 	}
 
 	private boolean connectedImpl()
 	{
-		//TODO
-		return true;
+		return connected();
 	}
 	
 	private void unableToRestorePreviousConnection(String sessionId2, String receivedId)
@@ -125,10 +139,18 @@ public class WebSocketOODSSClient <S extends Scope> extends Debug implements Cli
 		long uid = generateUid();
 		
 		// TODO: 
+		addToUnfulfilledRequests(uid, request);
+		createPacketFromMessageAndSend(uid, requestString);
+		
+		ResponseMessage responseMessage = getResponseMessage(uid);
+		processResponse(responseMessage);
+		
+		removeFromUnprocessedResponse(uid);
+		removeFromUnfulfilledRequests(uid);
 		
 		return null;		
 	}
-
+	
 	private String generateStringFromRequest(RequestMessage request)
 	{
 		StringBuilder requestStringBuilder = new StringBuilder();
@@ -144,9 +166,71 @@ public class WebSocketOODSSClient <S extends Scope> extends Debug implements Cli
 		return requestStringBuilder.toString();
 	}
 	
-	private long generateUid()
+	synchronized private long  generateUid()
 	{
 		return uidIndex ++;
+	}
+
+	synchronized private void addToUnfulfilledRequests(long uid, RequestMessage request) {
+		unfulfilledRequests.put(uid, request);
+	}
+
+	private void createPacketFromMessageAndSend(long uid, String requestString) {
+		byte[] uidBytes = longToBytes(uid);
+		byte[] messageBytes = null;
+		try {
+			messageBytes = requestString.getBytes("UTF-8");
+		} catch (UnsupportedEncodingException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		byte[] outMessage = new byte[uidBytes.length + messageBytes.length];
+		if (uidBytes.length>0)
+			Arrays.copyOfRange(uidBytes, 0, uidBytes.length);
+		if (messageBytes.length>0)
+			Arrays.copyOfRange(outMessage, uidBytes.length, messageBytes.length);
+		try {
+			webSocketClient.send(outMessage);
+		} catch (WebSocketException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+
+	private byte[] longToBytes(long uid) {
+		byte[] b = ByteBuffer.allocate(8).putLong(uid).array();
+		return b;
+	}
+
+	private ResponseMessage getResponseMessage(long uid) {
+		ResponseMessage message;
+		while(!unprocessedResponse.containsKey(uid))
+		{
+			try {
+				TimeUnit.MILLISECONDS.sleep(50);
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				Log.e(TAG, "intercepted");
+				e.printStackTrace();
+			}
+		}
+		synchronized(unprocessedResponse)
+		{
+			message = unprocessedResponse.get(uid);
+		}
+		return message;
+	}
+
+	synchronized private void removeFromUnprocessedResponse(long uid) {
+		unprocessedResponse.remove(uid);
+	}
+
+	synchronized private void removeFromUnfulfilledRequests(long uid) {
+		unfulfilledRequests.remove(uid);
+	}
+
+	synchronized private void addToUnprocessedResponse(long uid, ResponseMessage response) {
+		unprocessedResponse.put(uid, response);
 	}
 
 	private void processString(String incomingMessage, long incomingUid)
@@ -161,6 +245,7 @@ public class WebSocketOODSSClient <S extends Scope> extends Debug implements Cli
 			{
 				Log.d(TAG, "got a response message");
 				// TODO: add the response to the queue
+				addToUnprocessedResponse(incomingUid, (ResponseMessage) message);
 			}
 			else if (message instanceof UpdateMessage)
 			{
@@ -231,12 +316,17 @@ public class WebSocketOODSSClient <S extends Scope> extends Debug implements Cli
 
 	private long bytesToLong(byte[] uidBytes)
 	{
-		long value = 0;
-		for (int i = 0; i< uidBytes.length; i++)
-		{
-			value+=((long) uidBytes[i] & 0xffL) << (8*i);
-		}	
-		return value;
+//		long value = 0;
+//		for (int i = 0; i< uidBytes.length; i++)
+//		{
+//			value+=((long) uidBytes[i] & 0xffL) << (8*i);
+//		}	
+//		
+//		return value;
+		
+		ByteBuffer bb = ByteBuffer.wrap(uidBytes);
+		LongBuffer lb = bb.asLongBuffer();
+		return lb.get();
 	}
 
 	public void processClosed(WebSocketClientEvent aEvent)
