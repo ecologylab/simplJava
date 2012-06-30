@@ -325,8 +325,8 @@ public class WebSocketOODSSClient <S extends Scope> extends Debug implements Cli
 //		return value;
 		
 		ByteBuffer bb = ByteBuffer.wrap(uidBytes);
-		LongBuffer lb = bb.asLongBuffer();
-		return lb.get();
+		long l = bb.getLong();
+		return l;
 	}
 
 	public void processClosed(WebSocketClientEvent aEvent)
