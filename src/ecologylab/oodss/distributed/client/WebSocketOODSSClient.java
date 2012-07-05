@@ -2,6 +2,7 @@ package ecologylab.oodss.distributed.client;
 
 import java.io.UnsupportedEncodingException;
 import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 import java.nio.LongBuffer;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -14,9 +15,11 @@ import org.jwebsocket.api.WebSocketClientEvent;
 import org.jwebsocket.api.WebSocketClientTokenListener;
 import org.jwebsocket.api.WebSocketPacket;
 import org.jwebsocket.client.token.BaseTokenClient;
+import org.jwebsocket.config.JWebSocketCommonConstants;
 import org.jwebsocket.kit.WebSocketException;
 import org.jwebsocket.token.Token;
 
+import android.os.AsyncTask;
 import android.util.Log;
 
 import ecologylab.collections.Scope;
@@ -67,32 +70,43 @@ public class WebSocketOODSSClient <S extends Scope> extends Debug implements Cli
 		initializeWebSocketClient(url);
 	}
 	
-	private void initializeWebSocketClient(String url)
+	private void initializeWebSocketClient(final String url)
 	{
 		webSocketClient = new BaseTokenClient();
 		webSocketClient.addListener(this);
-		
-		try
-		{
-			webSocketClient.open(url);
-			Log.d(TAG, "Client connected to: "+url);
-		}
-		catch (WebSocketException e)
-		{
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-
+		new EstablishConnectionTask().execute(url);
 	}
 	
-	public boolean connect()
+	private class EstablishConnectionTask extends AsyncTask<String, Integer, Long>
 	{
-		if (connectedImpl())
+
+		@Override
+		protected Long doInBackground(String... arg0) {
+			webSocketClient.open(JWebSocketCommonConstants.WS_VERSION_DEFAULT, arg0[0], "basic");
+			return null;
+		}
+		
+		protected void onPostExecute (Long result)
 		{
-			// TODO: open up a new thread to do this. 
-			new Thread(new Runnable() {public void run() {
-				initResponse = sendMessage((RequestMessage) new InitConnectionRequest(sessionId));
-			}}).start();
+			Log.i(TAG, "to run connect()");
+			//connect();
+			if (webSocketClient.isConnected())
+				new SendAndReceiveInitConnectionInfo().execute(sessionId);
+		}
+	}
+	
+	private class SendAndReceiveInitConnectionInfo extends AsyncTask<String, Integer, ResponseMessage>
+	{
+
+		@Override
+		protected ResponseMessage doInBackground(String... params) {
+			// TODO Auto-generated method stub
+			ResponseMessage initResponse = sendMessage((RequestMessage) new InitConnectionRequest(params[0]));
+			return initResponse;
+		}
+		
+		protected void onPostExecute(ResponseMessage initResponse)
+		{
 			if (initResponse instanceof InitConnectionResponse)
 			{
 				Log.d(TAG, "Received initial connection response");
@@ -113,8 +127,41 @@ public class WebSocketOODSSClient <S extends Scope> extends Debug implements Cli
 				}
 			}
 		}
-		return connected();
+		
 	}
+	
+//	public boolean connect()
+//	{
+//		String connected = connectedImpl()?"connected":"notConnected";
+//		Log.i(TAG, connected);
+//		if (connectedImpl())
+//		{
+//			// TODO: open up a new thread to do this. 
+//			new Thread(new Runnable() {public void run() {
+//			initResponse = sendMessage((RequestMessage) new InitConnectionRequest(sessionId));
+//			}}).start();
+//			if (initResponse instanceof InitConnectionResponse)
+//			{
+//				Log.d(TAG, "Received initial connection response");
+//				String receivedId = ((InitConnectionResponse) initResponse).getSessionId();
+//				if(sessionId == null)
+//				{
+//					sessionId = receivedId;
+//					Log.d(TAG, "SessionId: "+sessionId);
+//				}
+//				else if (sessionId == receivedId)
+//				{
+//					//do nothing;
+//				}
+//				else
+//				{
+//					unableToRestorePreviousConnection(sessionId, receivedId);
+//					sessionId = receivedId;
+//				}
+//			}
+//		}
+//		return connected();
+//	}
 
 
 	private boolean connected()
@@ -143,12 +190,14 @@ public class WebSocketOODSSClient <S extends Scope> extends Debug implements Cli
 		createPacketFromMessageAndSend(uid, requestString);
 		
 		ResponseMessage responseMessage = getResponseMessage(uid);
+		
+		
 		processResponse(responseMessage);
 		
 		removeFromUnprocessedResponse(uid);
 		removeFromUnfulfilledRequests(uid);
 		
-		return null;		
+		return responseMessage;		
 	}
 	
 	private String generateStringFromRequest(RequestMessage request)
@@ -186,9 +235,9 @@ public class WebSocketOODSSClient <S extends Scope> extends Debug implements Cli
 		}
 		byte[] outMessage = new byte[uidBytes.length + messageBytes.length];
 		if (uidBytes.length>0)
-			Arrays.copyOfRange(uidBytes, 0, uidBytes.length);
+			System.arraycopy(uidBytes, 0, outMessage, 0, uidBytes.length);
 		if (messageBytes.length>0)
-			Arrays.copyOfRange(outMessage, uidBytes.length, messageBytes.length);
+			System.arraycopy(messageBytes, 0, outMessage, uidBytes.length, messageBytes.length);
 		try {
 			webSocketClient.send(outMessage);
 		} catch (WebSocketException e) {
@@ -198,7 +247,7 @@ public class WebSocketOODSSClient <S extends Scope> extends Debug implements Cli
 	}
 
 	private byte[] longToBytes(long uid) {
-		byte[] b = ByteBuffer.allocate(8).putLong(uid).array();
+		byte[] b = ByteBuffer.allocate(8).order(ByteOrder.LITTLE_ENDIAN).putLong(uid).array();
 		return b;
 	}
 
@@ -325,7 +374,7 @@ public class WebSocketOODSSClient <S extends Scope> extends Debug implements Cli
 //		return value;
 		
 		ByteBuffer bb = ByteBuffer.wrap(uidBytes);
-		long l = bb.getLong();
+		long l = bb.order(ByteOrder.LITTLE_ENDIAN).getLong();
 		return l;
 	}
 
