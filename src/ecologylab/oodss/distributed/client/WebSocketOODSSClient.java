@@ -3,14 +3,8 @@ package ecologylab.oodss.distributed.client;
 import java.io.UnsupportedEncodingException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
-import java.nio.LongBuffer;
 import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Queue;
 import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.TimeUnit;
-
 import org.jwebsocket.api.WebSocketClientEvent;
 import org.jwebsocket.api.WebSocketClientTokenListener;
 import org.jwebsocket.api.WebSocketPacket;
@@ -25,13 +19,10 @@ import android.util.Log;
 import ecologylab.collections.Scope;
 import ecologylab.generic.Debug;
 import ecologylab.oodss.distributed.common.ClientConstants;
-import ecologylab.oodss.distributed.exception.MessageTooLargeException;
-import ecologylab.oodss.distributed.impl.PreppedRequest;
-import ecologylab.oodss.distributed.impl.PreppedRequestPool;
+import ecologylab.oodss.distributed.impl.MessageWithUid;
 import ecologylab.oodss.messages.InitConnectionRequest;
 import ecologylab.oodss.messages.InitConnectionResponse;
 import ecologylab.oodss.messages.RequestMessage;
-import ecologylab.oodss.messages.SendableRequest;
 import ecologylab.oodss.messages.ServiceMessage;
 import ecologylab.oodss.messages.ResponseMessage;
 import ecologylab.oodss.messages.UpdateMessage;
@@ -55,9 +46,14 @@ public class WebSocketOODSSClient <S extends Scope> extends Debug implements Cli
 	
 	ResponseMessage initResponse;
 	
-	Map<Long, RequestMessage> unfulfilledRequests = new HashMap<Long, RequestMessage>();
-	Map<Long, ResponseMessage> unprocessedResponse = new HashMap<Long, ResponseMessage>();
 
+	private final LinkedBlockingQueue<MessageWithUid>	blockingResponsesQueue	= new LinkedBlockingQueue<MessageWithUid>();
+	private final LinkedBlockingQueue<MessageWithUid>	blockingRequestsQueue	= new LinkedBlockingQueue<MessageWithUid>();
+	
+	
+	private boolean running = false;
+	private Thread MessageSenderWorker;
+	
 	public WebSocketOODSSClient(String ipAddress, int portNumber, SimplTypesScope translationScope, S objectRegistry)
 	{
 		this.objectRegistry = objectRegistry;
@@ -67,7 +63,27 @@ public class WebSocketOODSSClient <S extends Scope> extends Debug implements Cli
 		
 		String webSocketPrefix = "ws://";
 		String url = webSocketPrefix + ipAddress + ":" + portNumber + "/websocket";
+		startSenderThreads();
 		initializeWebSocketClient(url);
+	}
+	
+	public void startSenderThreads()
+	{
+		running = true;
+
+		MessageSenderWorker = new Thread(new MessageSender());
+		MessageSenderWorker.start();
+	}
+	
+	private class MessageSender implements Runnable
+	{
+		public void run() {
+			// TODO Auto-generated method stub
+			while (running)
+			{
+				createPacketFromMessageAndSend();
+			}
+		}
 	}
 	
 	private void initializeWebSocketClient(final String url)
@@ -129,39 +145,6 @@ public class WebSocketOODSSClient <S extends Scope> extends Debug implements Cli
 		}
 		
 	}
-	
-//	public boolean connect()
-//	{
-//		String connected = connectedImpl()?"connected":"notConnected";
-//		Log.i(TAG, connected);
-//		if (connectedImpl())
-//		{
-//			// TODO: open up a new thread to do this. 
-//			new Thread(new Runnable() {public void run() {
-//			initResponse = sendMessage((RequestMessage) new InitConnectionRequest(sessionId));
-//			}}).start();
-//			if (initResponse instanceof InitConnectionResponse)
-//			{
-//				Log.d(TAG, "Received initial connection response");
-//				String receivedId = ((InitConnectionResponse) initResponse).getSessionId();
-//				if(sessionId == null)
-//				{
-//					sessionId = receivedId;
-//					Log.d(TAG, "SessionId: "+sessionId);
-//				}
-//				else if (sessionId == receivedId)
-//				{
-//					//do nothing;
-//				}
-//				else
-//				{
-//					unableToRestorePreviousConnection(sessionId, receivedId);
-//					sessionId = receivedId;
-//				}
-//			}
-//		}
-//		return connected();
-//	}
 
 
 	private boolean connected()
@@ -180,23 +163,33 @@ public class WebSocketOODSSClient <S extends Scope> extends Debug implements Cli
 		
 	}
 	
-	public ResponseMessage sendMessage(RequestMessage request)
+	public synchronized ResponseMessage sendMessage(RequestMessage request)
 	{
-		String requestString = generateStringFromRequest(request);
+		
 		long uid = generateUid();
 		
-		// TODO: 
-		addToUnfulfilledRequests(uid, request);
-		createPacketFromMessageAndSend(uid, requestString);
+		blockingRequestsQueue.add(new MessageWithUid(request, uid));
 		
-		ResponseMessage responseMessage = getResponseMessage(uid);
+		while (blockingResponsesQueue.isEmpty() || (blockingResponsesQueue.peek() != null && blockingResponsesQueue.peek().getUid() != uid))
+			try {
+				wait();
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 		
-		
-		processResponse(responseMessage);
-		
-		removeFromUnprocessedResponse(uid);
-		removeFromUnfulfilledRequests(uid);
-		
+		MessageWithUid m;
+		ResponseMessage responseMessage = null;
+		try {
+			m = blockingResponsesQueue.take();
+			responseMessage = (ResponseMessage) m.getMessage();
+			if (responseMessage != null)
+				processResponse(responseMessage);
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
 		return responseMessage;		
 	}
 	
@@ -220,30 +213,42 @@ public class WebSocketOODSSClient <S extends Scope> extends Debug implements Cli
 		return uidIndex ++;
 	}
 
-	synchronized private void addToUnfulfilledRequests(long uid, RequestMessage request) {
-		unfulfilledRequests.put(uid, request);
-	}
+	private void createPacketFromMessageAndSend() 
+	{	
+		MessageWithUid m;
+		try 
+		{
+			m = blockingRequestsQueue.take();
+			RequestMessage request = (RequestMessage) m.getMessage();
+			String requestString = generateStringFromRequest(request);
+			long uid = m.getUid();
+			
+			byte[] uidBytes = longToBytes(uid);
+			byte[] messageBytes = null;
+			try {
+				messageBytes = requestString.getBytes("UTF-8");
+			} catch (UnsupportedEncodingException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			byte[] outMessage = new byte[uidBytes.length + messageBytes.length];
+			if (uidBytes.length>0)
+				System.arraycopy(uidBytes, 0, outMessage, 0, uidBytes.length);
+			if (messageBytes.length>0)
+				System.arraycopy(messageBytes, 0, outMessage, uidBytes.length, messageBytes.length);
+			try {
+				webSocketClient.send(outMessage);
+			} catch (WebSocketException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		} 
+		catch (InterruptedException e1) 
+		{
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
 
-	private void createPacketFromMessageAndSend(long uid, String requestString) {
-		byte[] uidBytes = longToBytes(uid);
-		byte[] messageBytes = null;
-		try {
-			messageBytes = requestString.getBytes("UTF-8");
-		} catch (UnsupportedEncodingException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		byte[] outMessage = new byte[uidBytes.length + messageBytes.length];
-		if (uidBytes.length>0)
-			System.arraycopy(uidBytes, 0, outMessage, 0, uidBytes.length);
-		if (messageBytes.length>0)
-			System.arraycopy(messageBytes, 0, outMessage, uidBytes.length, messageBytes.length);
-		try {
-			webSocketClient.send(outMessage);
-		} catch (WebSocketException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
 	}
 
 	private byte[] longToBytes(long uid) {
@@ -251,36 +256,6 @@ public class WebSocketOODSSClient <S extends Scope> extends Debug implements Cli
 		return b;
 	}
 
-	private ResponseMessage getResponseMessage(long uid) {
-		ResponseMessage message;
-		while(!unprocessedResponse.containsKey(uid))
-		{
-			try {
-				TimeUnit.MILLISECONDS.sleep(50);
-			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
-				Log.e(TAG, "intercepted");
-				e.printStackTrace();
-			}
-		}
-		synchronized(unprocessedResponse)
-		{
-			message = unprocessedResponse.get(uid);
-		}
-		return message;
-	}
-
-	synchronized private void removeFromUnprocessedResponse(long uid) {
-		unprocessedResponse.remove(uid);
-	}
-
-	synchronized private void removeFromUnfulfilledRequests(long uid) {
-		unfulfilledRequests.remove(uid);
-	}
-
-	synchronized private void addToUnprocessedResponse(long uid, ResponseMessage response) {
-		unprocessedResponse.put(uid, response);
-	}
 
 	private void processString(String incomingMessage, long incomingUid)
 	{
@@ -293,8 +268,12 @@ public class WebSocketOODSSClient <S extends Scope> extends Debug implements Cli
 			if (message instanceof ResponseMessage)
 			{
 				Log.d(TAG, "got a response message");
-				// TODO: add the response to the queue
-				addToUnprocessedResponse(incomingUid, (ResponseMessage) message);
+				// add the response to the queue
+				blockingResponsesQueue.add(new MessageWithUid(message, incomingUid));
+				synchronized (this)
+				{
+					notify();
+				}
 			}
 			else if (message instanceof UpdateMessage)
 			{
@@ -364,15 +343,7 @@ public class WebSocketOODSSClient <S extends Scope> extends Debug implements Cli
 	}
 
 	private long bytesToLong(byte[] uidBytes)
-	{
-//		long value = 0;
-//		for (int i = 0; i< uidBytes.length; i++)
-//		{
-//			value+=((long) uidBytes[i] & 0xffL) << (8*i);
-//		}	
-//		
-//		return value;
-		
+	{	
 		ByteBuffer bb = ByteBuffer.wrap(uidBytes);
 		long l = bb.order(ByteOrder.LITTLE_ENDIAN).getLong();
 		return l;
