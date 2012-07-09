@@ -346,4 +346,8 @@ public class PURLConnection extends Debug
 	{
 		return good;
 	}
+	
+	public void setMimeType(String mimeType) {
+		this.mimeType = mimeType;
+	}
 }

@@ -113,7 +113,7 @@ public class Files extends Debug
 		{
 			// hack gnarly windows path shit
 			// (drives & backslashes are a plague on all programmers)
-			if (fixedFileName.charAt(1) != ':')
+			if (fixedFileName.length() > 1 && fixedFileName.charAt(1) != ':')
 			{
 				String contextName = context.getPath();
 				if (contextName.charAt(1) == ':')
