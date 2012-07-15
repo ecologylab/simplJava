@@ -59,7 +59,7 @@ public class JavaTranslator extends AbstractCodeTranslator implements JavaTransl
 	
 	static
 	{
-		templateGroup = new STGroupFile("resources/codeTranslators/javaCodeTranslator.stg");
+		templateGroup = new STGroupFile("../simplTranslators/resources/codeTranslators/javaCodeTranslator.stg");
 		templateGroup.registerRenderer(String.class, new AttributeRenderer()
 		{
 			@Override
