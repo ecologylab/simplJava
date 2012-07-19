@@ -18,6 +18,7 @@ import ecologylab.generic.HashMapArrayList;
 import ecologylab.semantics.html.utils.StringBuilderUtils;
 import ecologylab.serialization.ClassDescriptor;
 import ecologylab.serialization.FieldDescriptor;
+import ecologylab.serialization.GenericTypeVar;
 import ecologylab.serialization.MetaInformation;
 import ecologylab.serialization.MetaInformation.Argument;
 import ecologylab.serialization.SIMPLTranslationException;
@@ -101,7 +102,7 @@ public class DotNetTranslator extends AbstractCodeTranslator implements DotNetTr
 	public void translate(ClassDescriptor inputClass, File directoryLocation, CodeTranslatorConfig config)
 			throws IOException, DotNetTranslationException
 	{
-		debug("Generating C# class" + inputClass.getDescribedClassName() + "...");
+		debug("Generating C# class: " + inputClass.getDescribedClassName() + "...");
 		this.config = config;
 		File outputFile = createFileWithDirStructure(
 				directoryLocation,
@@ -214,19 +215,19 @@ public class DotNetTranslator extends AbstractCodeTranslator implements DotNetTr
 		appendable.append(SPACE);
 		appendable.append(CLASS);
 		appendable.append(SPACE);
-		appendable.append(inputClass.getDescribedClassSimpleName());
+//		appendable.append(inputClass.getDescribedClassSimpleName());
 		appendClassGenericTypeVariables(appendable, inputClass);
 		
-		ClassDescriptor superCD = inputClass.getSuperClass();
-		if (superCD != null)
-		{
-			appendable.append(SPACE);
-			appendable.append(INHERITANCE_OPERATOR);
-			appendable.append(SPACE);
-			appendable.append(superCD.getDescribedClassSimpleName());
-			appendSuperClassGenericTypeVariables(appendable, inputClass);
-			addCurrentClassDependency(superCD.getCSharpNamespace());
-		}
+//		ClassDescriptor superCD = inputClass.getSuperClass();
+//		if (superCD != null)
+//		{
+//			appendable.append(SPACE);
+//			appendable.append(INHERITANCE_OPERATOR);
+//			appendable.append(SPACE);
+//			appendable.append(superCD.getDescribedClassSimpleName());
+//			appendSuperClassGenericTypeVariables(appendable, inputClass);
+//			addCurrentClassDependency(superCD.getCSharpNamespace());
+//		}
 		superClassHook(inputClass, appendable);
 	
 		// TODO currently interfaces can only be done through reflection
@@ -299,30 +300,52 @@ public class DotNetTranslator extends AbstractCodeTranslator implements DotNetTr
 	protected void appendClassGenericTypeVariables(Appendable appendable, ClassDescriptor inputClass)
 			throws IOException
 	{
-		// TODO currently generic parameters can only be done through reflection!
-		ArrayList<String> typeVariables = inputClass.getGenericTypeVariables();
-		if (typeVariables != null && typeVariables.size() > 0)
-		{
-			appendable.append('<');
-			int i = 0;
-			for (String typeVariable : typeVariables)
-			{
-				if (i == 0)
-					appendable.append(typeVariable);
-				else
-					appendable.append(", ").append(typeVariable);
-				i++;
-			}
-			appendable.append('>');
-		}
+		appendable.append(DotNetGenericsUtils.toDefinitionWithGenerics(inputClass));
 	}
 
 	@Override
 	protected void appendSuperClassGenericTypeVariables(Appendable appendable,
 			ClassDescriptor inputClass) throws IOException
 	{
-		// TODO Auto-generated method stub
-		
+//		StringBuilder sb = new StringBuilder();
+//		List<GenericTypeVar> genericTypeVars = inputClass.getGenericTypeVars();
+//		if (genericTypeVars != null && genericTypeVars.size() > 0)
+//		{
+//			sb.append(" where ");
+//			int len = sb.length();
+//			for (int i = 0; i < genericTypeVars.size(); ++i)
+//			{
+//				GenericTypeVar genericTypeVar = genericTypeVars.get(i);
+//				sb.append(i == 0 ? "" : ", ");
+//				if (genericTypeVar.getConstraintGenericTypeVar() != null)
+//				{
+//					sb.append(genericTypeVar.getName()).append(" : ")
+//					  .append(genericTypeVar.getConstraintGenericTypeVar().getName());
+//				}
+//				else if (genericTypeVar.getConstraintClassDescriptor() != null)
+//				{
+//					sb.append(genericTypeVar.getName()).append(" : ")
+//					  .append(genericTypeVar.getConstraintClassDescriptor().getDescribedClassSimpleName());
+//					List<GenericTypeVar> CGTVargs = genericTypeVar.getConstraintGenericTypeVarArgs();
+//					if (CGTVargs != null && CGTVargs.size() > 0)
+//					{
+//						sb.append('<');
+//						for (int j = 0; j < CGTVargs.size(); ++j)
+//						{
+//							GenericTypeVar cgtv = CGTVargs.get(j);
+//							sb.append(j == 0 ? "" : ", ").append(cgtv.getName());
+//						}
+//						sb.append('>');
+//					}
+//				}
+//				else
+//				{
+//					warning("Unprocessed generic type var: " + genericTypeVar);
+//				}
+//			}
+//			if (sb.length() > len)
+//				appendable.append(sb);
+//		}
 	}
 
 	/**
