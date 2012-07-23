@@ -231,7 +231,6 @@ public class JavascriptTranslator
 	private void translateToJavascript(Class<? extends ElementState> inputClass,
 			File directoryLocation) throws IOException, DotNetTranslationException
 	{
-
 		File outputFile = createCSharpFileWithDirectoryStructure(inputClass, directoryLocation);
 
 		BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(outputFile));
@@ -239,7 +238,6 @@ public class JavascriptTranslator
 		translateToJavascript(inputClass, bufferedWriter);
 
 		bufferedWriter.close();
-
 	}
 
 	/***
