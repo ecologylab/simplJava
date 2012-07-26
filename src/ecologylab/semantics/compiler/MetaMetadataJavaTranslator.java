@@ -365,4 +365,10 @@ public class MetaMetadataJavaTranslator extends JavaTranslator implements MmdCom
 		addCurrentClassDependency(dependency.getDescribedClassName());
 	}
 
+	@Override
+	public void appendGenericTypeVarExtends(Appendable appendable,
+			Collection<MmdGenericTypeVar> mmdGenericTypeVars,
+			MetaMetadataRepository repository) throws IOException {
+		// TODO Auto-generated method stub
+	}
 }

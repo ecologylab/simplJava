@@ -85,14 +85,54 @@ public class MetaMetadataDotNetTranslator extends DotNetTranslator implements Mm
 	@Override
 	protected void appendSuperClassGenericTypeVariables(Appendable appendable,
 			ClassDescriptor inputClass) throws IOException
-	{
+	{ 
 		MetadataClassDescriptor mdCD = (MetadataClassDescriptor) inputClass;
 		MetaMetadata mmd = mdCD.getDefiningMmd();
 		MetaMetadataRepository repository = mmd.getRepository();
-		appendGenericTypeVarParameterizations(appendable, mmd.getMetaMetadataGenericTypeVars(), repository);
+
+		int firstIndexOf = appendable.toString().lastIndexOf("<");
+		Collection<MmdGenericTypeVar> mmdGenericTypeVars = mmd.getMetaMetadataGenericTypeVars();
+		appendGenericTypeVarParameterizations(appendable, mmdGenericTypeVars, repository);
+
+		Collection<MmdGenericTypeVar> superMmdGenericTypeVars = ((MetadataClassDescriptor) inputClass.getSuperClass()).getDefiningMmd().getMetaMetadataGenericTypeVars();
+		if (appendable.toString().lastIndexOf("<") == firstIndexOf /*(mmdGenericTypeVars == null || mmdGenericTypeVars.size() == 0)*/ &&
+			(superMmdGenericTypeVars != null || superMmdGenericTypeVars.size() > 0))
+		{
+			appendGenericTypeVarExtends(appendable, superMmdGenericTypeVars, repository);
+		}
 		
 		// the where clause
-		appendGenericTypeVarWhereClause(appendable, mmd.getMetaMetadataGenericTypeVars(), repository);
+		appendGenericTypeVarWhereClause(appendable, (Collection<MmdGenericTypeVar>) mmd.getMetaMetadataGenericTypeVars(), repository);
+	}
+
+	public void appendGenericTypeVarExtends(Appendable appendable,
+			Collection<MmdGenericTypeVar> mmdGenericTypeVars, MetaMetadataRepository repository)
+			throws IOException
+	{
+		if (mmdGenericTypeVars != null && mmdGenericTypeVars.size() > 0)
+		{
+			boolean first = true;
+			for (MmdGenericTypeVar mmdGenericTypeVar : mmdGenericTypeVars)
+			{
+				String varName = mmdGenericTypeVar.getName();
+				String extendsName = mmdGenericTypeVar.getExtendsAttribute();
+				String argName = mmdGenericTypeVar.getArg();
+				if (varName != null && extendsName != null && argName == null)
+				{
+					if (first)
+					{
+						appendable.append("<");
+						first = false;
+					}
+					else
+						appendable.append(", ");
+					appendable.append(MmdGenericTypeVar.getMdClassNameFromMmdOrNoChange(extendsName, repository, this));
+					appendGenericTypeVarExtends(appendable, mmdGenericTypeVar.getNestedGenericTypeVars(), repository);
+				}
+			}
+			if (!first)
+				appendable.append(">");
+		}		
 	}
 	
 	@Override
@@ -146,7 +186,7 @@ public class MetaMetadataDotNetTranslator extends DotNetTranslator implements Mm
 					else
 						appendable.append(", ");
 					appendable.append(varName);
-					appendGenericTypeVarParameterizations(appendable, mmdGenericTypeVar.getNestedGenericTypeVars(), repository);
+					//appendGenericTypeVarParameterizations(appendable, mmdGenericTypeVar.getNestedGenericTypeVars(), repository);
 				}
 			}
 			if (!first)
@@ -212,7 +252,12 @@ public class MetaMetadataDotNetTranslator extends DotNetTranslator implements Mm
 					else
 						appendable.append(", ");
 					appendable.append(MmdGenericTypeVar.getMdClassNameFromMmdOrNoChange(argName, repository, this));
-					appendGenericTypeVarParameterizations(appendable, mmdGenericTypeVar.getNestedGenericTypeVars(), repository);
+
+					int firstIndexOf = appendable.toString().lastIndexOf("<");
+					appendGenericTypeVarParameterizations(appendable, mmdGenericTypeVar.getNestedGenericTypeVars(), repository);						
+
+					if (appendable.toString().lastIndexOf("<") == firstIndexOf)
+						appendGenericTypeVarExtends(appendable, mmdGenericTypeVar.getNestedGenericTypeVars(), repository);
 				}
 			}
 			if (!first)

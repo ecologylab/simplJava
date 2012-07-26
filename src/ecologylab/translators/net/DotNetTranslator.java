@@ -215,19 +215,19 @@ public class DotNetTranslator extends AbstractCodeTranslator implements DotNetTr
 		appendable.append(SPACE);
 		appendable.append(CLASS);
 		appendable.append(SPACE);
-//		appendable.append(inputClass.getDescribedClassSimpleName());
+		appendable.append(inputClass.getDescribedClassSimpleName());
 		appendClassGenericTypeVariables(appendable, inputClass);
 		
-//		ClassDescriptor superCD = inputClass.getSuperClass();
-//		if (superCD != null)
-//		{
-//			appendable.append(SPACE);
-//			appendable.append(INHERITANCE_OPERATOR);
-//			appendable.append(SPACE);
-//			appendable.append(superCD.getDescribedClassSimpleName());
-//			appendSuperClassGenericTypeVariables(appendable, inputClass);
-//			addCurrentClassDependency(superCD.getCSharpNamespace());
-//		}
+		ClassDescriptor superCD = inputClass.getSuperClass();
+		if (superCD != null)
+		{
+			appendable.append(SPACE);
+			appendable.append(INHERITANCE_OPERATOR);
+			appendable.append(SPACE);
+			appendable.append(superCD.getDescribedClassSimpleName());
+			appendSuperClassGenericTypeVariables(appendable, inputClass);
+			addCurrentClassDependency(superCD.getCSharpNamespace());
+		}
 		superClassHook(inputClass, appendable);
 	
 		// TODO currently interfaces can only be done through reflection
