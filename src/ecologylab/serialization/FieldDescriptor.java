@@ -2294,4 +2294,9 @@ public class FieldDescriptor extends DescriptorBase implements FieldTypes, IMapp
 		this.wrapper = wrapper;
 	}
 	
+	protected String getFieldTypeName()
+	{
+		return fieldType;
+	}
+	
 }

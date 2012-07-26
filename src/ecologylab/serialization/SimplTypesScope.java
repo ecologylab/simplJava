@@ -572,7 +572,7 @@ public final class SimplTypesScope extends ElementState
 		removeTranslation(correspondingClassFor(classObj));
 		addTranslation(classObj);
 	}
-	// * You could even call it a ... Doppelgänger, if you wanted to. 
+	// * You could even call it a ... Doppelgï¿½nger, if you wanted to. 
 	
 
 	private Class<?> correspondingClassFor(Class<?> dummyObj)
@@ -1100,7 +1100,7 @@ public final class SimplTypesScope extends ElementState
 	 */
 	public static SimplTypesScope get(String name, SimplTypesScope... inheritedTranslations)
 	{
-		return get(name, inheritedTranslations, null);
+		return get(name, inheritedTranslations, (Class []) null);
 	}
 
 	/**
