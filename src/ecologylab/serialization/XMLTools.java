@@ -16,6 +16,7 @@ import java.lang.reflect.Type;
 import java.lang.reflect.TypeVariable;
 import java.lang.reflect.WildcardType;
 import java.net.URL;
+import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
@@ -35,6 +36,7 @@ import javax.xml.transform.stream.StreamResult;
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 import org.xml.sax.SAXParseException;
+
 
 import ecologylab.collections.Scope;
 import ecologylab.generic.Debug;
@@ -1911,6 +1913,10 @@ public class XMLTools extends Debug implements CharacterConstants, SpecialCharac
 		{
 			result = CrossLanguageTypeConstants.DOTNET_FIELD;
 		}
+		else if (ByteBuffer.class == fieldType)
+		{
+			result = CrossLanguageTypeConstants.DOTNET_BINARY_DATA;
+		}
 		else
 		{
 			// Assume the field is custom object
@@ -2301,6 +2307,10 @@ public class XMLTools extends Debug implements CharacterConstants, SpecialCharac
 		else if (Field.class == fieldType)
 		{
 			result = CrossLanguageTypeConstants.JAVA_FIELD;
+		}
+		else if (ByteBuffer.class == fieldType)
+		{
+			result = CrossLanguageTypeConstants.JAVA_BINARY_DATA;
 		}
 		else
 		{

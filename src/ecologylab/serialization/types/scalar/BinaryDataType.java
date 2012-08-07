@@ -15,7 +15,7 @@ implements CrossLanguageTypeConstants
 {
 	public BinaryDataType()
 	{
-		super(ByteBuffer.class, JAVA_BINARY_DATA, null, null);
+		super(ByteBuffer.class, DOTNET_BINARY_DATA, null, null);
 	}
 	
 	/**

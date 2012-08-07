@@ -101,7 +101,7 @@ implements CrossLanguageTypeConstants
 	
 	public static final ScalarType<File> FILE_TYPE 						= new FileType();
 	
-	public static final ScalarType<ByteBuffer> BINARY_FILE_TYPE				= new BinaryDataType();
+	public static final ScalarType<ByteBuffer> BINARY_DATA_TYPE				= new BinaryDataType();
 	
 	public static final ScalarType<UUID> UUID_TYPE 						= new UUIDType();
 	
