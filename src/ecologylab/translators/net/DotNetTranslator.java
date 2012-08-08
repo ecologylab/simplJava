@@ -140,8 +140,8 @@ public class DotNetTranslator extends AbstractCodeTranslator implements DotNetTr
 		appendHeaderComments(inputClass.getDescribedClassSimpleName(), SINGLE_LINE_COMMENT, FILE_EXTENSION, header);
 		
 		// unit scope
-		openUnitScope(inputClass.getCSharpNamespace(), classBody);
-
+		openUnitScope(inputClass.getDescribedClassPackageName(), classBody);
+			
 		// class
 		// class: opening
 		openClassBody(inputClass, classBody);
