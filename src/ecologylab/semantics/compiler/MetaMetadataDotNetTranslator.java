@@ -1,5 +1,7 @@
 package ecologylab.semantics.compiler;
 
+import static ecologylab.translators.net.DotNetTranslationConstants.SPACE;
+
 import java.io.IOException;
 import java.util.Collection;
 import java.util.List;
@@ -304,14 +306,47 @@ public class MetaMetadataDotNetTranslator extends DotNetTranslator implements Mm
 		CompilerConfig cconfig = (CompilerConfig) config; 
 		if (cconfig.getBuiltinDeclarationScopeName() == null)
 		{
-			super.generateLibraryTScopeGetter(appendable, tScope);
+			appendable.append(SINGLE_LINE_BREAK);
+			appendable.append(DOUBLE_TAB);
+			appendable.append(PUBLIC);
+			appendable.append(SPACE);
+			appendable.append(STATIC);
+			appendable.append(SPACE);
+			appendable.append(DOTNET_TRANSLATION_SCOPE);
+			appendable.append(SPACE);
+			appendable.append("Get");
+			appendable.append(OPENING_BRACE);
+			appendable.append(CLOSING_BRACE);
+			appendable.append(SINGLE_LINE_BREAK);
+			appendable.append(DOUBLE_TAB);
+			appendable.append(OPENING_CURLY_BRACE);
+			appendable.append(SINGLE_LINE_BREAK);
+			
+			appendable.append(DOUBLE_TAB);
+			appendable.append(TAB);
+			appendable.append(RETURN);
+			appendable.append(SPACE);
+			appendable.append(DOTNET_TRANSLATION_SCOPE);
+			appendable.append(DOT);
+			appendable.append(FGET);
+			appendable.append(OPENING_BRACE);
+			appendable.append(QUOTE);
+			appendable.append(SemanticsNames.REPOSITORY_METADATA_TYPE_SCOPE);
+			appendable.append(QUOTE);
+			appendTranslatedClassList(tScope, appendable);
+			appendable.append(CLOSING_BRACE);
+			appendable.append(END_LINE);
+			appendable.append(SINGLE_LINE_BREAK);
+			appendable.append(DOUBLE_TAB);
+			appendable.append(CLOSING_CURLY_BRACE);
+			appendable.append(SINGLE_LINE_BREAK);
 		}
 		else
 		{
 			appendable.append("\n");
 			appendable.append("\t\tpublic static SimplTypesScope Get()\n");
 			appendable.append("\t\t{\n");
-			appendable.append("\t\t\treturn SimplTypesScope.Get(\"SemanticNames.REPOSITORY_METADATA_TRANSLATIONS\"");
+			appendable.append("\t\t\treturn SimplTypesScope.Get(\"").append(SemanticsNames.REPOSITORY_BUILTIN_DECLARATIONS_TYPE_SCOPE).append("\"");
 			super.appendTranslatedClassList(tScope, appendable);
 			appendable.append(");\n");
 			appendable.append("\t\t}\n\n");
