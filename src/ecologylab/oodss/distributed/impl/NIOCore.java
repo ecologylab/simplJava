@@ -170,6 +170,10 @@ public abstract class NIOCore extends Debug implements StartAndStoppable, Networ
 									error(e.getMessage());
 									this.removeBadConnections(key);
 								}
+								catch (java.lang.IllegalArgumentException e)
+								{
+									warning(e.getMessage());
+								}
 							}
 							else
 							{
