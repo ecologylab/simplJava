@@ -355,7 +355,7 @@ public class NIOServerIOThread extends NIONetworking implements ServerConstants
 
 		for (int i = 0; i < hostAddresses.length; i++)
 		{
-			debug("setting up accept on " + hostAddresses[i]);
+			debug("setting up accept on " + hostAddresses[i] + ": " + portNumber);
 
 			// acquire the static ServerSocketChannel object
 			ServerSocketChannel channel = ServerSocketChannel.open();
