@@ -34,8 +34,8 @@ public class WebSocketServerImpl extends WebSocketServer
 
 	@Override
 	public void onError( WebSocket conn, Exception ex ) {
-		System.out.println("WebSocket connection error: " + conn.getRemoteSocketAddress() + " " + ex.getMessage());
-		if (!conn.isClosed())
+		System.out.println("WebSocket error: " + conn.getRemoteSocketAddress() + " " + ex.getMessage());
+		if (conn!= null && !conn.isClosed())
 			oodssServer.shutdownClient(conn);
 	}
 
