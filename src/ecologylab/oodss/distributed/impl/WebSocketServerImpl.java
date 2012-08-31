@@ -30,13 +30,13 @@ public class WebSocketServerImpl extends WebSocketServer
 				+ " because of " + reason);
 		else 
 			System.out.println("WebSocket server closing, because of: " + reason);
+		if (conn!= null && conn.isClosed())
+			oodssServer.shutdownClient(conn);
 	}
 
 	@Override
 	public void onError( WebSocket conn, Exception ex ) {
 		System.out.println("WebSocket error: " + conn.getRemoteSocketAddress() + " " + ex.getMessage());
-		if (conn!= null && !conn.isClosed())
-			oodssServer.shutdownClient(conn);
 	}
 
 	@Override
