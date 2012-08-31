@@ -14,6 +14,10 @@ public class SessionHandle
 {
 	private BaseSessionManager	sessionManager;
 
+	protected SessionHandle()
+	{
+	}
+	
 	public SessionHandle(BaseSessionManager cm)
 	{
 		sessionManager = cm;
