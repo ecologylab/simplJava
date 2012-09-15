@@ -1,7 +1,9 @@
 package ecologylab.semantics.compiler;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import ecologylab.generic.ReflectionTools;
@@ -10,6 +12,7 @@ import ecologylab.semantics.metametadata.MetaMetadataRepository;
 import ecologylab.semantics.metametadata.MetaMetadataRepositoryLoader;
 import ecologylab.semantics.metametadata.exceptions.MetaMetadataException;
 import ecologylab.serialization.annotations.Hint;
+import ecologylab.serialization.annotations.simpl_collection;
 import ecologylab.serialization.annotations.simpl_hints;
 import ecologylab.serialization.annotations.simpl_inherit;
 import ecologylab.serialization.annotations.simpl_scalar;
@@ -89,6 +92,9 @@ public class CompilerConfig extends CodeTranslatorConfig
 	@simpl_scalar
 	@simpl_hints({ Hint.XML_LEAF })
 	private String												builtinDeclarationScopeName;
+	
+	@simpl_collection("class_name")
+	private List<String>                  classesExcludedFromGeneratedTScopeClass;
 
 	/**
 	 * The target languange.
@@ -127,6 +133,7 @@ public class CompilerConfig extends CodeTranslatorConfig
 		this.targetLanguage = targetLanguage;
 		this.generatedSemanticsLocation = generatedSemanticsLocation;
 		this.generatedBuiltinDeclarationsLocation = generatedBuiltinDeclarationsLocation;
+		this.classesExcludedFromGeneratedTScopeClass = new ArrayList<String>();
 	}
 	
 	public String getTargetLanguage()
@@ -208,6 +215,11 @@ public class CompilerConfig extends CodeTranslatorConfig
 	public void setBuiltinDeclarationScopeName(String builtinDeclarationScopeName)
 	{
 		this.builtinDeclarationScopeName = builtinDeclarationScopeName;
+	}
+	
+	public List<String> getClassesExcludedFromGeneratedTScopeClass()
+	{
+	  return classesExcludedFromGeneratedTScopeClass;
 	}
 
 }
