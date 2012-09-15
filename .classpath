@@ -3,9 +3,10 @@
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="src" path="test"/>
 	<classpathentry exported="true" kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
-	<classpathentry kind="lib" path="lib/jackson-core-lgpl-1.7.8.jar" sourcepath="C:/Users/quyin/.m2/repository/org/codehaus/jackson/jackson-core-lgpl/1.7.8/jackson-core-lgpl-1.7.8-sources.jar"/>
+	<classpathentry kind="lib" path="lib/jackson-core-lgpl-1.7.8.jar"/>
 	<classpathentry kind="lib" path="lib/json_simple-1.1.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/4"/>
 	<classpathentry kind="lib" path="lib/WebSocket.jar" sourcepath="C:/Users/shenfeng/workspace/websocket/TooTallNate-Java-WebSocket-f28a37a/src"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
+
