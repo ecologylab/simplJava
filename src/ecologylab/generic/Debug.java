@@ -571,4 +571,25 @@ public class Debug
 	// {
 	// AllocationDebugger.finalized(this);
 	// }
+	
+  /**
+   * Check to make sure that condition is true. If not, throw an AssertionError.
+   * This is equivalent to assert, but added since assertion is often disabled by default, and
+   * thus ignored :(
+   * 
+   * @param condition
+   *          A condition that is expected to be true.
+   * @param format
+   *          The format string of the message for the thrown exception.
+   * @param args
+   *          The arguments to format.
+   */
+	public static void check(boolean condition, String format, Object... args)
+	{
+	  if (!condition)
+	  {
+	    throw new AssertionError(String.format(format, args));
+	  }
+	}
+	
 }

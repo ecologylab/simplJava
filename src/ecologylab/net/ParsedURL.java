@@ -230,11 +230,12 @@ public class ParsedURL extends Debug implements MimeType
 	{
 		// originally checked against "file:", but on OS X, we just get "file"; this is probably true
 		// everywhere else too, but I will leave "file:" for the time being. -Zach
-		boolean isFileProtocol = url.getProtocol() == "file" || url.getProtocol() == "file:";
+		boolean isFileProtocol = "file".equals(url.getProtocol()) || "file:".equals(url.getProtocol());
 		String host = url.getHost().trim();
 
-		return ((!isFileProtocol && (host == "" || host == "/")) || (isFileProtocol && (url.getPath()
-				.trim() != "" || "localhost".equalsIgnoreCase(host))));
+		return ((!isFileProtocol && ("".equals(host) || "/".equals(host)))
+		        || (isFileProtocol && (!"".equals(url.getPath().trim())
+		                               || "localhost".equalsIgnoreCase(host))));
 	}
 
 	/**
