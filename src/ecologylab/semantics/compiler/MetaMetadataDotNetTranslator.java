@@ -8,6 +8,7 @@ import java.util.List;
 
 import ecologylab.generic.Debug;
 import ecologylab.generic.StringTools;
+import ecologylab.semantics.html.utils.StringBuilderUtils;
 import ecologylab.semantics.metadata.MetadataClassDescriptor;
 import ecologylab.semantics.metadata.MetadataFieldDescriptor;
 import ecologylab.semantics.metametadata.MetaMetadata;
@@ -31,10 +32,10 @@ public class MetaMetadataDotNetTranslator extends DotNetTranslator implements Mm
 {
 	
 	public static final String	SCALAR_GETTER_SETTER_SUFFIX	= "Metadata";
-
+	
 	private static String[]			metaMetadataDefaultImports	= {
-		"ecologylab.semantics.metametadata",
-		"ecologylab.semantics.metadata.builtins",
+		"Ecologylab.Semantics.MetaMetadata",
+		"Ecologylab.Semantics.Metadata.Builtins",
 	};
 
 	public MetaMetadataDotNetTranslator()
@@ -46,7 +47,66 @@ public class MetaMetadataDotNetTranslator extends DotNetTranslator implements Mm
 		
 //		addLibraryTScopeDependency("ecologylab.semantics.metadata.builtins");
 	}
+	
+  private static String csharpNSMetadata = "Ecologylab.Semantics.Metadata";
+  private static String csharpNSMetadataNS = "Ecologylab.Semantics.MetadataNS";
+  private static String csharpNSLibraryDot = "Ecologylab.Semantics.Generated.Library.";
 
+	protected String javaPackage2CSharpNamespace(String packageName)
+	{
+	  String ns = super.javaPackage2CSharpNamespace(packageName);
+	  
+	  if (ns.startsWith(csharpNSMetadata)
+	      && !ns.startsWith(csharpNSMetadataNS))
+	  {
+	    ns = ns.replace(csharpNSMetadata, csharpNSMetadataNS);
+	    return ns;
+	  }
+  	  
+	  if (ns.startsWith(csharpNSLibraryDot))
+	  {
+	    if (!ns.endsWith("NS"))
+        return ns + "NS";
+	  }
+	  
+	  return ns;
+	}
+	
+	private static final String csharpSemanticsNamespacePrefix = "Ecologylab.Semantics.";
+	private static final String csharpGeneratedSemanticsNamespacePrefix = "Ecologylab.Semantics.Generated.";
+
+	@Override
+	protected String[] getGeneratedClassFileDirStructure(ClassDescriptor inputClass)
+  {
+    String packageName = inputClass.getDescribedClassPackageName();
+    String[] result = getGeneratedClassFileDirStructure(packageName);
+    
+    String csharpNamespace = javaPackage2CSharpNamespace(packageName);
+    inputClass.setDescribedClassPackageName(csharpNamespace);
+    
+    return result;
+  }
+	
+	@Override
+	protected String[] getGeneratedClassFileDirStructure(String classPackageName)
+	{
+    String csharpNamespace = javaPackage2CSharpNamespace(classPackageName);
+    if (csharpNamespace.startsWith(csharpGeneratedSemanticsNamespacePrefix))
+    {
+      String dirStructureStr = csharpNamespace.substring(csharpGeneratedSemanticsNamespacePrefix.length());
+      return dirStructureStr.split(PACKAGE_NAME_SEPARATOR);
+    }
+    else if (csharpNamespace.startsWith(csharpSemanticsNamespacePrefix))
+    {
+      String dirStructureStr = csharpNamespace.substring(csharpSemanticsNamespacePrefix.length());
+      return dirStructureStr.split(PACKAGE_NAME_SEPARATOR);
+    }
+    else
+    {
+      return super.getGeneratedClassFileDirStructure(classPackageName);
+    }
+	}
+	
 	@Override
 	protected void appendClassMetaInformationHook(ClassDescriptor classDesc, Appendable appendable)
 	{
@@ -70,8 +130,9 @@ public class MetaMetadataDotNetTranslator extends DotNetTranslator implements Mm
 		MetaMetadata definingMmd = ((MetadataClassDescriptor) inputClass).getDefiningMmd();
 		if (definingMmd.isRootMetaMetadata())
 		{
-			appendable.append(" : NotificationObject");
-			addCurrentClassDependency("Microsoft.Practices.Prism.ViewModel");
+		  // TODO we are moving away from Prism stuffs ...
+//			appendable.append(" : NotificationObject");
+//			addCurrentClassDependency("Microsoft.Practices.Prism.ViewModel");
 		}
 	}
 
@@ -383,7 +444,7 @@ public class MetaMetadataDotNetTranslator extends DotNetTranslator implements Mm
 	@Override
 	public void addCurrentClassDependency(ClassDescriptor dependency)
 	{
-		addCurrentClassDependency(dependency.getCSharpNamespace());
+		addCurrentClassDependency(javaPackage2CSharpNamespace(dependency.getCSharpNamespace()));
 	}
 	
 }

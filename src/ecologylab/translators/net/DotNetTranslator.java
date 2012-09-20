@@ -18,7 +18,6 @@ import ecologylab.generic.HashMapArrayList;
 import ecologylab.semantics.html.utils.StringBuilderUtils;
 import ecologylab.serialization.ClassDescriptor;
 import ecologylab.serialization.FieldDescriptor;
-import ecologylab.serialization.GenericTypeVar;
 import ecologylab.serialization.MetaInformation;
 import ecologylab.serialization.MetaInformation.Argument;
 import ecologylab.serialization.SIMPLTranslationException;
@@ -75,7 +74,7 @@ public class DotNetTranslator extends AbstractCodeTranslator implements DotNetTr
 		addGlobalDependency("Simpl.Serialization");
 		addGlobalDependency("Simpl.Serialization.Attributes");
 		addGlobalDependency("Simpl.Fundamental.Generic");
-		addGlobalDependency("ecologylab.collections");
+		addGlobalDependency("Ecologylab.Collections");
 	}
 
 	@Override
@@ -94,7 +93,8 @@ public class DotNetTranslator extends AbstractCodeTranslator implements DotNetTr
 			}
 			translate(classDesc, directoryLocation, config);
 		}
-		generateLibraryTScopeClass(directoryLocation, tScope, config.getLibraryTScopeClassPackage(), config.getLibraryTScopeClassSimpleName());
+		String libraryTScopeNamespace = javaPackage2CSharpNamespace(config.getLibraryTScopeClassPackage());
+		generateLibraryTScopeClass(directoryLocation, tScope, libraryTScopeNamespace, config.getLibraryTScopeClassSimpleName());
 		debug("DONE !");
 	}
 
@@ -106,7 +106,7 @@ public class DotNetTranslator extends AbstractCodeTranslator implements DotNetTr
 		this.config = config;
 		File outputFile = createFileWithDirStructure(
 				directoryLocation,
-				inputClass.getDescribedClassPackageName().split(PACKAGE_NAME_SEPARATOR),
+      	getGeneratedClassFileDirStructure(inputClass),
 				inputClass.getDescribedClassSimpleName(),
 				FILE_EXTENSION
 				);
@@ -115,7 +115,32 @@ public class DotNetTranslator extends AbstractCodeTranslator implements DotNetTr
 		bufferedWriter.close();
 		debug("done.");
 	}
+	
+	protected String[] getGeneratedClassFileDirStructure(ClassDescriptor inputClass)
+	{
+	  return getGeneratedClassFileDirStructure(inputClass.getDescribedClassPackageName());
+	}
+	
+	protected String[] getGeneratedClassFileDirStructure(String classPackageName)
+	{
+	  return classPackageName.split(PACKAGE_NAME_SEPARATOR);
+	}
 
+	protected String javaPackage2CSharpNamespace(String packageName)
+	{
+    StringBuilder sb = StringBuilderUtils.acquire();
+    for (int i = 0; i < packageName.length(); ++i)
+    {
+      char c = packageName.charAt(i);
+      char pc = i == 0 ? 0 : packageName.charAt(i-1);
+      if (c != '_')
+        sb.append((i == 0 || pc == '.' || pc == '_') ? Character.toUpperCase(c) : c);
+    }
+    String result = sb.toString();
+    StringBuilderUtils.release(sb);
+    return result;
+	}
+	
 	/**
 	 * The actual method converting a class descriptor into C# codes.
 	 * 
@@ -169,7 +194,10 @@ public class DotNetTranslator extends AbstractCodeTranslator implements DotNetTr
 		closeUnitScope(classBody);
 
 		// dependencies
-		currentClassDependencies.addAll(deriveDependencies(inputClass));
+		for (String dependency : deriveDependencies(inputClass))
+		{
+  		currentClassDependencies.add(javaPackage2CSharpNamespace(dependency));
+		}
 		appendDependencies(currentClassDependencies, header);
 		currentClassDependencies.clear();
 		
@@ -226,7 +254,7 @@ public class DotNetTranslator extends AbstractCodeTranslator implements DotNetTr
 			appendable.append(SPACE);
 			appendable.append(superCD.getDescribedClassSimpleName());
 			appendSuperClassGenericTypeVariables(appendable, inputClass);
-			addCurrentClassDependency(superCD.getCSharpNamespace());
+			addCurrentClassDependency(javaPackage2CSharpNamespace(superCD.getCSharpNamespace()));
 		}
 		superClassHook(inputClass, appendable);
 	
@@ -542,7 +570,7 @@ public class DotNetTranslator extends AbstractCodeTranslator implements DotNetTr
 		appendable.append("\t\t\t\tif (this.").append(fieldName).append(" != value)\n");
 		appendable.append("\t\t\t\t{\n");
 		appendable.append("\t\t\t\t\tthis.").append(fieldName).append(" = value;\n");
-		appendable.append("\t\t\t\t\tthis.RaisePropertyChanged( () => this.").append(propertyName).append(" );\n");
+		appendable.append("\t\t\t\t\t// TODO we need to implement our property change notification mechanism.\n");
 		appendable.append("\t\t\t\t}\n");
 		appendable.append("\t\t\t}\n");
 		appendable.append(DOUBLE_TAB);
@@ -741,21 +769,30 @@ public class DotNetTranslator extends AbstractCodeTranslator implements DotNetTr
 	public void addGlobalDependency(String name)
 	{
 		if (name != null)
+		{
+		  name = javaPackage2CSharpNamespace(name);
 			globalDependencies.add(name);
+		}
 	}
 
 	@Override
 	public void addCurrentClassDependency(String name)
 	{
 		if (name != null)
+		{
+		  name = javaPackage2CSharpNamespace(name);
 			currentClassDependencies.add(name);
+		}
 	}
 	
 	@Override
 	public void addLibraryTScopeDependency(String name)
 	{
 		if (name != null)
+		{
+		  name = javaPackage2CSharpNamespace(name);
 			libraryTScopeDependencies.add(name);
+		}
 	}
 
 	/**
@@ -764,15 +801,25 @@ public class DotNetTranslator extends AbstractCodeTranslator implements DotNetTr
 	 * @throws IOException
 	 */
 	@Override
-	public void generateLibraryTScopeClass(File directoryLocation, SimplTypesScope tScope, String tscopePackageName, String tscopeClassName)
+	public void generateLibraryTScopeClass(File directoryLocation, SimplTypesScope tScope, String tscopeNamespace, String tscopeClassName)
 			throws IOException
 	{
-		File sourceFile = createFileWithDirStructure(directoryLocation, tscopePackageName.split(PACKAGE_NAME_SEPARATOR), tscopeClassName, FILE_EXTENSION);
+		File sourceFile =
+		    createFileWithDirStructure(directoryLocation,
+                        		       getGeneratedClassFileDirStructure(tscopeNamespace),
+		                               tscopeClassName,
+		                               FILE_EXTENSION);
 		BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(sourceFile));
 
 		// append dependencies
 		appendDependencies(globalDependencies, bufferedWriter);
-		appendDependencies(libraryTScopeDependencies, bufferedWriter);
+		Set<String> filteredLibDependencies = new HashSet<String>();
+		for (String dep : libraryTScopeDependencies)
+		{
+		  if (!tscopeNamespace.equals(dep))
+		    filteredLibDependencies.add(dep);
+		}
+		appendDependencies(filteredLibDependencies, bufferedWriter);
 		
 		// append notice information
 		bufferedWriter.append("// Developer should proof-read this TranslationScope before using it for production.");
@@ -781,7 +828,7 @@ public class DotNetTranslator extends AbstractCodeTranslator implements DotNetTr
 		// header
 		bufferedWriter.append(NAMESPACE);
 		bufferedWriter.append(SPACE);
-		bufferedWriter.append(tscopePackageName);
+		bufferedWriter.append(tscopeNamespace);
 		bufferedWriter.append(SPACE);
 		bufferedWriter.append(SINGLE_LINE_BREAK);
 		bufferedWriter.append(OPENING_CURLY_BRACE);
