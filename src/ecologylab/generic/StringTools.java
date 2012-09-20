@@ -946,6 +946,18 @@ public class StringTools extends Debug
 		}
 		return buffy.toString();
 	}
+	
+	public static String join(String delim, String... parts)
+	{
+	  StringBuilder sb = new StringBuilder();
+	  for (int i = 0; i < parts.length; ++i)
+	  {
+	    if (i > 0)
+	      sb.append(delim);
+      sb.append(parts[i]);
+	  }
+	  return sb.toString();
+	}
 
 	public static final String	QUOTED_PRINTABLE_CAPTURE_PATTERN_STRING	= "(=.{2})*(=\\s)*";
 
