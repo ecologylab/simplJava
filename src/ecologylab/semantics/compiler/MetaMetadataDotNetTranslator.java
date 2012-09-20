@@ -34,7 +34,7 @@ public class MetaMetadataDotNetTranslator extends DotNetTranslator implements Mm
 	public static final String	SCALAR_GETTER_SETTER_SUFFIX	= "Metadata";
 	
 	private static String[]			metaMetadataDefaultImports	= {
-		"Ecologylab.Semantics.MetaMetadata",
+		"Ecologylab.Semantics.MetaMetadataNS",
 		"Ecologylab.Semantics.Metadata.Builtins",
 	};
 
@@ -50,6 +50,8 @@ public class MetaMetadataDotNetTranslator extends DotNetTranslator implements Mm
 	
   private static String csharpNSMetadata = "Ecologylab.Semantics.Metadata";
   private static String csharpNSMetadataNS = "Ecologylab.Semantics.MetadataNS";
+  private static String csharpNSMetaMetadata = "Ecologylab.Semantics.Metametadata";
+  private static String csharpNSMetaMetadataNS = "Ecologylab.Semantics.MetaMetadataNS";
   private static String csharpNSLibraryDot = "Ecologylab.Semantics.Generated.Library.";
 
 	protected String javaPackage2CSharpNamespace(String packageName)
@@ -60,6 +62,13 @@ public class MetaMetadataDotNetTranslator extends DotNetTranslator implements Mm
 	      && !ns.startsWith(csharpNSMetadataNS))
 	  {
 	    ns = ns.replace(csharpNSMetadata, csharpNSMetadataNS);
+	    return ns;
+	  }
+  	  
+	  if (ns.startsWith(csharpNSMetaMetadata)
+	      && !ns.startsWith(csharpNSMetaMetadataNS))
+	  {
+	    ns = ns.replace(csharpNSMetaMetadata, csharpNSMetaMetadataNS);
 	    return ns;
 	  }
   	  

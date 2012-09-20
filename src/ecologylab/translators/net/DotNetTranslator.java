@@ -396,6 +396,8 @@ public class DotNetTranslator extends AbstractCodeTranslator implements DotNetTr
 			return;
 		}
 		
+		cSharpType = javaType2CSharpTypeWithNamespaceFix(cSharpType);
+		
 		boolean isKeyword = checkForKeywords(fieldDescriptor);
 		if (isKeyword)
 				appendable.append(OPEN_BLOCK_COMMENTS).append(SINGLE_LINE_BREAK);
@@ -412,6 +414,29 @@ public class DotNetTranslator extends AbstractCodeTranslator implements DotNetTr
 		if (isKeyword)
 				appendable.append(CLOSE_BLOCK_COMMENTS).append(SINGLE_LINE_BREAK);
 	}
+
+  private String javaType2CSharpTypeWithNamespaceFix(String cSharpType)
+  {
+    if (cSharpType.contains("."))
+		{
+		  // adapt java style package into C# namespace
+		  
+		  int p0 = cSharpType.indexOf('<');
+		  int p1 = cSharpType.indexOf('>');
+      String prefix = p0 >= 0 ? cSharpType.substring(0, p0 + 1) : "";
+      String suffix = p1 >= 0 ? cSharpType.substring(p1) : "";
+		  String typeStr = p0 >= 0 && p1 >= 0 ? cSharpType.substring(p0 + 1, p1) : cSharpType;
+		  
+		  int p = typeStr.lastIndexOf('.');
+		  String packageName = typeStr.substring(0, p);
+		  String className = typeStr.substring(p + 1);
+		  
+		  typeStr = javaPackage2CSharpNamespace(packageName) + "." + className;
+		  
+		  cSharpType = prefix + typeStr + suffix;
+		}
+    return cSharpType;
+  }
 
 	@Override
 	protected void appendFieldGenericTypeVars(ClassDescriptor contextCd,
@@ -535,6 +560,8 @@ public class DotNetTranslator extends AbstractCodeTranslator implements DotNetTr
 			return;
 		}
 	
+		cSharpType = javaType2CSharpTypeWithNamespaceFix(cSharpType);
+		
 		appendable.append(SINGLE_LINE_BREAK);
 	
 		String fieldName = fieldDescriptor.getName();
