@@ -12,6 +12,7 @@ import java.nio.channels.SelectionKey;
 import java.nio.charset.CharacterCodingException;
 import java.nio.charset.Charset;
 import java.nio.charset.CharsetDecoder;
+import java.util.Arrays;
 import java.util.Iterator;
 
 import ecologylab.collections.Scope;
@@ -447,5 +448,14 @@ public class DoubleThreadedNIOServer<S extends Scope> extends AbstractNIOServer<
 	public StringBuilderPool getSharedStringBuilderPool() 
 	{
 		return stringBuilderPool;
+	}
+
+	@Override
+	public void increaseSharedBufferPoolSize(int newCapacity) {
+		char[] tempCharBufferArray = Arrays.copyOf(charBufferPool.acquire().array(), charBufferPool.acquire().array().length);
+		byte[] tempBtyeBufferArray = Arrays.copyOf(byteBufferPool.acquire().array(), byteBufferPool.acquire().array().length);
+		instantiateBufferPools(newCapacity);
+		System.arraycopy(tempCharBufferArray, 0, charBufferPool.acquire().array(), 0, tempCharBufferArray.length);
+		System.arraycopy(tempBtyeBufferArray, 0, byteBufferPool.acquire().array(), 0, tempBtyeBufferArray.length);
 	}
 }
