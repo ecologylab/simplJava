@@ -47,4 +47,6 @@ public interface NIOServerProcessor extends StartAndStoppable
 	public CharBufferPool getSharedCharBufferPool();
 	
 	public StringBuilderPool getSharedStringBuilderPool();
+	
+	public void increaseSharedBufferPoolSize(int newCapacity);
 }
