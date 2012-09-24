@@ -476,4 +476,10 @@ public class NIODatagramServer<S extends Scope> extends NIODatagramCore<S> imple
 			e.printStackTrace();
 		}
 	}
+
+	@Override
+	public void increaseSharedBufferPoolSize(int newCapacity) {
+		// TODO Auto-generated method stub
+		
+	}
 }
