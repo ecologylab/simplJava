@@ -850,6 +850,15 @@ public abstract class TCPClientSessionManager<S extends Scope, PARENT extends Sc
 
 			if (!usingCompression)
 			{
+				// assert that the size of the message is smaller than the buffer.
+				// if not, increase the buffer.
+				if (msgBufOutgoing.length() + headerBufOutgoing.length() > outgoingChars.capacity())
+				{
+					int newCapacity = outgoingChars.capacity()*2;
+					this.frontend.increaseSharedBufferPoolSize(newCapacity);
+					outgoingChars = this.frontend.getSharedCharBufferPool().acquire();
+				}
+				
 				msgBufOutgoing.getChars(0, msgBufOutgoing.length(), outgoingChars.array(),
 						headerBufOutgoing.length());
 
