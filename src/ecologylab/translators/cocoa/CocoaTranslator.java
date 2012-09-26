@@ -554,7 +554,7 @@ public class CocoaTranslator
 	 * @throws ParseException
 	 */
 	public void translateToObjC(File directoryLocation, SimplTypesScope tScope, File workSpaceLocation)
-			throws IOException, CocoaTranslationException, SIMPLTranslationException, ParseException
+			throws IOException, CocoaTranslationException, SIMPLTranslationException
 	{
 		// Parse source files for javadocs
 		JavaDocParser.parseSourceFileIfExists(tScope, workSpaceLocation);

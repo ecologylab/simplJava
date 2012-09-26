@@ -127,7 +127,7 @@ public class CompilerConfig extends CodeTranslatorConfig
 	 * @param targetLanguage
 	 * @param generatedSemanticsLocation
 	 */
-	CompilerConfig(String targetLanguage, File generatedSemanticsLocation, File generatedBuiltinDeclarationsLocation)
+	public CompilerConfig(String targetLanguage, File generatedSemanticsLocation, File generatedBuiltinDeclarationsLocation)
 	{
 		super("ecologylab.semantics.generated.library", "RepositoryMetadataTranslationScope");
 		this.targetLanguage = targetLanguage;
