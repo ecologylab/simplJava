@@ -130,7 +130,8 @@ public class FundamentalPlatformSpecificsSun implements IFundamentalPlatformSpec
 		return result;
 	};
 
-	public static ArrayList<GenericTypeVar> getGenericTypeVars(ParameterizedType parameterizedType, ArrayList scope)
+	public static ArrayList<GenericTypeVar> getGenericTypeVars(ParameterizedType parameterizedType,
+	                                                           ArrayList<GenericTypeVar> scope)
 	{
 		Type[] types = parameterizedType.getActualTypeArguments();
 
