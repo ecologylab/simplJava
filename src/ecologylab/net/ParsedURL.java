@@ -233,8 +233,8 @@ public class ParsedURL extends Debug implements MimeType
 		boolean isFileProtocol = "file".equals(url.getProtocol()) || "file:".equals(url.getProtocol());
 		String host = url.getHost().trim();
 
-		return ((!isFileProtocol && (host.isEmpty() || "/".equals(host)))
-		        || (isFileProtocol && (url.getPath().trim().isEmpty()
+		return ((!isFileProtocol && ("".equals(host) || "/".equals(host)))
+		        || (isFileProtocol && ("".equals(url.getPath().trim())
 		                               || "localhost".equalsIgnoreCase(host))));
 	}
 
