@@ -66,7 +66,7 @@ implements CrossLanguageTypeConstants
 	   }
 	   else if (PropertiesAndDirectories.isWindows())
 	   {
-	  	 if (value.charAt(1) == ':') 
+	  	 if (value.length() > 1 && value.charAt(1) == ':') 
 	  		 file				= ecologylab.io.Files.newFile(value);
 	  	 else if (value.startsWith("\\\\"))
 	  		 file				= new File(value);
