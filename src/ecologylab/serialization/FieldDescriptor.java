@@ -476,6 +476,10 @@ public class FieldDescriptor extends DescriptorBase implements FieldTypes, IMapp
 				tlvClassDescriptors.put(tagName.hashCode(), classDescriptor);
 			}
 		}
+		else
+		{
+		  warning("Failed to resolve simpl_scope: " + scopeAnnotation);
+		}
 		return scope != null;
 	}
 
@@ -1921,7 +1925,14 @@ public class FieldDescriptor extends DescriptorBase implements FieldTypes, IMapp
 
 	public ClassDescriptor elementClassDescriptor(String tagName)
 	{
-		return (!isPolymorphic()) ? elementClassDescriptor : polymorphClassDescriptors.get(tagName);
+	  if (isPolymorphic())
+	  {
+	    if (polymorphClassDescriptors == null)
+	      derivePolymorphicDescriptors(field);
+	    if (polymorphClassDescriptors != null)
+	      return polymorphClassDescriptors.get(tagName);
+	  }
+    return elementClassDescriptor;
 	}
 
 	public ClassDescriptor elementClassDescriptor(int tlvId)

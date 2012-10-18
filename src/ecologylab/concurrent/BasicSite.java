@@ -100,6 +100,7 @@ class BasicSite extends ElementState implements IMappable<String>
 
 	public synchronized void endDownload()
 	{
+	  debug("Ending downloading for site");
 		isDownloading	= false;
 		downloadsQueuedOrInProgress--;
 	}

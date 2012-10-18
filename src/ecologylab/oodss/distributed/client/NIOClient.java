@@ -230,7 +230,7 @@ public class NIOClient<S extends Scope> extends Debug implements ClientConstants
 	 * 
 	 * @see ecologylab.oodss.distributed.legacy.ServicesClientBase#connect()
 	 */
-	public boolean connect()
+	public boolean connect(int timeoutMilli)
 	{
 		debug(5, "initializing connection...");
 		if (this.connectImpl())
@@ -243,7 +243,7 @@ public class NIOClient<S extends Scope> extends Debug implements ClientConstants
 			ResponseMessage initResponse = null;
 			try
 			{
-				initResponse = this.sendMessage(new InitConnectionRequest(this.sessionId));
+				initResponse = this.sendMessage(new InitConnectionRequest(this.sessionId), timeoutMilli);
 			}
 			catch (MessageTooLargeException e)
 			{
@@ -279,6 +279,11 @@ public class NIOClient<S extends Scope> extends Debug implements ClientConstants
 
 		debug(5, "connected? " + this.connected());
 		return connected();
+	}
+	
+	public boolean connect()
+	{
+	  return connect(-1);
 	}
 
 	/**
