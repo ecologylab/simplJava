@@ -11,3 +11,7 @@ nbproject/private/
 *.DS_Store
 *.swp
 *.out
+
+.settings/
+bin/
+
