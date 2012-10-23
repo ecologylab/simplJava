@@ -878,4 +878,11 @@ implements Downloadable, Colors
 		return location();
 	}
 
+  @Override
+  public boolean isCached()
+  {
+    // TODO Auto-generated method stub
+    return false;
+  }
+
 }
