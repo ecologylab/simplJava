@@ -12,7 +12,8 @@ import java.security.NoSuchAlgorithmException;
 import java.util.Collection;
 import java.util.concurrent.ConcurrentHashMap;
 
-import sun.misc.BASE64Encoder;
+import javax.xml.bind.DatatypeConverter;
+
 import ecologylab.collections.Scope;
 import ecologylab.generic.CharBufferPool;
 import ecologylab.generic.HashMapArrayList;
@@ -27,7 +28,6 @@ import ecologylab.oodss.messages.MultiRequestMessage;
 import ecologylab.oodss.messages.RequestMessage;
 import ecologylab.oodss.messages.ResponseMessage;
 import ecologylab.oodss.messages.ServiceMessage;
-import ecologylab.serialization.SIMPLTranslationException;
 import ecologylab.serialization.SimplTypesScope;
 
 /**
@@ -336,7 +336,7 @@ public class NIODatagramServer<S extends Scope> extends NIODatagramCore<S> imple
 		dispensedTokens++;
 
 		// convert to normal characters and return as a String
-		return new String((new BASE64Encoder()).encode(digester.digest()));
+		return DatatypeConverter.printBase64Binary(digester.digest());
 	}
 
 	public int getPortNumber()

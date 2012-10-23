@@ -209,4 +209,11 @@ implements Downloadable, Continuation<Object>
 		return location();
 	}
 
+  @Override
+  public boolean isCached()
+  {
+    // TODO Auto-generated method stub
+    return false;
+  }
+
 }

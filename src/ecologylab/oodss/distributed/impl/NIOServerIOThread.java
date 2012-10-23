@@ -22,7 +22,8 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Map;
 
-import sun.misc.BASE64Encoder;
+import javax.xml.bind.DatatypeConverter;
+
 import ecologylab.collections.Scope;
 import ecologylab.generic.ObjectOrHashMap;
 import ecologylab.oodss.distributed.common.ServerConstants;
@@ -428,7 +429,7 @@ public class NIOServerIOThread extends NIONetworking implements ServerConstants
 		dispensedTokens++;
 
 		// convert to normal characters and return as a String
-		return new String((new BASE64Encoder()).encode(digester.digest()));
+		return DatatypeConverter.printBase64Binary(digester.digest());
 	}
 
 	@Override

@@ -477,4 +477,12 @@ public class ZipDownload extends Debug implements Downloadable, Continuation
 	{
 		return location();
 	}
+
+  @Override
+  public boolean isCached()
+  {
+    // TODO Auto-generated method stub
+    return false;
+  }
+  
 }

@@ -347,6 +347,13 @@ public class DownloadMonitor<T extends Downloadable> extends Monitor implements
 						recycleClosure 	= false;
 						thatClosure 		= toDownload.get(closureNum);
 						downloadable 		= thatClosure.downloadable;
+						
+						if (downloadable.isCached())
+						{
+						  debug("downloadable cached, skip site checking and download intervals");
+						  break;
+						}
+						
 						BasicSite site 	= downloadable.getDownloadSite();						
 						if(site != null && site.shouldIgnore())
 						{
