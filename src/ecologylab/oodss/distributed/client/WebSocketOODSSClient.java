@@ -54,15 +54,22 @@ public class WebSocketOODSSClient <S extends Scope> extends Debug implements Cli
 	private boolean running = false;
 	private Thread MessageSenderWorker;
 	
-	public WebSocketOODSSClient(String ipAddress, int portNumber, SimplTypesScope translationScope, S objectRegistry)
+	private WebSocketOODSSConnectionCallbacks clientApplication;
+	
+	public WebSocketOODSSClient(String ipAddress, int portNumber, SimplTypesScope translationScope, S objectRegistry, WebSocketOODSSConnectionCallbacks clientApplication)
 	{
 		this.objectRegistry = objectRegistry;
 		this.translationScope = translationScope;
 		this.serverAddress = ipAddress;
 		this.portNumber = portNumber;
-		
+		this.clientApplication = clientApplication;
+		connect();
+	}
+	
+	public void connect()
+	{
 		String webSocketPrefix = "ws://";
-		String url = webSocketPrefix + ipAddress + ":" + portNumber + "/websocket";
+		String url = webSocketPrefix + serverAddress + ":" + portNumber + "/websocket";
 		startSenderThreads();
 		initializeWebSocketClient(url);
 	}
@@ -78,7 +85,6 @@ public class WebSocketOODSSClient <S extends Scope> extends Debug implements Cli
 	private class MessageSender implements Runnable
 	{
 		public void run() {
-			// TODO Auto-generated method stub
 			while (running)
 			{
 				createPacketFromMessageAndSend();
@@ -98,16 +104,20 @@ public class WebSocketOODSSClient <S extends Scope> extends Debug implements Cli
 
 		@Override
 		protected Long doInBackground(String... arg0) {
+			Log.d(TAG, "to open websocket");
 			webSocketClient.open(JWebSocketCommonConstants.WS_VERSION_DEFAULT, arg0[0], "basic");
 			return null;
 		}
 		
 		protected void onPostExecute (Long result)
 		{
-			Log.i(TAG, "to run connect()");
 			//connect();
 			if (webSocketClient.isConnected())
+			{
+				Log.d(TAG, "to send initConnectionInfo ");
 				new SendAndReceiveInitConnectionInfo().execute(sessionId);
+			}
+				
 		}
 	}
 	
@@ -141,13 +151,16 @@ public class WebSocketOODSSClient <S extends Scope> extends Debug implements Cli
 					unableToRestorePreviousConnection(sessionId, receivedId);
 					sessionId = receivedId;
 				}
+				
+				// connection is made. proceed. 
+				clientApplication.webSocketConnected();
 			}
 		}
 		
 	}
 
 
-	private boolean connected()
+	public boolean connected()
 	{
 		return webSocketClient.isConnected();
 	}
@@ -221,7 +234,10 @@ public class WebSocketOODSSClient <S extends Scope> extends Debug implements Cli
 			m = blockingRequestsQueue.take();
 			RequestMessage request = (RequestMessage) m.getMessage();
 			String requestString = generateStringFromRequest(request);
+			
 			long uid = m.getUid();
+			
+			Log.d(TAG, "out going message: " + requestString + " uid: " + (int)uid);
 			
 			byte[] uidBytes = longToBytes(uid);
 			byte[] messageBytes = null;
