@@ -1,5 +1,8 @@
 package ecologylab.serialization;
 
+import java.util.List;
+import java.util.ArrayList;
+
 import ecologylab.generic.Debug;
 import ecologylab.net.ParsedURL;
 
@@ -37,10 +40,31 @@ public class SIMPLTranslationException extends Exception implements
     private static final long serialVersionUID = -8326348358064487418L;
 
     private int               exceptionType    = 0;
+    
+    private List<SimplIssue> simplIssues;
 
+    private Object remnantObject = null;
+
+	private List<Exception> childExceptions;
+    
     public SIMPLTranslationException()
     {
         super();
+        simplIssues = new ArrayList<SimplIssue>();
+        childExceptions = new ArrayList<Exception>();
+    }
+    
+    
+    public SIMPLTranslationException(SimplIssue si)
+    {
+    	this(si.errorExplanation);
+    	simplIssues.add(si);
+    }
+    
+    public SIMPLTranslationException(SimplIssue si, Object remnant)
+    {
+    	this(si);
+    	this.remnantObject = remnant;
     }
 
     public SIMPLTranslationException(String msg)
@@ -103,5 +127,41 @@ public class SIMPLTranslationException extends Exception implements
     		this.printStackTrace();
     		break;
     	}
+    }
+    
+    /**
+     * While carrying out a simpl translation, there may be some exception or mistake that occurs during the process.
+     * Rather than returning nothing and making everyone have a bad day, this method provides some way for a consumer to 
+     * salvage the remnants of whatever simpl could deserialize. There's minimal guarentees that the data will be useful,
+     * but if you like, you can try to do something with these remnants.
+     * @return Whatever simpl could de/serialize, the "remnants" from some exception state
+     */
+    public Object getObjectRemnant()
+    {
+    	return this.remnantObject;
+    }
+    	
+    /**
+     * Sometimes, there are mistakes or problems which create issues in simpl. 
+     * A "simplIssue" is a more concise way of representing these issues. 
+     * They may provide text or some representation of the issue, along with a helpful error message.
+     * @return
+     */
+    public List<SimplIssue> getSimplIssues() 
+    {
+    	return this.simplIssues;
+    	
+    }
+    
+    /**
+     * Appends all of the issues from another simple Execption to this exception.
+     * Makes this exception suitable to pass to other exceptions!
+     * Holds onto an instance of the exception for the sake of using stack traces, too! 
+     * @param anotherException
+     */
+    public void AppendIssuesFrom(SIMPLTranslationException anotherException)
+    {
+    	this.simplIssues.addAll(anotherException.getSimplIssues());
+    	this.childExceptions.add(anotherException);
     }
 }
