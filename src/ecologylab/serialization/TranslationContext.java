@@ -113,14 +113,14 @@ public class TranslationContext extends Debug implements ScalarUnmarshallingCont
 		if (visitedElements == null)
 			initializeMultiMaps();
 
-		resolveGraphRecursvie(object);
+		resolveGraphRecursive(object);
 	}
 
 	/**
 	 * 
 	 * @param elementState
 	 */
-	public void resolveGraphRecursvie(Object elementState)
+	public void resolveGraphRecursive(Object elementState)
 	{
 		if (SimplTypesScope.graphSwitch == GRAPH_SWITCH.ON)
 		{
