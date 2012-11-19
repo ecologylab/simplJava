@@ -15,6 +15,16 @@
     <path id="ecologylabFundamental.classpath">
         <pathelement location="."/>
     </path>
+    
+
+    <property name="javac.encoding" value="utf-8" />
+    <presetdef> 
+         <javac encoding="{$javac.encoding}" />
+    </presetdef>
+
+
+
+
     <target name="init">
         <copy includeemptydirs="false" todir=".">
             <fileset dir="." excludes="**/*.launch, **/*.java"/>
