@@ -70,14 +70,23 @@ public class XMLPullDeserializer extends StringPullDeserializer
 	@Override
 	public Object parse(InputStream inputStream) throws SIMPLTranslationException
 	{
+		// hold onto a black result to return. 
+		Object result = null; 
 		try
 		{
 			configure(inputStream);
-			return parse();
+			result = parse();
+			return result;
+		}
+		catch(SIMPLTranslationException ex) 
+		{
+			throw ex; 
 		}
 		catch (Exception ex)
 		{
-			throw new SIMPLTranslationException("exception occurred in deserialzation ", ex);
+			SIMPLTranslationException toThrow = new SIMPLTranslationException("exception occurred in deserialzation ", ex);
+			toThrow.setObjectRemnant(result);
+			throw toThrow;
 		}
 	}
 

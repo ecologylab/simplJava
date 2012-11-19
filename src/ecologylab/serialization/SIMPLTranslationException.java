@@ -164,4 +164,9 @@ public class SIMPLTranslationException extends Exception implements
     	this.simplIssues.addAll(anotherException.getSimplIssues());
     	this.childExceptions.add(anotherException);
     }
+
+
+	public void setObjectRemnant(Object result) {
+		this.remnantObject = result;
+	}
 }

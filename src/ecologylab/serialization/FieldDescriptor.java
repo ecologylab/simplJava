@@ -305,21 +305,12 @@ public class FieldDescriptor extends DescriptorBase implements FieldTypes, IMapp
 		this.bibtexTag = XMLTools.getBibtexTagName(field);
 		this.isBibtexKey = XMLTools.getBibtexKey(field);
 
-		// TODO XmlNs
-		// if (nameSpacePrefix != null)
-		// {
-		// tagName = nameSpacePrefix + tagName;
-		// }
 		type = UNSET_TYPE; // for debugging!
 
 		if (annotationType == SCALAR)
 			type = deriveScalarSerialization(field);
 		else
 			type = deriveNestedSerialization(field, annotationType);
-
-		// looks old: -- implement this next???
-		// if (XMLTools.isNested(field))
-		// setupXmlText(ClassDescriptor.getClassDescriptor((Class<ElementState>) field.getType()));
 
 		String fieldName = field.getName();
 		StringBuilder capFieldName = new StringBuilder(fieldName);
@@ -343,8 +334,12 @@ public class FieldDescriptor extends DescriptorBase implements FieldTypes, IMapp
 			genericParametersString = XMLTools.getJavaGenericParametersString(field);
 			ArrayList<Class> dependedClasses = XMLTools.getJavaGenericDependencies(field);
 			if (dependedClasses != null)
+			{
 				for (Class dependedClass : dependedClasses)
+				{
 					addDependency(dependedClass);
+				}
+			}
 		}
 	}
 
@@ -415,13 +410,6 @@ public class FieldDescriptor extends DescriptorBase implements FieldTypes, IMapp
 		{
 			unresolvedClassesAnnotation = classesAnnotation;
 			declaringClassDescriptor.registerUnresolvedClassesAnnotationFD(this);
-			// initPolymorphClassDescriptorsArrayList(classesAnnotation.length);
-			// for (Class thatClass : classesAnnotation)
-			// {
-			// ClassDescriptor classDescriptor = ClassDescriptor.getClassDescriptor(thatClass);
-			// registerPolymorphicDescriptor(classDescriptor);
-			// polymorphClasses.put(classDescriptor.getTagName(), classDescriptor.getDescribedClass());
-			// }
 		}
 		return polymorphClassDescriptors != null;
 	}
@@ -519,8 +507,6 @@ public class FieldDescriptor extends DescriptorBase implements FieldTypes, IMapp
 		if (result)
 		{
 			unresolvedScopeAnnotation = null;
-
-			// declaringClassDescriptor.mapPolymorphicClassDescriptors(this);
 		}
 		return result;
 	}
@@ -534,13 +520,15 @@ public class FieldDescriptor extends DescriptorBase implements FieldTypes, IMapp
 	boolean resolveUnresolvedClassesAnnotation()
 	{
 		if (unresolvedClassesAnnotation == null)
+		{
 			return true;
+		}
 
 		boolean result = resolveClassesAnnotation(unresolvedClassesAnnotation);
+		
 		if (result)
 		{
 			unresolvedClassesAnnotation = null;
-			// declaringClassDescriptor.mapPolymorphicClassDescriptors(this);
 		}
 		return result;
 	}
@@ -558,7 +546,6 @@ public class FieldDescriptor extends DescriptorBase implements FieldTypes, IMapp
 			{
 				if (genericTypeVars == null)
 				{
-//					genericTypeVars = new ArrayList<GenericTypeVar>();
 					deriveGenericTypeVariables();
 				}
 			}
@@ -590,11 +577,19 @@ public class FieldDescriptor extends DescriptorBase implements FieldTypes, IMapp
 	private void initPolymorphClassDescriptorsArrayList(int initialSize)
 	{
 		if (polymorphClassDescriptors == null)
+		{
 			polymorphClassDescriptors = new HashMapArrayList<String, ClassDescriptor>(initialSize);
+		}
+			
 		if (polymorphClasses == null)
+		{
 			polymorphClasses = new HashMap<String, Class>(initialSize);
+		}
+		
 		if (tlvClassDescriptors == null)
+		{
 			tlvClassDescriptors = new HashMap<Integer, ClassDescriptor>(initialSize);
+		}
 	}
 
 	/**
@@ -611,8 +606,12 @@ public class FieldDescriptor extends DescriptorBase implements FieldTypes, IMapp
 	private int deriveScalarSerialization(Field scalarField)
 	{
 		int result = deriveScalarSerialization(scalarField.getType(), scalarField);
+		
 		if (xmlHint == Hint.XML_TEXT || xmlHint == Hint.XML_TEXT_CDATA)
+		{
 			this.declaringClassDescriptor.setScalarTextFD(this);
+		}
+		
 		return result;
 	}
 
@@ -649,6 +648,7 @@ public class FieldDescriptor extends DescriptorBase implements FieldTypes, IMapp
 		}
 
 		format = XMLTools.getFormatAnnotation(field);
+		
 		if (xmlHint != Hint.XML_ATTRIBUTE)
 		{
 			needsEscaping = scalarType.needsEscaping();
@@ -690,9 +690,6 @@ public class FieldDescriptor extends DescriptorBase implements FieldTypes, IMapp
 			String compositeTag = field.getAnnotation(simpl_composite.class).value();
 			Boolean isWrap = field.isAnnotationPresent(simpl_wrap.class);
 
-			// if (!checkAssignableFrom(ElementState.class, field, fieldClass, "@simpl_composite"))
-			// result = IGNORED_ELEMENT;
-
 			boolean compositeTagIsNullOrEmpty = StringTools.isNullOrEmpty(compositeTag);
 			if (!isPolymorphic())
 			{
@@ -729,8 +726,10 @@ public class FieldDescriptor extends DescriptorBase implements FieldTypes, IMapp
 		case COLLECTION_ELEMENT:
 			final String collectionTag = field.getAnnotation(simpl_collection.class).value();
 			if (!checkAssignableFrom(Collection.class, field, fieldClass, "@xml_collection"))
+			{
 				return IGNORED_ELEMENT;
-
+			}
+			
 			if (!isPolymorphic())
 			{
 				Class collectionElementClass = getTypeArgClass(field, 0); // 0th type arg for
@@ -769,6 +768,7 @@ public class FieldDescriptor extends DescriptorBase implements FieldTypes, IMapp
 			}
 			else
 			{
+				// If Polymorphic... 
 				if (collectionTag != null && !collectionTag.isEmpty())
 				{
 					warning("In " + declaringClassDescriptor.getDescribedClass()
@@ -776,14 +776,17 @@ public class FieldDescriptor extends DescriptorBase implements FieldTypes, IMapp
 							+ " because it is declared polymorphic with @xml_classes.");
 				}
 			}
+
 			collectionOrMapTagName = collectionTag;
 			collectionType = TypeRegistry.getCollectionType(field);
 			break;
 		case MAP_ELEMENT:
 			String mapTag = field.getAnnotation(simpl_map.class).value();
 			if (!checkAssignableFrom(Map.class, field, fieldClass, "@xml_map"))
+			{
 				return IGNORED_ELEMENT;
-
+			}
+			
 			if (!isPolymorphic())
 			{
 				Class mapElementClass = getTypeArgClass(field, 1); // "1st" type arg for Map<FooState>
@@ -828,23 +831,27 @@ public class FieldDescriptor extends DescriptorBase implements FieldTypes, IMapp
 		default:
 			break;
 		}
+		
 		switch (annotationType)
 		// set-up wrap as appropriate
 		{
 		case COLLECTION_ELEMENT:
 		case MAP_ELEMENT:
 			if (!field.isAnnotationPresent(simpl_nowrap.class))
+			{
 				wrapped = true;
+			}
+			
 			collectionType = TypeRegistry.getCollectionType(field);
 			break;
 		case COMPOSITE_ELEMENT:
 			if (field.isAnnotationPresent(simpl_wrap.class))
+			{
 				wrapped = true;
+			}
+			break;
 		}
 
-		/*
-		 * else { // deriveTagFromClasses // TODO Monday }
-		 */
 		if (result == UNSET_TYPE)
 		{
 			warning("Programmer error -- can't derive type.");
@@ -954,12 +961,12 @@ public class FieldDescriptor extends DescriptorBase implements FieldTypes, IMapp
 			ScalarUnmarshallingContext scalarUnMarshallingContext)
 	{
 		boolean result = false;
-		// if ((valueString != null) && (context != null)) andruid & andrew 4/14/09 -- why not allow set
-		// to null?!
-		if (context != null && isScalar() /* do we really need this check??? */)
+		
+		if (context != null && isScalar())
 		{
 			result = scalarType.setField(context, field, valueString, null, scalarUnMarshallingContext);
 		}
+		
 		return result;
 	}
 
@@ -1125,9 +1132,13 @@ public class FieldDescriptor extends DescriptorBase implements FieldTypes, IMapp
 	public boolean isDefaultValue(Object value)
 	{
 		if (this.getType() == FieldTypes.SCALAR)
+		{
 			return value == null || isDefaultValue(value.toString());
+		}
 		else
+		{
 			return value == null;
+		}
 	}
 
 	/**
@@ -1162,11 +1173,16 @@ public class FieldDescriptor extends DescriptorBase implements FieldTypes, IMapp
 			A valueAnchor = new A();
 
 			if (valueCssClass != null) // does this cause problems? if so, is it because mmd is wrong?
+			{
 				// andruid & aaron 7/8/11
 				valueDiv.setCssClass(valueCssClass);
+			}
+			
 			if (schemaOrgItemProp != null)
+			{
 				valueDiv.setSchemaOrgItemProp(schemaOrgItemProp);
-
+			}
+			
 			labelTd.setAlign("right");
 			labelTd.setCssClass(labelCssClass);
 
@@ -1219,7 +1235,9 @@ public class FieldDescriptor extends DescriptorBase implements FieldTypes, IMapp
 		if (instance != null)
 		{
 			if (!isFirst)
+			{
 				value.append(", ");
+			}
 			scalarType.appendValue(value, this, instance, null, Format.XML);
 		}
 
@@ -1295,9 +1313,13 @@ public class FieldDescriptor extends DescriptorBase implements FieldTypes, IMapp
 	public HashMap<String, Class> getPolymorphicClasses()
 	{
 		if (polymorphClasses == null)
+		{
 			return null;
+		}
 		else
+		{
 			return polymorphClasses;
+		}
 	}
 
 	public void writeHtmlWrap(boolean close, int size, String displayLabel, Tr tr) throws IOException
@@ -1363,14 +1385,19 @@ public class FieldDescriptor extends DescriptorBase implements FieldTypes, IMapp
 	public void setFieldToScalar(Object context, String value,
 			ScalarUnmarshallingContext scalarUnmarshallingContext)
 	{
-		if ((value == null) /* || (value.length() == 0) removed by Alex to allow empty delims */)
+		// Allows for empty values. 
+		if (value == null)
 		{
-			// error("Can't set scalar field with empty String");
 			return;
 		}
+		
 		value = filterValue(value);
+		
 		if (!isCDATA)
+		{
 			value = XMLTools.unescapeXML(value);
+		}
+		
 		if (setValueMethod != null)
 		{
 			// if the method is found, invoke the method
