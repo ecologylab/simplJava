@@ -18,7 +18,7 @@
     
 
     <property name="javac.encoding" value="utf-8" />
-    <presetdef> 
+    <presetdef name="ecologylabFundamental"> 
          <javac encoding="{$javac.encoding}" />
     </presetdef>
 
