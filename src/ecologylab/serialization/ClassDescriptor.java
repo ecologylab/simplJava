@@ -19,6 +19,7 @@ import java.util.Set;
 import ecologylab.generic.HashMapArrayList;
 import ecologylab.generic.ReflectionTools;
 import ecologylab.platformspecifics.FundamentalPlatformSpecifics;
+import ecologylab.serialization.FieldType;
 import ecologylab.serialization.annotations.Hint;
 import ecologylab.serialization.annotations.bibtex_key;
 import ecologylab.serialization.annotations.bibtex_type;
@@ -50,8 +51,7 @@ import ecologylab.serialization.types.element.IMappable;
  * @author andruid
  */
 @simpl_inherit
-public class ClassDescriptor<FD extends FieldDescriptor> extends DescriptorBase implements
-		FieldTypes, IMappable<String>, Iterable<FD>
+public class ClassDescriptor<FD extends FieldDescriptor> extends DescriptorBase implements IMappable<String>, Iterable<FD>
 {
 	
 	public static interface FieldDescriptorsDerivedEventListener
@@ -674,25 +674,25 @@ public class ClassDescriptor<FD extends FieldDescriptor> extends DescriptorBase 
 				// debug("Skipping " + thatField + " because its static!");
 				continue;
 			}
-			int fieldType = UNSET_TYPE;
+			FieldType fieldType = FieldType.UNSET_TYPE;
 
 			if (XMLTools.isScalar(thatField))
 			{
-				fieldType = SCALAR;
+				fieldType = FieldType.SCALAR;
 			}
 			else if (XMLTools.representAsComposite(thatField))
 			{
-				fieldType = COMPOSITE_ELEMENT;
+				fieldType = FieldType.COMPOSITE_ELEMENT;
 			}
 			else if (XMLTools.representAsCollection(thatField))
 			{
-				fieldType = COLLECTION_ELEMENT;
+				fieldType = FieldType.COLLECTION_ELEMENT;
 			}
 			else if (XMLTools.representAsMap(thatField))
 			{
-				fieldType = MAP_ELEMENT;
+				fieldType = FieldType.MAP_ELEMENT;
 			}
-			if (fieldType == UNSET_TYPE)
+			if (fieldType == FieldType.UNSET_TYPE)
 				continue; // not a simpl serialization annotated field
 
 			FD fieldDescriptor = newFieldDescriptor(thatField,
@@ -700,7 +700,7 @@ public class ClassDescriptor<FD extends FieldDescriptor> extends DescriptorBase 
 																							(Class<FD>) fieldDescriptorClass);
 			fieldDescriptor.genericTypeVarsContextCD = this;
 			// create indexes for serialize
-			if (fieldDescriptor.getType() == SCALAR)
+			if (fieldDescriptor.getType() == FieldType.SCALAR)
 			{
 				Hint xmlHint = fieldDescriptor.getXmlHint();
 				switch (xmlHint)
@@ -963,7 +963,7 @@ public class ClassDescriptor<FD extends FieldDescriptor> extends DescriptorBase 
 	 * @param fieldDescriptorClass
 	 * @return
 	 */
-	private FD newFieldDescriptor(Field thatField, int annotationType, Class<FD> fieldDescriptorClass)
+	private FD newFieldDescriptor(Field thatField, FieldType annotationType, Class<FD> fieldDescriptorClass)
 	{
 		if (fieldDescriptorClass == null)
 		{

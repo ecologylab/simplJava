@@ -16,6 +16,7 @@ import ecologylab.net.ParsedURL;
 import ecologylab.platformspecifics.FundamentalPlatformSpecifics;
 import ecologylab.serialization.DeserializationHookStrategy;
 import ecologylab.serialization.FieldDescriptor;
+import ecologylab.serialization.FieldType;
 import ecologylab.serialization.FieldTypes;
 import ecologylab.serialization.SIMPLTranslationException;
 import ecologylab.serialization.TranslationContext;
@@ -35,7 +36,7 @@ import ecologylab.serialization.formatenums.StringFormat;
 import ecologylab.serialization.serializers.ISimplSerializationPost;
 import ecologylab.serialization.serializers.ISimplSerializationPre;
 
-public abstract class PullDeserializer extends Debug implements FieldTypes
+public abstract class PullDeserializer extends Debug 
 {
 
 	protected SimplTypesScope							translationScope;
@@ -334,7 +335,10 @@ public abstract class PullDeserializer extends Debug implements FieldTypes
 	protected DeserializationProcedureState nextDeserializationProcedureState(
 			DeserializationProcedureState state, int fieldType)
 	{
-		switch (fieldType)
+		// This is for backwards compat. Waiting to change this interface.
+		// TODO: Fix this.
+		FieldType ft = FieldType.fromTypeID(fieldType);
+		switch (ft)
 		{
 		case SCALAR:
 			if (state == DeserializationProcedureState.INIT)

@@ -12,6 +12,7 @@ import ecologylab.serialization.ClassDescriptor;
 import ecologylab.serialization.DeserializationHookStrategy;
 import ecologylab.serialization.ElementState;
 import ecologylab.serialization.FieldDescriptor;
+import ecologylab.serialization.FieldType;
 import ecologylab.serialization.SIMPLTranslationException;
 import ecologylab.serialization.SimplTypesScope;
 import ecologylab.serialization.TranslationContext;
@@ -139,46 +140,47 @@ public class TLVPullDeserializer extends BinaryPullDeserializer
 
 			currentFieldDescriptor = rootClassDescriptor.getFieldDescriptorByTLVId(type());
 
-			int fieldType = currentFieldDescriptor.getType();
+			FieldType fieldType = currentFieldDescriptor.getType();
 
 			switch (fieldType)
 			{
-			case SCALAR:
-				bytesRead += deserializeScalar(root, currentFieldDescriptor);
-				break;
-			case COLLECTION_SCALAR:
-				bytesRead += deserializeScalarCollectionElement(root, currentFieldDescriptor);
-				break;
-			case COMPOSITE_ELEMENT:
-				bytesRead += deserializeComposite(root, currentFieldDescriptor);
-				break;
-			case COLLECTION_ELEMENT:
-				bytesRead += deserializeCompositeCollectionElement(root, currentFieldDescriptor);
-				break;
-			case MAP_ELEMENT:
-				bytesRead += deserializeCompositeMapElement(root, currentFieldDescriptor);
-				break;
-			case WRAPPER:
-				currentFieldDescriptor = currentFieldDescriptor.getWrappedFD();
-				switch (currentFieldDescriptor.getType())
-				{
+				case SCALAR:
+					bytesRead += deserializeScalar(root, currentFieldDescriptor);
+					break;
 				case COLLECTION_SCALAR:
-					bytesRead += deserializeScalarCollection(root, currentFieldDescriptor);
-					break;
-				case COLLECTION_ELEMENT:
-					bytesRead += deserializeCompositeCollection(root, currentFieldDescriptor);
-					break;
-				case MAP_ELEMENT:
-					bytesRead += deserializeCompositeMap(root, currentFieldDescriptor);
+					bytesRead += deserializeScalarCollectionElement(root, currentFieldDescriptor);
 					break;
 				case COMPOSITE_ELEMENT:
-					//TODO: wrapped composites in tlv?
+					bytesRead += deserializeComposite(root, currentFieldDescriptor);
 					break;
-				}
-				break;
+				case COLLECTION_ELEMENT:
+					bytesRead += deserializeCompositeCollectionElement(root, currentFieldDescriptor);
+					break;
+				case MAP_ELEMENT:
+					bytesRead += deserializeCompositeMapElement(root, currentFieldDescriptor);
+					break;
+				case WRAPPER:
+					currentFieldDescriptor = currentFieldDescriptor.getWrappedFD();
+					switch (currentFieldDescriptor.getType())
+					{
+					case COLLECTION_SCALAR:
+						bytesRead += deserializeScalarCollection(root, currentFieldDescriptor);
+						break;
+					case COLLECTION_ELEMENT:
+						bytesRead += deserializeCompositeCollection(root, currentFieldDescriptor);
+						break;
+					case MAP_ELEMENT:
+						bytesRead += deserializeCompositeMap(root, currentFieldDescriptor);
+						break;
+					case COMPOSITE_ELEMENT:
+						//TODO: wrapped composites in tlv?
+						break;
+					}
+					break;
 			}
 			
-			state = nextDeserializationProcedureState(state, fieldType);
+			// TODO: Using field ID to fix compat. Fix this someday.
+			state = nextDeserializationProcedureState(state, fieldType.getTypeID());
 			if (state == DeserializationProcedureState.ATTRIBUTES_DONE)
 			{
 				// when we know that definitely all attributes are done, we do the in-hook
@@ -194,7 +196,7 @@ public class TLVPullDeserializer extends BinaryPullDeserializer
 		deserializationPostHook(root, translationContext);
 		if (deserializationHookStrategy != null)
 			deserializationHookStrategy.deserializationPostHook(root, 
-					currentFieldDescriptor == null || currentFieldDescriptor.getType() == IGNORED_ELEMENT
+					currentFieldDescriptor == null || currentFieldDescriptor.getType() == FieldType.IGNORED_ELEMENT
 					? null : currentFieldDescriptor);
 		
 		return root;
