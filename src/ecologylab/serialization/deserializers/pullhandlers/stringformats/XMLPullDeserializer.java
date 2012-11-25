@@ -56,14 +56,22 @@ public class XMLPullDeserializer extends StringPullDeserializer
 	@Override
 	public Object parse(InputStream inputStream, Charset charSet) throws SIMPLTranslationException
 	{
+		Object result = null;
 		try
 		{
 			configure(inputStream, charSet);
-			return parse();
+			result = parse();
+			return result;
+		}
+		catch(SIMPLTranslationException ex) 
+		{
+			throw ex; 
 		}
 		catch (Exception ex)
 		{
-			throw new SIMPLTranslationException("exception occurred in deserialzation ", ex);
+			SIMPLTranslationException ste = new SIMPLTranslationException("exception occurred in deserialzation ", ex);
+			ste.setObjectRemnant(result);
+			throw ste;
 		}
 	}
 	
@@ -104,14 +112,23 @@ public class XMLPullDeserializer extends StringPullDeserializer
 	@Override
 	public Object parse(CharSequence charSequence) throws SIMPLTranslationException
 	{
+		// hold onto a black result to return. 
+		Object result = null; 
 		try
 		{
 			configure(charSequence);
-			return parse();
+			result = parse();
+			return result;
+		}
+		catch(SIMPLTranslationException ex) 
+		{
+			throw ex; 
 		}
 		catch (Exception ex)
 		{
-			throw new SIMPLTranslationException("exception occurred in deserialzation ", ex);
+			SIMPLTranslationException ste = new SIMPLTranslationException("exception occurred in deserialzation ", ex);
+			ste.setObjectRemnant(result);
+			throw ste;
 		}
 	}
 

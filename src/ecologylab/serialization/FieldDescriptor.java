@@ -402,6 +402,8 @@ public class FieldDescriptor extends DescriptorBase implements FieldTypes, IMapp
 				declaringClassDescriptor.registerUnresolvedScopeAnnotationFD(this);
 			}
 		}
+		
+		
 		// @xml_classes
 		final simpl_classes classesAnnotationObj = field.getAnnotation(simpl_classes.class);
 		final Class[] classesAnnotation = (classesAnnotationObj == null) ? null : classesAnnotationObj
