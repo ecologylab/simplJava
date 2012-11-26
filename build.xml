@@ -4,37 +4,69 @@
               To include a user specific buildfile here, simply create one in the same
               directory with the processing instruction <?eclipse.ant.import?>
               as the first entry and export the buildfile again. -->
-<project basedir="." default="build" name="ecologylabFundamental">
+<project basedir="." default="package" name="ecologylabFundamental">
     <property environment="env"/>
     <property name="ecologylabFundamental.location" value="../ecologylabFundamental"/>
     <property name="jtidy.location" value="../jtidy"/>
     <property name="ECLIPSE_HOME" value="../../../../../../../Applications/Programming/eclipse"/>
     <property name="debuglevel" value="source,lines,vars"/>
-    <property name="target" value="1.5"/>
-    <property name="source" value="1.5"/>
-    <path id="ecologylabFundamental.classpath">
-        <pathelement location="."/>
+    <property name="target" value="1.7"/>
+    <property name="source" value="1.7"/>
+
+    <path id="base.path"> 
+        <pathelement path="${classpath}" />
+        <fileset dir="lib">
+            <include name="**/*.jar" />
+        </fileset>
+        <pathelement location="classes" /> 
     </path>
+
+    <path id="tests.path">
+        <path refid="base.path" />
+        <fileset dir="testlib">
+            <include name="**.*.jar" />
+        </fileset>
+        <pathelement location="testclasses" /> 
+    </path>
+
+    <property name="javac.encoding" value="utf-8" />
+    <presetdef name="ecologylabFundamental"> 
+         <javac encoding="utf-8" />
+    </presetdef>
+
     <target name="init">
         <copy includeemptydirs="false" todir=".">
             <fileset dir="." excludes="**/*.launch, **/*.java"/>
         </copy>
+        <mkdir dir="bin" />
     </target>
+    
     <target name="clean">
         <delete>
             <fileset dir="." includes="**/*.class"/>
         </delete>
     </target>
+
     <target depends="clean" name="cleanall"/>
+
     <target depends="build-subprojects,build-project" name="build"/>
+
     <target name="build-subprojects"/>
+
+
     <target depends="init" name="build-project">
         <echo message="${ant.project.name}: ${ant.file}"/>
         <javac debug="true" debuglevel="${debuglevel}" destdir="." source="${source}" target="${target}">
             <src path="."/>
-            <classpath refid="ecologylabFundamental.classpath"/>
+            <classpath refid="base.path"/>
         </javac>
     </target>
+
+
+    <target depends="build" name="package"> 
+        <jar jarfile="bin/ecologylabFundamental.jar" basedir="ecologylab" />
+    </target>
+
     <target description="Build all projects which reference this project. Useful to propagate changes." name="build-refprojects">
         <ant antfile="${ClMS.location}/build.xml" inheritAll="false" target="clean"/>
         <ant antfile="${ClMS.location}/build.xml" inheritAll="false" target="build">
@@ -91,6 +123,7 @@
             </propertyset>
         </ant>
     </target>
+
     <target description="copy Eclipse compiler jars to ant lib directory" name="init-eclipse-compiler">
         <copy todir="${ant.library.dir}">
             <fileset dir="${ECLIPSE_HOME}/plugins" includes="org.eclipse.jdt.core_*.jar"/>
@@ -100,15 +133,18 @@
             <fileset dir="${ECLIPSE_HOME}/plugins" includes="org.eclipse.jdt.core_*.jar"/>
         </unzip>
     </target>
+
     <target description="compile project with Eclipse compiler" name="build-eclipse-compiler">
         <property name="build.compiler" value="org.eclipse.jdt.core.JDTCompilerAdapter"/>
         <antcall target="build"/>
     </target>
+
     <target name="ConfParser">
         <java classname="ecologylab.generic.ConfParser" failonerror="true" fork="yes">
             <classpath refid="ecologylabFundamental.classpath"/>
         </java>
     </target>
+
     <target name="NIOLoggingServer">
         <java classname="ecologylab.services.logging.NIOLoggingServer" failonerror="true" fork="yes">
             <jvmarg line="-Xms32m -Xmx512m"/>

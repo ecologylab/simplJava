@@ -70,14 +70,23 @@ public class XMLPullDeserializer extends StringPullDeserializer
 	@Override
 	public Object parse(InputStream inputStream) throws SIMPLTranslationException
 	{
+		// hold onto a black result to return. 
+		Object result = null; 
 		try
 		{
 			configure(inputStream);
-			return parse();
+			result = parse();
+			return result;
+		}
+		catch(SIMPLTranslationException ex) 
+		{
+			throw ex; 
 		}
 		catch (Exception ex)
 		{
-			throw new SIMPLTranslationException("exception occurred in deserialzation ", ex);
+			SIMPLTranslationException toThrow = new SIMPLTranslationException("exception occurred in deserialzation ", ex);
+			
+			throw toThrow;
 		}
 	}
 
@@ -446,10 +455,7 @@ public class XMLPullDeserializer extends StringPullDeserializer
 	private int deserializeScalar(Object root, FieldDescriptor currentFieldDescriptor)
 			throws SIMPLTranslationException
 	{
-		// nextEvent();
-
 		StringBuilder text = new StringBuilder();
-		// text.append(xmlStreamReader.getText());
 
 		do
 		{
@@ -459,6 +465,7 @@ public class XMLPullDeserializer extends StringPullDeserializer
 		while (nextEvent() != XMLParser.END_ELEMENT);
 
 		String value = text.toString();
+		
 		currentFieldDescriptor.setFieldToScalar(root, value, translationContext);
 
 		return nextEvent();

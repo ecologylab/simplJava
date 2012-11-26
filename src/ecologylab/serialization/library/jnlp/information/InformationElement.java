@@ -100,7 +100,7 @@ public @simpl_inherit @simpl_tag("information") class InformationElement extends
      * will return true.
      * 
      * The offline-allowed element also controls how Java Web Start checks for an update to an application. If the
-     * element is not specified—i.e., the application is required to be online to run—Java Web Start will always check
+     * element is not specified i.e., the application is required to be online to run Java Web Start will always check
      * for an updated version before launching the application. And if an update is found, the new application will be
      * downloaded and launched. Thus, it is guaranteed that the user always runs the latest version of the application.
      * The application, however, must be run online.

@@ -408,8 +408,8 @@ final public class DecimalFormatSymbols implements Cloneable, Serializable
 		digit = '#';
 		minusSign = '-';
 		exponential = 'E';
-		perMill = 'ä';
-		infinity = "°";
+		perMill = '\u00E4';
+		infinity = "\u00B0";
 		NaN = "NaN";
 		currencySymbol = "$";
 		intlCurrencySymbol = "USD";
