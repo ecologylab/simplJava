@@ -16,9 +16,8 @@ import ecologylab.serialization.SimplTypesScope.GRAPH_SWITCH;
  * @author nabeelshahzad
  * 
  */
-public class TranslationContext extends Debug implements ScalarUnmarshallingContext
+public class TranslationContext extends Debug implements ScalarUnmarshallingContext, FieldTypes
 {
-
 	public static final String				SIMPL_NAMESPACE	= " xmlns:simpl=\"http://ecologylab.net/research/simplGuide/serialization/index.html\"";
 
 	public static final String				SIMPL						= "simpl";
@@ -113,18 +112,17 @@ public class TranslationContext extends Debug implements ScalarUnmarshallingCont
 		if (visitedElements == null)
 			initializeMultiMaps();
 
-		resolveGraphRecursive(object);
+		resolveGraphRecursvie(object);
 	}
 
 	/**
 	 * 
 	 * @param elementState
 	 */
-	public void resolveGraphRecursive(Object elementState)
+	public void resolveGraphRecursvie(Object elementState)
 	{
 		if (SimplTypesScope.graphSwitch == GRAPH_SWITCH.ON)
 		{
-			// this.visitedElements.put(System.identityHashCode(elementState), elementState);
 			this.visitedElements.put(elementState.hashCode(), elementState);
 
 			ClassDescriptor.getClassDescriptor(elementState);
@@ -162,20 +160,20 @@ public class TranslationContext extends Debug implements ScalarUnmarshallingCont
 				if (thatReferenceObject == null)
 					continue;
 				
-				FieldType childFdType = elementFieldDescriptor.getType();
+				int childFdType = elementFieldDescriptor.getType();
 
 				Collection thatCollection;
 				switch (childFdType)
 				{
-				case COLLECTION_ELEMENT:
-				case COLLECTION_SCALAR:
-				case MAP_ELEMENT:
-				case MAP_SCALAR:
-					thatCollection = XMLTools.getCollection(thatReferenceObject);
-					break;
-				default:
-					thatCollection = null;
-					break;
+					case COLLECTION_ELEMENT:
+					case COLLECTION_SCALAR:
+					case MAP_ELEMENT:
+					case MAP_SCALAR:
+						thatCollection = XMLTools.getCollection(thatReferenceObject);
+						break;
+					default:
+						thatCollection = null;
+						break;
 				}
 
 				if (thatCollection != null && (thatCollection.size() > 0))
@@ -330,10 +328,13 @@ public class TranslationContext extends Debug implements ScalarUnmarshallingCont
 	{
 		if (marshalledObjects != null)
 			marshalledObjects.clear();
+		
 		if (visitedElements != null)
 			visitedElements.clear();
+		
 		if (needsAttributeHashCode != null)
 			needsAttributeHashCode.clear();
+		
 		if (needsAttributeHashCode != null)
 			unmarshalledObjects.clear();
 
