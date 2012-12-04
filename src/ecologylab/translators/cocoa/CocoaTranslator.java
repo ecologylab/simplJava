@@ -28,9 +28,9 @@ import ecologylab.serialization.library.rss.Channel;
 import ecologylab.serialization.library.rss.Item;
 import ecologylab.serialization.library.rss.RssState;
 import ecologylab.serialization.types.scalar.EnumeratedType;
-import ecologylab.standalone.xmlpolymorph.BItem;
-import ecologylab.standalone.xmlpolymorph.SchmItem;
-import ecologylab.standalone.xmlpolymorph.Schmannel;
+//import ecologylab.standalone.xmlpolymorph.BItem;
+//import ecologylab.standalone.xmlpolymorph.SchmItem;
+//import ecologylab.standalone.xmlpolymorph.Schmannel;
 import ecologylab.translators.java.JavaTranslationConstants;
 import ecologylab.translators.parser.JavaDocParser;
 
@@ -1850,7 +1850,8 @@ public class CocoaTranslator
 		// c.translateToObjC(Item.class, new ParsedURL(new File("/")));
 		c.translateToObjC(
 				new File("/output"),
-				SimplTypesScope.get("RSSTranslations", Schmannel.class, BItem.class, SchmItem.class,
+				SimplTypesScope.get("RSSTranslations"//, Schmannel.class, BItem.class, SchmItem.class //These class files don't exist anymore
+						,
 						RssState.class, Item.class, Channel.class),
 				new File(
 						"/Users/nabeelshahzad/Documents/workspace/ecologylabFundamental/ecologylab/xml/library/rss"));
