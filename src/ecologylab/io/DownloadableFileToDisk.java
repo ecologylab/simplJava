@@ -12,6 +12,7 @@ import ecologylab.concurrent.BasicSite;
 import ecologylab.concurrent.Downloadable;
 import ecologylab.generic.Debug;
 import ecologylab.generic.Continuation;
+import ecologylab.logging.DownloadableLogRecord;
 import ecologylab.net.ParsedURL;
 
 public class DownloadableFileToDisk 
@@ -215,5 +216,12 @@ implements Downloadable, Continuation<Object>
     // TODO Auto-generated method stub
     return false;
   }
+
+	@Override
+	public DownloadableLogRecord getLogRecord()
+	{
+		// TODO Auto-generated method stub
+		return null;
+	}
 
 }

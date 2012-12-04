@@ -18,6 +18,7 @@ import ecologylab.generic.Generic;
 import ecologylab.generic.MathTools;
 import ecologylab.generic.NewPorterStemmer;
 import ecologylab.io.DownloadProcessor;
+import ecologylab.logging.DownloadableLogRecord;
 
 /**
  * Non-linear flow multiplexer. Tracks downloads of <code>Downloadable</code> objects. Dispatches
@@ -348,8 +349,14 @@ public class DownloadMonitor<T extends Downloadable> extends Monitor implements
 						thatClosure 		= toDownload.get(closureNum);
 						downloadable 		= thatClosure.downloadable;
 						
+						DownloadableLogRecord logRecord = downloadable.getLogRecord();
+						if (logRecord != null)
+							logRecord.addQueuePeekInterval(
+									(System.currentTimeMillis() - logRecord.getEnQueueTimestamp()) / 1000);
+						
 						if (downloadable.isCached())
 						{
+							if (logRecord != null) logRecord.setHtmlCacheHit(true);
 						  debug("downloadable cached, skip site checking and download intervals");
 						  break;
 						}

@@ -22,6 +22,7 @@ import ecologylab.concurrent.BasicSite;
 import ecologylab.concurrent.Downloadable;
 import ecologylab.generic.Debug;
 import ecologylab.generic.Continuation;
+import ecologylab.logging.DownloadableLogRecord;
 import ecologylab.net.NetTools;
 import ecologylab.net.ParsedURL;
 
@@ -484,5 +485,12 @@ public class ZipDownload extends Debug implements Downloadable, Continuation
     // TODO Auto-generated method stub
     return false;
   }
+
+	@Override
+	public DownloadableLogRecord getLogRecord()
+	{
+		// TODO Auto-generated method stub
+		return null;
+	}
   
 }
