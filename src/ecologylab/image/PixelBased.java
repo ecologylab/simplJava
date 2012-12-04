@@ -18,6 +18,7 @@ import ecologylab.concurrent.Downloadable;
 import ecologylab.generic.Colors;
 import ecologylab.generic.ConsoleUtils;
 import ecologylab.generic.MathTools;
+import ecologylab.logging.DownloadableLogRecord;
 import ecologylab.net.ParsedURL;
 import ecologylab.serialization.ElementState;
 import ecologylab.serialization.annotations.simpl_classes;
@@ -884,5 +885,12 @@ implements Downloadable, Colors
     // TODO Auto-generated method stub
     return false;
   }
+
+	@Override
+	public DownloadableLogRecord getLogRecord()
+	{
+		// TODO Auto-generated method stub
+		return null;
+	}
 
 }
