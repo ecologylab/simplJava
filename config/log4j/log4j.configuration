@@ -1,5 +1,5 @@
 ps=/
-jetty.dir=${ps}home${ps}ajit${ps}jetty-distribution-8.1.4.v20120524
+jetty.dir=${ps}home${ps}ecologylab${ps}jetty-distribution-8.1.4.v20120524
 
 #ps=\\
 #jetty.dir=E:${ps}Setup${ps}jetty-distribution-8.1.4.v20120524
