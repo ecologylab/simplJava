@@ -1,5 +1,7 @@
 package ecologylab.logging;
 
+import java.io.PrintStream;
+
 /**
  * A basic logger that logs to console output.
  * 
@@ -20,18 +22,20 @@ public class SimpleLogger extends AbstractLogger
   public void log(LogLevel level, String fmt, Object... args)
   {
     String msg = String.format(fmt, args);
+    PrintStream s = null;
     switch (level)
     {
     case DEBUG:
     case INFO:
-      System.out.format("%s\t%s\t%s", now(), name, msg);
+      s = System.out;
       break;
     case WARNING:
     case ERROR:
     case FATAL:
-      System.err.format("%s\t%s\t%s", now(), name, msg);
+      s = System.err;
       break;
     }
+    s.format("%s %s [%s]: %s", now(), level.toString(), name, msg);
   }
 
 }
