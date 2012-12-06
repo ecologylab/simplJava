@@ -4,7 +4,6 @@ import java.io.IOException;
 
 import ecologylab.io.DownloadProcessor;
 import ecologylab.net.ParsedURL;
-import ecologylab.logging.DownloadableLogRecord;
 
 /**
  * Objects that implement this interface can be passed to a {@link DownloadProcessor DownloadProcessor}.

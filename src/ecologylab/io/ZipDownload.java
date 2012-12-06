@@ -20,9 +20,9 @@ import java.util.zip.ZipFile;
 import ecologylab.appframework.StatusReporter;
 import ecologylab.concurrent.BasicSite;
 import ecologylab.concurrent.Downloadable;
+import ecologylab.concurrent.DownloadableLogRecord;
 import ecologylab.generic.Debug;
 import ecologylab.generic.Continuation;
-import ecologylab.logging.DownloadableLogRecord;
 import ecologylab.net.NetTools;
 import ecologylab.net.ParsedURL;
 

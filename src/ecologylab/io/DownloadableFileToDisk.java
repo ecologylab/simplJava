@@ -10,9 +10,9 @@ import java.io.OutputStream;
 import ecologylab.appframework.StatusReporter;
 import ecologylab.concurrent.BasicSite;
 import ecologylab.concurrent.Downloadable;
+import ecologylab.concurrent.DownloadableLogRecord;
 import ecologylab.generic.Debug;
 import ecologylab.generic.Continuation;
-import ecologylab.logging.DownloadableLogRecord;
 import ecologylab.net.ParsedURL;
 
 public class DownloadableFileToDisk 

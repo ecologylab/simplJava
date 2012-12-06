@@ -1,4 +1,4 @@
-package ecologylab.logging;
+package ecologylab.concurrent;
 
 import java.util.ArrayList;
 

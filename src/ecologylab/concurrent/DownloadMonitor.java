@@ -6,7 +6,6 @@ import java.net.SocketTimeoutException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.Hashtable;
 import java.util.Vector;
 
 import ecologylab.appframework.Memory;
@@ -18,7 +17,6 @@ import ecologylab.generic.Generic;
 import ecologylab.generic.MathTools;
 import ecologylab.generic.NewPorterStemmer;
 import ecologylab.io.DownloadProcessor;
-import ecologylab.logging.DownloadableLogRecord;
 
 /**
  * Non-linear flow multiplexer. Tracks downloads of <code>Downloadable</code> objects. Dispatches
