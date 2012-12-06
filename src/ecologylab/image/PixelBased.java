@@ -15,10 +15,10 @@ import java.net.URL;
 
 import ecologylab.concurrent.BasicSite;
 import ecologylab.concurrent.Downloadable;
+import ecologylab.concurrent.DownloadableLogRecord;
 import ecologylab.generic.Colors;
 import ecologylab.generic.ConsoleUtils;
 import ecologylab.generic.MathTools;
-import ecologylab.logging.DownloadableLogRecord;
 import ecologylab.net.ParsedURL;
 import ecologylab.serialization.ElementState;
 import ecologylab.serialization.annotations.simpl_classes;
