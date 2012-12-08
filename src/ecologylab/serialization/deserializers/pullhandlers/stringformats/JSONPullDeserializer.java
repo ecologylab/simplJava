@@ -18,6 +18,7 @@ import ecologylab.net.ParsedURL;
 import ecologylab.serialization.ClassDescriptor;
 import ecologylab.serialization.DeserializationHookStrategy;
 import ecologylab.serialization.FieldDescriptor;
+import ecologylab.serialization.FieldType;
 import ecologylab.serialization.FieldTypes;
 import ecologylab.serialization.SIMPLTranslationException;
 import ecologylab.serialization.ScalarUnmarshallingContext;
@@ -188,12 +189,12 @@ public class JSONPullDeserializer extends StringPullDeserializer
 			if (!handleSimplId(jp.getText(), root))
 			{
 				currentFieldDescriptor = (currentFieldDescriptor != null)
-						&& (currentFieldDescriptor.getType() == IGNORED_ELEMENT) ? FieldDescriptor.IGNORED_ELEMENT_FIELD_DESCRIPTOR
-						: (currentFieldDescriptor != null && currentFieldDescriptor.getType() == WRAPPER) ? currentFieldDescriptor
+						&& (currentFieldDescriptor.getType() == FieldType.IGNORED_ELEMENT) ? FieldDescriptor.IGNORED_ELEMENT_FIELD_DESCRIPTOR
+						: (currentFieldDescriptor != null && currentFieldDescriptor.getType() == FieldType.WRAPPER) ? currentFieldDescriptor
 								.getWrappedFD()
 								: rootClassDescriptor.getFieldDescriptorByTag(jp.getText(), translationScope, null);
 
-				int fieldType = currentFieldDescriptor.getType();
+				FieldType fieldType = currentFieldDescriptor.getType();
 
 				switch (fieldType)
 				{
@@ -305,7 +306,8 @@ public class JSONPullDeserializer extends StringPullDeserializer
 					break;
 				}
 				
-				state = nextDeserializationProcedureState(state, fieldType);
+				// TODO: This getTypeID() call is here for backwards compat. Fix this someday.
+				state = nextDeserializationProcedureState(state, fieldType.getTypeID());
 				if (state == DeserializationProcedureState.ATTRIBUTES_DONE)
 				{
 					// when we know that definitely all attributes are done, we do the in-hook
@@ -324,7 +326,7 @@ public class JSONPullDeserializer extends StringPullDeserializer
 		deserializationPostHook(root, translationContext);
 		if (deserializationHookStrategy != null)
 			deserializationHookStrategy.deserializationPostHook(root, 
-					currentFieldDescriptor == null || currentFieldDescriptor.getType() == IGNORED_ELEMENT
+					currentFieldDescriptor == null || currentFieldDescriptor.getType() == FieldType.IGNORED_ELEMENT
 					? null : currentFieldDescriptor);
 	}
 

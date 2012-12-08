@@ -10,7 +10,7 @@ import ecologylab.serialization.deserializers.ISimplDeserializationPost;
 import ecologylab.serialization.serializers.ISimplSerializationPost;
 import ecologylab.serialization.serializers.ISimplSerializationPre;
 
-public class ElementState<PES extends ElementState> extends Debug implements FieldTypes,
+public class ElementState<PES extends ElementState> extends Debug implements
 		XMLTranslationExceptionTypes, ISimplSerializationPre, ISimplSerializationPost,
 		ISimplDeserializationPre, ISimplDeserializationPost, ISimplDeserializationIn
 {

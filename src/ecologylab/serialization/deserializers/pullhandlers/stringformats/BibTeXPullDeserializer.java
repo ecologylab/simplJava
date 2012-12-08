@@ -10,6 +10,7 @@ import ecologylab.net.ParsedURL;
 import ecologylab.serialization.ClassDescriptor;
 import ecologylab.serialization.ElementState;
 import ecologylab.serialization.FieldDescriptor;
+import ecologylab.serialization.FieldType;
 import ecologylab.serialization.SIMPLTranslationException;
 import ecologylab.serialization.ScalarUnmarshallingContext;
 import ecologylab.serialization.SimplTypesScope;
@@ -117,14 +118,14 @@ public class BibTeXPullDeserializer extends StringPullDeserializer implements Bi
 		// System.out.println("value: " + value);
 		if (currentFD != null && root != null)
 		{
-			int type = currentFD.getType();
+			FieldType type = currentFD.getType();
 
 			switch (type)
 			{
-			case FieldDescriptor.SCALAR:
+			case SCALAR:
 				currentFD.setFieldToScalar(root, value, this);
 				break;
-			case FieldDescriptor.COLLECTION_SCALAR:
+			case COLLECTION_SCALAR:
 				Collection collection = (Collection) currentFD.automaticLazyGetCollectionOrMap(root);
 				if ("author".equals(currentTag))
 				{

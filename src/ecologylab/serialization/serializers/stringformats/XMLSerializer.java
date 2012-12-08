@@ -440,5 +440,4 @@ public class XMLSerializer extends StringSerializer implements FieldTypes
 		appendable.append(translationContext.getSimplId(object));
 		appendable.append('"');
 	}
-
 }
