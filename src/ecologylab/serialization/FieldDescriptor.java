@@ -71,34 +71,34 @@ public class FieldDescriptor extends DescriptorBase implements IMappable<String>
 		Cloneable
 {
 
-	public static final String												NULL												= ScalarType.DEFAULT_VALUE_STRING;
+	public static final String NULL = ScalarType.DEFAULT_VALUE_STRING;
 
-	public static final Class[]												SET_METHOD_STRING_ARG				= { String.class };
+	public static final Class[] SET_METHOD_STRING_ARG = { String.class };
 
 	@simpl_scalar
-	protected Field																		field;																													// TODO
+	protected Field field;																													// TODO
 
 	/**
 	 * For nested elements, and collections or maps of nested elements. The class descriptor
 	 */
 
 	@simpl_composite
-	private ClassDescriptor														elementClassDescriptor;
+	private ClassDescriptor elementClassDescriptor;
 
 	@simpl_scalar
-	private String																		mapKeyFieldName;
+	private String mapKeyFieldName;
 
 	/**
 	 * Descriptor for the class that this field is declared in.
 	 */
 	@simpl_composite
-	protected ClassDescriptor													declaringClassDescriptor;
+	protected ClassDescriptor declaringClassDescriptor;
 
 	@simpl_scalar
-	private Class																			elementClass;
+	private Class elementClass;
 
 	@simpl_scalar
-	protected boolean																	isGeneric;
+	protected boolean isGeneric;
 
 	/**
 	 * For composite or collection fields declared with generic type variables, this field stores the
@@ -108,9 +108,9 @@ public class FieldDescriptor extends DescriptorBase implements IMappable<String>
 	 * type var(s) with different values.
 	 */
 	@simpl_collection("generic_type_var")
-	private ArrayList<GenericTypeVar>									genericTypeVars;
+	private ArrayList<GenericTypeVar> genericTypeVars;
 	
-	ClassDescriptor																		genericTypeVarsContextCD;
+	ClassDescriptor genericTypeVarsContextCD;
 
 	// ///////////////// next fields are for polymorphic fields
 	// ////////////////////////////////////////
@@ -135,101 +135,99 @@ public class FieldDescriptor extends DescriptorBase implements IMappable<String>
 	@Deprecated
 	// we now use the package name to infer namespaces.
 	@simpl_map("library_namespace")
-	private HashMap<String, String>										libraryNamespaces						= new HashMap<String, String>();
+	private HashMap<String, String>	libraryNamespaces = new HashMap<String, String>();
 
-	/** Ooooo. This should be an enum type. But breaking compatibility isn't savory at the moment. */
 	@simpl_scalar
-	private int																				type;
+	private FieldType type;
 
 	/**
 	 * This slot makes sense only for attributes and leaf nodes
 	 */
 	@simpl_scalar
-	private ScalarType<?>															scalarType;
+	private ScalarType<?> scalarType;
 
 	@simpl_composite("enumerated_type")
-	private EnumeratedType														enumType;
+	private EnumeratedType enumType;
 
 	@simpl_scalar
-	private CollectionType														collectionType;
+	private CollectionType collectionType;
 
 	@simpl_scalar
-	private Hint																			xmlHint;
+	private Hint xmlHint;
 
 	@simpl_scalar
-	private boolean																		isEnum;
+	private boolean	isEnum;
 
 	/**
 	 * An option for scalar formatting.
 	 */
-	private String[]																	format;
+	private String[] format;
 
 	@simpl_scalar
-	private boolean																		isCDATA;
+	private boolean isCDATA;
 
 	@simpl_scalar
-	private boolean																		needsEscaping;
+	private boolean needsEscaping;
 
 	@simpl_scalar
-	Pattern																						filterRegex;
+	Pattern filterRegex;
 	
 	@simpl_scalar
-	int																								filterGroup;
+	int filterGroup;
 
 	@simpl_scalar
-	String																						filterReplace;
+	String filterReplace;
 
 	/**
 	 * The FieldDescriptor for the field in a wrap.
 	 */
-	private FieldDescriptor														wrappedFD;
+	private FieldDescriptor wrappedFD;
 	
-	private FieldDescriptor														wrapper;
+	private FieldDescriptor	wrapper;
 
 	private HashMap<Integer, ClassDescriptor>					tlvClassDescriptors;
 
-	private String																		unresolvedScopeAnnotation		= null;
+	private String unresolvedScopeAnnotation		= null;
 
-	private Class[]																		unresolvedClassesAnnotation	= null;
+	private Class[] unresolvedClassesAnnotation	= null;
 
 	/**
  * 
  */
 	@simpl_scalar
-	private String																		collectionOrMapTagName;
+	private String collectionOrMapTagName;
 
 	@simpl_scalar
-	private String																		compositeTagName;
+	private String compositeTagName;
 
 	/**
 	 * Used for Collection and Map fields. Tells if the XML should be wrapped by an intermediate
 	 * element.
 	 */
 	@simpl_scalar
-	private boolean																		wrapped;
+	private boolean	wrapped;
 
-	private Method																		setValueMethod;
+	private Method	setValueMethod;
 
-	private String																		bibtexTag										= "";
+	private String	bibtexTag = "";
 
-	private boolean																		isBibtexKey									= false;
+	private boolean isBibtexKey = false;
 
 	@simpl_scalar
-	private String																		fieldType;
+	private String fieldType;
 
-	// @simpl_scalar
-	protected String																	genericParametersString;
+	protected String genericParametersString;
 
-	private ArrayList<ClassDescriptor>								dependencies								= new ArrayList<ClassDescriptor>();
+	private ArrayList<ClassDescriptor> dependencies	= new ArrayList<ClassDescriptor>();
 	
 	@simpl_collection("excluded_usage")
-	private ArrayList<FieldUsage>											excludedUsages;
+	private ArrayList<FieldUsage> excludedUsages;
 
 	/**
 	 * if is null, this field is not a cloned one. <br />
 	 * if not null, refers to the descriptor that this field is cloned from.
 	 */
-	private FieldDescriptor														clonedFrom;
+	private FieldDescriptor	clonedFrom;
 
 	/**
 	 * Default constructor only for use by translateFromXML().
@@ -250,7 +248,7 @@ public class FieldDescriptor extends DescriptorBase implements IMappable<String>
 		super(baseClassDescriptor.getTagName(), null);
 		this.declaringClassDescriptor = baseClassDescriptor;
 		this.field = null;
-		this.type = FieldType.PSEUDO_FIELD_DESCRIPTOR.getTypeID();
+		this.type = FieldType.PSEUDO_FIELD_DESCRIPTOR;
 		this.scalarType = null;
 		this.bibtexTag = baseClassDescriptor.getBibtexType();
 	}
@@ -316,11 +314,11 @@ public class FieldDescriptor extends DescriptorBase implements IMappable<String>
 
 		if (annotationType == FieldType.SCALAR)
 		{
-			type = deriveScalarSerialization(field).getTypeID();
+			type = deriveScalarSerialization(field);
 		}
 		else
 		{
-			type = deriveNestedSerialization(field, annotationType).getTypeID();
+			type = deriveNestedSerialization(field, annotationType);
 		}
 
 		String fieldName = field.getName();
@@ -356,23 +354,25 @@ public class FieldDescriptor extends DescriptorBase implements IMappable<String>
 		}
 	}
 
-	protected FieldDescriptor(String tagName, String comment, int type,
+	
+	//TODO: THIS TYPE LOGIC IS *PURE UNADULTERATED GARBAGE*. 
+	protected FieldDescriptor(String tagName, String comment, FieldType type,
 			ClassDescriptor elementClassDescriptor, ClassDescriptor declaringClassDescriptor,
 			String fieldName, ScalarType scalarType, Hint xmlHint, String fieldType)
 	{
 		this(tagName, comment, type, elementClassDescriptor, declaringClassDescriptor, fieldName,
 				scalarType, xmlHint, fieldType,
-				(type == FieldType.COLLECTION_ELEMENT.getTypeID() || type == FieldType.COLLECTION_SCALAR.getTypeID()) ? FundamentalTypes.ARRAYLIST_TYPE
+				(type == FieldType.COLLECTION_ELEMENT || type == FieldType.COLLECTION_SCALAR) ? FundamentalTypes.ARRAYLIST_TYPE
 						: null);
 	}
 
-	protected FieldDescriptor(String tagName, String comment, int type,
+	protected FieldDescriptor(String tagName, String comment, FieldType type,
 			ClassDescriptor elementClassDescriptor, ClassDescriptor declaringClassDescriptor,
 			String fieldName, ScalarType scalarType, Hint xmlHint, String fieldType,
 			CollectionType collectionType)
 	{
 		super(tagName, fieldName, comment);
-		assert (type != FieldType.COMPOSITE_ELEMENT.getTypeID() || elementClassDescriptor != null);
+		assert (type != FieldType.COMPOSITE_ELEMENT || elementClassDescriptor != null);
 
 		this.type = type;
 		this.elementClassDescriptor = elementClassDescriptor;
@@ -927,18 +927,16 @@ public class FieldDescriptor extends DescriptorBase implements IMappable<String>
 
 	public boolean isCollection()
 	{
-		// Convert the typeID number to the FieldType enum. 
-		// Mostly legacy support here, but it also makes serialiation backwards compat.
-		FieldType ft = FieldType.fromTypeID(type);
+		FieldType ft = type;
 		switch (ft)
 		{
-		case MAP_ELEMENT:
-		case MAP_SCALAR:
-		case COLLECTION_ELEMENT:
-		case COLLECTION_SCALAR:
-			return true;
-		default:
-			return false;
+			case MAP_ELEMENT:
+			case MAP_SCALAR:
+			case COLLECTION_ELEMENT:
+			case COLLECTION_SCALAR:
+				return true;
+			default:
+				return false;
 		}
 	}
 
@@ -1081,12 +1079,12 @@ public class FieldDescriptor extends DescriptorBase implements IMappable<String>
 	 */
 	public FieldType getType()
 	{
-		return FieldType.fromTypeID(type);
+		return type;
 	}
 	
 	public void setType(FieldType ft)
 	{
-		this.type = ft.getTypeID();
+		this.type = ft;
 	}
 
 	public Object getNested(Object context)
@@ -1304,7 +1302,7 @@ public class FieldDescriptor extends DescriptorBase implements IMappable<String>
 	{
 		String name = (field != null) ? field.getName() : "NO_FIELD";
 		return this.getClassSimpleName() + "[" + name + " < "
-				+ declaringClassDescriptor.getDescribedClass() + " type=0x" + Integer.toHexString(type)
+				+ declaringClassDescriptor.getDescribedClass() + " type=0x" + Integer.toHexString(type.getTypeID())
 				+ "]";
 	}
 
@@ -1698,7 +1696,7 @@ public class FieldDescriptor extends DescriptorBase implements IMappable<String>
 	FieldDescriptor(String tag)
 	{
 		this.tagName = tag;
-		this.type = FieldType.IGNORED_ELEMENT.getTypeID();
+		this.type = FieldType.IGNORED_ELEMENT;
 		this.field = null;
 		this.declaringClassDescriptor = null;
 	}

@@ -94,11 +94,7 @@ public class XMLPullDeserializer extends StringPullDeserializer
 		catch (Exception ex)
 		{
 			SIMPLTranslationException toThrow = new SIMPLTranslationException("exception occurred in deserialzation ", ex);
-<<<<<<< HEAD
-			
-=======
 			toThrow.setObjectRemnant(result);
->>>>>>> origin/error-handling
 			throw toThrow;
 		}
 	}

@@ -1,6 +1,6 @@
 package ecologylab.serialization.serializers.binaryformats;
 
-import java.io.ByteArrayOutputStream;
+import java.io.ByteArrayOutputStream; 
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -10,7 +10,6 @@ import java.util.Collection;
 
 import ecologylab.serialization.ClassDescriptor;
 import ecologylab.serialization.FieldDescriptor;
-import ecologylab.serialization.FieldTypes;
 import ecologylab.serialization.SIMPLTranslationException;
 import ecologylab.serialization.SimplTypesScope;
 import ecologylab.serialization.SimplTypesScope.GRAPH_SWITCH;
@@ -24,7 +23,7 @@ import ecologylab.serialization.formatenums.Format;
  * @author nabeel
  * 
  */
-public class TLVSerializer extends BinarySerializer implements FieldTypes
+public class TLVSerializer extends BinarySerializer
 {
 
 	public TLVSerializer()
