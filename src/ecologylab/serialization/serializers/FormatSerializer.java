@@ -9,6 +9,7 @@ import ecologylab.serialization.FieldDescriptor;
 import ecologylab.serialization.SIMPLTranslationException;
 import ecologylab.serialization.TranslationContext;
 import ecologylab.serialization.SimplTypesScope;
+import ecologylab.serialization.TranslationContextPool;
 import ecologylab.serialization.SimplTypesScope.GRAPH_SWITCH;
 import ecologylab.serialization.formatenums.BinaryFormat;
 import ecologylab.serialization.formatenums.Format;
@@ -39,8 +40,9 @@ public abstract class FormatSerializer
 	 */
 	public void serialize(Object object, OutputStream outputStream) throws SIMPLTranslationException
 	{
-		TranslationContext translationContext = new TranslationContext();
+		TranslationContext translationContext = TranslationContextPool.get().acquire();
 		serialize(object, outputStream, translationContext);
+		TranslationContextPool.get().release(translationContext);
 	}
 
 	public abstract void serialize(Object object, OutputStream outputStream,
@@ -55,8 +57,9 @@ public abstract class FormatSerializer
 	 */
 	public void serialize(Object object, File outputFile) throws SIMPLTranslationException
 	{		
-		TranslationContext translationContext = new TranslationContext();
+		TranslationContext translationContext = TranslationContextPool.get().acquire();
 		serialize(object, outputFile, translationContext);
+		TranslationContextPool.get().release(translationContext);
 	}
 
 	public abstract void serialize(Object object, File outputFile,
@@ -121,16 +124,16 @@ public abstract class FormatSerializer
 	{
 		switch (format)
 		{
-			case XML:
-				return new XMLSerializer();
-			case JSON:
-				return new JSONSerializer();
-			case TLV:
-				return new TLVSerializer();
-			case BIBTEX:
-				return new BibtexSerializer();
-			default:
-				throw new SIMPLTranslationException(format + " format not supported");
+		case XML:
+			return new XMLSerializer();
+		case JSON:
+			return new JSONSerializer();
+		case TLV:
+			return new TLVSerializer();
+		case BIBTEX:
+			return new BibtexSerializer();
+		default:
+			throw new SIMPLTranslationException(format + " format not supported");
 		}
 	}
 
@@ -146,14 +149,14 @@ public abstract class FormatSerializer
 	{
 		switch (format)
 		{
-			case XML:
-				return new XMLSerializer();
-			case JSON:
-				return new JSONSerializer();
-			case BIBTEX:
-				return new BibtexSerializer();
-			default:
-				throw new SIMPLTranslationException(format + " format not supported");
+		case XML:
+			return new XMLSerializer();
+		case JSON:
+			return new JSONSerializer();
+		case BIBTEX:
+			return new BibtexSerializer();
+		default:
+			throw new SIMPLTranslationException(format + " format not supported");
 		}
 	}
 
@@ -169,10 +172,10 @@ public abstract class FormatSerializer
 	{
 		switch (format)
 		{
-			case TLV:
-				return new TLVSerializer();
-			default:
-				throw new SIMPLTranslationException(format + " format not supported");
+		case TLV:
+			return new TLVSerializer();
+		default:
+			throw new SIMPLTranslationException(format + " format not supported");
 		}
 	}
 }

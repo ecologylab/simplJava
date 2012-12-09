@@ -2,7 +2,6 @@ package ecologylab.serialization.deserializers.parsers.tlv;
 
 import ecologylab.serialization.ClassDescriptor;
 import ecologylab.serialization.FieldDescriptor;
-import ecologylab.serialization.FieldType;
 import ecologylab.serialization.FieldTypes;
 import ecologylab.serialization.SimplTypesScope;
 
@@ -22,7 +21,7 @@ import ecologylab.serialization.SimplTypesScope;
  * 
  * @version 1.0
  */
-public class TLVParser
+public class TLVParser implements FieldTypes
 {
 	/**
 	 * an object which implements TLVEvents will get the appropriate events from the parser.
@@ -114,9 +113,9 @@ public class TLVParser
 			FieldDescriptor localCurrentFieldDescriptor = currentFieldDescriptor;
 			boolean isScalar = false;
 
-			final FieldType currentType = currentFieldDescriptor.getType();
+			final int currentType = currentFieldDescriptor.getType();
 
-			currentFieldDescriptor = (currentType == FieldType.WRAPPER) ? currentFieldDescriptor.getWrappedFD()
+			currentFieldDescriptor = (currentType == WRAPPER) ? currentFieldDescriptor.getWrappedFD()
 					: currentClassDescriptor.getFieldDescriptorByTLVId(type);
 
 			//if(currentFieldDescriptor.isPolymorphic()) currentFieldDescriptor = currentFieldDescriptor.elementClassDescriptor(type).pseudoFieldDescriptor();
@@ -129,9 +128,9 @@ public class TLVParser
 
 			if (!isScalar)
 			{
-				if (currentFieldDescriptor.getType() == FieldType.COMPOSITE_ELEMENT
-						|| currentFieldDescriptor.getType() == FieldType.COLLECTION_ELEMENT
-						|| currentFieldDescriptor.getType() == FieldType.MAP_ELEMENT)
+				if (currentFieldDescriptor.getType() == COMPOSITE_ELEMENT
+						|| currentFieldDescriptor.getType() == COLLECTION_ELEMENT
+						|| currentFieldDescriptor.getType() == MAP_ELEMENT)
 				{
 					currentClassDescriptor = currentFieldDescriptor.elementClassDescriptor(type);
 				}

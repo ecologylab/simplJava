@@ -10,6 +10,7 @@ import java.io.UnsupportedEncodingException;
 
 import ecologylab.serialization.SIMPLTranslationException;
 import ecologylab.serialization.TranslationContext;
+import ecologylab.serialization.TranslationContextPool;
 import ecologylab.serialization.XMLTools;
 import ecologylab.serialization.serializers.FormatSerializer;
 
@@ -20,6 +21,7 @@ public abstract class StringSerializer extends FormatSerializer
 	public void serialize(Object object, OutputStream outputStream,
 			TranslationContext translationContext) throws SIMPLTranslationException
 	{
+//		serialize(object, (Appendable) new PrintStream(outputStream), translationContext);
 		try
 		{
 			serialize(object, (Appendable) new PrintStream(outputStream, true, "utf-8"), translationContext);
@@ -62,8 +64,9 @@ public abstract class StringSerializer extends FormatSerializer
 	 */
 	public StringBuilder serialize(Object object) throws SIMPLTranslationException
 	{
-		TranslationContext translationContext = new TranslationContext();
+		TranslationContext translationContext = TranslationContextPool.get().acquire();
 		StringBuilder sb = serialize(object, translationContext);
+		TranslationContextPool.get().release(translationContext);
 		return sb;
 	}
 

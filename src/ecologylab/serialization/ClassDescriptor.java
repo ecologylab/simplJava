@@ -19,7 +19,6 @@ import java.util.Set;
 import ecologylab.generic.HashMapArrayList;
 import ecologylab.generic.ReflectionTools;
 import ecologylab.platformspecifics.FundamentalPlatformSpecifics;
-import ecologylab.serialization.FieldType;
 import ecologylab.serialization.annotations.Hint;
 import ecologylab.serialization.annotations.bibtex_key;
 import ecologylab.serialization.annotations.bibtex_type;
@@ -51,7 +50,8 @@ import ecologylab.serialization.types.element.IMappable;
  * @author andruid
  */
 @simpl_inherit
-public class ClassDescriptor<FD extends FieldDescriptor> extends DescriptorBase implements IMappable<String>, Iterable<FD>
+public class ClassDescriptor<FD extends FieldDescriptor> extends DescriptorBase implements
+		FieldTypes, IMappable<String>, Iterable<FD>
 {
 	
 	public static interface FieldDescriptorsDerivedEventListener
@@ -674,25 +674,25 @@ public class ClassDescriptor<FD extends FieldDescriptor> extends DescriptorBase 
 				// debug("Skipping " + thatField + " because its static!");
 				continue;
 			}
-			FieldType fieldType = FieldType.UNSET_TYPE;
+			int fieldType = UNSET_TYPE;
 
 			if (XMLTools.isScalar(thatField))
 			{
-				fieldType = FieldType.SCALAR;
+				fieldType = SCALAR;
 			}
 			else if (XMLTools.representAsComposite(thatField))
 			{
-				fieldType = FieldType.COMPOSITE_ELEMENT;
+				fieldType = COMPOSITE_ELEMENT;
 			}
 			else if (XMLTools.representAsCollection(thatField))
 			{
-				fieldType = FieldType.COLLECTION_ELEMENT;
+				fieldType = COLLECTION_ELEMENT;
 			}
 			else if (XMLTools.representAsMap(thatField))
 			{
-				fieldType = FieldType.MAP_ELEMENT;
+				fieldType = MAP_ELEMENT;
 			}
-			if (fieldType == FieldType.UNSET_TYPE)
+			if (fieldType == UNSET_TYPE)
 				continue; // not a simpl serialization annotated field
 
 			FD fieldDescriptor = newFieldDescriptor(thatField,
@@ -700,28 +700,26 @@ public class ClassDescriptor<FD extends FieldDescriptor> extends DescriptorBase 
 																							(Class<FD>) fieldDescriptorClass);
 			fieldDescriptor.genericTypeVarsContextCD = this;
 			// create indexes for serialize
-			if (fieldDescriptor.getType() == FieldType.SCALAR)
+			if (fieldDescriptor.getType() == SCALAR)
 			{
 				Hint xmlHint = fieldDescriptor.getXmlHint();
 				switch (xmlHint)
 				{
-					case XML_ATTRIBUTE:
-						attributeFieldDescriptors.add(fieldDescriptor);
-						break;
-					case XML_TEXT:
-					case XML_TEXT_CDATA:
-						break;
-					case XML_LEAF:
-					case XML_LEAF_CDATA:
-						elementFieldDescriptors.add(fieldDescriptor);
-						break;
+				case XML_ATTRIBUTE:
+					attributeFieldDescriptors.add(fieldDescriptor);
+					break;
+				case XML_TEXT:
+				case XML_TEXT_CDATA:
+					break;
+				case XML_LEAF:
+				case XML_LEAF_CDATA:
+					elementFieldDescriptors.add(fieldDescriptor);
+					break;
 				}
 			}
 			else
-			{
 				elementFieldDescriptors.add(fieldDescriptor);
-			}
-			
+
 			if (XMLTools.isCompositeAsScalarvalue(thatField))
 			{
 				scalarValueFieldDescripotor = fieldDescriptor;
@@ -735,17 +733,13 @@ public class ClassDescriptor<FD extends FieldDescriptor> extends DescriptorBase 
 			}
 
 			if (fieldDescriptor.isMarshallOnly())
-			{
 				continue; // not translated from XML, so don't add those mappings
-			}
 
 			// find the field descriptor for bibtex citation key
 			bibtex_key keyAnnotation = thatField.getAnnotation(bibtex_key.class);
 			if (keyAnnotation != null)
-			{
 				fieldDescriptorForBibTeXKey = fieldDescriptor;
-			}
-			
+
 			// create mappings for translateFromBibTeX() --> allFieldDescriptorsByBibTeXTag
 			final String bibTeXTag = fieldDescriptor.getBibtexTagName();
 			allFieldDescriptorsByBibTeXTag.put(bibTeXTag, fieldDescriptor);
@@ -774,6 +768,7 @@ public class ClassDescriptor<FD extends FieldDescriptor> extends DescriptorBase 
 			}
 			thatField.setAccessible(true); // else -- ignore non-annotated fields
 		} // end for all fields
+
 	}
 
 	private void referFieldDescriptorsFrom(ClassDescriptor<FD> superClassDescriptor)
@@ -869,14 +864,10 @@ public class ClassDescriptor<FD extends FieldDescriptor> extends DescriptorBase 
 	private <FDT extends FieldDescriptor> FDT perhapsCloneGenericField(FDT fd, Map<FieldDescriptor, FieldDescriptor> bookkeeper)
 	{
 		if (declaredGenericTypeVarNames == null || fd.field == null)
-		{
 			return fd;
-		}
 		
 		if (bookkeeper.containsKey(fd))
-		{
 			return (FDT) bookkeeper.get(fd);
-		}
 		
 		FDT result = fd;
 		Type genericType = fd.field.getGenericType();
@@ -898,29 +889,21 @@ public class ClassDescriptor<FD extends FieldDescriptor> extends DescriptorBase 
 			{
 				TypeVariable tv = (TypeVariable) genericType;
 				if (names.contains(tv.getName()) || tv.getBounds().length > 0 && isTypeUsingGenericNames(tv.getBounds()[0], names))
-				{
 					return true;
-				}
 			}
 			else if (genericType instanceof WildcardType)
 			{
 				WildcardType wt = (WildcardType) genericType;
 				if (wt.getUpperBounds().length > 0 && isTypeUsingGenericNames(wt.getUpperBounds()[0], names))
-				{
 					return true;
-				}
 			}
 			else if (genericType instanceof ParameterizedType)
 			{
 				ParameterizedType pt = (ParameterizedType) genericType;
 				Type[] args = pt.getActualTypeArguments();
 				for (Type arg : args)
-				{
 					if (isTypeUsingGenericNames(arg, names))
-					{
 						return true;
-					}
-				}
 			}
 		}
 		return false;
@@ -931,9 +914,7 @@ public class ClassDescriptor<FD extends FieldDescriptor> extends DescriptorBase 
 		if (otherTags != null)
 		{
 			for (String otherTag : otherTags)
-			{
 				mapTagToFdForDeserialize(otherTag, fieldDescriptor);
-			}
 		}
 	}
 
@@ -945,13 +926,11 @@ public class ClassDescriptor<FD extends FieldDescriptor> extends DescriptorBase 
 		Collection<String> tagClassDescriptors = fieldDescriptor.getPolymorphicTags();
 
 		if (tagClassDescriptors != null)
-		{
 			for (String tagName : tagClassDescriptors)
 			{
 				mapTagToFdForDeserialize(tagName, fieldDescriptor);
 			}
-		}
-		
+
 		mapTagToFdForDeserialize(fieldDescriptor.getTagName(), fieldDescriptor);
 	}
 
@@ -963,13 +942,11 @@ public class ClassDescriptor<FD extends FieldDescriptor> extends DescriptorBase 
 	 * @param fieldDescriptorClass
 	 * @return
 	 */
-	private FD newFieldDescriptor(Field thatField, FieldType annotationType, Class<FD> fieldDescriptorClass)
+	private FD newFieldDescriptor(Field thatField, int annotationType, Class<FD> fieldDescriptorClass)
 	{
 		if (fieldDescriptorClass == null)
-		{
 			return (FD) new FieldDescriptor(this, thatField, annotationType);
-		}
-		
+
 		Object args[] = new Object[3];
 		args[0] = this;
 		args[1] = thatField;
@@ -985,10 +962,8 @@ public class ClassDescriptor<FD extends FieldDescriptor> extends DescriptorBase 
 	private FD newFieldDescriptor(FD wrappedFD, String wrapperTag, Class<FD> fieldDescriptorClass)
 	{
 		if (fieldDescriptorClass == null)
-		{
 			return (FD) new FieldDescriptor(this, wrappedFD, wrapperTag);
-		}
-		
+
 		Object args[] = new Object[3];
 		args[0] = this;
 		args[1] = wrappedFD;
@@ -1011,10 +986,8 @@ public class ClassDescriptor<FD extends FieldDescriptor> extends DescriptorBase 
 			FD previousMapping = allFieldDescriptorsByTagNames.put(tagName, fdToMap);
 			allFieldDescriptorsByTLVIds.put(tagName.hashCode(), fdToMap);
 			if (previousMapping != null && previousMapping != fdToMap)
-			{
 				warning(" tag <" + tagName + ">:\tfield[" + fdToMap.getName() + "] overrides field["
 						+ previousMapping.getName() + "]");
-			}
 		}
 	}
 
@@ -1028,9 +1001,7 @@ public class ClassDescriptor<FD extends FieldDescriptor> extends DescriptorBase 
 	{
 		String tagName = fieldDescriptor.getTagName();
 		if (tagName != null)
-		{
 			mapTagToFdForDeserialize(tagName, fieldDescriptor);
-		}
 	}
 
 	/**
@@ -1110,9 +1081,7 @@ public class ClassDescriptor<FD extends FieldDescriptor> extends DescriptorBase 
 			return pos > 0 ? csTypeName.substring(0, pos) : CSHARP_PRIMITIVE_NAMESPACE;
 		}
 		else
-		{
 			return null;
-		}
 	}
 
 	@Override

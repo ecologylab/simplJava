@@ -11,7 +11,6 @@ import ecologylab.serialization.ClassDescriptor;
 import ecologylab.serialization.DeserializationHookStrategy;
 import ecologylab.serialization.ElementState;
 import ecologylab.serialization.FieldDescriptor;
-import ecologylab.serialization.FieldType;
 import ecologylab.serialization.SIMPLTranslationException;
 import ecologylab.serialization.SimplTypesScope;
 import ecologylab.serialization.TranslationContext;
@@ -57,22 +56,14 @@ public class XMLPullDeserializer extends StringPullDeserializer
 	@Override
 	public Object parse(InputStream inputStream, Charset charSet) throws SIMPLTranslationException
 	{
-		Object result = null;
 		try
 		{
 			configure(inputStream, charSet);
-			result = parse();
-			return result;
-		}
-		catch(SIMPLTranslationException ex) 
-		{
-			throw ex; 
+			return parse();
 		}
 		catch (Exception ex)
 		{
-			SIMPLTranslationException ste = new SIMPLTranslationException("exception occurred in deserialzation ", ex);
-			ste.setObjectRemnant(result);
-			throw ste;
+			throw new SIMPLTranslationException("exception occurred in deserialzation ", ex);
 		}
 	}
 	
@@ -94,11 +85,7 @@ public class XMLPullDeserializer extends StringPullDeserializer
 		catch (Exception ex)
 		{
 			SIMPLTranslationException toThrow = new SIMPLTranslationException("exception occurred in deserialzation ", ex);
-<<<<<<< HEAD
 			
-=======
-			toThrow.setObjectRemnant(result);
->>>>>>> origin/error-handling
 			throw toThrow;
 		}
 	}
@@ -117,23 +104,14 @@ public class XMLPullDeserializer extends StringPullDeserializer
 	@Override
 	public Object parse(CharSequence charSequence) throws SIMPLTranslationException
 	{
-		// hold onto a black result to return. 
-		Object result = null; 
 		try
 		{
 			configure(charSequence);
-			result = parse();
-			return result;
-		}
-		catch(SIMPLTranslationException ex) 
-		{
-			throw ex; 
+			return parse();
 		}
 		catch (Exception ex)
 		{
-			SIMPLTranslationException ste = new SIMPLTranslationException("exception occurred in deserialzation ", ex);
-			ste.setObjectRemnant(result);
-			throw ste;
+			throw new SIMPLTranslationException("exception occurred in deserialzation ", ex);
 		}
 	}
 
@@ -250,21 +228,16 @@ public class XMLPullDeserializer extends StringPullDeserializer
 				if (event != XMLParser.START_ELEMENT)
 				{
 					if (event == XMLParser.CHARACTERS)
-					{
 						xmlText += xmlParser.getText();
-					}
-					else if (event == XMLParser.END_ELEMENT && currentFieldDescriptor != null && currentFieldDescriptor.getType() == FieldType.WRAPPER)
-					{
+					else if (event == XMLParser.END_ELEMENT && currentFieldDescriptor != null && currentFieldDescriptor.getType() == WRAPPER)
 						currentFieldDescriptor = currentFieldDescriptor.getWrappedFD();
-					}
-					
 					event = nextEvent();
 					continue;
 				}
 
 				String tag = getTagName();
 
-				currentFieldDescriptor = currentFieldDescriptor != null &&currentFieldDescriptor.getType() == FieldType.WRAPPER
+				currentFieldDescriptor = currentFieldDescriptor != null &&currentFieldDescriptor.getType() == WRAPPER
 						? currentFieldDescriptor.getWrappedFD()
 						: rootClassDescriptor.getFieldDescriptorByTag(tag, translationScope, null);
 
@@ -273,7 +246,7 @@ public class XMLPullDeserializer extends StringPullDeserializer
 					currentFieldDescriptor = FieldDescriptor.makeIgnoredFieldDescriptor(tag);
 				}
 
-				FieldType fieldType = currentFieldDescriptor.getType();
+				int fieldType = currentFieldDescriptor.getType();
 
 				switch (fieldType)
 				{
@@ -317,7 +290,7 @@ public class XMLPullDeserializer extends StringPullDeserializer
 			deserializationPostHook(root, translationContext);
 			if (deserializationHookStrategy != null)
 				deserializationHookStrategy.deserializationPostHook(root,
-						currentFieldDescriptor == null || currentFieldDescriptor.getType() == FieldType.IGNORED_ELEMENT
+						currentFieldDescriptor == null || currentFieldDescriptor.getType() == IGNORED_ELEMENT
 						? null : currentFieldDescriptor);
 //				deserializationHookStrategy.deserializationPostHook(root, null);
 	}
