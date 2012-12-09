@@ -1,11 +1,12 @@
 package ecologylab.serialization.serializers.stringformats;
 
-import java.io.IOException; 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 
 import ecologylab.serialization.ClassDescriptor;
 import ecologylab.serialization.FieldDescriptor;
+import ecologylab.serialization.FieldTypes;
 import ecologylab.serialization.SIMPLTranslationException;
 import ecologylab.serialization.TranslationContext;
 import ecologylab.serialization.XMLTools;
@@ -16,7 +17,7 @@ import ecologylab.serialization.formatenums.Format;
  * 
  * @author nabeel
  */
-public class BibtexSerializer extends StringSerializer
+public class BibtexSerializer extends StringSerializer implements FieldTypes
 {
 
 	public BibtexSerializer()

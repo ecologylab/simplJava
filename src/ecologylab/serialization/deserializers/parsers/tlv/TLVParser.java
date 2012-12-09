@@ -3,6 +3,7 @@ package ecologylab.serialization.deserializers.parsers.tlv;
 import ecologylab.serialization.ClassDescriptor;
 import ecologylab.serialization.FieldDescriptor;
 import ecologylab.serialization.FieldType;
+import ecologylab.serialization.FieldTypes;
 import ecologylab.serialization.SimplTypesScope;
 
 /**

@@ -17,6 +17,7 @@ import ecologylab.platformspecifics.FundamentalPlatformSpecifics;
 import ecologylab.serialization.DeserializationHookStrategy;
 import ecologylab.serialization.FieldDescriptor;
 import ecologylab.serialization.FieldType;
+import ecologylab.serialization.FieldTypes;
 import ecologylab.serialization.SIMPLTranslationException;
 import ecologylab.serialization.TranslationContext;
 import ecologylab.serialization.SimplTypesScope;

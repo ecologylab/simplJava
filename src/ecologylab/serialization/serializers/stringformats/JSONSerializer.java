@@ -6,6 +6,7 @@ import java.util.Collection;
 
 import ecologylab.serialization.ClassDescriptor;
 import ecologylab.serialization.FieldDescriptor;
+import ecologylab.serialization.FieldTypes;
 import ecologylab.serialization.SIMPLTranslationException;
 import ecologylab.serialization.SimplTypesScope;
 import ecologylab.serialization.SimplTypesScope.GRAPH_SWITCH;
@@ -21,7 +22,7 @@ import ecologylab.serialization.formatenums.Format;
  * @author nabeel
  * 
  */
-public class JSONSerializer extends StringSerializer 
+public class JSONSerializer extends StringSerializer implements FieldTypes
 {
 	private int	numOfFields;
 
