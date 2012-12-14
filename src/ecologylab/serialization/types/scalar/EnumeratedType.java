@@ -18,7 +18,7 @@ public class EnumeratedType extends ReferenceType<Enum>
 	ArrayList<String> enumStringConstants = new ArrayList<String>();
 	
 	String enumTypeSimpleName = ""; 
-
+	 
 	public EnumeratedType()
 	{
 		super(Enum.class, null, null, null, null);
