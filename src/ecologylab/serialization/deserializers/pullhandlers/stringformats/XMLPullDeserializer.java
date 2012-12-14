@@ -269,7 +269,7 @@ public class XMLPullDeserializer extends StringPullDeserializer
 					currentFieldDescriptor = FieldDescriptor.makeIgnoredFieldDescriptor(tag);
 				}
 
-				FieldType fieldType = currentFieldDescriptor.getType();
+					FieldType fieldType = currentFieldDescriptor.getType();
 
 				switch (fieldType)
 				{

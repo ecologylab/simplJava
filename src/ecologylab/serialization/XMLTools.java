@@ -2333,4 +2333,19 @@ public class XMLTools extends Debug implements CharacterConstants, SpecialCharac
 		return input;
 	}
 
+	public static boolean isEnumCollection(Field f) {
+		if(representAsCollection(f))
+		{
+			ArrayList<Class<?>> classes = XMLTools.getGenericParameters(f);
+			if(classes.isEmpty())
+			{
+				return false;
+			}else{
+				return classes.get(0).isEnum();
+			}
+		}else{
+			return false;
+		}
+	}
+
 }
