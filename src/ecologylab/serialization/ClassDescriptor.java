@@ -114,7 +114,7 @@ public class ClassDescriptor<FD extends FieldDescriptor> extends DescriptorBase
 	 */
 	private HashMapArrayList<String, FD> fieldDescriptorsByFieldName = new HashMapArrayList<String, FD>();
 
-	@simpl_nowrap
+	@simpl_nowrap	
 	@simpl_map("field_descriptor")
 	@simpl_map_key_field("name")
 	private HashMapArrayList<String, FD> declaredFieldDescriptorsByFieldName = new HashMapArrayList<String, FD>();
@@ -652,10 +652,12 @@ public class ClassDescriptor<FD extends FieldDescriptor> extends DescriptorBase
 
 			FD fieldDescriptor = newFieldDescriptor(thatField, fieldType,
 					(Class<FD>) fieldDescriptorClass);
+			
 			if (fieldDescriptor != null) {
 				fieldDescriptor.genericTypeVarsContextCD = this;
 			} else {
-
+				int isfdl = 1+3;
+				isfdl ++;
 			}
 			// create indexes for serialize
 			if (fieldDescriptor.getType() == FieldType.SCALAR) {
@@ -908,7 +910,7 @@ public class ClassDescriptor<FD extends FieldDescriptor> extends DescriptorBase
 	}
 
 	static final Class[] FIELD_DESCRIPTOR_ARGS = { ClassDescriptor.class,
-			Field.class, int.class };
+			Field.class, FieldType.class };
 
 	/**
 	 * @param thatField
