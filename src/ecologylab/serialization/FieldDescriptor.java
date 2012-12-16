@@ -467,6 +467,7 @@ public class FieldDescriptor extends DescriptorBase implements FieldTypes, IMapp
 	 */
 	private boolean resolveScopeAnnotation(final String scopeAnnotation)
 	{
+		println(scopeAnnotation);
 		SimplTypesScope scope = SimplTypesScope.get(scopeAnnotation);
 		if (scope != null)
 		{
