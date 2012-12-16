@@ -465,6 +465,7 @@ public class FieldDescriptor extends DescriptorBase implements IMappable<String>
 	 */
 	private boolean resolveScopeAnnotation(final String scopeAnnotation)
 	{
+		println(scopeAnnotation);
 		SimplTypesScope scope = SimplTypesScope.get(scopeAnnotation);
 		if (scope != null)
 		{
