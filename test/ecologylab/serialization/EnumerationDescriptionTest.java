@@ -2,6 +2,8 @@ package ecologylab.serialization;
 
 import static org.junit.Assert.*;
 
+import java.lang.reflect.Field;
+
 import org.junit.Test;
 
 public class EnumerationDescriptionTest {
@@ -60,13 +62,13 @@ public class EnumerationDescriptionTest {
 		assertFalse("Should be case sensitive! FIRSTENTRY ignores casing.", ed.containsEntry("FIRSTENTRY"));
 	}
 	
-	@Test
+	@Test(expected=SIMPLDescriptionException.class)
 	public void descriptionForCustomValuedEnumerationsWithoutASimplFieldProvokesException() throws SIMPLDescriptionException
 	{
 		EnumerationDescription invalid = EnumerationDescription.get(invalidEnumExample.class);
 	}
 	
-	@Test
+	@Test(expected=SIMPLDescriptionException.class)
 	public void descriptionForCustomValuedEnumerationsWithInvalidSimplFieldTypesProvokesException() throws SIMPLDescriptionException
 	{
 		EnumerationDescription invalid = EnumerationDescription.get(secondaryScenarioRejectsNonIntegers.class);
@@ -74,7 +76,7 @@ public class EnumerationDescriptionTest {
 	
 	@Test
 	public void customValuedEnumerartionsAreCorrectlyIdentified()
-	{
+	{		
 		// Valid "custom valued" enumerations should, of course, be identified as such
 		assertTrue(EnumerationDescription.isCustomValuedEnum(secondaryScenarioEnum.class));
 		assertTrue(EnumerationDescription.isCustomValuedEnum(secondaryScenarioAlsoSupportsPrimitiveIntEnum.class));
@@ -85,7 +87,7 @@ public class EnumerationDescriptionTest {
 		
 		// Standard enumerations (like the basic scenario) should NOT be considered custom valued...
 		// Because, duh, they're not.
-		assertFalse(EnumerationDescription.isCustomValuedEnum(primaryScenarioEnum.class));
+		assertFalse("This enumeration has no custom values.", EnumerationDescription.isCustomValuedEnum(primaryScenarioEnum.class));
 		
 		
 		// Things that are not enums are also, very obviously, not Custom Valued enumerations
@@ -98,8 +100,22 @@ public class EnumerationDescriptionTest {
 		EnumerationDescription ed = EnumerationDescription.get(secondaryScenarioEnum.class);
 		performBasicValidations(secondaryScenarioEnum.class, ed);
 		
+		// let's get the core first, then do some value marshalling. ;P
+		assertEquals(new Integer(3), ed.getEntryEnumIntegerValue("firstValue"));
+		assertEquals(new Integer(5), ed.getEntryEnumIntegerValue("secondValue"));
+		assertEquals(new Integer(7), ed.getEntryEnumIntegerValue("thirdValue"));
 		
-		
+		EnumerationDescription secondStyle = EnumerationDescription.get(secondaryScenarioAlsoSupportsPrimitiveIntEnum.class);
+		performBasicValidations(secondaryScenarioAlsoSupportsPrimitiveIntEnum.class, secondStyle);
+		performValueValidation(secondStyle);
+	}
+	
+	
+	private void performValueValidation(EnumerationDescription ed)
+	{
+		assertEquals(new Integer(3), ed.getEntryEnumIntegerValue("firstValue"));
+		assertEquals(new Integer(5), ed.getEntryEnumIntegerValue("secondValue"));
+		assertEquals(new Integer(7), ed.getEntryEnumIntegerValue("thirdValue"));
 	}
 
 }
