@@ -1543,18 +1543,18 @@ public class XMLTools extends Debug implements CharacterConstants, SpecialCharac
 		return result;
 	}
 
-	static boolean isScalar(Field field)
+	public static boolean isScalar(Field field)
 	{
 		return field.isAnnotationPresent(simpl_scalar.class);
 	}
 	
-	static boolean isCompositeAsScalarvalue(Field field)
+	public static boolean isCompositeAsScalarvalue(Field field)
 	{
 		return field.isAnnotationPresent(simpl_composite_as_scalar.class);
 	}
 	
 
-	static Hint simplHint(Field field)
+	public static Hint simplHint(Field field)
 	{
 		simpl_hints hintsAnnotation = field.getAnnotation(simpl_hints.class);
 		return (hintsAnnotation == null) ? Hint.XML_ATTRIBUTE : hintsAnnotation.value()[0];

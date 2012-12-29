@@ -50,7 +50,7 @@ public class EnumeratedType extends ReferenceType<Enum>
 
        boolean result		= false;
        Enum<?> referenceObject;
-
+       
        try
        {
       	 	referenceObject = XMLTools.createEnumeratedType(field, valueString);
