@@ -5,4 +5,9 @@ public class SIMPLDescriptionException extends Exception {
 	{
 		super(s);
 	}
+	
+	public SIMPLDescriptionException(String s, Throwable t)
+	{
+		super(s,t);
+	}
 }
