@@ -7,12 +7,20 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 
+import ecologylab.serialization.annotations.simpl_collection;
 import ecologylab.serialization.annotations.simpl_scalar;
 
 public class EnumerationDescription extends DescriptorBase {
 	
+	/**
+	 * Gets an enumeration description for a given class. 
+	 * @param enumerationClass The given class to describe. 
+	 * @return An EnumerationDescription
+	 * @throws SIMPLDescriptionException Whenever the described class has invalid aspects 
+	 */
 	public static EnumerationDescription get(Class<?> enumerationClass) throws SIMPLDescriptionException
 	{
+		// TODO: Add caching here at some point. 
 		
 		EnumerationDescription ed = new EnumerationDescription(enumerationClass);
 		
@@ -27,8 +35,10 @@ public class EnumerationDescription extends DescriptorBase {
 				Integer enumEntryValue;
 				try 
 				{
+					// We marshal this value in; sometimes, we need to reset the accessibility
 					enumEntryValue = (Integer)ed.getEnumerationCustomValueField().get(o);
-					System.out.println(enumEntryName + " = " + enumEntryValue == null ? "null" : enumEntryValue.toString());
+					// Interesting aside: It seems that on the first entry of an enumeration, we /always/ need to set accessibility
+					// But not on the second. Weird! 
 				}
 				catch (IllegalArgumentException e) {
 					throw new SIMPLDescriptionException("Illegal argument exception while attempting to marshal entry value for enum entry: " + enumEntryName, e);
@@ -36,7 +46,7 @@ public class EnumerationDescription extends DescriptorBase {
 				catch (IllegalAccessException e) 
 				{
 					try{
-						
+						// Most of the time, we can set the field to accessible to overcome the IllegalAccessException
 						ed.getEnumerationCustomValueField().setAccessible(true);
 						enumEntryValue = (Integer)ed.getEnumerationCustomValueField().get(o);
 					}
@@ -61,9 +71,13 @@ public class EnumerationDescription extends DescriptorBase {
 				ed.getEnumerationEntries().add(new EnumerationEntry(enumEntryName));
 			}
 		}
+		
 		return ed;
 	}
 	
+	/**
+	 * Initialize the basic data structures in the EnumerationDescription
+	 */
 	private void basicInitialization()
 	{
 		this.enumerationEntries = new LinkedList<>();
@@ -79,7 +93,13 @@ public class EnumerationDescription extends DescriptorBase {
 		basicInitialization();
 	}
 	
-	public EnumerationDescription(Class<?> describedEnum) throws SIMPLDescriptionException
+	/**
+	 * Creates an EnumerationDescription from a Class<?>... Does not add the EnumerationEntries 
+	 * (Leave that to .Get() which will cache the EnumreationDescriptions)
+	 * @param describedEnum
+	 * @throws SIMPLDescriptionException
+	 */
+	private EnumerationDescription(Class<?> describedEnum) throws SIMPLDescriptionException
 	{
 		super(XMLTools.getXmlTagName(describedEnum, null), describedEnum.getSimpleName());
 		basicInitialization();
@@ -149,6 +169,7 @@ public class EnumerationDescription extends DescriptorBase {
 	/**
 	 * A list of entires in this given enumeration. 
 	 */
+	@simpl_collection("entry")
 	private List<EnumerationEntry> enumerationEntries;
 	
 
@@ -226,7 +247,15 @@ public class EnumerationDescription extends DescriptorBase {
 	{
 		if(this.enumerationClass == null)
 		{
-			return null;
+			// let's fetch a class! :3 
+			try{
+			Class<?> theClass = Class.forName(this.getJavaTypeName());
+			this.enumerationClass = theClass;
+			}
+			catch(Exception e)
+			{
+				return null;
+			}
 		}
 		// TODO: Standard simpl code for ressurecting the class of a simpl descriptor / field? 
 		return this.enumerationClass;
@@ -253,6 +282,11 @@ public class EnumerationDescription extends DescriptorBase {
 		}
 		
 		return this.enumNameToEnumValueHash.get(string);
+	}
+	
+	public Enum<?> getEntryEnumFromValue(Integer value)
+	{
+		return this.getEntryEnumValue(this.fetchEnumValueToEnumName().get(value));
 	}
 
 	/**
@@ -291,6 +325,22 @@ public class EnumerationDescription extends DescriptorBase {
 		
 		return ourHash;
 	}
+	
+	private HashMap<Integer, String> fetchEnumValueToEnumName()
+	{
+		HashMap<Integer, String> ourHash = new HashMap<>();
+
+		if(isCustomValuedEnum(fetchEnumClass()))
+		{
+			for(EnumerationEntry ee : this.enumerationEntries)
+			{
+				ourHash.put(ee.getValue(), ee.getName());
+			}
+		}
+		
+		return ourHash;
+	}
+	
 	
 	
 	/**
@@ -345,6 +395,11 @@ public class EnumerationDescription extends DescriptorBase {
 		}
 	}
 
+	/**
+	 * Gets the integer value that corresponds to a custom-valued enumeration
+	 * @param string Entry name
+ 	 * @return Custom value
+	 */
 	public Integer getEntryEnumIntegerValue(String string) {
 		return fetchEnumNameToEnumIntegerValue().get(string);
 	}
