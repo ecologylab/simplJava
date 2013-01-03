@@ -6,6 +6,8 @@ import java.lang.reflect.Field;
 
 import org.junit.Test;
 
+import ecologylab.serialization.formatenums.StringFormat;
+
 public class EnumerationDescriptionTest {
 
 	@Test(expected=SIMPLDescriptionException.class)
@@ -110,12 +112,18 @@ public class EnumerationDescriptionTest {
 		performValueValidation(secondStyle);
 	}
 	
-	
 	private void performValueValidation(EnumerationDescription ed)
 	{
 		assertEquals(new Integer(3), ed.getEntryEnumIntegerValue("firstValue"));
 		assertEquals(new Integer(5), ed.getEntryEnumIntegerValue("secondValue"));
 		assertEquals(new Integer(7), ed.getEntryEnumIntegerValue("thirdValue"));
+		
+		assertEquals("firstValue", ed.getEntryEnumFromValue(3).toString());
+		assertEquals("secondValue", ed.getEntryEnumFromValue(5).toString());
+		assertEquals("thirdValue", ed.getEntryEnumFromValue(7).toString());
+		
 	}
 
+	
+	
 }

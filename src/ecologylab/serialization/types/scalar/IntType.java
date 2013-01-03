@@ -135,8 +135,7 @@ public class IntType extends ScalarType<Integer> implements CrossLanguageTypeCon
 	public boolean isDefaultValue(Field field, Object context) throws IllegalArgumentException,
 			IllegalAccessException
 	{
-		return (Integer) field.get(context) == DEFAULT_VALUE;
-
+		return (context == null) || ((Integer) field.get(context) == null || (Integer) field.get(context) == DEFAULT_VALUE);
 	}
 
 	/**
