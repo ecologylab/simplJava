@@ -728,6 +728,11 @@ public class ClassDescriptor<FD extends FieldDescriptor> extends DescriptorBase
 				} else {
 					tag = fieldTagName;
 				}
+				
+				if(tag == null) 
+				{
+					throw new RuntimeException("Tag should never be null! Fix it!");
+				}
 
 				mapTagToFdForDeserialize(tag, fieldDescriptor);
 				mapOtherTagsToFdForDeserialize(fieldDescriptor,
