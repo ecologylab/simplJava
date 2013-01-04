@@ -79,6 +79,17 @@ public final class SimplTypesScope extends ElementState
 
 	private static HashMap<String, SimplTypesScope> allTypesScopes = new HashMap<String, SimplTypesScope>();
 
+	/**
+	 * SimplTypesScope has some global static "AllTypesScopes" scopes which can
+	 *  interfere with idempotent execution of tests.
+	 * Run this method to reset the global scope before running test code to give you a clean slate.
+	 */
+	public static void ResetAllTypesScopes()
+	{
+		System.out.println("----------- RESETTING -----------");
+		SimplTypesScope.allTypesScopes = new HashMap<String, SimplTypesScope>();
+	}
+	
 	public static final String STATE = "State";
 
 	private boolean performFilters;
@@ -104,6 +115,7 @@ public final class SimplTypesScope extends ElementState
 	private SimplTypesScope(String name)
 	{
 		this.name = name;
+		addSimplTypesScope(name);
 	}
 
 	/**
@@ -1195,7 +1207,16 @@ public final class SimplTypesScope extends ElementState
 
 	private void addSimplTypesScope(String name)
 	{
-		allTypesScopes.put(name, this);
+		synchronized(allTypesScopes)
+		{
+			if(!allTypesScopes.containsKey(name))
+			{
+				// TODO: Concurrency? yo. 
+				allTypesScopes.put(name, this);
+			}else{
+				//throw new RuntimeException("OH NO EVERYTHING IS AMISS FOR: " + name);
+			}
+		}
 	}
 
 	
