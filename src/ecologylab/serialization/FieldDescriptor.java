@@ -222,6 +222,8 @@ public class FieldDescriptor extends DescriptorBase implements FieldTypes, IMapp
 	private ArrayList<ClassDescriptor>								dependencies								= new ArrayList<ClassDescriptor>();
 	
 	@simpl_collection("excluded_usage")
+	private ArrayList<String>                         excludedUsagesForDeSerialization;
+
 	private ArrayList<FieldUsage>											excludedUsages;
 
 	/**
@@ -297,6 +299,9 @@ public class FieldDescriptor extends DescriptorBase implements FieldTypes, IMapp
 			this.excludedUsages = new ArrayList<FieldUsage>();
 			for (FieldUsage usage : field.getAnnotation(simpl_exclude_usage.class).value())
 				this.excludedUsages.add(usage);
+			this.excludedUsagesForDeSerialization = new ArrayList<String>();
+			for (FieldUsage usage : this.excludedUsages)
+  			this.excludedUsagesForDeSerialization.add(usage.name());
 		}
 		// this.name = (field != null) ? field.getName() : "NULL";
 
@@ -2285,13 +2290,30 @@ public class FieldDescriptor extends DescriptorBase implements FieldTypes, IMapp
 		return enumType;
 	}
 	
-	public ArrayList<FieldUsage> getExcludedUsages()
+	ArrayList<FieldUsage> getExcludedUsages()
 	{
-		return excludedUsages;
+	  if (excludedUsages != null)
+  		return excludedUsages;
+	  if (excludedUsagesForDeSerialization != null)
+	  {
+	    synchronized (excludedUsagesForDeSerialization)
+	    {
+	      if (excludedUsagesForDeSerialization != null)
+	      {
+          excludedUsages = new ArrayList<FieldUsage>();
+    	    for (String exUsage : excludedUsagesForDeSerialization)
+    	    {
+    	      excludedUsages.add(FieldUsage.valueOf(exUsage));
+    	    }
+	      }
+	    }
+	  }
+	  return excludedUsages;
 	}
 	
 	public boolean isUsageExcluded(FieldUsage usage)
 	{
+	  ArrayList<FieldUsage> excludedUsages = getExcludedUsages();
 		return excludedUsages != null && excludedUsages.contains(usage);
 	}
 
