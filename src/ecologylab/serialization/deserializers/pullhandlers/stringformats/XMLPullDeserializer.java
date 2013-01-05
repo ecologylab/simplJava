@@ -211,6 +211,9 @@ public class XMLPullDeserializer extends StringPullDeserializer
 			
 		createObjectModel(root, rootClassDescriptor, rootTag);
 
+		// Post hook is called at the end of createObjectModel. 
+		// That should be pulled here at some point. 
+		
 		return root;
 	}
 
@@ -615,8 +618,10 @@ public class XMLPullDeserializer extends StringPullDeserializer
 			String tag = xmlParser.getAttributeLocalName(i);
 			String value = xmlParser.getAttributeValue(i);
 
+			// If a tag is simpl:...
 			if (TranslationContext.SIMPL.equals(attributePrefix))
 			{
+				// Handle simpl:id's
 				if (tag.equals(TranslationContext.ID))
 				{
 					translationContext.markAsUnmarshalled(value, root);

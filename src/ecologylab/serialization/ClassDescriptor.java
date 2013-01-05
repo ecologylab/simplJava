@@ -724,14 +724,17 @@ public class ClassDescriptor<FD extends FieldDescriptor> extends DescriptorBase
 
 				String tag = null;
 				if (fieldDescriptor.isCollection()) {
+					
 					tag = fieldDescriptor.getCollectionOrMapTagName();
+				
 				} else {
 					tag = fieldTagName;
 				}
 				
 				if(tag == null) 
 				{
-					throw new RuntimeException("Tag should never be null! Fix it!");
+		
+						throw new RuntimeException("Tag should never be null! Fix it!");
 				}
 
 				mapTagToFdForDeserialize(tag, fieldDescriptor);

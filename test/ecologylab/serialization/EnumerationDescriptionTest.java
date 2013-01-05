@@ -123,7 +123,62 @@ public class EnumerationDescriptionTest {
 		assertEquals("thirdValue", ed.getEntryEnumFromValue(7).toString());
 		
 	}
+	
+	@Test
+	public void enumerationDescriptionMarshalsValuesCorrectlyForNormalEnums() throws SIMPLDescriptionException, SIMPLTranslationException
+	{
+		// This is like, the simplest case. If this goes wrong, tears and shame should be part of the fix. 
+		EnumerationDescription ed = EnumerationDescription.get(primaryScenarioEnum.class);
+		assertEquals("firstValue", ed.marshal(primaryScenarioEnum.firstValue));
+		assertEquals("secondValue", ed.marshal(primaryScenarioEnum.secondValue));
+	}
+	
+	@Test
+	public void enumerationDescriptionMarshalsValuesForCustomValuedEnums() throws SIMPLTranslationException, SIMPLDescriptionException
+	{
+		// This is like, the simplest case. If this goes wrong, tears and shame should be part of the fix. 
+		EnumerationDescription ed = EnumerationDescription.get(secondaryScenarioEnum.class);
+		assertEquals("firstValue", ed.marshal(secondaryScenarioEnum.firstValue));
+		assertEquals("secondValue", ed.marshal(secondaryScenarioEnum.secondValue));
+		// Yes. This test was basically copy pasted.
+	}
 
 	
+	@Test(expected=SIMPLTranslationException.class)
+	public void enumerationDescriptionMarshallingThrowsExceptionForInvalidValuesAndTypes() throws SIMPLDescriptionException, SIMPLTranslationException 
+	{
+		EnumerationDescription ed = EnumerationDescription.get(primaryScenarioEnum.class);	
+		ed.marshal("LOL A STRING"); // Strings are not enums, silly!
+		ed.marshal(secondaryScenarioEnum.secondValue); // That's not the right enum to marshal, silly!
+		ed.marshal(null); // Woah! Null?! I don't THINK so. 
+	}
 	
+	@Test
+	public void enumerationDescriptionUnmarshallsValuesForCustomValuedEnums() throws SIMPLDescriptionException, SIMPLTranslationException
+	{
+		EnumerationDescription ed = EnumerationDescription.get(secondaryScenarioEnum.class);	
+		assertEquals(secondaryScenarioEnum.firstValue, ed.unmarshal("firstValue"));
+		assertEquals(secondaryScenarioEnum.firstValue, ed.unmarshal("3"));
+		
+		assertEquals(secondaryScenarioEnum.thirdValue, ed.unmarshal("thirdValue"));
+		assertEquals(secondaryScenarioEnum.thirdValue, ed.unmarshal("7"));
+	}
+	
+	@Test(expected=SIMPLTranslationException.class)
+	public void enumerationDescriptionThrowsExceptionOnUnmarshallingNonExistantNames() throws SIMPLDescriptionException, SIMPLTranslationException
+	{
+		EnumerationDescription ed = EnumerationDescription.get(secondaryScenarioEnum.class);	
+		ed.unmarshal(null);// Null? NOPE.
+		ed.unmarshal(""); // Empty? NOPE.
+		ed.unmarshal("thisIsSomeValueThatIsNotInTheEnumerationAtAll"); // Not gonna happen.
+	}
+	
+	@Test(expected=SIMPLTranslationException.class)
+	public void enumerationDescriptionThrowsExceptionOnUnmarshallingNonExistantValues() throws SIMPLDescriptionException, SIMPLTranslationException
+	{
+		EnumerationDescription ed = EnumerationDescription.get(secondaryScenarioEnum.class);	
+		ed.unmarshal("-1"); // Not in there.
+		ed.unmarshal("90001"); // also not in there.
+	}
 }
+

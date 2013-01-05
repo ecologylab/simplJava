@@ -10,7 +10,7 @@ import java.util.List;
 import ecologylab.serialization.annotations.simpl_collection;
 import ecologylab.serialization.annotations.simpl_scalar;
 
-public class EnumerationDescription extends DescriptorBase {
+public class EnumerationDescription extends DescriptorBase implements ISimplStringMarshaller {
 	
 	/**
 	 * Gets an enumeration description for a given class. 
@@ -402,5 +402,74 @@ public class EnumerationDescription extends DescriptorBase {
 	 */
 	public Integer getEntryEnumIntegerValue(String string) {
 		return fetchEnumNameToEnumIntegerValue().get(string);
+	}
+
+	@Override
+	/**
+	 * Marshals a given Object (an enumeration, in our case) to a string representation.
+	 */
+	public String marshal(Object object) throws SIMPLTranslationException{
+		// TODO Auto-generated method stub
+		if(object == null)
+		{
+			throw new SIMPLTranslationException(new SimplIssue("Should not attempt to marshal null values.", null, object));
+		}
+		
+		if(object.getClass().isEnum())
+		{
+			if(object.getClass().equals(this.fetchEnumClass()))
+			{
+				//We have a valid object! Let's do this!
+				return object.toString(); // Hehehe. This should do the trick.
+				// Marshalling enums here is super trivial because toString() is guarenteed to return the name. 
+				// Unmarshalling will be a bit more tricksy... but not by much.
+			}
+			else
+			{
+				throw new SIMPLTranslationException(new SimplIssue("Could not marshal because enumeration class was not the same as that in description. Was: "+ object.getClass().getName(), null, object));		
+			}
+		}
+		else
+		{
+			throw new SIMPLTranslationException(new SimplIssue("Could not marshal a non-enumeration type... was: " + object.getClass().getName(), null, object));
+		}
+	}
+
+	@Override
+	public Object unmarshal(String string) throws SIMPLTranslationException{
+		// TODO Auto-generated method stub
+		if(string == null || string.isEmpty())
+		{
+			throw new SIMPLTranslationException(new SimplIssue("Could not unmarshal a null or empty string!", string, null));
+		}
+
+		if(this.containsEntry(string))
+		{
+			// We have this entry! Let's try to get it. 
+			return this.getEntryEnumValue(string);
+		}
+		else
+		{
+			// Can we convert the string to an integer? If yes: try to marshal by value...
+			// otherwise, it's not in here! 
+			try
+			{
+				Integer enumValue = Integer.parseInt(string);
+				Object value = this.getEntryEnumFromValue(enumValue);
+				if(value == null)
+				{
+					throw new SIMPLTranslationException(new SimplIssue("No enumeration entry exists with given value!", string, null));
+				}
+				else
+				{
+					return value;
+				}
+			}
+			catch(NumberFormatException nfe)
+			{
+				throw new SIMPLTranslationException(new SimplIssue("Could not find the string value in the enumeration!", string, null));
+			}
+		}
+
 	}
 }
