@@ -263,10 +263,18 @@ public class ClassDescriptor<FD extends FieldDescriptor> extends DescriptorBase
 		this.scalarTextFD = scalarTextFD;
 	}
 
+	/**
+	 * Determines if this Class Descriptor handles a text node.
+	 * @return Returns true if this node is a text node.
+	 */
 	public boolean hasScalarFD() {
 		return scalarTextFD != null;
 	}
 
+	/**
+	 * Returns a list of interfaces that this class implements
+	 * @return
+	 */
 	public ArrayList<String> getInterfaceList() {
 		return interfaces;
 	}

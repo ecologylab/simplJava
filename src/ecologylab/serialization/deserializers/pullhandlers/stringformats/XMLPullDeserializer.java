@@ -177,10 +177,12 @@ public class XMLPullDeserializer extends StringPullDeserializer
 	 */
 	private Object parse() throws SIMPLTranslationException, IOException
 	{
+
 		Object root = null;
 
 		nextEvent();
 
+		// We should expect the first element to be the START 
 		if (xmlParser.getEventType() != XMLParser.START_ELEMENT)
 		{
 			throw new SIMPLTranslationException("start of an element expected");
@@ -313,6 +315,7 @@ public class XMLPullDeserializer extends StringPullDeserializer
 			{
 				rootClassDescriptor.getScalarTextFD().setFieldToScalar(root, xmlText, translationContext);
 			}
+			
 			deserializationPostHook(root, translationContext);
 			if (deserializationHookStrategy != null)
 				deserializationHookStrategy.deserializationPostHook(root,
