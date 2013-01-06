@@ -47,7 +47,8 @@ public class ObjectOrHashMap<K, V> implements Map<K, V>
         /**
          * @see java.util.Map.Entry#getKey()
          */
-        public K getKey()
+        @Override
+		public K getKey()
         {
             return key;
         }
@@ -55,7 +56,8 @@ public class ObjectOrHashMap<K, V> implements Map<K, V>
         /**
          * @see java.util.Map.Entry#getValue()
          */
-        public V getValue()
+        @Override
+		public V getValue()
         {
             return value;
         }
@@ -63,7 +65,8 @@ public class ObjectOrHashMap<K, V> implements Map<K, V>
         /**
          * @see java.util.Map.Entry#setValue(java.lang.Object)
          */
-        public V setValue(V value)
+        @Override
+		public V setValue(V value)
         {
             this.value = value;
 
@@ -104,7 +107,8 @@ public class ObjectOrHashMap<K, V> implements Map<K, V>
     /**
      * @see java.util.Map#clear()
      */
-    public void clear()
+    @Override
+	public void clear()
     {
         singleKey = null;
         singleValue = null;
@@ -115,7 +119,8 @@ public class ObjectOrHashMap<K, V> implements Map<K, V>
     /**
      * @see java.util.Map#containsKey(java.lang.Object)
      */
-    public boolean containsKey(Object key)
+    @Override
+	public boolean containsKey(Object key)
     {
         return singleKey == null ? mappings().containsKey(key) : singleKey
                 .equals(key);
@@ -124,7 +129,8 @@ public class ObjectOrHashMap<K, V> implements Map<K, V>
     /**
      * @see java.util.Map#containsValue(java.lang.Object)
      */
-    public boolean containsValue(Object value)
+    @Override
+	public boolean containsValue(Object value)
     {
         return singleValue == null ? mappings().containsValue(value)
                 : singleValue.equals(value);
@@ -133,7 +139,8 @@ public class ObjectOrHashMap<K, V> implements Map<K, V>
     /**
      * @see java.util.Map#entrySet()
      */
-    public Set<java.util.Map.Entry<K, V>> entrySet()
+    @Override
+	public Set<java.util.Map.Entry<K, V>> entrySet()
     {
         if (singleValue != null)
         { // just one; we need to make the set
@@ -151,7 +158,8 @@ public class ObjectOrHashMap<K, V> implements Map<K, V>
     /**
      * @see java.util.Map#get(java.lang.Object)
      */
-    public V get(Object key)
+    @Override
+	public V get(Object key)
     {
         return singleValue == null ? mappings().get(key) : singleValue;
     }
@@ -159,7 +167,8 @@ public class ObjectOrHashMap<K, V> implements Map<K, V>
     /**
      * @see java.util.Map#isEmpty()
      */
-    public boolean isEmpty()
+    @Override
+	public boolean isEmpty()
     {
         // check single value, then mappings, then if mappings exist, we check
         // its emptiness
@@ -169,7 +178,8 @@ public class ObjectOrHashMap<K, V> implements Map<K, V>
     /**
      * @see java.util.Map#keySet()
      */
-    public Set<K> keySet()
+    @Override
+	public Set<K> keySet()
     {
         if (singleKey == null)
         {
@@ -186,7 +196,8 @@ public class ObjectOrHashMap<K, V> implements Map<K, V>
     /**
      * @see java.util.Map#put(java.lang.Object, java.lang.Object)
      */
-    public V put(K key, V value)
+    @Override
+	public V put(K key, V value)
     {
         if (singleKey != null)
         {
@@ -202,7 +213,8 @@ public class ObjectOrHashMap<K, V> implements Map<K, V>
     /**
      * @see java.util.Map#putAll(java.util.Map)
      */
-    public void putAll(Map<? extends K, ? extends V> t)
+    @Override
+	public void putAll(Map<? extends K, ? extends V> t)
     {
         if (singleKey != null)
         {
@@ -215,7 +227,8 @@ public class ObjectOrHashMap<K, V> implements Map<K, V>
     /**
      * @see java.util.Map#remove(java.lang.Object)
      */
-    public V remove(Object key)
+    @Override
+	public V remove(Object key)
     {
         if (singleKey != null && singleKey.equals(key))
         {
@@ -239,7 +252,8 @@ public class ObjectOrHashMap<K, V> implements Map<K, V>
     /**
      * @see java.util.Map#size()
      */
-    public int size()
+    @Override
+	public int size()
     {
         return singleKey == null ? (mappings == null ? 0 : mappings.size()) : 1;
     }
@@ -247,7 +261,8 @@ public class ObjectOrHashMap<K, V> implements Map<K, V>
     /**
      * @see java.util.Map#values()
      */
-    public Collection<V> values()
+    @Override
+	public Collection<V> values()
     {
         System.out.println("getting values.");
         

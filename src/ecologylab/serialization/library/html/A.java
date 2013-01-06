@@ -38,6 +38,7 @@ public class A extends HtmlElement
 	{
 		this.link = link;
 	}
+	@Override
 	public String toString()
 	{
 		String returnString = "";

@@ -115,6 +115,7 @@ public abstract class AbstractNIOServer<S extends Scope> extends Manager impleme
 	/**
 	 * @see ecologylab.generic.StartAndStoppable#start()
 	 */
+	@Override
 	public void start()
 	{
 		try
@@ -132,6 +133,7 @@ public abstract class AbstractNIOServer<S extends Scope> extends Manager impleme
 	/**
 	 * @see ecologylab.generic.StartAndStoppable#stop()
 	 */
+	@Override
 	public void stop()
 	{
 		backend.stop();

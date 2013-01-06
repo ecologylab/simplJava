@@ -8,7 +8,6 @@ import org.java_websocket.WebSocket;
 import ecologylab.collections.Scope;
 import ecologylab.generic.Debug;
 import ecologylab.oodss.distributed.common.SessionObjects;
-import ecologylab.oodss.distributed.server.NIOServerProcessor;
 import ecologylab.oodss.distributed.server.WebSocketOodssServer;
 import ecologylab.oodss.distributed.server.WebSocketServerProcessor;
 import ecologylab.oodss.messages.BadSemanticContentResponse;

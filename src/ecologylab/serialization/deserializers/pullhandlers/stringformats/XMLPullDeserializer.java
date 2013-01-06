@@ -6,6 +6,10 @@ import java.nio.charset.Charset;
 import java.util.Collection;
 import java.util.Map;
 
+import javax.xml.stream.XMLStreamException;
+
+import org.codehaus.jackson.JsonParseException;
+
 import ecologylab.platformspecifics.FundamentalPlatformSpecifics;
 import ecologylab.serialization.ClassDescriptor;
 import ecologylab.serialization.DeserializationHookStrategy;
@@ -659,7 +663,7 @@ public class XMLPullDeserializer extends StringPullDeserializer
 		int eventType = XMLParser.END_DOCUMENT;
 
 		// skip events that we don't handle.
-		while ((eventType = xmlParser.next()) != xmlParser.END_DOCUMENT)
+		while ((eventType = xmlParser.next()) != XMLParser.END_DOCUMENT)
 		{
 			if (xmlParser.getEventType() == XMLParser.START_DOCUMENT
 					|| xmlParser.getEventType() == XMLParser.START_ELEMENT

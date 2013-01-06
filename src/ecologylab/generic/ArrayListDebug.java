@@ -62,7 +62,8 @@ extends ArrayList<T>
    {   	
       Debug.println(buffy);
    }
-   public String toString()
+   @Override
+public String toString()
    {
       return Debug.toString(this);
    }

@@ -47,6 +47,7 @@ extends LinearAccess<E>
     * @param i
     * @return
     */
+	@Override
 	public E get(int i);
 
    /**
@@ -60,6 +61,7 @@ extends LinearAccess<E>
 	 * Check to see if the set has any elements.
 	 * @return
 	 */
+	@Override
 	public boolean isEmpty();
 	
 	public void decrement(E el);

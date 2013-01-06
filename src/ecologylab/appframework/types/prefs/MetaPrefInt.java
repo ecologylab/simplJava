@@ -43,7 +43,8 @@ public class MetaPrefInt extends MetaPref<Integer>
      * 
      * @return Default value of MetaPref
      */
-    public Integer getDefaultValue()
+    @Override
+	public Integer getDefaultValue()
 	{
 		return defaultValue;
 	}

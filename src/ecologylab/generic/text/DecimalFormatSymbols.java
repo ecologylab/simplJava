@@ -346,11 +346,12 @@ final public class DecimalFormatSymbols implements Cloneable, Serializable
 	/**
 	 * Standard override.
 	 */
+	@Override
 	public Object clone()
 	{
 		try
 		{
-			return (DecimalFormatSymbols) super.clone();
+			return super.clone();
 			// other fields are bit-copied
 		}
 		catch (CloneNotSupportedException e)
@@ -362,6 +363,7 @@ final public class DecimalFormatSymbols implements Cloneable, Serializable
 	/**
 	 * Override equals.
 	 */
+	@Override
 	public boolean equals(Object obj)
 	{
 		if (obj == null)

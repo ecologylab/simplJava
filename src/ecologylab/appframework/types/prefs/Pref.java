@@ -637,6 +637,7 @@ public abstract class Pref<T> extends ElementState implements IMappable<String>,
 	/**
 	 * @see ecologylab.serialization.types.element.IMappable#key()
 	 */
+	@Override
 	public String key()
 	{
 		return name;

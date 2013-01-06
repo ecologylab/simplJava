@@ -159,7 +159,8 @@ extends Debug
   {
     weight	= newWeight;
   }
-  public String toString()
+  @Override
+public String toString()
   {
     return super.toString() + " " + getIndex() + ": " + weight;
   }

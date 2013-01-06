@@ -35,7 +35,7 @@ public class CompositeAsScalarType<T> extends ScalarType<T>
 	{
 		if(instance instanceof ElementState)
 		{
-			ClassDescriptor compositeElement = ClassDescriptor.getClassDescriptor((ElementState) instance);
+			ClassDescriptor compositeElement = ClassDescriptor.getClassDescriptor(instance);
 			FieldDescriptor scalarValueFD = compositeElement.getScalarValueFieldDescripotor();
 			if(scalarValueFD != null)
 			{
@@ -71,7 +71,7 @@ public class CompositeAsScalarType<T> extends ScalarType<T>
 	{
 		if(instance instanceof ElementState)
 		{
-			ClassDescriptor compositeElement = ClassDescriptor.getClassDescriptor((ElementState) instance);
+			ClassDescriptor compositeElement = ClassDescriptor.getClassDescriptor(instance);
 			FieldDescriptor scalarValueFD = compositeElement.getScalarValueFieldDescripotor();
 			if(scalarValueFD != null)
 			{

@@ -196,6 +196,7 @@ public class Logging<T extends MixedInitiativeOp> extends ElementState implement
 	 * @deprecated Use {@link #Logging(String,boolean,int,int,String,int,ApplicationEnvironment)}
 	 *             instead
 	 */
+	@Deprecated
 	public Logging(	String logFileName,
 									boolean logFileNameAbsolute,
 									int maxOpsBeforeWrite,
@@ -509,6 +510,7 @@ public class Logging<T extends MixedInitiativeOp> extends ElementState implement
 	 * <p/>
 	 * Then start the looping thread that periodically wakes up and performs log i/o.
 	 */
+	@Override
 	public void start()
 	{
 		debug("Logging starting up...");
@@ -526,6 +528,7 @@ public class Logging<T extends MixedInitiativeOp> extends ElementState implement
 	 * Finishes writing any queued actions, then sends the epilogue; then shuts down.
 	 * 
 	 */
+	@Override
 	public synchronized void stop()
 	{
 		debug("shutting down...");
@@ -613,6 +616,7 @@ public class Logging<T extends MixedInitiativeOp> extends ElementState implement
 	 * <p/>
 	 * This MUST be the only thread that ever calls writeQueuedActions().
 	 */
+	@Override
 	public void run()
 	{
 		this.runMethodDone = false;

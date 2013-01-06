@@ -849,7 +849,7 @@ public final class SimplTypesScope extends ElementState
 	 */
 	public static SimplTypesScope lookup(String name)
 	{
-		return (SimplTypesScope) allTypesScopes.get(name);
+		return allTypesScopes.get(name);
 	}
 
 	/**
@@ -1405,7 +1405,7 @@ public Object deserialize(InputStream inputStream, TranslationContext translatio
 		ArrayList<Class<?>> allClasses = simplTypesScope.getAllClasses();
 		Collection<Class<?>> augmentedClasses = augmentTranslationScope(allClasses).values();
 
-		Class<?>[] augmentedClassesArray = (Class<?>[]) augmentedClasses
+		Class<?>[] augmentedClassesArray = augmentedClasses
 				.toArray(new Class<?>[augmentedClasses.size()]);
 
 		return new SimplTypesScope(simplTypesScope.getName(), augmentedClassesArray);
@@ -1496,7 +1496,7 @@ public Object deserialize(InputStream inputStream, TranslationContext translatio
 		ArrayList<Class<?>> allClasses = simplTypesScope.getAllClasses();
 		Collection<Class<?>> augmentedClasses = augmentTranslationScope(allClasses).values();
 
-		Class<?>[] augmentedClassesArray = (Class<?>[]) augmentedClasses
+		Class<?>[] augmentedClassesArray = augmentedClasses
 				.toArray(new Class<?>[augmentedClasses.size()]);
 		return augmentedClassesArray;
 	}
@@ -1535,7 +1535,7 @@ public Object deserialize(InputStream inputStream, TranslationContext translatio
 		Collection<ClassDescriptor<? extends FieldDescriptor>> augmentedClasses = augmentSimplTypesScopeWithClassDescriptors(
 				allClasses).values();
 
-		ClassDescriptor<? extends FieldDescriptor>[] augmentedClassesArray = (ClassDescriptor[]) augmentedClasses
+		ClassDescriptor<? extends FieldDescriptor>[] augmentedClassesArray = augmentedClasses
 				.toArray(new ClassDescriptor[augmentedClasses.size()]);
 
 		return new SimplTypesScope(simplTypesScope.getName(), augmentedClassesArray);

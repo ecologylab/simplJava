@@ -4,7 +4,6 @@
 package ecologylab.io;
 
 import java.io.File;
-import java.io.IOException;
 import java.net.URLEncoder;
 
 import ecologylab.appframework.ApplicationEnvironment;

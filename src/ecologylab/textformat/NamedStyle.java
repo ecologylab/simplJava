@@ -163,12 +163,14 @@ implements IMappable<String>
 		this.strokeStyle = strokeStyle;
 	}
 	
+	@Override
 	public void recycle()
 	{
 		name = null;
 		super.recycle();
 	}
 
+	@Override
 	public String key()
 	{
 		return name;

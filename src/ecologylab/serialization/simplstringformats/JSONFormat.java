@@ -1,9 +1,6 @@
 package ecologylab.serialization.simplstringformats;
 
-import org.json.simple.JSONObject;
 import org.json.simple.JSONValue;
-import org.json.simple.parser.JSONParser;
-import org.json.simple.parser.ParseException;
 
 import ecologylab.serialization.ISimplStringFormat;
 

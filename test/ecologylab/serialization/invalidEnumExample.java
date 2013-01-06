@@ -1,6 +1,5 @@
 package ecologylab.serialization;
 
-import ecologylab.serialization.annotations.simpl_scalar;
 
 public enum invalidEnumExample {
 

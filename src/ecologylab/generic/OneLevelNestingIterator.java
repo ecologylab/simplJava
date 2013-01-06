@@ -53,11 +53,13 @@ implements Iterator<I>
 		return (currentIterator != null) && currentIterator.hasNext();
 	}
 	
+	@Override
 	public boolean hasNext()
 	{
 		return firstIterator.hasNext() || collectionHasNext();
 	}
 
+	@Override
 	public I next() 
 	{
 		if (firstIterator.hasNext())
@@ -85,6 +87,7 @@ implements Iterator<I>
 		return currentObject;
 	}
 
+	@Override
 	public void remove() 
 	{
 		throw new UnsupportedOperationException();

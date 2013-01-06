@@ -53,7 +53,8 @@ implements CrossLanguageTypeConstants
      * @param value
      *            String representation of the instance.
      */
-    public Byte getInstance(String value, String[] formatStrings, ScalarUnmarshallingContext scalarUnmarshallingContext)
+    @Override
+	public Byte getInstance(String value, String[] formatStrings, ScalarUnmarshallingContext scalarUnmarshallingContext)
     {
         return new Byte(value);
     }
@@ -63,6 +64,7 @@ implements CrossLanguageTypeConstants
 	 * 
 	 * @see ecologylab.serialization.types.ScalarType#setField(java.lang.Object, java.lang.reflect.Field, java.lang.String)
 	 */
+	@Override
 	public boolean setField(Object object, Field field, String value) 
 	{
 		boolean result	= false;
@@ -99,6 +101,7 @@ implements CrossLanguageTypeConstants
  * 
  * In this case, "false".
  */
+	@Override
 	public String defaultValueString()
 	{
 	   return DEFAULT_VALUE_STRING;

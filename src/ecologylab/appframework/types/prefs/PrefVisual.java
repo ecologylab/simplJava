@@ -11,6 +11,7 @@ import javax.swing.JRadioButton;
 import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextField;
+import javax.swing.ScrollPaneConstants;
 import javax.swing.SwingConstants;
 
 public class PrefVisual {
@@ -387,7 +388,7 @@ public class PrefVisual {
 		if (coolSpaceRatioField == null) {
 			coolSpaceRatioField = new JTextField();
 			coolSpaceRatioField.setBounds(new Rectangle(451, 118, 55, 20));
-			coolSpaceRatioField.setHorizontalAlignment(JTextField.CENTER);
+			coolSpaceRatioField.setHorizontalAlignment(SwingConstants.CENTER);
 			coolSpaceRatioField.setText("0.2");
 		}
 		return coolSpaceRatioField;
@@ -496,7 +497,7 @@ public class PrefVisual {
 		if (elements_per_square_inchField == null) {
 			elements_per_square_inchField = new JTextField();
 			elements_per_square_inchField.setBounds(new Rectangle(451, 298, 55, 20));
-			elements_per_square_inchField.setHorizontalAlignment(JTextField.CENTER);
+			elements_per_square_inchField.setHorizontalAlignment(SwingConstants.CENTER);
 			elements_per_square_inchField.setText("0.7");
 		}
 		return elements_per_square_inchField;
@@ -511,7 +512,7 @@ public class PrefVisual {
 		if (undo_levelsField == null) {
 			undo_levelsField = new JTextField();
 			undo_levelsField.setBounds(new Rectangle(451, 28, 55, 20));
-			undo_levelsField.setHorizontalAlignment(JTextField.CENTER);
+			undo_levelsField.setHorizontalAlignment(SwingConstants.CENTER);
 			undo_levelsField.setText("32");
 		}
 		return undo_levelsField;
@@ -603,7 +604,7 @@ public class PrefVisual {
 	private JTextField getCodebaseField() {
 		if (codebaseField == null) {
 			codebaseField = new JTextField();
-			codebaseField.setHorizontalAlignment(JTextField.CENTER);
+			codebaseField.setHorizontalAlignment(SwingConstants.CENTER);
 			codebaseField.setBounds(new java.awt.Rectangle(421,238,114,20));
 			codebaseField.setText("code/java");
 		}
@@ -619,7 +620,7 @@ public class PrefVisual {
 		if (undo_levelsField1 == null) {
 			undo_levelsField1 = new JTextField();
 			undo_levelsField1.setBounds(new Rectangle(451, 28, 55, 20));
-			undo_levelsField1.setHorizontalAlignment(JTextField.CENTER);
+			undo_levelsField1.setHorizontalAlignment(SwingConstants.CENTER);
 			undo_levelsField1.setText("32");
 		}
 		return undo_levelsField1;
@@ -711,7 +712,7 @@ public class PrefVisual {
 	private JTextField getCodebaseField1() {
 		if (codebaseField1 == null) {
 			codebaseField1 = new JTextField();
-			codebaseField1.setHorizontalAlignment(JTextField.CENTER);
+			codebaseField1.setHorizontalAlignment(SwingConstants.CENTER);
 			codebaseField1.setBounds(new java.awt.Rectangle(421,238,114,20));
 			codebaseField1.setText("code/java");
 		}
@@ -728,7 +729,7 @@ public class PrefVisual {
 			jScrollPane = new JScrollPane();
 			jScrollPane.setPreferredSize(new java.awt.Dimension(500,500));
 			jScrollPane.setComponentOrientation(java.awt.ComponentOrientation.LEFT_TO_RIGHT);
-			jScrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
+			jScrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED);
 			jScrollPane.setName("");
 			jScrollPane.setViewportView(getJContentPane3());
 		}

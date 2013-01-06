@@ -22,6 +22,7 @@ implements ConnectionHelper
 	 * 
 	 * @param file
 	 */
+	@Override
 	public void handleFileDirectory(File file)
 	{
 	}
@@ -32,6 +33,7 @@ implements ConnectionHelper
 	 * 
 	 * @param message
 	 */
+	@Override
 	public void displayStatus(String message)
 	{
 		println(message);
@@ -46,6 +48,7 @@ implements ConnectionHelper
 	 * @return		true if the redirect is o.k., and we should continue processing the connect().
 	 * 				false if the redirect is unacceptable, and we should terminate processing.
 	 */
+	@Override
 	public boolean processRedirect(URL connectionURL)
 	{
 		return true;
@@ -58,6 +61,7 @@ implements ConnectionHelper
 	 * @param suffix
 	 * @return	true
 	 */
+	@Override
 	public boolean	parseFilesWithSuffix(String suffix)
 	{
 		return true;

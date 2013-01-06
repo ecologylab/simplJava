@@ -1,6 +1,6 @@
 package ecologylab.serialization.serializers.stringformats;
 
-import java.io.IOException; 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 

@@ -32,10 +32,12 @@ extends Debug implements BasicFloatSet<E>
   
   public final class DefaultWeightStrategy extends WeightingStrategy<E>
   {
-    public double getWeight(E e) {
+    @Override
+	public double getWeight(E e) {
       return e.getWeight();
     }
-    public boolean hasChanged() {
+    @Override
+	public boolean hasChanged() {
       return true;
     }
   };
@@ -256,7 +258,8 @@ extends Debug implements BasicFloatSet<E>
    * 			 0 for recompute upwards from el.
    * 			 1 for recompute all.
    **/
-  public synchronized void delete(E el, int recompute)
+  @Override
+public synchronized void delete(E el, int recompute)
   {
     int index		= el.getIndex();
     if ((size == 0) || (index < 0))
@@ -426,7 +429,7 @@ extends Debug implements BasicFloatSet<E>
 
     //if there are more than one in our set, there is a tie, so choose which to get!
     if (numMax > 1)
-      result		= (FloatSetElement) maxArrayList.get(MathTools.random(numMax));
+      result		= maxArrayList.get(MathTools.random(numMax));
     //maxArrayListClear();
 
     return (E) result;
@@ -545,10 +548,10 @@ extends Debug implements BasicFloatSet<E>
     else
     {
       if ( incrementalSums != null )
-        result		= incrementalSums[size - 1] / (float)(size-1);
+        result		= incrementalSums[size - 1] / (size-1);
       else if( setSum != 0 )
       {
-        result		= (float) (setSum / ((float)(size-1)));
+        result		= setSum / (size-1);
       }
       else
       {
@@ -565,7 +568,7 @@ extends Debug implements BasicFloatSet<E>
         if( num==0 )
           result = 0;
         else
-          result		= (float) (sum / ((float) num));
+          result		= sum / (num);
 
       }
 
@@ -594,7 +597,7 @@ extends Debug implements BasicFloatSet<E>
     if( num==0 )
       result = 0;
     else
-      result		= (float) (sum / ((float) (size-1)));
+      result		= sum / (size-1);
     //System.out.println("Mean By Iteration SUM=" + sum + " size="+ size + " result="+result );		
     return result;
   }
@@ -746,11 +749,13 @@ extends Debug implements BasicFloatSet<E>
 
   // ------------------------ utilities ---------------------------- //
   //
-  public int size()
+  @Override
+public int size()
   {
     return size - 1;		   // leave out the sentinel
   }
-  public String toString()
+  @Override
+public String toString()
   {
     /*
 		 for (int i=0; i!=size; i++)
@@ -771,7 +776,8 @@ extends Debug implements BasicFloatSet<E>
    * Check to see if the set has any elements.
    * @return
    */
-  public boolean isEmpty()
+  @Override
+public boolean isEmpty()
   {
     return size <= 1;
   }
@@ -781,7 +787,8 @@ extends Debug implements BasicFloatSet<E>
    * @param i
    * @return
    */
-  public E get(int i)
+  @Override
+public E get(int i)
   {
     return (E) elements[i];
   }
@@ -790,7 +797,8 @@ extends Debug implements BasicFloatSet<E>
    * 
    * @return
    */
-  public E lastElement()
+  @Override
+public E lastElement()
   {
     return (size == 0) ? null : (E) elements[size - 1];
   }
@@ -925,7 +933,8 @@ extends Debug implements BasicFloatSet<E>
     return pruneSize;
   }
 
-  public void decrement(E el) {}
+  @Override
+public void decrement(E el) {}
 
   /**
    * Method Overriden by {@link cf.model.VisualPool VisualPool} to return true 

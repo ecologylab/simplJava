@@ -10,6 +10,7 @@ import ecologylab.serialization.annotations.simpl_inherit;
  * @deprecated
  */
 
+@Deprecated
 public @simpl_inherit class HttpGetRequest extends HttpRequest 
 {
 

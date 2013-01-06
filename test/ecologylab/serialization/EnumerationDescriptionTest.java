@@ -1,12 +1,10 @@
 package ecologylab.serialization;
 
-import static org.junit.Assert.*;
-
-import java.lang.reflect.Field;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
-
-import ecologylab.serialization.formatenums.StringFormat;
 
 public class EnumerationDescriptionTest {
 

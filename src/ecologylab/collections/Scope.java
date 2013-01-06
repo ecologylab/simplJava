@@ -87,6 +87,7 @@ public class Scope<T> extends HashMap<String, T>
 	 * 
 	 * @return The object associated with this name, found in the registry, or null if there is none.
 	 */
+	@Override
 	public T get(Object name)
 	{
 		T result = super.get(name);
@@ -121,6 +122,7 @@ public class Scope<T> extends HashMap<String, T>
 		return this.parent;
 	}
 
+	@Override
 	public String toString()
 	{
 		String parentMsg = (parent == null) ? "" : "\n\t -> " + parent.toString();

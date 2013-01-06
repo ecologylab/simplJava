@@ -120,6 +120,7 @@ public class BatchDownload extends Observable implements Continuation<Object>
 		*/
 	}
 
+	@Override
 	public void callback(Object o)
 	{
 		if (o == null)

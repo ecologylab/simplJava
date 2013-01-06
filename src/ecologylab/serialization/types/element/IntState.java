@@ -51,7 +51,8 @@ public class IntState extends ElementState implements Comparable<IntState>
             && (((arg0 instanceof IntState) && (((IntState)arg0).value == value)));
     }
     
-    public int compareTo(IntState arg0)
+    @Override
+	public int compareTo(IntState arg0)
     {
         if (arg0 == null)
             throw new NullPointerException();

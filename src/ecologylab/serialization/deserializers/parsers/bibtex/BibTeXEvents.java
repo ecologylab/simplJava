@@ -1,6 +1,5 @@
 package ecologylab.serialization.deserializers.parsers.bibtex;
 
-import ecologylab.serialization.ElementState;
 
 public interface BibTeXEvents
 {

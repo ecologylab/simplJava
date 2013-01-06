@@ -56,6 +56,7 @@ public class DateType extends ReferenceType<Date> implements CrossLanguageTypeCo
 	 * @see ecologylab.serialization.types.ScalarType#getInstance(java.lang.String, String[],
 	 *      ScalarUnmarshallingContext)
 	 */
+	@Override
 	public Date getInstance(String value, String[] formatStrings,
 			ScalarUnmarshallingContext scalarUnmarshallingContext)
 	{

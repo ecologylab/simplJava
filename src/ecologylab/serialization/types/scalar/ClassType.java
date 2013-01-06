@@ -4,8 +4,8 @@
 package ecologylab.serialization.types.scalar;
 
 import ecologylab.serialization.ScalarUnmarshallingContext;
-import ecologylab.serialization.TranslationContext;
 import ecologylab.serialization.SimplTypesScope;
+import ecologylab.serialization.TranslationContext;
 import ecologylab.serialization.annotations.simpl_inherit;
 import ecologylab.serialization.types.CrossLanguageTypeConstants;
 

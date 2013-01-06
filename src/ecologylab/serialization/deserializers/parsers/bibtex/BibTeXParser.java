@@ -1,6 +1,6 @@
 package ecologylab.serialization.deserializers.parsers.bibtex;
 
-import java.io.FileReader; 
+import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;

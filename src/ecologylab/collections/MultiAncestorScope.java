@@ -271,7 +271,7 @@ public class MultiAncestorScope<T> extends HashMap<String, T>
 				{
 					String ancestorStr = ancestor.toString();
 					sb.append("\n\t -> ");
-					sb.append(ancestorStr.replace((CharSequence) "\n", (CharSequence) "\n\t"));
+					sb.append(ancestorStr.replace("\n", "\n\t"));
 				}
 			}
 		}

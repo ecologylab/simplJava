@@ -90,6 +90,7 @@ public class MessageWithMetadata<M extends ServiceMessage, A> implements
 		return this.attachment;
 	}
 
+	@Override
 	public int compareTo(MessageWithMetadata<M, A> arg0)
 	{
 		return (int) (this.uid - arg0.getUid());

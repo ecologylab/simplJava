@@ -32,6 +32,7 @@ implements CrossLanguageTypeConstants
 	 * 
 	 * @see ecologylab.serialization.types.ScalarType#getInstance(java.lang.String, String[], ScalarUnmarshallingContext)
 	 */
+	@Override
 	public URL getInstance(String value, String[] formatStrings, ScalarUnmarshallingContext scalarUnmarshallingContext)
 	{
 	   URL result	= null;
@@ -67,6 +68,7 @@ implements CrossLanguageTypeConstants
 	 * 
 	 * @return	The URL implementation, here, returns a slash.
 	 */
+	@Override
 	public String primaryDelimiter()
 	{
 		return ParsedURLType.PRIMARY_URL_DELIM;

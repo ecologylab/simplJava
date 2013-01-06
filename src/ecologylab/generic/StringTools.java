@@ -18,7 +18,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import ecologylab.collections.CollectionTools;
-import ecologylab.net.ParsedURL;
 import ecologylab.serialization.XMLTools;
 
 /**
@@ -609,7 +608,7 @@ public class StringTools extends Debug
 			encrypter.update(message.toLowerCase().getBytes());
 
 			// convert to normal characters and return as a String
-			return new String((new Base64Coder()).encode(encrypter.digest()));
+			return new String(Base64Coder.encode(encrypter.digest()));
 
 		}
 		catch (NoSuchAlgorithmException e)

@@ -257,6 +257,7 @@ public abstract class NIODatagramCore<S extends Scope> extends Debug implements 
 				t.interrupt();
 		}
 
+		@Override
 		synchronized public void run()
 		{
 			t = Thread.currentThread();
@@ -352,6 +353,7 @@ public abstract class NIODatagramCore<S extends Scope> extends Debug implements 
 			return t != null && t.isAlive();
 		}
 
+		@Override
 		public void run()
 		{
 			ByteBuffer buffer = ByteBuffer.allocateDirect(MAX_MESSAGE_SIZE * (doCompress ? 10 : 1));
@@ -550,6 +552,7 @@ public abstract class NIODatagramCore<S extends Scope> extends Debug implements 
 			return t != null && t.isAlive();
 		}
 
+		@Override
 		public void run()
 		{
 			ByteBuffer recieveBuffer = ByteBuffer.allocateDirect(MAX_MESSAGE_SIZE * (doCompress ? 5 : 1));

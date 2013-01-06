@@ -242,6 +242,7 @@ public abstract class LogPlayer<OP extends MixedInitiativeOp, LOG extends Loggin
 		return fC;
 	}
 
+	@Override
 	public void actionPerformed(ActionEvent e)
 	{
 		if (e.getActionCommand() == null)
@@ -462,6 +463,7 @@ public abstract class LogPlayer<OP extends MixedInitiativeOp, LOG extends Loggin
 	 * 
 	 * @see java.lang.Runnable#run()
 	 */
+	@Override
 	public void run()
 	{
 		if (!guiShown)
@@ -502,10 +504,12 @@ public abstract class LogPlayer<OP extends MixedInitiativeOp, LOG extends Loggin
 		t.start();
 	}
 
+	@Override
 	public void windowActivated(WindowEvent e)
 	{
 	}
 
+	@Override
 	public void windowClosed(WindowEvent e)
 	{
 		t.stop();
@@ -514,24 +518,29 @@ public abstract class LogPlayer<OP extends MixedInitiativeOp, LOG extends Loggin
 	/**
 	 * Sends the server notification that we are logging-out, then shuts down the program.
 	 */
+	@Override
 	public void windowClosing(WindowEvent e)
 	{
 	}
 
+	@Override
 	public void windowDeactivated(WindowEvent e)
 	{
 	}
 
+	@Override
 	public void windowDeiconified(WindowEvent e)
 	{
 		t.start();
 	}
 
+	@Override
 	public void windowIconified(WindowEvent e)
 	{
 		t.stop();
 	}
 
+	@Override
 	public void windowOpened(WindowEvent e)
 	{
 	}
