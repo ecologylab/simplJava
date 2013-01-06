@@ -52,7 +52,8 @@ public class ShortType extends ScalarType<Short>
      * @param value
      *            String representation of the instance.
      */
-    public Short getInstance(String value, String[] formatStrings, ScalarUnmarshallingContext scalarUnmarshallingContext)
+    @Override
+	public Short getInstance(String value, String[] formatStrings, ScalarUnmarshallingContext scalarUnmarshallingContext)
     {
         return new Short(value);
     }
@@ -98,6 +99,7 @@ public class ShortType extends ScalarType<Short>
  * 
  * In this case, "0".
  */
+	@Override
 	public String defaultValueString()
 	{
 	   return DEFAULT_VALUE_STRING;

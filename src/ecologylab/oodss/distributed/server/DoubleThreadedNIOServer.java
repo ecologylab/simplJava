@@ -168,6 +168,7 @@ public class DoubleThreadedNIOServer<S extends Scope> extends AbstractNIOServer<
 				applicationObjectScope, DEFAULT_IDLE_TIMEOUT, DEFAULT_MAX_MESSAGE_LENGTH_CHARS);
 	}
 
+	@Override
 	public void processRead(Object sessionToken, NIOServerIOThread base, SelectionKey sk,
 			ByteBuffer bs, int bytesRead) throws BadClientException
 	{
@@ -227,6 +228,7 @@ public class DoubleThreadedNIOServer<S extends Scope> extends AbstractNIOServer<
 				translationScopeIn, registryIn);
 	}
 
+	@Override
 	public void run()
 	{
 		Iterator<TCPClientSessionManager> contextIter;
@@ -316,6 +318,7 @@ public class DoubleThreadedNIOServer<S extends Scope> extends AbstractNIOServer<
 	/**
 	 * @see ecologylab.oodss.distributed.impl.Shutdownable#shutdown()
 	 */
+	@Override
 	public void shutdown()
 	{
 		// TODO Auto-generated method stub
@@ -326,6 +329,7 @@ public class DoubleThreadedNIOServer<S extends Scope> extends AbstractNIOServer<
 	 * @see ecologylab.oodss.distributed.server.NIOServerProcessor#invalidate(java.lang.Object,
 	 *      ecologylab.oodss.distributed.impl.NIOServerIOThread, java.nio.channels.SocketChannel)
 	 */
+	@Override
 	public boolean invalidate(String sessionId, boolean forcePermanent)
 	{
 		BaseSessionManager cm = clientSessionManagerMap.get(sessionId);

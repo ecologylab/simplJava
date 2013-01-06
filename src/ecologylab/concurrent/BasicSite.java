@@ -174,6 +174,7 @@ class BasicSite extends ElementState implements IMappable<String>
 	{
 		return minDownloadInterval > 0;
 	}
+	@Override
 	public String key()
 	{
 		return domain;

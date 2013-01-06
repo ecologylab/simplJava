@@ -72,6 +72,7 @@ public abstract class HTTPClientSessionManager<S extends Scope, PARENT extends S
 			warning("isOK=" + isOK + " but responseUrl=null. Can't send redirect response.");
 	}
 
+	@Override
 	protected void makeUpdateHeader(int messageSize, StringBuilder headerBufOutgoing,
 			UpdateMessage<?> update)
 	{

@@ -93,6 +93,7 @@ public class JSONPullDeserializer extends StringPullDeserializer
 	 * @throws IOException
 	 * @throws SIMPLTranslationException
 	 */
+	@Override
 	public Object parse(CharSequence charSequence) throws SIMPLTranslationException
 	{
 		try

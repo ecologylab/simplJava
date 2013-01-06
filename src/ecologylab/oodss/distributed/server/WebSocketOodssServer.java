@@ -100,6 +100,7 @@ public class WebSocketOodssServer extends Manager implements Runnable, WebSocket
 		return translationScope;
 	}
 
+	@Override
 	public void start()
 	{
 		debug("Server starting.");
@@ -112,6 +113,7 @@ public class WebSocketOodssServer extends Manager implements Runnable, WebSocket
 		t.start();
 	}
 	
+	@Override
 	public void stop()
 	{
 		debug("Server stopping.");

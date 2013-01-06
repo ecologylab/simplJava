@@ -15,12 +15,14 @@ public abstract class ImageType<T> extends ScalarType<T>
 	/**
 	 * get platform dependent image type T instance from string.
 	 */
+	@Override
 	public abstract T getInstance(String value, String[] formatStrings,
 			ScalarUnmarshallingContext scalarUnmarshallingContext);
 	
 	/**
 	 * marshall platform dependent image type T to string. 
 	 */
+	@Override
 	public abstract String marshall(T input, TranslationContext serializationContext);
 
 	/**

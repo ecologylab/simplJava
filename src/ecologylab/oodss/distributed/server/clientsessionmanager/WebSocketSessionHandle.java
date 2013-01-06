@@ -1,6 +1,5 @@
 package ecologylab.oodss.distributed.server.clientsessionmanager;
 
-import java.net.InetAddress;
 import java.net.InetSocketAddress;
 
 import ecologylab.collections.Scope;
@@ -14,26 +13,31 @@ public class WebSocketSessionHandle extends SessionHandle{
 		webSocketSessionManager = cm;
 	}
 
+	@Override
 	public InetSocketAddress getSocketAddress()
 	{
 		return webSocketSessionManager.getAddress();
 	}
 
+	@Override
 	public void sendUpdate(UpdateMessage update)
 	{
 		webSocketSessionManager.sendUpdateToClient(update);
 	}
 
+	@Override
 	public Scope getSessionScope()
 	{
 		return webSocketSessionManager.getScope();
 	}
 
+	@Override
 	public void invalidate()
 	{
 		webSocketSessionManager.setInvalidating(true);
 	}
 
+	@Override
 	public Object getSessionId()
 	{
 		return webSocketSessionManager.getSessionId();

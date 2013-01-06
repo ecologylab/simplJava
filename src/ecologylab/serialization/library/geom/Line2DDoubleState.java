@@ -74,51 +74,61 @@ class Line2DDoubleState extends ElementState implements Shape
 		line.setLine(x1, y1, x2, y2);
 	}
 
+	@Override
 	public boolean contains(Point2D p)
 	{
 		return line.contains(p);
 	}
 
+	@Override
 	public boolean contains(Rectangle2D r)
 	{
 		return line.contains(r);
 	}
 
+	@Override
 	public boolean contains(double x, double y)
 	{
 		return line.contains(x, y);
 	}
 
+	@Override
 	public boolean contains(double x, double y, double w, double h)
 	{
 		return line.contains(x, y, w, h);
 	}
 
+	@Override
 	public Rectangle getBounds()
 	{
 		return line.getBounds();
 	}
 
+	@Override
 	public Rectangle2D getBounds2D()
 	{
 		return line.getBounds2D();
 	}
 
+	@Override
 	public PathIterator getPathIterator(AffineTransform at)
 	{
 		return line.getPathIterator(at);
 	}
 
+	@Override
 	public PathIterator getPathIterator(AffineTransform at, double flatness)
 	{
 		return line.getPathIterator(at, flatness);
 	}
 
+	@Override
 	public boolean intersects(Rectangle2D r)
 	{
 		return line.intersects(r);
 	}
 
+	@Override
 	public boolean intersects(double x, double y, double w, double h)
 	{
 		return line.intersects(x, y, w, h);

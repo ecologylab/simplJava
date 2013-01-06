@@ -80,6 +80,7 @@ public class LogPlaybackControlModel<E extends MixedInitiativeOp, T extends Logg
 	/**
 	 * @see javax.swing.BoundedRangeModel#addChangeListener(javax.swing.event.ChangeListener)
 	 */
+	@Override
 	public void addChangeListener(ChangeListener arg0)
 	{
 		changeListeners.add(arg0);
@@ -88,6 +89,7 @@ public class LogPlaybackControlModel<E extends MixedInitiativeOp, T extends Logg
 	/**
 	 * @see javax.swing.BoundedRangeModel#getExtent()
 	 */
+	@Override
 	public int getExtent()
 	{
 		return log.size();
@@ -96,6 +98,7 @@ public class LogPlaybackControlModel<E extends MixedInitiativeOp, T extends Logg
 	/**
 	 * @see javax.swing.BoundedRangeModel#getMaximum()
 	 */
+	@Override
 	public int getMaximum()
 	{
 		return log.size() - 1;
@@ -104,6 +107,7 @@ public class LogPlaybackControlModel<E extends MixedInitiativeOp, T extends Logg
 	/**
 	 * @see javax.swing.BoundedRangeModel#getMinimum()
 	 */
+	@Override
 	public int getMinimum()
 	{
 		return 0;
@@ -112,6 +116,7 @@ public class LogPlaybackControlModel<E extends MixedInitiativeOp, T extends Logg
 	/**
 	 * @see javax.swing.BoundedRangeModel#getValue()
 	 */
+	@Override
 	public int getValue()
 	{
 		return currentPlaybackOp;
@@ -120,6 +125,7 @@ public class LogPlaybackControlModel<E extends MixedInitiativeOp, T extends Logg
 	/**
 	 * @see javax.swing.BoundedRangeModel#getValueIsAdjusting()
 	 */
+	@Override
 	public boolean getValueIsAdjusting()
 	{
 		return singleEventMode;
@@ -128,6 +134,7 @@ public class LogPlaybackControlModel<E extends MixedInitiativeOp, T extends Logg
 	/**
 	 * @see javax.swing.BoundedRangeModel#removeChangeListener(javax.swing.event.ChangeListener)
 	 */
+	@Override
 	public void removeChangeListener(ChangeListener arg0)
 	{
 		changeListeners.remove(arg0);
@@ -138,6 +145,7 @@ public class LogPlaybackControlModel<E extends MixedInitiativeOp, T extends Logg
 	 * 
 	 * @see javax.swing.BoundedRangeModel#setMinimum(int)
 	 */
+	@Override
 	public void setMinimum(int arg0) throws UnsupportedOperationException
 	{
 		throw new UnsupportedOperationException("Cannot set minimum.");
@@ -148,16 +156,19 @@ public class LogPlaybackControlModel<E extends MixedInitiativeOp, T extends Logg
 	 * 
 	 * @see javax.swing.BoundedRangeModel#setMaximum(int)
 	 */
+	@Override
 	public void setMaximum(int arg0) throws UnsupportedOperationException
 	{
 		throw new UnsupportedOperationException("Cannot set maximum.");
 	}
 
+	@Override
 	public void setExtent(int arg0) throws UnsupportedOperationException
 	{
 		throw new UnsupportedOperationException("Extent set by underlying data; cannot set extent manually.");
 	}
 
+	@Override
 	public void setRangeProperties(int arg0, int arg1, int arg2, int arg3, boolean arg4)
 	{
 		throw new UnsupportedOperationException(
@@ -167,6 +178,7 @@ public class LogPlaybackControlModel<E extends MixedInitiativeOp, T extends Logg
 	/**
 	 * @see javax.swing.BoundedRangeModel#setValue(int)
 	 */
+	@Override
 	public void setValue(int arg0)
 	{
 		this.setPlaybackOpTo(arg0);
@@ -196,6 +208,7 @@ public class LogPlaybackControlModel<E extends MixedInitiativeOp, T extends Logg
 	/**
 	 * @see javax.swing.BoundedRangeModel#setValueIsAdjusting(boolean)
 	 */
+	@Override
 	public void setValueIsAdjusting(boolean arg0)
 	{
 		// if (singleEventMode && !arg0)

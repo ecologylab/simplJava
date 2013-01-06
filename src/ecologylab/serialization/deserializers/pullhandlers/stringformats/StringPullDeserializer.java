@@ -2,8 +2,8 @@ package ecologylab.serialization.deserializers.pullhandlers.stringformats;
 
 import ecologylab.serialization.DeserializationHookStrategy;
 import ecologylab.serialization.SIMPLTranslationException;
-import ecologylab.serialization.TranslationContext;
 import ecologylab.serialization.SimplTypesScope;
+import ecologylab.serialization.TranslationContext;
 import ecologylab.serialization.deserializers.pullhandlers.PullDeserializer;
 
 public abstract class StringPullDeserializer extends PullDeserializer

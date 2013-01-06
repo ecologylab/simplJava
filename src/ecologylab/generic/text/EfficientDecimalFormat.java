@@ -1119,6 +1119,7 @@ public class EfficientDecimalFormat extends DecimalFormat
 	 * @exception NullPointerException
 	 *               if <code>text</code> or <code>pos</code> is null.
 	 */
+	@Override
 	public Number parse(String text, ParsePosition pos)
 	{
 		// special case NaN
@@ -1253,7 +1254,7 @@ public class EfficientDecimalFormat extends DecimalFormat
 			if (multiplier != 1 && gotDouble)
 			{
 				longResult = (long) doubleResult;
-				gotDouble = ((doubleResult != (double) longResult) || (doubleResult == 0.0 && 1 / doubleResult < 0.0))
+				gotDouble = ((doubleResult != longResult) || (doubleResult == 0.0 && 1 / doubleResult < 0.0))
 						&& !isParseIntegerOnly();
 			}
 
@@ -2599,6 +2600,7 @@ public class EfficientDecimalFormat extends DecimalFormat
 	 * 
 	 * @see NumberFormat#setMaximumIntegerDigits
 	 */
+	@Override
 	public void setMaximumIntegerDigits(int newValue)
 	{
 		maximumIntegerDigits = Math.min(Math.max(0, newValue),

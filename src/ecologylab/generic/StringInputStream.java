@@ -71,14 +71,16 @@ extends InputStream
      * @return     the next byte of data, or <code>-1</code> if the end of the
      *             stream is reached.
      */
-    public synchronized int read() 
+    @Override
+	public synchronized int read() 
 	{
 //      Debug.println("StringInputStream.read(");
 	   return (pos < count) ? (int)buffer.charAt(pos++) : -1;
 //	return (pos < count) ? ((int)(buffer.charAt(pos++)) & 0xFFFF) : -1;
     }
 
-   public synchronized int read(byte buf[], int off, int len)
+   @Override
+public synchronized int read(byte buf[], int off, int len)
    {
 	  //      Debug.println("StringInputStream.read(" + len);
       if (buf == null)
@@ -129,7 +131,8 @@ extends InputStream
 		 len	       *= 2;
       return len;
    }
-    public int available() throws IOException
+    @Override
+	public int available() throws IOException
     {
 //     Debug.println("StringBufferInputStream.available()");
        return count - pos;

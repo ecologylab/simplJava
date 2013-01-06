@@ -32,10 +32,12 @@ public IntSlot()
      * @return  a hash code value for this object. 
      * @since   JDK1.0
      */
-    public int hashCode() {
+    @Override
+	public int hashCode() {
 	return value;
     }
-   public String toString()
+   @Override
+public String toString()
    {
       return "IntSlot[" + value + "]";
    }

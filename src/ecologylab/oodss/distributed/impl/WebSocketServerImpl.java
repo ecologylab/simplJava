@@ -6,11 +6,9 @@ import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 
 import org.java_websocket.WebSocket;
-import org.java_websocket.framing.CloseFrame;
 import org.java_websocket.handshake.ClientHandshake;
 import org.java_websocket.server.WebSocketServer;
 
-import ecologylab.generic.Debug;
 import ecologylab.oodss.distributed.server.WebSocketOodssServer;
 
 public class WebSocketServerImpl extends WebSocketServer

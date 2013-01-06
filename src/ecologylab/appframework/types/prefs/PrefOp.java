@@ -24,7 +24,7 @@ public class PrefOp<O extends MixedInitiativeOp> extends PrefElementState<O>
 	public O getOp()
 	{
 		if(op == null)
-			op = (O) getValue();
+			op = getValue();
 		
 		return  op;
 	}

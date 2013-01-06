@@ -3,9 +3,6 @@
  */
 package ecologylab.appframework.types.prefs;
 
-import java.util.ArrayList;
-import java.util.Collection;
-
 import ecologylab.generic.Debug;
 import ecologylab.platformspecifics.FundamentalPlatformSpecifics;
 import ecologylab.serialization.SimplTypesScope;

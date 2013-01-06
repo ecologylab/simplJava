@@ -13,27 +13,22 @@ import ecologylab.generic.Debug;
 import ecologylab.net.ConnectionAdapter;
 import ecologylab.net.PURLConnection;
 import ecologylab.net.ParsedURL;
-import ecologylab.platformspecifics.FundamentalPlatformSpecifics;
 import ecologylab.serialization.DeserializationHookStrategy;
-import ecologylab.serialization.FieldDescriptor;
 import ecologylab.serialization.FieldTypes;
 import ecologylab.serialization.SIMPLTranslationException;
-import ecologylab.serialization.TranslationContext;
 import ecologylab.serialization.SimplTypesScope;
+import ecologylab.serialization.TranslationContext;
 import ecologylab.serialization.deserializers.ISimplDeserializationIn;
-import ecologylab.serialization.deserializers.ISimplDeserializationPre;
 import ecologylab.serialization.deserializers.ISimplDeserializationPost;
+import ecologylab.serialization.deserializers.ISimplDeserializationPre;
 import ecologylab.serialization.deserializers.pullhandlers.binaryformats.BinaryPullDeserializer;
 import ecologylab.serialization.deserializers.pullhandlers.binaryformats.TLVPullDeserializer;
-import ecologylab.serialization.deserializers.pullhandlers.stringformats.BibTeXPullDeserializer;
 import ecologylab.serialization.deserializers.pullhandlers.stringformats.JSONPullDeserializer;
 import ecologylab.serialization.deserializers.pullhandlers.stringformats.StringPullDeserializer;
 import ecologylab.serialization.deserializers.pullhandlers.stringformats.XMLPullDeserializer;
 import ecologylab.serialization.formatenums.BinaryFormat;
 import ecologylab.serialization.formatenums.Format;
 import ecologylab.serialization.formatenums.StringFormat;
-import ecologylab.serialization.serializers.ISimplSerializationPost;
-import ecologylab.serialization.serializers.ISimplSerializationPre;
 
 public abstract class PullDeserializer extends Debug implements FieldTypes
 {

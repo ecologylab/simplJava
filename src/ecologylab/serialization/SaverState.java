@@ -6,7 +6,6 @@ package ecologylab.serialization;
 import java.io.File;
 
 import ecologylab.oodss.exceptions.SaveFailedException;
-import ecologylab.serialization.annotations.simpl_inherit;
 import ecologylab.serialization.formatenums.Format;
 
 /**

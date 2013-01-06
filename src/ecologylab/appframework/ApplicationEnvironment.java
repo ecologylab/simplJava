@@ -914,6 +914,7 @@ public class ApplicationEnvironment extends Debug implements Environment,
 	/**
 	 * @see ecologylab.appframework.Environment#runtimeEnv()
 	 */
+	@Override
 	public int runtimeEnv()
 	{
 		return APPLICATION;
@@ -930,6 +931,7 @@ public class ApplicationEnvironment extends Debug implements Environment,
 	/**
 	 * @see ecologylab.appframework.Environment#status(String)
 	 */
+	@Override
 	public void status(String msg)
 	{
 		if (msg != null)
@@ -939,6 +941,7 @@ public class ApplicationEnvironment extends Debug implements Environment,
 	/**
 	 * @see ecologylab.appframework.Environment#codeBase() return the path to root of the
 	 */
+	@Override
 	public ParsedURL codeBase()
 	{
 		return codeBase;
@@ -948,6 +951,7 @@ public class ApplicationEnvironment extends Debug implements Environment,
 	 * @see ecologylab.appframework.Environment#docBase() return the current working directory of the
 	 *      application which is "c:\web\code\java\cm"
 	 */
+	@Override
 	public ParsedURL docBase()
 	{
 		ParsedURL purl = new ParsedURL(new File(System.getProperty("user.dir")));
@@ -1078,6 +1082,7 @@ public class ApplicationEnvironment extends Debug implements Environment,
 		return LaunchType.LOCAL_JNLP == this.launchType;
 	}
 
+	@Override
 	public String getApplicationName()
 	{
 		return applicationName;

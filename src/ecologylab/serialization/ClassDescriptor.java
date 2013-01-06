@@ -19,7 +19,6 @@ import java.util.Set;
 import ecologylab.generic.HashMapArrayList;
 import ecologylab.generic.ReflectionTools;
 import ecologylab.platformspecifics.FundamentalPlatformSpecifics;
-import ecologylab.serialization.FieldType;
 import ecologylab.serialization.annotations.Hint;
 import ecologylab.serialization.annotations.bibtex_key;
 import ecologylab.serialization.annotations.bibtex_type;

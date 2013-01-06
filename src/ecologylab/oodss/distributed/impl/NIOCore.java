@@ -73,6 +73,7 @@ public abstract class NIOCore extends Debug implements StartAndStoppable, Networ
 	 * 
 	 * @see java.lang.Runnable#run()
 	 */
+	@Override
 	public final void run()
 	{
 		while (running)
@@ -376,6 +377,7 @@ public abstract class NIOCore extends Debug implements StartAndStoppable, Networ
 	 */
 	protected abstract void invalidateKey(SelectionKey key, boolean permanent);
 
+	@Override
 	public void start()
 	{
 		// start the server running
@@ -398,6 +400,7 @@ public abstract class NIOCore extends Debug implements StartAndStoppable, Networ
 		selector = Selector.open();
 	}
 
+	@Override
 	public synchronized void stop()
 	{
 		running = false;

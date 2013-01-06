@@ -12,7 +12,6 @@ import ecologylab.serialization.annotations.simpl_nowrap;
 import ecologylab.serialization.annotations.simpl_tag;
 import ecologylab.serialization.formatenums.Format;
 import ecologylab.serialization.formatenums.StringFormat;
-import ecologylab.serialization.library.dc.Dc;
 
 /**
  * Alternative root element {@link ecologylab.serialization.ElementState ElementState} declarations

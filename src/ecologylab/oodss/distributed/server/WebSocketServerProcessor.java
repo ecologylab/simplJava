@@ -1,7 +1,6 @@
 package ecologylab.oodss.distributed.server;
 
 import ecologylab.generic.StartAndStoppable;
-import ecologylab.oodss.distributed.server.clientsessionmanager.BaseSessionManager;
 import ecologylab.oodss.distributed.server.clientsessionmanager.WebSocketClientSessionManager;
 
 public interface WebSocketServerProcessor extends StartAndStoppable

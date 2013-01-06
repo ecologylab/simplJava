@@ -38,6 +38,7 @@ public class SetElement extends Debug implements AbstractSetElement
 	 * Delete in the most expedient manner possible. This is final because you should override
 	 * deleteHook() to provide custom behavior.
 	 */
+	@Override
 	public final void delete()
 	{
 		if (!recycled && sets != null)
@@ -53,6 +54,7 @@ public class SetElement extends Debug implements AbstractSetElement
 		deleteHook();
 	}
 
+	@Override
 	public void addSet(WeightSet s)
 	{
 		if (sets == null && !recycled)
@@ -64,6 +66,7 @@ public class SetElement extends Debug implements AbstractSetElement
 		}
 	}
 
+	@Override
 	public void removeSet(WeightSet s)
 	{
 		if (sets != null)
@@ -101,6 +104,7 @@ public class SetElement extends Debug implements AbstractSetElement
 	 * Callback that happens at the end of a delete, and when an element gets pruned. This
 	 * implementation is empty. Override to provide custom behaviors.
 	 */
+	@Override
 	public void deleteHook()
 	{
 
@@ -111,11 +115,13 @@ public class SetElement extends Debug implements AbstractSetElement
 	 * 
 	 * This implementation is empty. Override to provide custom behaviors.
 	 */
+	@Override
 	public void insertHook()
 	{
 
 	}
 
+	@Override
 	public String toString()
 	{
 		return super.toString();
@@ -125,6 +131,7 @@ public class SetElement extends Debug implements AbstractSetElement
 	 * Free resources associated w this element. Deletes from all constituent sets. Sets recycled to
 	 * true.
 	 */
+	@Override
 	public void recycle(boolean unconditional)
 	{
 		if (!recycled)
@@ -134,11 +141,13 @@ public class SetElement extends Debug implements AbstractSetElement
 		}
 	}
 
+	@Override
 	public boolean recycled()
 	{
 		return recycled;
 	}
 
+	@Override
 	public boolean isInSet()
 	{
 		return (sets != null) && sets.size() > 0;

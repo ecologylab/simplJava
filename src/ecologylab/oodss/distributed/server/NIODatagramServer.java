@@ -155,7 +155,7 @@ public class NIODatagramServer<S extends Scope> extends NIODatagramCore<S> imple
 
 			if (sid == null)
 			{ // no session manager created yet; create one
-				sid = this.generateSessionToken((InetSocketAddress) address);
+				sid = this.generateSessionToken(address);
 
 				debug("New session: " + sid + " at: " + address);
 
@@ -185,7 +185,7 @@ public class NIODatagramServer<S extends Scope> extends NIODatagramCore<S> imple
 			clientSessionManager.updateKey(key);
 
 			ResponseMessage response = clientSessionManager.processRequest(	(RequestMessage) message,
-																																			((InetSocketAddress) address).getAddress());
+																																			address.getAddress());
 
 			if (response != null)
 				this.sendMessage(response, key, uid, address);

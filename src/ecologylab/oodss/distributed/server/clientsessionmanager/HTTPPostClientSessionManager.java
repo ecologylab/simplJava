@@ -5,7 +5,6 @@ import java.net.URLDecoder;
 import java.nio.channels.SelectionKey;
 
 import ecologylab.collections.Scope;
-import ecologylab.net.ParsedURL;
 import ecologylab.oodss.distributed.impl.NIOServerIOThread;
 import ecologylab.oodss.distributed.server.NIOServerProcessor;
 import ecologylab.oodss.messages.HttpRequest;
@@ -107,6 +106,7 @@ public class HTTPPostClientSessionManager extends HTTPClientSessionManager
 	 * @return The request message contained in the message.
 	 * @throws SIMPLTranslationException
 	 */
+	@Override
 	protected RequestMessage translateOODSSRequest(CharSequence messageCharSequence,
 			String startLineString) throws SIMPLTranslationException
 	{
@@ -124,6 +124,7 @@ public class HTTPPostClientSessionManager extends HTTPClientSessionManager
 	 * @return
 	 * @throws SIMPLTranslationException
 	 */
+	@Override
 	protected RequestMessage translatePostRequest(CharSequence messageCharSequence,
 			String startLineString) throws SIMPLTranslationException
 	{

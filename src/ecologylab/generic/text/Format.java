@@ -245,6 +245,7 @@ public abstract class Format implements Serializable, Cloneable
 	 * 
 	 * @return a clone of this instance.
 	 */
+	@Override
 	public Object clone()
 	{
 		try

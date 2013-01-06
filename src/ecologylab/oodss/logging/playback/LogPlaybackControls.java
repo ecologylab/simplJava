@@ -16,6 +16,7 @@ import javax.swing.JPanel;
 import javax.swing.JProgressBar;
 import javax.swing.JSlider;
 import javax.swing.KeyStroke;
+import javax.swing.SwingConstants;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
@@ -78,8 +79,8 @@ public class LogPlaybackControls<E extends MixedInitiativeOp, T extends Logging<
 
 		this.setLayout(new BoxLayout(this, BoxLayout.LINE_AXIS));
 
-		jogShuttle.setOrientation(JSlider.HORIZONTAL);
-		loadSpinner.setOrientation(JProgressBar.VERTICAL);
+		jogShuttle.setOrientation(SwingConstants.HORIZONTAL);
+		loadSpinner.setOrientation(SwingConstants.VERTICAL);
 
 		playPauseButton.setActionCommand(PLAY);
 		stopButton.setActionCommand(STOP);
@@ -129,34 +130,39 @@ public class LogPlaybackControls<E extends MixedInitiativeOp, T extends Logging<
 
 		jogShuttle.addMouseListener(new MouseListener()
 		{
+			@Override
 			public void mousePressed(MouseEvent me)
 			{
 				jogShuttle
-						.setValue((int) (jogShuttle.getMinimum() + (jogShuttle.getExtent() * (double) ((double) me
+						.setValue((int) (jogShuttle.getMinimum() + (jogShuttle.getExtent() * ((double) me
 								.getX() / (double) jogShuttle.getWidth()))));
 				player.startAdjusting();
 				mousePressed = true;
 			}
 
+			@Override
 			public void mouseClicked(MouseEvent me)
 			{
 				jogShuttle
-						.setValue((int) (jogShuttle.getMinimum() + (jogShuttle.getExtent() * (double) ((double) me
+						.setValue((int) (jogShuttle.getMinimum() + (jogShuttle.getExtent() * ((double) me
 								.getX() / (double) jogShuttle.getWidth()))));
 			}
 
+			@Override
 			public void mouseReleased(MouseEvent me)
 			{
 				jogShuttle
-						.setValue((int) (jogShuttle.getMinimum() + (jogShuttle.getExtent() * (double) ((double) me
+						.setValue((int) (jogShuttle.getMinimum() + (jogShuttle.getExtent() * ((double) me
 								.getX() / (double) jogShuttle.getWidth()))));
 				mousePressed = false;
 			}
 
+			@Override
 			public void mouseEntered(MouseEvent me)
 			{
 			}
 
+			@Override
 			public void mouseExited(MouseEvent me)
 			{
 			}
@@ -165,13 +171,15 @@ public class LogPlaybackControls<E extends MixedInitiativeOp, T extends Logging<
 		jogShuttle.addMouseMotionListener(new MouseMotionListener()
 		{
 
+			@Override
 			public void mouseDragged(MouseEvent me)
 			{
 				jogShuttle
-						.setValue((int) (jogShuttle.getMinimum() + (jogShuttle.getExtent() * (double) ((double) me
+						.setValue((int) (jogShuttle.getMinimum() + (jogShuttle.getExtent() * ((double) me
 								.getX() / (double) jogShuttle.getWidth()))));
 			}
 
+			@Override
 			public void mouseMoved(MouseEvent me)
 			{
 			}
@@ -205,6 +213,7 @@ public class LogPlaybackControls<E extends MixedInitiativeOp, T extends Logging<
 		jogShuttle.setModel(log);
 	}
 
+	@Override
 	public void actionPerformed(ActionEvent arg0)
 	{
 		if (PLAY.equals(arg0.getActionCommand()))
@@ -240,6 +249,7 @@ public class LogPlaybackControls<E extends MixedInitiativeOp, T extends Logging<
 		playPauseButton.setIcon(pauseIcon);
 	}
 
+	@Override
 	public void stateChanged(ChangeEvent arg0)
 	{
 	}
@@ -261,6 +271,7 @@ public class LogPlaybackControls<E extends MixedInitiativeOp, T extends Logging<
 			this.button = button;
 		}
 
+		@Override
 		public void actionPerformed(ActionEvent arg0)
 		{
 			button.doClick();

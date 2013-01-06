@@ -83,9 +83,10 @@ public class WeightSet<E extends AbstractSetElement> extends ObservableDebug imp
 
 		public FloatWeightComparator ( WeightingStrategy<E> getWeightStrategy )
 		{
-			strat = (WeightingStrategy<E>) getWeightStrategy;
+			strat = getWeightStrategy;
 		}
 
+		@Override
 		public int compare ( E o1, E o2 )
 		{
 			return Double.compare(strat.getWeight(o1), strat.getWeight(o2));
@@ -220,6 +221,7 @@ public class WeightSet<E extends AbstractSetElement> extends ObservableDebug imp
 		Memory.reclaim();
 	}
 	
+	@Override
 	public boolean add(E el)
 	{
 		return insert(el);
@@ -294,11 +296,13 @@ public class WeightSet<E extends AbstractSetElement> extends ObservableDebug imp
 		return maxSelect();
 	}
 
+	@Override
 	public int size ( )
 	{
 		return arrayList.size();
 	}
 
+	@Override
 	public String toString ( )
 	{
 		return super.toString() + "[" + size() + "]";
@@ -309,6 +313,7 @@ public class WeightSet<E extends AbstractSetElement> extends ObservableDebug imp
 	 * 
 	 * @return
 	 */
+	@Override
 	public boolean isEmpty ( )
 	{
 		return size() == 0;
@@ -383,6 +388,7 @@ public class WeightSet<E extends AbstractSetElement> extends ObservableDebug imp
 		return weightingStrategy;
 	}
 
+	@Override
 	public synchronized Iterator<E> iterator ( )
 	{
 		return arrayList.iterator();

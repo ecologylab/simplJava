@@ -5,8 +5,8 @@ import java.util.Stack;
 
 import ecologylab.generic.Debug;
 import ecologylab.serialization.deserializers.ISimplDeserializationIn;
-import ecologylab.serialization.deserializers.ISimplDeserializationPre;
 import ecologylab.serialization.deserializers.ISimplDeserializationPost;
+import ecologylab.serialization.deserializers.ISimplDeserializationPre;
 import ecologylab.serialization.serializers.ISimplSerializationPost;
 import ecologylab.serialization.serializers.ISimplSerializationPre;
 

@@ -110,6 +110,7 @@ public class DownloadMonitor<T extends Downloadable> extends Monitor implements
 	 * is called, and then the DispatchTarget is called. In the error case, handleIOError() or
 	 * handleTimeout() is called.
 	 */
+	@Override
 	public void download(T thatDownloadable, Continuation<T> continuation)
 	{
 		synchronized (toDownload)
@@ -203,6 +204,7 @@ public class DownloadMonitor<T extends Downloadable> extends Monitor implements
 	{
 		return new Thread(THREAD_GROUP, toString() + "-download " + i + " " + s)
 		{
+			@Override
 			public void run()
 			{
 				performDownloads();
@@ -538,11 +540,13 @@ public class DownloadMonitor<T extends Downloadable> extends Monitor implements
 		debug("exiting -- " + Thread.currentThread());
 	}
 
+	@Override
 	public String toString()
 	{
 		return super.toString() + "[" + name + "]";
 	}
 
+	@Override
 	public void stop()
 	{
 		stop(false);
@@ -763,6 +767,7 @@ public class DownloadMonitor<T extends Downloadable> extends Monitor implements
 	 * this will cause the main loop (performDownloads()) stops after isIdle() == true. (after sleeping for some time)
 	 * 
 	 */
+	@Override
 	public void requestStop()
 	{
 		stopRequested = true;

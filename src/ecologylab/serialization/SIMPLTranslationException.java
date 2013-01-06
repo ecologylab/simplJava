@@ -1,5 +1,6 @@
 package ecologylab.serialization;
 
+import java.util.List;
 import ecologylab.generic.Debug;
 import ecologylab.net.ParsedURL;
 

@@ -29,6 +29,7 @@ public class XMLFilenameFilter implements FilenameFilter
 	 * ignored). This will not, for example, match "foo.xml.bar", but will match
 	 * "foo.bar.xml".
 	 */
+	@Override
 	public boolean accept(File dir, String name)
 	{
 		int dot = name.lastIndexOf('.');

@@ -2,8 +2,8 @@ package ecologylab.concurrent;
 
 import java.io.IOException;
 
-import ecologylab.generic.Debug;
 import ecologylab.generic.Continuation;
+import ecologylab.generic.Debug;
 
 /**
  * Closure that keeps state about a download, as it progresses.
@@ -77,6 +77,7 @@ extends Debug
 		}
 	}
 
+	@Override
 	public String toString()
 	{
 		String downloadableString = downloadable == null ? "recycled" : downloadable.toString();

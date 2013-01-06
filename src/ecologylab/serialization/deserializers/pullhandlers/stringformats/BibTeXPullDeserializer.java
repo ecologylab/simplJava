@@ -5,10 +5,8 @@ import java.io.InputStream;
 import java.nio.charset.Charset;
 import java.util.Collection;
 
-import ecologylab.generic.Debug;
 import ecologylab.net.ParsedURL;
 import ecologylab.serialization.ClassDescriptor;
-import ecologylab.serialization.ElementState;
 import ecologylab.serialization.FieldDescriptor;
 import ecologylab.serialization.SIMPLTranslationException;
 import ecologylab.serialization.ScalarUnmarshallingContext;

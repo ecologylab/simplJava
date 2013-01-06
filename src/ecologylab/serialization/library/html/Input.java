@@ -49,6 +49,7 @@ public class Input extends HtmlElement
 		this.value = value;
 	}
 	
+	@Override
 	public String toString()
 	{
 		String returnString = "";

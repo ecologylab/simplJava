@@ -61,7 +61,8 @@ public class RestrictedFileSystemView extends FileSystemView {
      * @return <code>true</code> if <code>f</code> is a root in the navigatable tree.
      * @see #isFileSystemRoot
      */
-    public boolean isRoot(File f) {
+    @Override
+	public boolean isRoot(File f) {
         if (f == null || !f.isAbsolute()) {
             return false;
         }
@@ -83,7 +84,8 @@ public class RestrictedFileSystemView extends FileSystemView {
      * @see JFileChooser#isTraversable
      * @see FileView#isTraversable
      */
-    public Boolean isTraversable(File f) {
+    @Override
+	public Boolean isTraversable(File f) {
         return Boolean.valueOf(f.isDirectory());
     }
 
@@ -94,7 +96,8 @@ public class RestrictedFileSystemView extends FileSystemView {
      * @return the file name as it would be displayed by a native file chooser
      * @see JFileChooser#getName
      */
-    public String getSystemDisplayName(File f) {
+    @Override
+	public String getSystemDisplayName(File f) {
         String name = null;
         if (f != null) {
             if (isRoot(f)) {
@@ -114,7 +117,8 @@ public class RestrictedFileSystemView extends FileSystemView {
      * information is available.
      * @see JFileChooser#getTypeDescription
      */
-    public String getSystemTypeDescription(File f) {
+    @Override
+	public String getSystemTypeDescription(File f) {
         return null;
     }
 
@@ -125,7 +129,8 @@ public class RestrictedFileSystemView extends FileSystemView {
      * @return an icon as it would be displayed by a native file chooser, null if not available
      * @see JFileChooser#getIcon
      */
-    public Icon getSystemIcon(File f) {
+    @Override
+	public Icon getSystemIcon(File f) {
         if (f != null) {
             return UIManager.getIcon(f.isDirectory() ? "FileView.directoryIcon" : "FileView.fileIcon");
         } else {
@@ -139,7 +144,8 @@ public class RestrictedFileSystemView extends FileSystemView {
      * @return <code>true</code> if <code>folder</code> is a directory and contains
      * <code>file</code>.
      */
-    public boolean isParent(File folder, File file) {
+    @Override
+	public boolean isParent(File folder, File file) {
         if (folder == null || file == null) {
             return false;
         } else {
@@ -153,7 +159,8 @@ public class RestrictedFileSystemView extends FileSystemView {
      * @return a File object. This is normally constructed with <code>new
      * File(parent, fileName)</code>.
      */
-    public File getChild(File parent, String fileName) {
+    @Override
+	public File getChild(File parent, String fileName) {
         return createFileObject(parent, fileName);
     }
 
@@ -164,14 +171,16 @@ public class RestrictedFileSystemView extends FileSystemView {
      * @param f a <code>File</code> object
      * @return <code>true</code> if <code>f</code> is a real file or directory.
      */
-    public boolean isFileSystem(File f) {
+    @Override
+	public boolean isFileSystem(File f) {
         return true;
     }
 
     /**
      * Returns whether a file is hidden or not.
      */
-    public boolean isHiddenFile(File f) {
+    @Override
+	public boolean isHiddenFile(File f) {
         return f.isHidden();
     }
 
@@ -182,7 +191,8 @@ public class RestrictedFileSystemView extends FileSystemView {
      * @return <code>true</code> if <code>f</code> is a root of a filesystem
      * @see #isRoot
      */
-    public boolean isFileSystemRoot(File dir) {
+    @Override
+	public boolean isFileSystemRoot(File dir) {
         return isRoot(dir);
     }
 
@@ -194,7 +204,8 @@ public class RestrictedFileSystemView extends FileSystemView {
      * @param dir a directory
      * @return <code>false</code> always
      */
-    public boolean isDrive(File dir) {
+    @Override
+	public boolean isDrive(File dir) {
         return false;
     }
 
@@ -206,7 +217,8 @@ public class RestrictedFileSystemView extends FileSystemView {
      * @param dir a directory
      * @return <code>false</code> always
      */
-    public boolean isFloppyDrive(File dir) {
+    @Override
+	public boolean isFloppyDrive(File dir) {
         return false;
     }
 
@@ -219,7 +231,8 @@ public class RestrictedFileSystemView extends FileSystemView {
      * @param dir a directory
      * @return <code>false</code> always
      */
-    public boolean isComputerNode(File dir) {
+    @Override
+	public boolean isComputerNode(File dir) {
         return false;
     }
 
@@ -227,7 +240,8 @@ public class RestrictedFileSystemView extends FileSystemView {
      * Returns all root partitions on this system. For example, on Windows, this would be the "Desktop" folder, while on
      * DOS this would be the A: through Z: drives.
      */
-    public File[] getRoots() {
+    @Override
+	public File[] getRoots() {
         return File.listRoots();
     }
 
@@ -236,7 +250,8 @@ public class RestrictedFileSystemView extends FileSystemView {
     // code. If a given OS can't, override these methods in its
     // implementation.
 
-    public File getHomeDirectory() {
+    @Override
+	public File getHomeDirectory() {
         return createFileObject(System.getProperty("user.home"));
     }
 
@@ -245,7 +260,8 @@ public class RestrictedFileSystemView extends FileSystemView {
      * 
      * @return a <code>File</code> object representing the default starting folder
      */
-    public File getDefaultDirectory() {
+    @Override
+	public File getDefaultDirectory() {
         if (_defaultDirectory == null) {
             try {
                 File tempFile = File.createTempFile("filesystemview", "restricted");
@@ -261,7 +277,8 @@ public class RestrictedFileSystemView extends FileSystemView {
     /**
      * Returns a File object constructed in dir from the given filename.
      */
-    public File createFileObject(File dir, String filename) {
+    @Override
+	public File createFileObject(File dir, String filename) {
         if (dir == null) {
             return new File(filename);
         } else {
@@ -272,7 +289,8 @@ public class RestrictedFileSystemView extends FileSystemView {
     /**
      * Returns a File object constructed from the given path string.
      */
-    public File createFileObject(String path) {
+    @Override
+	public File createFileObject(String path) {
         File f = new File(path);
         if (isFileSystemRoot(f)) {
             f = createFileSystemRoot(f);
@@ -283,7 +301,8 @@ public class RestrictedFileSystemView extends FileSystemView {
     /**
      * Gets the list of shown (i.e. not hidden) files.
      */
-    public File[] getFiles(File dir, boolean useFileHiding) {
+    @Override
+	public File[] getFiles(File dir, boolean useFileHiding) {
         Vector files = new Vector();
 
         // add all files in dir
@@ -312,7 +331,8 @@ public class RestrictedFileSystemView extends FileSystemView {
      * @return the parent directory of <code>dir</code>, or <code>null</code> if <code>dir</code> is
      * <code>null</code>
      */
-    public File getParentDirectory(File dir) {
+    @Override
+	public File getParentDirectory(File dir) {
         if (dir != null && dir.exists()) {
             File psf = dir.getParentFile();
             if (psf != null) {
@@ -343,7 +363,8 @@ public class RestrictedFileSystemView extends FileSystemView {
      * on Windows.
      * @return a new <code>File</code> object
      */
-    protected File createFileSystemRoot(File f) {
+    @Override
+	protected File createFileSystemRoot(File f) {
         return new FileSystemRoot(f);
     }
 
@@ -356,16 +377,19 @@ public class RestrictedFileSystemView extends FileSystemView {
             super(s);
         }
 
-        public boolean isDirectory() {
+        @Override
+		public boolean isDirectory() {
             return true;
         }
 
-        public String getName() {
+        @Override
+		public String getName() {
             return getPath();
         }
     }
 
-    public File createNewFolder(File containingDir) throws IOException {
+    @Override
+	public File createNewFolder(File containingDir) throws IOException {
         if (containingDir == null) {
             throw new IOException("Containing directory is null:");
         }

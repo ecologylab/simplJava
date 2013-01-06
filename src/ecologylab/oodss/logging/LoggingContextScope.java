@@ -14,7 +14,7 @@ import java.util.Map;
 
 import ecologylab.collections.Scope;
 import ecologylab.generic.Debug;
-import ecologylab.oodss.distributed.common.ServerConstants;
+import ecologylab.oodss.distributed.common.NetworkingConstants;
 
 /**
  * @author Zachary O. Toups (zach@ecologylab.net)
@@ -83,7 +83,7 @@ public class LoggingContextScope<T> extends Scope<T>
 		Debug.println("Logging to file at: " + file.getAbsolutePath());
 
 		FileOutputStream fos = new FileOutputStream(file, true);
-		CharsetEncoder encoder = Charset.forName(ServerConstants.CHARACTER_ENCODING).newEncoder();
+		CharsetEncoder encoder = Charset.forName(NetworkingConstants.CHARACTER_ENCODING).newEncoder();
 
 		outputStreamWriter = new OutputStreamWriter(fos, encoder);
 	}

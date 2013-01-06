@@ -9,7 +9,6 @@ import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.StringBufferInputStream;
 import java.lang.reflect.Field;
-import java.lang.reflect.GenericDeclaration;
 import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
@@ -36,7 +35,6 @@ import javax.xml.transform.stream.StreamResult;
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 import org.xml.sax.SAXParseException;
-
 
 import ecologylab.collections.Scope;
 import ecologylab.generic.Debug;
@@ -626,6 +624,7 @@ public class XMLTools extends Debug implements CharacterConstants, SpecialCharac
 	 * 
 	 * @return the abbreviated name of this class - without the package qualifier
 	 */
+	@Override
 	public String getClassSimpleName()
 	{
 		return getClassSimpleName(this);
@@ -649,11 +648,13 @@ public class XMLTools extends Debug implements CharacterConstants, SpecialCharac
 	 * 
 	 * @return the package name of the class
 	 */
+	@Override
 	public String getPackageName()
 	{
 		return getPackageName(this);
 	}
 
+	@Override
 	public String toString()
 	{
 		return getClassSimpleName(this);
@@ -692,17 +693,20 @@ public class XMLTools extends Debug implements CharacterConstants, SpecialCharac
 		builder.setErrorHandler(new org.xml.sax.ErrorHandler()
 		{
 			// ignore fatal errors (an exception is guaranteed)
+			@Override
 			public void fatalError(SAXParseException exception) throws SAXException
 			{
 			}
 
 			// treat validation errors as fatal
+			@Override
 			public void error(SAXParseException e) throws SAXParseException
 			{
 				throw e;
 			}
 
 			// dump warnings too
+			@Override
 			public void warning(SAXParseException err) throws SAXParseException
 			{
 				println(builder + "** Warning" + ", line " + err.getLineNumber() + ", urn "
@@ -1373,7 +1377,7 @@ public class XMLTools extends Debug implements CharacterConstants, SpecialCharac
 						if (c >= 255)
 						{
 							// println("escapeXML() ERROR: " + ((int) c));
-							int cInt = (int) c;
+							int cInt = c;
 							buffy.append('&').append('#').append(cInt).append(';');
 						}
 						else if (c >= 0x20)
@@ -1412,7 +1416,7 @@ public class XMLTools extends Debug implements CharacterConstants, SpecialCharac
 						if (c >= 255)
 						{
 							// println("escapeXML() ERROR: " + ((int) c));
-							int cInt = (int) c;
+							int cInt = c;
 							appendable.append('&').append('#').append(String.valueOf(cInt)).append(';');
 						}
 						else if (c >= 0x20)
@@ -1435,6 +1439,7 @@ public class XMLTools extends Debug implements CharacterConstants, SpecialCharac
 	 * 
 	 * @deprecated
 	 */
+	@Deprecated
 	public static Document getDocument(String contents)
 	{
 		return XMLTools.buildDOM(new StringBufferInputStream(contents));

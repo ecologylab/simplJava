@@ -21,8 +21,8 @@ import ecologylab.appframework.StatusReporter;
 import ecologylab.concurrent.BasicSite;
 import ecologylab.concurrent.Downloadable;
 import ecologylab.concurrent.DownloadableLogRecord;
-import ecologylab.generic.Debug;
 import ecologylab.generic.Continuation;
+import ecologylab.generic.Debug;
 import ecologylab.net.NetTools;
 import ecologylab.net.ParsedURL;
 
@@ -108,6 +108,7 @@ public class ZipDownload extends Debug implements Downloadable, Continuation
 	 * 
 	 * @throws IOException
 	 */
+	@Override
 	public void performDownload() throws IOException
 	{
 //		debug("performDOwnload() top");
@@ -247,9 +248,10 @@ public class ZipDownload extends Debug implements Downloadable, Continuation
 		return "ZipDownload() " + zipSource + " -> " + zipTarget;
 	}
 
+	@Override
 	public void callback(Object o)
 	{
-		System.out.println("ZipDownload delivered: " + ((ZipDownload) o));
+		System.out.println("ZipDownload delivered: " + (o));
 	}
 
 	/**
@@ -416,12 +418,14 @@ public class ZipDownload extends Debug implements Downloadable, Continuation
 		ZipDownload.downloadProcessor = downloadProcessor;
 	}
 
+	@Override
 	public boolean isRecycled()
 	{
 		// TODO Auto-generated method stub
 		return false;
 	}
 
+	@Override
 	public BasicSite getSite()
 	{
 		// TODO Auto-generated method stub
@@ -432,6 +436,7 @@ public class ZipDownload extends Debug implements Downloadable, Continuation
 	 * 
 	 * @return What to tell the user about what is being downloaded.
 	 */
+	@Override
 	public String message()
 	{
 		return "zip archive " + zipSource.toString();
@@ -444,6 +449,7 @@ public class ZipDownload extends Debug implements Downloadable, Continuation
 		return null;
 	}
 
+	@Override
 	public void recycle()
 	{
 		if (inputStream != null)

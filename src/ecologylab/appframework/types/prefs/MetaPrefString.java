@@ -39,7 +39,8 @@ public class MetaPrefString extends MetaPref<String>
      * 
      * @return Default value of MetaPref
      */
-    public String getDefaultValue()
+    @Override
+	public String getDefaultValue()
 	{
 		return defaultValue;
 	}
