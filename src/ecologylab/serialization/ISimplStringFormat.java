@@ -9,6 +9,17 @@ package ecologylab.serialization;
  *
  */
 public interface ISimplStringFormat {
+	/**
+	 * Escapes a string in this format. 
+	 * @param unescapedString Unescaped string to escape
+	 * @return The escaped string
+	 */
 	String escape(String unescapedString);
+	
+	/**
+	 * Unescapes a string in this format
+	 * @param escapedString An escaped string
+	 * @return The unescaped string
+	 */
 	String unescape(String escapedString);
 }

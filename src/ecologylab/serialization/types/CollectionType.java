@@ -22,16 +22,16 @@ public class CollectionType<T> extends SimplType
 implements CrossLanguageTypeConstants
 {
 	@simpl_scalar
-	private boolean			isMap;
+	private boolean isMap;
 	
 	/**
 	 * Represent the generic type vars that a Collection or Map type is defined with.
 	 */
 	@simpl_collection("generic_type_var")
-	private ArrayList<GenericTypeVar>																					genericTypeVars;
+	private ArrayList<GenericTypeVar> genericTypeVars;
 
 	/**
-	 * 
+	 * Default constructor to satisfy SIMPL
 	 */
 	public CollectionType()
 	{
