@@ -476,10 +476,10 @@ public class JSONSerializer extends StringSerializer implements FieldTypes
 		appendable.append(':');
 		appendable.append('"');
 		appendable.append(((Integer) object.hashCode()).toString());
+		appendable.append('"');
 
 		if (!last)
 		{
-			appendable.append('"');
 			appendable.append(',');
 		}
 	}

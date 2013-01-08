@@ -75,7 +75,7 @@ public class FieldDescriptor extends DescriptorBase implements FieldTypes, IMapp
 
 	public static final Class[]												SET_METHOD_STRING_ARG				= { String.class };
 
-	@simpl_scalar
+//	@simpl_scalar
 	protected Field																		field;																													// TODO
 
 	/**
@@ -134,7 +134,7 @@ public class FieldDescriptor extends DescriptorBase implements FieldTypes, IMapp
 
 	@Deprecated
 	// we now use the package name to infer namespaces.
-	@simpl_map("library_namespace")
+//	@simpl_map("library_namespace")
 	private HashMap<String, String>										libraryNamespaces						= new HashMap<String, String>();
 
 	@simpl_scalar
@@ -1268,8 +1268,8 @@ public class FieldDescriptor extends DescriptorBase implements FieldTypes, IMapp
 	{
 		String name = (field != null) ? field.getName() : "NO_FIELD";
 		return this.getClassSimpleName() + "[" + name + " < "
-				+ declaringClassDescriptor.getDescribedClass() + " type=0x" + Integer.toHexString(type)
-				+ "]";
+				+ (declaringClassDescriptor == null ? "NULL" : declaringClassDescriptor.getDescribedClass())
+				+ " type=0x" + Integer.toHexString(type) + "]";
 	}
 
 	/**
