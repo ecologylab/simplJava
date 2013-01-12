@@ -212,7 +212,7 @@ implements CrossLanguageTypeConstants
 	{
 		return typesByJavaName.containsKey(javaName);
 	}
-	ST getTypeByClass(Class javaClass)
+	ST getTypeByClass(Class<?> javaClass)
 	{
 		return getTypeByJavaName(javaClass.getName());
 	}

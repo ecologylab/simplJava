@@ -20,7 +20,6 @@ public class PrefOp<O extends MixedInitiativeOp> extends PrefElementState<O>
 		super();
 	}
 	
-	@SuppressWarnings("unchecked")
 	public O getOp()
 	{
 		if(op == null)

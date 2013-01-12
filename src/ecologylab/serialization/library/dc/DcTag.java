@@ -53,7 +53,7 @@ public class DcTag extends ElementState
 	private static final String TRANSLATION_SPACE_NAME	= "dc";
 	private static final String PACKAGE_NAME			= "ecologylab.serialization.library.dc";
 
-	public static final Class TRANSLATIONS[]	= 
+	public static final Class<?> TRANSLATIONS[]	= 
 	{
 		Dc.class,
 	};

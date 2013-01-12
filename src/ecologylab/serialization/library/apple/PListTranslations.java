@@ -18,7 +18,6 @@ public class PListTranslations
 {
 	public static final String		NAME						= "Apple PList";
 
-	@SuppressWarnings("unchecked")
 	protected static final Class	TRANSLATIONS[]	=
 																								{
 			ecologylab.serialization.library.apple.DictionaryProperty.class, KeyProperty.class,
@@ -47,7 +46,6 @@ public class PListTranslations
 	
 	public static final String		KEY_NAME						= "KeyTrans";
 
-	@SuppressWarnings("unchecked")
 	protected static final Class	KEY_TRANSLATIONS[]	=
 																								{
 			KeyProperty.class,

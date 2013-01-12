@@ -8,6 +8,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.StringBufferInputStream;
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
@@ -974,10 +975,25 @@ public class XMLTools extends Debug implements CharacterConstants, SpecialCharac
 		{
 			nestedObject = thatClass.newInstance();
 		}
-		catch (Exception e)
+		catch (IllegalAccessException e)
+		{
+			try
+			{
+				Constructor c = thatClass.getConstructor(null);
+				c.setAccessible(true);
+				return (T)c.newInstance(null);
+			}
+			catch(Exception ex)
+			{
+				throw new SIMPLTranslationException("Instantiation ERROR for " + thatClass
+						+ ". Is there a public constructor with no arguments?", ex);
+			}			
+		}
+		catch(Exception e)
 		{
 			throw new SIMPLTranslationException("Instantiation ERROR for " + thatClass
 					+ ". Is there a public constructor with no arguments?", e);
+
 		}
 		return nestedObject;
 	}
@@ -1617,7 +1633,7 @@ public class XMLTools extends Debug implements CharacterConstants, SpecialCharac
 
 	public static boolean isEnum(Field thatField)
 	{
-		return isEnum(thatField.getType());
+		return isEnum(thatField.getType()) || thatField.getType().isEnum();
 	}
 
 	public static boolean isEnum(Class thatClass)

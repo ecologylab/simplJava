@@ -52,6 +52,7 @@ import ecologylab.serialization.library.html.Div;
 import ecologylab.serialization.library.html.Input;
 import ecologylab.serialization.library.html.Td;
 import ecologylab.serialization.library.html.Tr;
+import ecologylab.serialization.simplstringformats.FormatRegistry;
 import ecologylab.serialization.types.CollectionType;
 import ecologylab.serialization.types.FundamentalTypes;
 import ecologylab.serialization.types.ScalarType;
@@ -76,7 +77,8 @@ public class FieldDescriptor extends DescriptorBase implements IMappable<String>
 	public static final Class[] SET_METHOD_STRING_ARG = { String.class };
 
 	@simpl_scalar
-	protected Field field;																													// TODO
+	protected Field field;
+	// TODO
 
 	/**
 	 * For nested elements, and collections or maps of nested elements. The class descriptor
@@ -88,6 +90,12 @@ public class FieldDescriptor extends DescriptorBase implements IMappable<String>
 	@simpl_scalar
 	private String mapKeyFieldName;
 
+	@simpl_scalar
+	/**
+	 * Represents the simple name of the field type.
+	 */
+	private String fieldTypeSimpleName;
+	
 	/**
 	 * Descriptor for the class that this field is declared in.
 	 */
@@ -146,9 +154,6 @@ public class FieldDescriptor extends DescriptorBase implements IMappable<String>
 	@simpl_scalar
 	private ScalarType<?> scalarType;
 
-	@simpl_composite("enumerated_type")
-	private EnumeratedType enumType;
-
 	@simpl_scalar
 	private CollectionType collectionType;
 
@@ -157,6 +162,8 @@ public class FieldDescriptor extends DescriptorBase implements IMappable<String>
 
 	@simpl_scalar
 	private boolean	isEnum;
+	
+	private EnumerationDescriptor enumDescriptor; 
 
 	/**
 	 * An option for scalar formatting.
@@ -392,6 +399,11 @@ public class FieldDescriptor extends DescriptorBase implements IMappable<String>
 	protected void setUnresolvedScopeAnnotation(String scopeName)
 	{
 		this.unresolvedScopeAnnotation = scopeName;
+	}
+	
+	public EnumerationDescriptor getEnumerationDescriptor()
+	{
+		return this.enumDescriptor;
 	}
 
 	/**
@@ -650,12 +662,20 @@ public class FieldDescriptor extends DescriptorBase implements IMappable<String>
 		xmlHint = XMLTools.simplHint(field); // TODO -- confirm that default case is acceptable
 		scalarType = TypeRegistry.getScalarType(thatClass);
 
-		if (isEnum)
+		this.fieldTypeSimpleName = field.getType().getSimpleName();
+		
+		if(this.isEnum)
 		{
-			enumType = new EnumeratedType(field);
+			try{
+			this.enumDescriptor = EnumerationDescriptor.get(thatClass);
+			}
+			catch(SIMPLDescriptionException sde)
+			{
+				throw new RuntimeException(sde);
+			}
 		}
-
-		if (scalarType == null)
+		
+		if (isEnum == false && scalarType == null)
 		{
 			String msg = "Can't find ScalarType to serialize field: \t\t" + thatClass.getSimpleName()
 					+ "\t" + field.getName() + ";";
@@ -693,8 +713,6 @@ public class FieldDescriptor extends DescriptorBase implements IMappable<String>
 	 * @param annotationType
 	 *          Partial type information from the field declaration annotations, which are required.
 	 */
-	// FIXME -- not complete!!!! return to finish other cases!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-	@SuppressWarnings("unchecked")
 	private FieldType deriveNestedSerialization(Field field, FieldType annotationType)
 	{
 		FieldType result = annotationType;
@@ -910,7 +928,7 @@ public class FieldDescriptor extends DescriptorBase implements IMappable<String>
 	 * 
 	 * @return The class of the type variable, if it exists.
 	 */
-	@SuppressWarnings("unchecked")
+	
 	// This method is modified to enable platform specific implementation
 	public Class<?> getTypeArgClass(Field field, int i)
 	{
@@ -2156,7 +2174,22 @@ public class FieldDescriptor extends DescriptorBase implements IMappable<String>
 	{
 		try
 		{
-			scalarType.appendValue(appendable, this, object, translationContext, format);
+			if(this.isEnum)
+			{
+				EnumerationDescriptor ed = this.getEnumerationDescriptor();
+				if(ed == null)
+				{
+					throw new RuntimeException("Null enumerator descriptor; add rehydration code.");
+				}
+				String enumValue = ed.marshal(this.getValue(object));
+				
+				String escapedValue = FormatRegistry.get(format).escape(enumValue);
+				appendable.append(escapedValue);
+			}
+			else
+			{
+				scalarType.appendValue(appendable, this, object, translationContext, format);
+			}
 		}
 		catch (Exception ex)
 		{
@@ -2329,10 +2362,11 @@ public class FieldDescriptor extends DescriptorBase implements IMappable<String>
 		return metaInfo;
 	}
 
-	public EnumeratedType getEnumerateType()
+	public String getFieldTypeSimpleName()
 	{
-		return enumType;
+		return this.fieldTypeSimpleName;
 	}
+	
 	
 	public ArrayList<FieldUsage> getExcludedUsages()
 	{
