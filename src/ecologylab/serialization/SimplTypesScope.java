@@ -76,6 +76,18 @@ public final class SimplTypesScope extends ElementState
 	private Scope<ClassDescriptor<? extends FieldDescriptor>>							entriesByBibTeXType				= new Scope<ClassDescriptor<? extends FieldDescriptor>>();
 
 	private final Scope<Class<?>>																					nameSpaceClassesByURN			= new Scope<Class<?>>();
+	
+	/**
+	 * Scope containing all enumerations by their cross platform name
+	 */
+	private Scope<EnumerationDescriptor> enumerationsBySimpleName = new Scope<EnumerationDescriptor>();
+	
+	/**
+	 * Scope containing all enumerations by their tag name
+	 */
+	@simpl_nowrap
+	@simpl_map("enumeration_descriptor")
+	private Scope<EnumerationDescriptor> enumerationsByTag = new Scope<EnumerationDescriptor>();
 
 	private static HashMap<String, SimplTypesScope>												allTypesScopes						= new HashMap<String, SimplTypesScope>();
 
@@ -541,25 +553,64 @@ public final class SimplTypesScope extends ElementState
 	 */
 	public void addTranslation(Class<?> classObj)
 	{
-		ClassDescriptor entry = ClassDescriptor.getClassDescriptor(classObj);
-		String tagName = entry.getTagName();
-
-		entriesByTag.put(entry.getTagName(), entry);
-		entriesByClassSimpleName.put(entry.getDescribedClassSimpleName(), entry);
-		entriesByClassName.put(classObj.getName(), entry);
-
-		entriesByTLVId.put(entry.getTagName().hashCode(), entry);
-		entriesByBibTeXType.put(entry.getBibtexType(), entry);
-
-		ArrayList<String> otherTags = entry.otherTags();
-		if (otherTags != null)
+		// Enumerated types behave a bit differently.
+		if(classObj.isEnum())
 		{
-			for (String otherTag : otherTags)
+			if(!this.enumerationsBySimpleName.containsKey(classSimpleName(classObj)))
 			{
-				if ((otherTag != null) && (otherTag.length() > 0))
+				EnumerationDescriptor ed;
+				try
 				{
-					entriesByTag.put(otherTag, entry);
-					entriesByTLVId.put(otherTag.hashCode(), entry);
+					// Add if it isnt there already.
+					ed = EnumerationDescriptor.get(classObj);
+				}
+				catch(SIMPLDescriptionException sde)
+				{
+					// We need to wrap this to not upset the API, for now. 
+					throw new RuntimeException(sde);
+				}
+				
+				this.enumerationsByTag.put(ed.getTagName(), ed);
+				this.enumerationsBySimpleName.put(ed.getName(), ed);
+				
+				// Don't think we have other tags here, we really just need simple name
+				// But putting it here just in case. 
+				ArrayList<String> otherTags = ed.otherTags();
+				if (otherTags != null)
+				{
+					for (String otherTag : otherTags)
+					{
+						if ((otherTag != null) && (!otherTag.isEmpty()))
+						{
+							enumerationsByTag.put(otherTag, ed);
+						}
+					}
+				}
+			}
+		}
+		else
+		{
+			// Add a class!
+			ClassDescriptor entry = ClassDescriptor.getClassDescriptor(classObj);
+			String tagName = entry.getTagName();
+	
+			entriesByTag.put(entry.getTagName(), entry);
+			entriesByClassSimpleName.put(entry.getDescribedClassSimpleName(), entry);
+			entriesByClassName.put(classObj.getName(), entry);
+	
+			entriesByTLVId.put(entry.getTagName().hashCode(), entry);
+			entriesByBibTeXType.put(entry.getBibtexType(), entry);
+	
+			ArrayList<String> otherTags = entry.otherTags();
+			if (otherTags != null)
+			{
+				for (String otherTag : otherTags)
+				{
+					if ((otherTag != null) && (otherTag.length() > 0))
+					{
+						entriesByTag.put(otherTag, entry);
+						entriesByTLVId.put(otherTag.hashCode(), entry);
+					}
 				}
 			}
 		}
@@ -887,7 +938,6 @@ public final class SimplTypesScope extends ElementState
 	 *          a set of Classes to be used as a part of this SimplTypesScope
 	 * @return
 	 */
-	@SuppressWarnings("unchecked")
 	public static SimplTypesScope get(String name, Class... translations)
 	{
 		SimplTypesScope result = lookup(name);
@@ -915,7 +965,6 @@ public final class SimplTypesScope extends ElementState
 	 * @param translations
 	 * @return
 	 */
-	@SuppressWarnings("unchecked")
 	public static SimplTypesScope get(String name, SimplTypesScope inheritedTranslations,
 			Class[]... translations)
 	{
@@ -944,7 +993,6 @@ public final class SimplTypesScope extends ElementState
 	 * @param translations
 	 * @return
 	 */
-	@SuppressWarnings("unchecked")
 	public static SimplTypesScope get(String name, SimplTypesScope inheritedTranslations,
 			Class... translations)
 	{
@@ -1011,7 +1059,6 @@ public final class SimplTypesScope extends ElementState
 	 *          a list of previous translation scopes to build upon.
 	 * @return
 	 */
-	@SuppressWarnings("unchecked")
 	public static SimplTypesScope get(String name, SimplTypesScope[] inheritedTranslationsSet,
 			Class... translations)
 	{
@@ -1040,7 +1087,6 @@ public final class SimplTypesScope extends ElementState
 	 *          a list of previous translation scopes to build upon.
 	 * @return
 	 */
-	@SuppressWarnings("unchecked")
 	public static SimplTypesScope get(String name, SimplTypesScope[] inheritedTranslationsSet,
 			Class[]... translations)
 	{
@@ -1084,7 +1130,6 @@ public final class SimplTypesScope extends ElementState
 	 * @param defaultPackageName
 	 * @return
 	 */
-	@SuppressWarnings("unchecked")
 	public static SimplTypesScope get(String name, NameSpaceDecl[] nameSpaceDecls,
 			SimplTypesScope[] inheritedTranslationsSet, Class... translations)
 	{
@@ -1124,7 +1169,6 @@ public final class SimplTypesScope extends ElementState
 	 * @param translations
 	 * @return
 	 */
-	@SuppressWarnings("unchecked")
 	public static SimplTypesScope get(String name,
 			Collection<SimplTypesScope> inheritedTranslationsSet, Class... translations)
 	{
