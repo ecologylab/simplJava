@@ -47,8 +47,6 @@ public final class SimplTypesScope extends ElementState
 
 	public static GRAPH_SWITCH graphSwitch = GRAPH_SWITCH.OFF;
 
-	private static final int GUESS_CLASSES_PER_TSCOPE = 5;
-
 	@simpl_scalar
 	private String name;
 

@@ -1,12 +1,19 @@
 package ecologylab.generic;
 
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+import sun.reflect.generics.reflectiveObjects.ParameterizedTypeImpl;
+
 /**
+ * 1-3
+ * 420-450; :3
+ * 
  * A class that indexes inserted objects by a set of multiple criteria. implementors provide the critera in the form of 
  * ItemIndexer predicates, marshalling happens via .by();
  * @author tom
@@ -57,32 +64,9 @@ public abstract class MultiIndexer<IndexedObject> {
 	/**
 	 * Obtains the list of index predicates that implementors of the MultiIndexer desire.
 	 * Guides the indexing process..
-	 * This part of code is particularly tricky b/c it automagically grabs the list of relevant indexers from whatever
-	 * classes are defined within the given class... thus no need to write this method manually for each class.
-	 * Any verbosity that can be eliminated is a godsend in this god-forsaken language of lies. (Java) 
 	 * @return 
 	 */
-	public List<ItemIndexPredicate<IndexedObject>> getIndexPredicates()
-	{
-		List<ItemIndexPredicate<IndexedObject>> ourList = new LinkedList<>();
-		for(Class c : this.getClass().getDeclaredClasses())
-		{
-			if(c.isAssignableFrom(ItemIndexPredicate.class))
-			{
-				try {
-					ourList.add((ItemIndexPredicate<IndexedObject>) c.newInstance());
-				} catch (InstantiationException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				} catch (IllegalAccessException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-			}
-		}
-		
-		return ourList;
-	}
+	public abstract List<ItemIndexPredicate<IndexedObject>> getIndexPredicates();
 	
 	/**
 	 * Inserts an item into the MultiIndexer
@@ -123,5 +107,9 @@ public abstract class MultiIndexer<IndexedObject> {
 	public InnerIndexer<IndexedObject> by(String indexID)
 	{
 		return new InnerIndexer<IndexedObject>(this.allmaps.get(indexID));
+	}
+
+	public Integer size() {
+		return this.allitems.size();
 	}
 }
