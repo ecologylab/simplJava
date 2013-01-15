@@ -45,14 +45,12 @@ public final class SimplTypesScope extends ElementState
 		ON, OFF
 	}
 
-	public static GRAPH_SWITCH																						graphSwitch								= GRAPH_SWITCH.OFF;
-
-	private static final int																							GUESS_CLASSES_PER_TSCOPE	= 5;
+	public static GRAPH_SWITCH graphSwitch = GRAPH_SWITCH.OFF;
 
 	@simpl_scalar
-	private/* final */String																							name;
+	private String name;
 
-	private SimplTypesScope[]																							inheritedTypesScopes;
+	private SimplTypesScope[] inheritedTypesScopes;
 
 	/**
 	 * Fundamentally, a SimplTypesScope consists of a set of class simple names. These are mapped to
@@ -63,19 +61,19 @@ public final class SimplTypesScope extends ElementState
 	 * there are multiple possibilities. This is the case when internal and external versions of a
 	 * message and its constituents are defined for a messaging API.
 	 */
-	private Scope<ClassDescriptor<? extends FieldDescriptor>>							entriesByClassSimpleName	= new Scope<ClassDescriptor<? extends FieldDescriptor>>();
+	private Scope<ClassDescriptor<? extends FieldDescriptor>> entriesByClassSimpleName = new Scope<ClassDescriptor<? extends FieldDescriptor>>();
 
-	private Scope<ClassDescriptor<? extends FieldDescriptor>>							entriesByClassName				= new Scope<ClassDescriptor<? extends FieldDescriptor>>();
+	private Scope<ClassDescriptor<? extends FieldDescriptor>> entriesByClassName = new Scope<ClassDescriptor<? extends FieldDescriptor>>();
 
 	@simpl_nowrap
 	@simpl_map("class_descriptor")
-	private Scope<ClassDescriptor<? extends FieldDescriptor>>							entriesByTag							= new Scope<ClassDescriptor<? extends FieldDescriptor>>();
+	private Scope<ClassDescriptor<? extends FieldDescriptor>> entriesByTag = new Scope<ClassDescriptor<? extends FieldDescriptor>>();
 
-	private HashMap<Integer, ClassDescriptor<? extends FieldDescriptor>>	entriesByTLVId						= new HashMap<Integer, ClassDescriptor<? extends FieldDescriptor>>();
+	private HashMap<Integer, ClassDescriptor<? extends FieldDescriptor>> entriesByTLVId = new HashMap<Integer, ClassDescriptor<? extends FieldDescriptor>>();
 
-	private Scope<ClassDescriptor<? extends FieldDescriptor>>							entriesByBibTeXType				= new Scope<ClassDescriptor<? extends FieldDescriptor>>();
+	private Scope<ClassDescriptor<? extends FieldDescriptor>> entriesByBibTeXType = new Scope<ClassDescriptor<? extends FieldDescriptor>>();
 
-	private final Scope<Class<?>>																					nameSpaceClassesByURN			= new Scope<Class<?>>();
+	private final Scope<Class<?>> nameSpaceClassesByURN = new Scope<Class<?>>();
 	
 	/**
 	 * Scope containing all enumerations by their cross platform name
@@ -89,7 +87,7 @@ public final class SimplTypesScope extends ElementState
 	@simpl_map("enumeration_descriptor")
 	private Scope<EnumerationDescriptor> enumerationsByTag = new Scope<EnumerationDescriptor>();
 
-	private static HashMap<String, SimplTypesScope>												allTypesScopes						= new HashMap<String, SimplTypesScope>();
+	private static HashMap<String, SimplTypesScope> allTypesScopes = new HashMap<String, SimplTypesScope>();
 
 	/**
 	 * SimplTypesScope has some global static "AllTypesScopes" scopes which can
@@ -102,9 +100,9 @@ public final class SimplTypesScope extends ElementState
 		SimplTypesScope.allTypesScopes = new HashMap<String, SimplTypesScope>();
 	}
 	
-	public static final String																						STATE											= "State";
+	public static final String STATE = "State";
 
-	private boolean																												performFilters;
+	private boolean performFilters;
 
 	static
 	{
@@ -696,7 +694,6 @@ public final class SimplTypesScope extends ElementState
 	 * @param classObj
 	 *          The object for the class.
 	 */
-
 	public void addTranslation(ClassDescriptor classObj)
 	{
 		ClassDescriptor entry = classObj;
@@ -746,19 +743,6 @@ public final class SimplTypesScope extends ElementState
 	private ClassDescriptor xmlTagToTranslationEntry(String xmlTag)
 	{
 		return getClassDescriptorByTag(xmlTag);
-		/*
-		 * TranslationEntry entry = entriesByTag.get(xmlTag); if (entry == null) { String
-		 * defaultPackageName = this.defaultPackageName; if (defaultPackageName != null) { String
-		 * classSimpleName = XMLTools.classNameFromElementName(xmlTag); entry = new
-		 * TranslationEntry(defaultPackageName, classSimpleName, xmlTag); if (entry.empty) { if
-		 * (inheritedTranslationScopes != null) { // recurse through inherited, continuing to seek a
-		 * translation for (TranslationScope inherited : inheritedTranslationScopes) { entry =
-		 * inherited.xmlTagToTranslationEntry(xmlTag); if (entry != null) { // got one from an inherited
-		 * TranslationScope // register translation for the inherited entry in this
-		 * entriesByTag.put(xmlTag, entry); entriesByClassSimpleName.put(classSimpleName, entry); break;
-		 * } } } } } else { // empty entry construction added by andruid 11/11/07 entry = new
-		 * TranslationEntry(xmlTag); // new empty entry } } return entry;
-		 */
 	}
 
 	/**
@@ -1224,7 +1208,6 @@ public final class SimplTypesScope extends ElementState
 		ArrayList<ClassDescriptor<? extends FieldDescriptor>> result = classDescriptors;
 		if (result == null)
 		{
-			// result = entriesByClassSimpleName.values();
 			result = new ArrayList<ClassDescriptor<? extends FieldDescriptor>>(entriesByTag.values()); // we use entriesByTag so that overriding works well.
 			this.classDescriptors = result;
 		}
@@ -1296,18 +1279,16 @@ public final class SimplTypesScope extends ElementState
 
 	public Object deserialize(File file, Format format) throws SIMPLTranslationException
 	{
-		TranslationContext translationContext = TranslationContextPool.get().acquire();
+		TranslationContext translationContext= new TranslationContext();
 		Object obj = deserialize(file, translationContext, null, format);
-		TranslationContextPool.get().release(translationContext);
 		return obj;
 	}
 
 	public Object deserialize(File file, DeserializationHookStrategy deserializationHookStrategy,
 			Format format) throws SIMPLTranslationException
 	{
-		TranslationContext translationContext = TranslationContextPool.get().acquire();
+		TranslationContext translationContext = new TranslationContext();
 		Object obj = deserialize(file, translationContext, deserializationHookStrategy, format);
-		TranslationContextPool.get().release(translationContext);
 		return obj;
 	}
 
@@ -1315,9 +1296,8 @@ public final class SimplTypesScope extends ElementState
 			DeserializationHookStrategy deserializationHookStrategy, Format format)
 			throws SIMPLTranslationException
 	{
-		TranslationContext translationContext = TranslationContextPool.get().acquire();
+		TranslationContext translationContext = new TranslationContext();
 		Object obj = deserialize(parsedURL, translationContext, deserializationHookStrategy, format);
-		TranslationContextPool.get().release(translationContext);
 		return obj;
 	}
 
@@ -1329,9 +1309,8 @@ public final class SimplTypesScope extends ElementState
 
 	public Object deserialize(ParsedURL parsedURL, Format format) throws SIMPLTranslationException
 	{
-		TranslationContext translationContext = TranslationContextPool.get().acquire();
+		TranslationContext translationContext =  new TranslationContext();
 		Object obj = deserialize(parsedURL, translationContext, null, format);
-		TranslationContextPool.get().release(translationContext);
 		return obj;
 	}
 
@@ -1348,10 +1327,9 @@ public final class SimplTypesScope extends ElementState
 			DeserializationHookStrategy deserializationHookStrategy, Format format)
 			throws SIMPLTranslationException
 	{
-		TranslationContext translationContext = TranslationContextPool.get().acquire();
+		TranslationContext translationContext = new TranslationContext();
 		Object obj = deserialize(inputStream, translationContext, deserializationHookStrategy, format,
 				null);
-		TranslationContextPool.get().release(translationContext);
 		return obj;
 	}
 
@@ -1359,10 +1337,9 @@ public final class SimplTypesScope extends ElementState
 			DeserializationHookStrategy deserializationHookStrategy, Format format, Charset charSet)
 			throws SIMPLTranslationException
 	{
-		TranslationContext translationContext = TranslationContextPool.get().acquire();
+		TranslationContext translationContext = new TranslationContext();
 		Object obj = deserialize(inputStream, translationContext, deserializationHookStrategy, format,
 				charSet);
-		TranslationContextPool.get().release(translationContext);
 		return obj;
 	}
 
@@ -1381,18 +1358,16 @@ public final class SimplTypesScope extends ElementState
 	public Object deserialize(InputStream inputStream, Format format)
 			throws SIMPLTranslationException
 	{
-		TranslationContext translationContext = TranslationContextPool.get().acquire();
+		TranslationContext translationContext = new TranslationContext();
 		Object obj = deserialize(inputStream, translationContext, null, format, null);
-		TranslationContextPool.get().release(translationContext);
 		return obj;
 	}
 
 	public Object deserialize(InputStream inputStream, Format format, Charset charSet)
 			throws SIMPLTranslationException
 	{
-		TranslationContext translationContext = TranslationContextPool.get().acquire();
+		TranslationContext translationContext = new TranslationContext();
 		Object obj = deserialize(inputStream, translationContext, null, format, charSet);
-		TranslationContextPool.get().release(translationContext);
 		return obj;
 	}
 
@@ -1414,9 +1389,8 @@ public Object deserialize(InputStream inputStream, TranslationContext translatio
 
 	public Object deserialize(URL url, Format format) throws SIMPLTranslationException
 	{
-		TranslationContext translationContext = TranslationContextPool.get().acquire();
+		TranslationContext translationContext = new TranslationContext();
 		Object obj = deserialize(new ParsedURL(url), translationContext, null, format);
-		TranslationContextPool.get().release(translationContext);
 		return obj;
 	}
 
@@ -1433,10 +1407,9 @@ public Object deserialize(InputStream inputStream, TranslationContext translatio
 			DeserializationHookStrategy deserializationHookStrategy, StringFormat stringFormat)
 			throws SIMPLTranslationException
 	{
-		TranslationContext translationContext = TranslationContextPool.get().acquire();
+		TranslationContext translationContext = new TranslationContext();
 		StringPullDeserializer pullDeserializer = PullDeserializer.getStringDeserializer(this,
 				translationContext, deserializationHookStrategy, stringFormat);
-		TranslationContextPool.get().release(translationContext);
 		return pullDeserializer.parse(charSequence);
 	}
 
@@ -1449,9 +1422,8 @@ public Object deserialize(InputStream inputStream, TranslationContext translatio
 	public Object deserialize(CharSequence charSequence, StringFormat stringFormat)
 			throws SIMPLTranslationException
 	{
-		TranslationContext translationContext = TranslationContextPool.get().acquire();
+		TranslationContext translationContext = new TranslationContext();
 		Object obj = deserialize(charSequence, translationContext, null, stringFormat);
-		TranslationContextPool.get().release(translationContext);
 		return obj;
 	}
 
@@ -1929,9 +1901,8 @@ public Object deserialize(InputStream inputStream, TranslationContext translatio
 	public static void serialize(Object object, Appendable appendable, StringFormat stringFormat)
 			throws SIMPLTranslationException
 	{
-		TranslationContext translationContext = TranslationContextPool.get().acquire();
+		TranslationContext translationContext = new TranslationContext();
 		serialize(object, appendable, stringFormat, translationContext);
-		TranslationContextPool.get().release(translationContext);
 	}
 
 	/**
@@ -1947,9 +1918,8 @@ public Object deserialize(InputStream inputStream, TranslationContext translatio
 	public static StringBuilder serialize(Object object, StringFormat stringFormat)
 			throws SIMPLTranslationException
 	{
-		TranslationContext translationContext = TranslationContextPool.get().acquire();
+		TranslationContext translationContext = new TranslationContext();
 		StringBuilder sb = serialize(object, stringFormat, translationContext);
-		TranslationContextPool.get().release(translationContext);
 		return sb;
 	}
 
@@ -1966,9 +1936,8 @@ public Object deserialize(InputStream inputStream, TranslationContext translatio
 	public static void serialize(Object object, StringBuilder stringBuilder, StringFormat stringFormat)
 			throws SIMPLTranslationException
 	{
-		TranslationContext translationContext = TranslationContextPool.get().acquire();
+		TranslationContext translationContext = new TranslationContext();
 		serialize(object, stringBuilder, stringFormat, translationContext);
-		TranslationContextPool.get().release(translationContext);
 	}
 
 	/**
@@ -2002,8 +1971,7 @@ public Object deserialize(InputStream inputStream, TranslationContext translatio
 	public static void serialize(Object object, File file, Format format)
 			throws SIMPLTranslationException
 	{
-		TranslationContext translationContext = TranslationContextPool.get().acquire();
+		TranslationContext translationContext = new TranslationContext();
 		serialize(object, file, format, translationContext);
-		TranslationContextPool.get().release(translationContext);
 	}
 }
