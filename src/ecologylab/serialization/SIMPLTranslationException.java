@@ -1,7 +1,7 @@
 package ecologylab.serialization;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.ArrayList;
 
 import ecologylab.generic.Debug;
 import ecologylab.net.ParsedURL;
