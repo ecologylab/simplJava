@@ -47,6 +47,8 @@ public class SIMPLTranslationException extends Exception implements
         childExceptions = new ArrayList<Exception>();
     }
 
+    	this.simplIssues = new ArrayList<SimplIssue>();
+        childExceptions = new ArrayList<Exception>();
     public SIMPLTranslationException(String msg)
     {
         super(msg);
