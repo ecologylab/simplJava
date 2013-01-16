@@ -327,11 +327,11 @@ public abstract class PullDeserializer extends Debug
 	 * @return
 	 */
 	protected DeserializationProcedureState nextDeserializationProcedureState(
-			DeserializationProcedureState state, int fieldType)
+			DeserializationProcedureState state, FieldType fieldType)
 	{
 		// This is for backwards compat. Waiting to change this interface.
 		// TODO: Fix this.
-		FieldType ft = FieldType.fromTypeID(fieldType);
+		FieldType ft = fieldType;
 		switch (ft)
 		{
 		case SCALAR:

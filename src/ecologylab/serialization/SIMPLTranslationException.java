@@ -40,15 +40,24 @@ public class SIMPLTranslationException extends Exception implements
 
     private int               exceptionType    = 0;
 
+	private ArrayList<SimplIssue> simplIssues;
+
+	private ArrayList<Exception> childExceptions;
+
     public SIMPLTranslationException()
     {
         super();
     	this.simplIssues = new ArrayList<SimplIssue>();
-        childExceptions = new ArrayList<Exception>();
+        this.childExceptions = new ArrayList<Exception>();
     }
 
-    	this.simplIssues = new ArrayList<SimplIssue>();
-        childExceptions = new ArrayList<Exception>();
+    public SIMPLTranslationException(SimplIssue si)
+    {
+    	this();
+    	this.simplIssues.add(si);
+    }
+
+    
     public SIMPLTranslationException(String msg)
     {
         super(msg);
@@ -113,4 +122,11 @@ public class SIMPLTranslationException extends Exception implements
     		break;
     	}
     }
+
+    public Object remnant;
+	public void setRemnantObject(Object result) {
+		// TODO Auto-generated method stub
+		this.remnant = result;
+	}
+
 }

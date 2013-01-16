@@ -162,7 +162,7 @@ public class TranslationContext extends Debug implements ScalarUnmarshallingCont
 				if (thatReferenceObject == null)
 					continue;
 				
-				int childFdType = elementFieldDescriptor.getType();
+				FieldType childFdType = elementFieldDescriptor.getType();
 
 				Collection thatCollection;
 				switch (childFdType)

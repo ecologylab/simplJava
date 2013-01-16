@@ -75,7 +75,7 @@ public class XMLPullDeserializer extends StringPullDeserializer
 		catch (Exception ex)
 		{
 			SIMPLTranslationException ste = new SIMPLTranslationException("exception occurred in deserialzation ", ex);
-			ste.setObjectRemnant(result);
+			ste.setRemnantObject(result);
 			throw ste;
 		}
 	}
@@ -98,7 +98,7 @@ public class XMLPullDeserializer extends StringPullDeserializer
 		catch (Exception ex)
 		{
 			SIMPLTranslationException toThrow = new SIMPLTranslationException("exception occurred in deserialzation ", ex);
-			toThrow.setObjectRemnant(result);
+			toThrow.setRemnantObject(result);
 			throw toThrow;
 		}
 	}
@@ -132,7 +132,7 @@ public class XMLPullDeserializer extends StringPullDeserializer
 		catch (Exception ex)
 		{
 			SIMPLTranslationException ste = new SIMPLTranslationException("exception occurred in deserialzation ", ex);
-			ste.setObjectRemnant(result);
+			ste.setRemnantObject(result);
 			throw ste;
 		}
 	}

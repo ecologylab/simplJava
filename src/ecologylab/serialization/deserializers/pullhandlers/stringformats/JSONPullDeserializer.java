@@ -12,9 +12,11 @@ import org.codehaus.jackson.JsonParseException;
 import org.codehaus.jackson.JsonParser;
 import org.codehaus.jackson.JsonToken;
 
+
 import ecologylab.serialization.ClassDescriptor;
 import ecologylab.serialization.DeserializationHookStrategy;
 import ecologylab.serialization.FieldDescriptor;
+import ecologylab.serialization.FieldType;
 import ecologylab.serialization.SIMPLTranslationException;
 import ecologylab.serialization.SimplTypesScope;
 import ecologylab.serialization.TranslationContext;
@@ -207,14 +209,14 @@ public class JSONPullDeserializer extends StringPullDeserializer
 			  FieldDescriptor oldCurrentFieldDescritpr = currentFieldDescriptor;
 			  byte path = 0;
 			  String fieldTag = null;
-				if (currentFieldDescriptor != null && currentFieldDescriptor.getType() == IGNORED_ELEMENT)
+				if (currentFieldDescriptor != null && currentFieldDescriptor.getType() == FieldType.IGNORED_ELEMENT)
 				{
 				  path = 1;
 				  currentFieldDescriptor = FieldDescriptor.IGNORED_ELEMENT_FIELD_DESCRIPTOR;
 				}
 				else
 				{
-				  if (currentFieldDescriptor != null && currentFieldDescriptor.getType() == WRAPPER)
+				  if (currentFieldDescriptor != null && currentFieldDescriptor.getType() == FieldType.WRAPPER)
 				  {
 				    path = 2;
 				    currentFieldDescriptor = currentFieldDescriptor.getWrappedFD();
@@ -227,7 +229,7 @@ public class JSONPullDeserializer extends StringPullDeserializer
 				  }
 				}
 				
-				int fieldType = currentFieldDescriptor.getType();
+				FieldType fieldType = currentFieldDescriptor.getType();
 				
 				String message = debugContext.toString() + "processing field " + currentFieldDescriptor.getName();
         debug(message);
@@ -361,7 +363,7 @@ public class JSONPullDeserializer extends StringPullDeserializer
 		deserializationPostHook(root, translationContext);
 		if (deserializationHookStrategy != null)
 			deserializationHookStrategy.deserializationPostHook(root, 
-					currentFieldDescriptor == null || currentFieldDescriptor.getType() == IGNORED_ELEMENT
+					currentFieldDescriptor == null || currentFieldDescriptor.getType() == FieldType.IGNORED_ELEMENT
 					? null : currentFieldDescriptor);
 		
 		int debugContextLen = debugContext.length();
