@@ -58,6 +58,7 @@ import ecologylab.serialization.types.FundamentalTypes;
 import ecologylab.serialization.types.ScalarType;
 import ecologylab.serialization.types.TypeRegistry;
 import ecologylab.serialization.types.element.IMappable;
+import ecologylab.serialization.types.scalar.EnumeratedType;
 
 /**
  * Used to provide convenient access for setting and getting values, using the
@@ -227,8 +228,6 @@ public class FieldDescriptor extends DescriptorBase implements IMappable<String>
 	private ArrayList<ClassDescriptor> dependencies	= new ArrayList<ClassDescriptor>();
 	
 	@simpl_collection("excluded_usage")
-  private ArrayList<String>                         excludedUsagesForDeSerialization;
-	
 	private ArrayList<FieldUsage> excludedUsages;
 
 	/**
@@ -310,11 +309,6 @@ public class FieldDescriptor extends DescriptorBase implements IMappable<String>
 			{
 				this.excludedUsages.add(usage);
 			}
-			this.excludedUsagesForDeSerialization = new ArrayList<String>();
-	    for (FieldUsage usage : this.excludedUsages)
-	    {
-	      this.excludedUsagesForDeSerialization.add(usage.name());
-	    }
 		}
 		// this.name = (field != null) ? field.getName() : "NULL";
 
@@ -1334,10 +1328,9 @@ public class FieldDescriptor extends DescriptorBase implements IMappable<String>
 	public String toString()
 	{
 		String name = (field != null) ? field.getName() : "NO_FIELD";
-		// clazz and typeStr can be null when a FieldDescriptor is newly created.
-		String clazz = declaringClassDescriptor == null ? "NO_CLASS" : declaringClassDescriptor.getDescribedClass().toString();
-		String typeStr = type == null ? "NO_TYPE" : Integer.toHexString(type.getTypeID());
-		return this.getClassSimpleName() + "[" + name + " < " + clazz + " type=0x" + typeStr + "]";
+		return this.getClassSimpleName() + "[" + name + " < "
+				+ declaringClassDescriptor.getDescribedClass() + " type=0x" + Integer.toHexString(type.getTypeID())
+				+ "]";
 	}
 
 	/**
@@ -2400,33 +2393,13 @@ public class FieldDescriptor extends DescriptorBase implements IMappable<String>
 	}
 	
 	
-	ArrayList<FieldUsage> getExcludedUsages()
+	public ArrayList<FieldUsage> getExcludedUsages()
 	{
-    if (excludedUsages != null)
-    {
-      return excludedUsages;
-    }
-    
-    if (excludedUsagesForDeSerialization != null)
-    {
-      synchronized (excludedUsagesForDeSerialization)
-      {
-        if (excludedUsagesForDeSerialization != null)
-        {
-          excludedUsages = new ArrayList<FieldUsage>();
-          for (String exUsage : excludedUsagesForDeSerialization)
-          {
-            excludedUsages.add(FieldUsage.valueOf(exUsage));
-          }
-        }
-      }
-    }
-    return excludedUsages;
+		return excludedUsages;
 	}
 	
 	public boolean isUsageExcluded(FieldUsage usage)
 	{
-	  ArrayList<FieldUsage> excludedUsages = getExcludedUsages();
 		return excludedUsages != null && excludedUsages.contains(usage);
 	}
 
