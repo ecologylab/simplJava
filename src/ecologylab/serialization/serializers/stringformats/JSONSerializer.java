@@ -130,9 +130,6 @@ public class JSONSerializer extends StringSerializer implements FieldTypes
 		
 		for (FieldDescriptor childFd : fieldDescriptorList)
 		{
-			if (childFd.isUsageExcluded(FieldUsage.SERIALIZATION_IN_STREAM))
-				continue;
-
 			if (isSerializable(childFd, object))
 			{				
 				if (numOfFields++ > 0)

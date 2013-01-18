@@ -89,9 +89,6 @@ public class BibtexSerializer extends StringSerializer implements FieldTypes
 
 		for (FieldDescriptor childFd : allFieldDescriptors)
 		{
-			if (childFd.isUsageExcluded(FieldUsage.SERIALIZATION_IN_STREAM))
-				continue;
-
 			switch (childFd.getType())
 			{
 			case SCALAR:

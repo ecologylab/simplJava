@@ -29,12 +29,10 @@ import ecologylab.generic.StringBuilderBaseUtils;
 import ecologylab.generic.StringTools;
 import ecologylab.platformspecifics.FundamentalPlatformSpecifics;
 import ecologylab.serialization.MetaInformation.Argument;
-import ecologylab.serialization.annotations.FieldUsage;
 import ecologylab.serialization.annotations.Hint;
 import ecologylab.serialization.annotations.simpl_classes;
 import ecologylab.serialization.annotations.simpl_collection;
 import ecologylab.serialization.annotations.simpl_composite;
-import ecologylab.serialization.annotations.simpl_exclude_usage;
 import ecologylab.serialization.annotations.simpl_filter;
 import ecologylab.serialization.annotations.simpl_hints;
 import ecologylab.serialization.annotations.simpl_inherit;
@@ -58,7 +56,6 @@ import ecologylab.serialization.types.FundamentalTypes;
 import ecologylab.serialization.types.ScalarType;
 import ecologylab.serialization.types.TypeRegistry;
 import ecologylab.serialization.types.element.IMappable;
-import ecologylab.serialization.types.scalar.EnumeratedType;
 
 /**
  * Used to provide convenient access for setting and getting values, using the
@@ -227,9 +224,6 @@ public class FieldDescriptor extends DescriptorBase implements IMappable<String>
 
 	private ArrayList<ClassDescriptor> dependencies	= new ArrayList<ClassDescriptor>();
 	
-	@simpl_collection("excluded_usage")
-	private ArrayList<FieldUsage> excludedUsages;
-
 	/**
 	 * if is null, this field is not a cloned one. <br />
 	 * if not null, refers to the descriptor that this field is cloned from.
@@ -302,14 +296,6 @@ public class FieldDescriptor extends DescriptorBase implements IMappable<String>
 			this.mapKeyFieldName = field.getAnnotation(simpl_map_key_field.class).value();
 		}
 		
-		if (field.isAnnotationPresent(simpl_exclude_usage.class))
-		{
-			this.excludedUsages = new ArrayList<FieldUsage>();
-			for (FieldUsage usage : field.getAnnotation(simpl_exclude_usage.class).value())
-			{
-				this.excludedUsages.add(usage);
-			}
-		}
 		// this.name = (field != null) ? field.getName() : "NULL";
 
 		derivePolymorphicDescriptors(field);
@@ -1328,9 +1314,9 @@ public class FieldDescriptor extends DescriptorBase implements IMappable<String>
 	public String toString()
 	{
 		String name = (field != null) ? field.getName() : "NO_FIELD";
-		return this.getClassSimpleName() + "[" + name + " < "
-				+ declaringClassDescriptor.getDescribedClass() + " type=0x" + Integer.toHexString(type.getTypeID())
-				+ "]";
+		String clazz = declaringClassDescriptor == null ? "NO_CLASS" : declaringClassDescriptor.getDescribedClass().toString();
+		String typeStr = type == null ? "NO_TYPE" : Integer.toHexString(type.getTypeID());
+		return this.getClassSimpleName() + "[" + name + " < " + clazz + " type=0x" + typeStr + "]";
 	}
 
 	/**
@@ -2392,17 +2378,6 @@ public class FieldDescriptor extends DescriptorBase implements IMappable<String>
 		return this.fieldTypeSimpleName;
 	}
 	
-	
-	public ArrayList<FieldUsage> getExcludedUsages()
-	{
-		return excludedUsages;
-	}
-	
-	public boolean isUsageExcluded(FieldUsage usage)
-	{
-		return excludedUsages != null && excludedUsages.contains(usage);
-	}
-
 	public FieldDescriptor getWrapper()
 	{
 		return wrapper;

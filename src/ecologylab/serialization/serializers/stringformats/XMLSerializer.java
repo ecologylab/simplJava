@@ -133,9 +133,6 @@ public class XMLSerializer extends StringSerializer implements FieldTypes
 
 		for (FieldDescriptor childFd : attributeFieldDescriptors)
 		{
-			if (childFd.isUsageExcluded(FieldUsage.SERIALIZATION_IN_STREAM))
-				continue;
-			
 			try
 			{
 				writeValueAsAtrribute(object, childFd, appendable, translationContext);
@@ -177,9 +174,6 @@ public class XMLSerializer extends StringSerializer implements FieldTypes
 	{
 		for (FieldDescriptor childFd : elementFieldDescriptors)
 		{
-			if (childFd.isUsageExcluded(FieldUsage.SERIALIZATION_IN_STREAM))
-				continue;
-			
 			switch (childFd.getType())
 			{
 			case SCALAR:
