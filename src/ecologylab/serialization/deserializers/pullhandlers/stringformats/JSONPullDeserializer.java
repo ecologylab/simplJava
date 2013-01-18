@@ -279,13 +279,13 @@ public class JSONPullDeserializer extends StringPullDeserializer
 					}
 					else
 					{
-						while (jp.nextToken() != JsonToken.END_ARRAY)
-						{
-							subRoot = getSubRoot(currentFieldDescriptor, jp.getCurrentName());
-							Collection collection = (Collection) currentFieldDescriptor
-									.automaticLazyGetCollectionOrMap(root);
-							collection.add(subRoot);
-						}
+							while (jp.nextToken() != JsonToken.END_ARRAY)
+							{
+								subRoot = getSubRoot(currentFieldDescriptor, jp.getCurrentName());
+								Collection collection = (Collection) currentFieldDescriptor
+										.automaticLazyGetCollectionOrMap(root);
+								collection.add(subRoot);
+							}
 					}
 					break;
 				case MAP_ELEMENT:

@@ -647,7 +647,7 @@ public class ClassDescriptor<FD extends FieldDescriptor> extends DescriptorBase
 				// THIS WILL NOT BE A PERMANENT SOLUTION.
 				if (XMLTools.isEnumCollection(thatField)) {
 					// Enums are scalars at the moment.
-					fieldType = FieldType.COLLECTION_SCALAR;
+					fieldType = FieldType.COLLECTION_ELEMENT;
 				} else {
 					fieldType = FieldType.COLLECTION_ELEMENT;
 				}
@@ -740,8 +740,7 @@ public class ClassDescriptor<FD extends FieldDescriptor> extends DescriptorBase
 				
 				if(tag == null) 
 				{
-		
-						throw new RuntimeException("Tag should never be null! Fix it!");
+					throw new RuntimeException("Tag should never be null! Fix it!");
 				}
 
 				mapTagToFdForDeserialize(tag, fieldDescriptor);

@@ -332,12 +332,9 @@ public class XMLSerializer extends StringSerializer implements FieldTypes
 	private void writeScalarCollectionLeaf(Object object, FieldDescriptor fd, Appendable appendable,
 			TranslationContext translationContext) throws SIMPLTranslationException, IOException
 	{
-		if (!fd.isDefaultValue(object.toString()))
-		{
-			appendable.append('<').append(fd.elementStart()).append('>');
-			fd.appendCollectionScalarValue(appendable, object, translationContext, Format.XML);
-			appendable.append('<').append('/').append(fd.elementStart()).append('>');
-		}
+		appendable.append('<').append(fd.elementStart()).append('>');
+		fd.appendCollectionScalarValue(appendable, object, translationContext, Format.XML);
+		appendable.append('<').append('/').append(fd.elementStart()).append('>');
 	}
 
 	/**
