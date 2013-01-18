@@ -1,5 +1,7 @@
 package ecologylab.serialization;
 
+import ecologylab.serialization.annotations.simpl_scalar;
+
 public enum FieldType {
 
 	UNSET_TYPE(-999),
@@ -29,6 +31,7 @@ public enum FieldType {
 	NAME_SPACE_SCALAR(NAME_SPACE_MASK.getTypeID() + SCALAR.getTypeID()),
 	NAME_SPACE_NESTED_ELEMENT(NAME_SPACE_MASK.getTypeID()+ COMPOSITE_ELEMENT.getTypeID());	
 
+	@simpl_scalar
 	private final int typeID;
 
 	/**

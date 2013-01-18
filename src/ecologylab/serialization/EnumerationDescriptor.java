@@ -130,7 +130,7 @@ public class EnumerationDescriptor extends DescriptorBase implements ISimplStrin
 						}
 						else
 						{
-							throw new SIMPLDescriptionException("The single field of an enumeration type should be annotated with the simpl_scalar type.");
+							throw new SIMPLDescriptionException("Error on: " + describedEnum.getName() + " The single field of an enumeration type should be annotated with the simpl_scalar type.");
 						}
 					}
 				}

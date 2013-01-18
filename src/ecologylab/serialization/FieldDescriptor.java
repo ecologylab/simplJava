@@ -1033,7 +1033,15 @@ public class FieldDescriptor extends DescriptorBase implements IMappable<String>
 		}
 		catch (IllegalAccessException e)
 		{
-			e.printStackTrace();
+			try
+			{
+				field.setAccessible(true);
+				field.set(context, value);
+			}
+			catch(Exception ee)
+			{
+				ee.printStackTrace();
+			}
 		}
 	}
 
@@ -1438,36 +1446,53 @@ public class FieldDescriptor extends DescriptorBase implements IMappable<String>
 			value = XMLTools.unescapeXML(value);
 		}
 		
-		if (setValueMethod != null)
+		if(this.isEnum)
 		{
-			// if the method is found, invoke the method
-			// fill the String value with the value of the attr node
-			// args is the array of objects containing arguments to the method to be invoked
-			// in our case, methods have only one arg: the value String
-			Object[] args = new Object[1];
-			args[0] = value;
-			try
-			{
-				setValueMethod.invoke(context, args); // run set method!
+			try{
+				Object unmarshalledEnum = this.getEnumerationDescriptor().unmarshal(value);
+				this.setField(context, unmarshalledEnum);
 			}
-			catch (InvocationTargetException e)
+			catch(Exception e)
 			{
-				weird("couldnt run set method for " + tagName + " even though we found it");
-				e.printStackTrace();
+				// We need better error handling here, obvi. but this should bubble up an exception 
+				// to current error handling code. 
+				throw new RuntimeException(e);
 			}
-			catch (IllegalAccessException e)
-			{
-				weird("couldnt run set method for " + tagName + " even though we found it");
-				e.printStackTrace();
-			}
-			catch (IllegalArgumentException e)
-			{
-				e.printStackTrace();
-			}
+		
 		}
-		else if (scalarType != null && !scalarType.isMarshallOnly())
+		else
 		{
-			scalarType.setField(context, field, value, format, scalarUnmarshallingContext);
+			if (setValueMethod != null)
+			{
+				// if the method is found, invoke the method
+				// fill the String value with the value of the attr node
+				// args is the array of objects containing arguments to the method to be invoked
+				// in our case, methods have only one arg: the value String
+				Object[] args = new Object[1];
+				args[0] = value;
+				try
+				{
+					setValueMethod.invoke(context, args); // run set method!
+				}
+				catch (InvocationTargetException e)
+				{
+					weird("couldnt run set method for " + tagName + " even though we found it");
+					e.printStackTrace();
+				}
+				catch (IllegalAccessException e)
+				{
+					weird("couldnt run set method for " + tagName + " even though we found it");
+					e.printStackTrace();
+				}
+				catch (IllegalArgumentException e)
+				{
+					e.printStackTrace();
+				}
+			}
+			else if (scalarType != null && !scalarType.isMarshallOnly())
+			{
+				scalarType.setField(context, field, value, format, scalarUnmarshallingContext);
+			}
 		}
 	}
 
