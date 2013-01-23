@@ -147,10 +147,20 @@ public class JSONPullDeserializer extends StringPullDeserializer
 		Object root = null;
 
 		// find the classdescriptor for the root element.
-		ClassDescriptor rootClassDescriptor = translationScope.getClassDescriptorByTag(jp
+		ClassDescriptor<?> rootClassDescriptor = translationScope.getClassDescriptorByTag(jp
 				.getCurrentName());
 
 		root = rootClassDescriptor.getInstance();
+		
+		// Logic to set all field descritpro scalars to defaults. 
+		for(FieldDescriptor fd : rootClassDescriptor.allFieldDescriptors())
+		{
+			if(fd.isScalar() && (fd.isEnum() == false))
+			{
+				fd.setFieldToScalarDefault(root, translationContext);
+			}
+		}
+
 		// root.setupRoot();
 		
 		deserializationPreHook(root, translationContext);
@@ -400,10 +410,20 @@ public class JSONPullDeserializer extends StringPullDeserializer
 			}
 			else
 			{
-				ClassDescriptor subRootClassDescriptor = currentFieldDescriptor
+				ClassDescriptor<?> subRootClassDescriptor = currentFieldDescriptor
 						.getChildClassDescriptor(tagName);
 
 				subRoot = subRootClassDescriptor.getInstance();
+				
+				// Logic to set all field descritpro scalars to defaults. 
+				for(FieldDescriptor fd : subRootClassDescriptor.allFieldDescriptors())
+				{
+					if(fd.isScalar() && (fd.isEnum() == false))
+					{
+						fd.setFieldToScalarDefault(subRoot, translationContext);
+					}
+				}
+
 				
 				deserializationPreHook(subRoot, translationContext);
 				if (deserializationHookStrategy != null)

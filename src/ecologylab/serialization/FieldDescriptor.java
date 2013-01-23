@@ -1030,6 +1030,22 @@ public class FieldDescriptor extends DescriptorBase implements IMappable<String>
 			}
 		}
 	}
+	
+
+	public void setFieldToScalarDefault(Object context, ScalarUnmarshallingContext scalarContext)
+	{
+		if(this.isScalar() && this.isEnum() == false)
+		{
+			if(this.scalarType == null)
+			{
+				throw new RuntimeException("isScalar() evaluated to true, but scalarType is null!");
+			}
+			
+			this.setFieldToScalar(context, this.scalarType.defaultValueString(), scalarContext);
+		}else{
+			warning("setFieldToScalarDefault called on non-scalar field");
+		}
+	}
 
 	/**
 	 * Get the String representation of the value of the field, in the context object, using the
@@ -2129,6 +2145,7 @@ public class FieldDescriptor extends DescriptorBase implements IMappable<String>
 		}
 	}
 
+	
 	@Override
 	public String getCSharpNamespace()
 	{

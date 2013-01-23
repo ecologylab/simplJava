@@ -22,7 +22,7 @@ import ecologylab.serialization.types.ScalarType;
 @simpl_inherit
 public class IntType extends ScalarType<Integer> implements CrossLanguageTypeConstants
 {
-	public static final int			DEFAULT_VALUE					= 0;
+	public static final int			DEFAULT_VALUE					= new Integer(0);
 
 	public static final String	DEFAULT_VALUE_STRING	= "0";
 

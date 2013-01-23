@@ -204,6 +204,16 @@ public class XMLPullDeserializer extends StringPullDeserializer
 		}
 
 		root = rootClassDescriptor.getInstance();
+		
+		// Logic to set all field descritpro scalars to defaults. 
+		for(FieldDescriptor fd : rootClassDescriptor.allFieldDescriptors())
+		{
+			if(fd.isScalar() && (fd.isEnum() == false))
+			{
+				fd.setFieldToScalarDefault(root, translationContext);
+			}
+		}
+
 
 		deserializationPreHook(root, translationContext);
 		if (deserializationHookStrategy != null)
@@ -245,6 +255,7 @@ public class XMLPullDeserializer extends StringPullDeserializer
 			int event = 0;
 			event = nextEvent();
 
+			
 			FieldDescriptor currentFieldDescriptor = null; // new FieldDescriptor();
 
 			String xmlText = "";
@@ -278,33 +289,45 @@ public class XMLPullDeserializer extends StringPullDeserializer
 					currentFieldDescriptor = FieldDescriptor.makeIgnoredFieldDescriptor(tag);
 				}
 
+				
 					FieldType fieldType = currentFieldDescriptor.getType();
 
 				switch (fieldType)
 				{
-				case SCALAR:
-					event = deserializeScalar(root, currentFieldDescriptor);
-					break;
-				case COLLECTION_SCALAR:
-					event = deserializeScalarCollection(root, currentFieldDescriptor);
-					break;
-				case COMPOSITE_ELEMENT:
-					event = deserializeComposite(root, currentFieldDescriptor);
-					break;
-				case COLLECTION_ELEMENT:
-					event = deserializeCompositeCollection(root, currentFieldDescriptor);
-					break;
-				case MAP_ELEMENT:
-					event = deserializeCompositeMap(root, currentFieldDescriptor);
-					break;
-				case WRAPPER:
-					event = nextEvent();
-					break;
-				case IGNORED_ELEMENT:
-					event = ignoreTag(tag);
-					break;
-				default:
-					event = nextEvent();
+					case SCALAR:
+						
+						// If we don't find a field declaration in the serialized representation for a scalar field...
+						// We'll never end up changing its value. So instead, let's automatically set every scalar value to its corresponding default value first. 
+						event = deserializeScalar(root, currentFieldDescriptor);
+						break;
+						
+					case COLLECTION_SCALAR:
+						event = deserializeScalarCollection(root, currentFieldDescriptor);
+						break;
+					
+					case COMPOSITE_ELEMENT:
+						event = deserializeComposite(root, currentFieldDescriptor);
+						break;
+					
+					case COLLECTION_ELEMENT:
+						event = deserializeCompositeCollection(root, currentFieldDescriptor);
+						break;
+					
+					case MAP_ELEMENT:
+						event = deserializeCompositeMap(root, currentFieldDescriptor);
+						break;
+					
+					case WRAPPER:
+						event = nextEvent();
+						break;
+					
+					case IGNORED_ELEMENT:
+						event = ignoreTag(tag);
+						break;
+					
+					default:
+						event = nextEvent();
+					
 				}
 
 				if (event == XMLParser.END_DOCUMENT)
@@ -467,6 +490,8 @@ public class XMLPullDeserializer extends StringPullDeserializer
 				}
 
 				subRoot = getSubRoot(fd, tagName, root);
+				
+				
 				Collection collection = (Collection) fd.automaticLazyGetCollectionOrMap(root);
 				collection.add(subRoot);
 
@@ -552,6 +577,15 @@ public class XMLPullDeserializer extends StringPullDeserializer
 		else
 		{
 			subRoot = subRootClassDescriptor.getInstance();
+			
+			// Logic to set all field descritpro scalars to defaults. 
+			for(FieldDescriptor fd : subRootClassDescriptor.allFieldDescriptors())
+			{
+				if(fd.isScalar() && (fd.isEnum() == false))
+				{
+					fd.setFieldToScalarDefault(subRoot, translationContext);
+				}
+			}
 
 			deserializationPreHook(subRoot, translationContext);
 			if (deserializationHookStrategy != null)
