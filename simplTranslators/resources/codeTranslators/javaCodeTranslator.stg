@@ -1,0 +1,55 @@
+delimiters "$", "$"
+
+name(x) ::= "$x.name$"
+
+elementType(fd) ::= "$fd.genericTypeVars; separator=\",\"$"
+
+listMethods(fd) ::= <<
+
+
+  // lazy evaluation:
+  public List<$elementType(fd)$> $fd.name$()
+  {
+    if ($fd.name$ == null)
+      $fd.name$ = new ArrayList<$elementType(fd)$>();
+    return $fd.name$;
+  }
+  
+  // addTo:
+  public void addTo$fd.name;format="capFirst"$($elementType(fd)$ element)
+  {
+    $fd.name$().add(element);
+  }
+  
+  // size:
+  public int $fd.name$Size()
+  {
+    return $fd.name$ == null ? 0 : $fd.name$.size();
+  }
+
+>>
+
+mapMethods(fd) ::= <<
+
+
+// lazy evaluation:
+public Map<$keyType$, $valueType$> $name$()
+{
+  if ($name$ == null)
+    $name$ = new HashMap<$keyType$, $valueType$>();
+  return $name$;
+}
+
+// putTo:
+public void putTo$name;format="capFirst"$($keyType$ key, $valueType$ value)
+{
+  $name$().put(key, value);
+}
+
+// size:
+public int $name$Size()
+{
+  return $name$ == null ? 0 : $name$.size();
+}
+
+>>

@@ -1,0 +1,7 @@
+<meta_metadata_repository name="primitives" package="ecologylab.semantics.generated.library" default_user_agent_name="firefox_3_5">
+
+	<meta_metadata name="foo" extends="metadata">
+		<scalar name="a" scalar_type="String" />
+	</meta_metadata>
+	
+</meta_metadata_repository>
