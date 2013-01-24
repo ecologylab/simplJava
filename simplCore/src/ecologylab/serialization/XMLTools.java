@@ -92,7 +92,7 @@ public class XMLTools extends Debug implements CharacterConstants, SpecialCharac
 			entityTable.put(SPECIAL_SPELLINGS[i], Character.toString((char) (i + 160)));
 
 		entityTable.put("#x00bb", Character.toString((char) 187)); // a hack for weird hex references to
-		// &raquo; � &#187; � right-pointing
+		// &raquo; ��� &#187; ��� right-pointing
 		// double angle quotation mark =
 		// right pointing guillemet
 
@@ -119,13 +119,13 @@ public class XMLTools extends Debug implements CharacterConstants, SpecialCharac
 		// &#8217; is really ' (ascii 39)
 
 		putEntityInTable("#8217", '\'');
-		// &#8220; is really � = &#147;
-	  putEntityInTable("#8220", '�');//If this line will not compile for you, set the encoding to UTF8
-		// &#8221; is really � = &#148;
-		putEntityInTable("#8221", '�');
-		// &#8212; is really � = &#151; -- em dash
-		putEntityInTable("#8212", '�');
-		putEntityInTable("#151", '�');
+		// &#8220; is really ��� = &#147;
+	//  putEntityInTable("#8220", '���');//If this line will not compile for you, set the encoding to UTF8
+		// &#8221; is really ��� = &#148;
+		//putEntityInTable("#8221", '���');
+		// &#8212; is really ��� = &#151; -- em dash
+		//putEntityInTable("#8212", '���');
+		//putEntityInTable("#151", '���');
 		putEntityInTable("#xa0", ' ');
 		putEntityInTable("#x2019", '\'');
 		putEntityInTable("#x2013", '-');
