@@ -7,7 +7,7 @@ import java.util.ArrayList;
 import javax.swing.Timer;
 
 import ecologylab.collections.Scope;
-import ecologylab.oodss.logging.MixedInitiativeOp;
+import ecologylab.logging.MixedInitiativeOp;
 import ecologylab.serialization.ElementState;
 import ecologylab.serialization.annotations.simpl_collection;
 import ecologylab.serialization.annotations.simpl_inherit;

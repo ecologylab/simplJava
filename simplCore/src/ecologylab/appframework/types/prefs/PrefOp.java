@@ -3,7 +3,7 @@
  */
 package ecologylab.appframework.types.prefs;
 
-import ecologylab.oodss.logging.MixedInitiativeOp;
+import ecologylab.logging.MixedInitiativeOp;
 import ecologylab.serialization.annotations.simpl_inherit;
 
 /**

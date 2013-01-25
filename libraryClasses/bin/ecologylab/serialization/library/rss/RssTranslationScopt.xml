@@ -1,0 +1,37 @@
+<translation_scope name="rss">
+	<class_descriptor described_class="ecologylab.tutorials.rss.Item"
+		tag_name="item">
+		<field_descriptor field="title" tag_name="title"
+			type="2" scalar_type="StringType" needs_escaping="true"></field_descriptor>
+		<field_descriptor field="description" tag_name="description"
+			type="2" scalar_type="StringType" needs_escaping="true"></field_descriptor>
+		<field_descriptor field="link" tag_name="link" type="2"
+			scalar_type="ParsedURLType" needs_escaping="true"></field_descriptor>
+		<field_descriptor field="guid" tag_name="guid" type="2"
+			scalar_type="ParsedURLType" needs_escaping="true"></field_descriptor>
+		<field_descriptor field="author" tag_name="author"
+			type="2" scalar_type="StringType" needs_escaping="true"></field_descriptor>
+		<field_descriptor field="categorySet" tag_name="category_set"
+			type="5" scalar_type="StringType" needs_escaping="true"
+			collection_or_map_tag_name="category"></field_descriptor>
+	</class_descriptor>
+	<class_descriptor described_class="ecologylab.tutorials.rss.RssState"
+		tag_name="rss">
+		<field_descriptor field="version" tag_name="version"
+			type="1" scalar_type="FloatType"></field_descriptor>
+		<field_descriptor field="channel" tag_name="channel"
+			type="3" element_class="ecologylab.tutorials.rss.Channel"></field_descriptor>
+	</class_descriptor>
+	<class_descriptor described_class="ecologylab.tutorials.rss.Channel"
+		tag_name="channel">
+		<field_descriptor field="title" tag_name="title"
+			type="2" scalar_type="StringType" needs_escaping="true"></field_descriptor>
+		<field_descriptor field="description" tag_name="description"
+			type="2" scalar_type="StringType" needs_escaping="true"></field_descriptor>
+		<field_descriptor field="link" tag_name="link" type="2"
+			scalar_type="ParsedURLType" needs_escaping="true"></field_descriptor>
+		<field_descriptor field="items" tag_name="items"
+			type="4" collection_or_map_tag_name="item" wrapped="true"
+			element_class="ecologylab.tutorials.rss.Item"></field_descriptor>
+	</class_descriptor>
+</translation_scope>
