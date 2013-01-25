@@ -45,11 +45,6 @@ import ecologylab.serialization.annotations.simpl_scope;
 import ecologylab.serialization.annotations.simpl_tag;
 import ecologylab.serialization.annotations.simpl_wrap;
 import ecologylab.serialization.formatenums.Format;
-import ecologylab.serialization.library.html.A;
-import ecologylab.serialization.library.html.Div;
-import ecologylab.serialization.library.html.Input;
-import ecologylab.serialization.library.html.Td;
-import ecologylab.serialization.library.html.Tr;
 import ecologylab.serialization.simplstringformats.FormatRegistry;
 import ecologylab.serialization.types.CollectionType;
 import ecologylab.serialization.types.FundamentalTypes;
@@ -1186,109 +1181,7 @@ public class FieldDescriptor extends DescriptorBase implements IMappable<String>
 		}
 	}
 
-	/**
-	 * Appends the label and value of a metadata field to HTML elements, including anchors where
-	 * appropriate
-	 * 
-	 * @param context
-	 * @param serializationContext
-	 * @param tr
-	 * @param labelString
-	 * @param labelCssClass
-	 * @param valueCssClass
-	 * @param navigatesFD
-	 * @param schemaOrgItemProp
-	 * 
-	 * @throws IllegalArgumentException
-	 * @throws IllegalAccessException
-	 * @throws IOException
-	 */
-	public void appendHtmlValueAsAttribute(Object context, TranslationContext serializationContext,
-			Tr tr, String labelString, String labelCssClass, String valueCssClass,
-			FieldDescriptor navigatesFD, String schemaOrgItemProp) throws IllegalArgumentException,
-			IllegalAccessException, IOException
-	{
-		if (!scalarType.isDefaultValue(field, context))
-		{
-			Td labelTd = new Td();
-			Td valueTd = new Td();
-			Div valueDiv = new Div();
-			Div labelDiv = new Div();
-			A labelAnchor = new A();
-			A valueAnchor = new A();
-
-			if (valueCssClass != null) // does this cause problems? if so, is it because mmd is wrong?
-			{
-				// andruid & aaron 7/8/11
-				valueDiv.setCssClass(valueCssClass);
-			}
-			
-			if (schemaOrgItemProp != null)
-			{
-				valueDiv.setSchemaOrgItemProp(schemaOrgItemProp);
-			}
-			
-			labelTd.setAlign("right");
-			labelTd.setCssClass(labelCssClass);
-
-			ScalarType navigatesScalarType = null;
-			if (navigatesFD != null)
-			{
-				StringBuilder navigatesToBuffy = new StringBuilder();
-				navigatesScalarType = navigatesFD.getScalarType();
-				navigatesScalarType.appendValue(navigatesToBuffy, navigatesFD, context,
-						serializationContext, Format.XML);
-				labelAnchor.setHref(navigatesToBuffy.toString());
-				labelAnchor.setLink(labelString);
-				labelDiv.members.add(labelAnchor);
-			}
-			else
-			{
-				labelDiv.setText(labelString);
-			}
-
-			labelTd.items.add(labelDiv);
-			tr.cells.add(labelTd);
-
-			StringBuilder valueBuffy = new StringBuilder();
-			scalarType.appendValue(valueBuffy, this, context, serializationContext, Format.XML);
-
-			if (navigatesFD != null)
-			{
-				StringBuilder buffy = new StringBuilder();
-				navigatesScalarType.appendValue(buffy, navigatesFD, context, serializationContext,
-						Format.XML);
-				valueAnchor.setHref(buffy.toString());
-				valueAnchor.setLink(valueBuffy.toString());
-				valueDiv.members.add(valueAnchor);
-			}
-			else
-			{
-				valueDiv.setText(valueBuffy.toString());
-			}
-
-			valueTd.items.add(valueDiv);
-			tr.cells.add(valueTd);
-		}
-	}
-
-	public String getHtmlCompositeCollectionValue(Object instance, boolean isFirst)
-			throws IllegalArgumentException, IllegalAccessException, IOException
-	{
-		StringBuilder value = new StringBuilder();
-
-		if (instance != null)
-		{
-			if (!isFirst)
-			{
-				value.append(", ");
-			}
-			scalarType.appendValue(value, this, instance, null, Format.XML);
-		}
-
-		return value.toString();
-	}
-
+	
 	void appendJSONCollectionAttribute(Appendable appendable, Object instance, boolean isFirst)
 			throws IllegalArgumentException, IllegalAccessException, IOException
 	{
@@ -1367,55 +1260,8 @@ public class FieldDescriptor extends DescriptorBase implements IMappable<String>
 		}
 	}
 
-	public void writeHtmlWrap(boolean close, int size, String displayLabel, Tr tr) throws IOException
-	{
-		Input button = new Input();
-
-		button.setType("image");
-		button.setCssClass("general");
-		button.setSrc("http://ecologylab.net/cf/compositionIncludes/button.jpg");
-		button.setValue("");
-
-		// Td td = new Td();
-		Td fieldName = new Td();
-		Div text = new Div();
-
-		text.setCssClass("metadata_text");
-		fieldName.setCssClass("metadata_field_name");
-		// td.setCssClass("nested_field_value");
-
-		// if (size > 1)
-		text.members.add(button);
-		String s = displayLabel;
-		if (size > 1)
-		{
-			s += " (" + Integer.toString(size) + ")";
-		}
-
-		text.setText(s);
-
-		fieldName.items.add(text);
-		tr.cells.add(fieldName);
-	}
-
-	public void writeCompositeHtmlWrap(boolean close, String displayLabel, String schemaItemType,
-			Tr tr) throws IOException
-	{
-		// Td td = new Td();
-		Td fieldName = new Td();
-		Div text = new Div();
-		if (schemaItemType != null)
-		{
-			text.setSchemaOrgItemType(schemaItemType);
-		}
-		text.setCssClass("metadata_text");
-		fieldName.setCssClass("metadata_field_name");
-		// td.setCssClass("nested_field_value");
-
-		text.setText(displayLabel);
-		fieldName.items.add(text);
-		tr.cells.add(fieldName);
-	}
+	
+	
 
 	// ----------------------------- methods from TagDescriptor
 	// ---------------------------------------//
