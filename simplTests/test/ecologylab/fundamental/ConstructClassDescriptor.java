@@ -32,27 +32,8 @@ import ecologylab.serialization.FieldDescriptor;
 import ecologylab.serialization.SIMPLTranslationException;
 import ecologylab.serialization.SimplTypesScope;
 import ecologylab.serialization.formatenums.StringFormat;
-import ecologylab.serialization.types.scalar.BooleanType;
-import ecologylab.serialization.types.scalar.ByteType;
-import ecologylab.serialization.types.scalar.CharType;
-import ecologylab.serialization.types.scalar.DateType;
-import ecologylab.serialization.types.scalar.DoubleType;
 import ecologylab.serialization.FieldType;
-import ecologylab.serialization.types.scalar.FloatType;
-import ecologylab.serialization.types.scalar.IntType;
-import ecologylab.serialization.types.scalar.LongType;
-import ecologylab.serialization.types.scalar.ParsedURLType;
-import ecologylab.serialization.types.scalar.PatternType;
-import ecologylab.serialization.types.scalar.ReferenceBooleanType;
-import ecologylab.serialization.types.scalar.ReferenceDoubleType;
-import ecologylab.serialization.types.scalar.ReferenceFloatType;
-import ecologylab.serialization.types.scalar.ReferenceIntegerType;
-import ecologylab.serialization.types.scalar.ReferenceLongType;
-import ecologylab.serialization.types.scalar.ShortType;
-import ecologylab.serialization.types.scalar.StringBuilderType;
-import ecologylab.serialization.types.scalar.StringType;
-import ecologylab.serialization.types.scalar.URLType;
-import ecologylab.serialization.types.scalar.UUIDType;
+import ecologylab.serialization.types.scalar.*;
 
 public class ConstructClassDescriptor {
 
@@ -88,12 +69,12 @@ public class ConstructClassDescriptor {
 
 	@Test
 	public void forSimpleByte() {
-		testSimpleScalar(SimpleByte.class, ByteType.class);
+		testSimpleScalar(SimpleByte.class, ReferenceByteType.class);
 	}
 	
 	@Test
 	public void forSimpleChar(){
-		testSimpleScalar(SimpleChar.class, CharType.class);
+		testSimpleScalar(SimpleChar.class, ReferenceCharType.class);
 	}
 	
 	@Test
@@ -216,7 +197,7 @@ public class ConstructClassDescriptor {
 	@Test
 	public void forSimpleShort()
 	{
-		testSimpleScalar(SimpleShort.class, null);
+		testSimpleScalar(SimpleShort.class, ReferenceShortType.class);
 	}
 	
 	@Test

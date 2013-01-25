@@ -69,7 +69,7 @@ public class FieldDescriptor extends DescriptorBase implements IMappable<String>
 		Cloneable
 {
 
-	public static final String NULL = ScalarType.DEFAULT_VALUE_STRING;
+	public static final String NULL = "null"; // This is wrong; used to be "null" from SCalarType.DefaultValue...
 
 	public static final Class[] SET_METHOD_STRING_ARG = { String.class };
 

@@ -38,6 +38,11 @@ public class ShortType extends ScalarType<Short>
 		super(short.class, CrossLanguageTypeConstants.DOTNET_SHORT, CrossLanguageTypeConstants.OBJC_SHORT, null);
 	}
 
+	public ShortType(Class<Short> class1) 
+	{
+		super(class1, CrossLanguageTypeConstants.DOTNET_SHORT, CrossLanguageTypeConstants.OBJC_SHORT, null);
+	}
+
 	/**
 	 * Convert the parameter to short.
 	 */

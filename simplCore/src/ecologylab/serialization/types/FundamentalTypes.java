@@ -13,34 +13,7 @@ import java.util.regex.Pattern;
 import ecologylab.collections.Scope;
 import ecologylab.generic.HashMapArrayList;
 import ecologylab.net.ParsedURL;
-import ecologylab.serialization.types.scalar.BinaryDataType;
-import ecologylab.serialization.types.scalar.BooleanType;
-import ecologylab.serialization.types.scalar.ByteType;
-import ecologylab.serialization.types.scalar.CharType;
-import ecologylab.serialization.types.scalar.ClassType;
-import ecologylab.serialization.types.scalar.CollectionTypeType;
-import ecologylab.serialization.types.scalar.CompositeAsScalarType;
-import ecologylab.serialization.types.scalar.DateType;
-import ecologylab.serialization.types.scalar.DoubleType;
-import ecologylab.serialization.types.scalar.EnumeratedType;
-import ecologylab.serialization.types.scalar.FieldType;
-import ecologylab.serialization.types.scalar.FileType;
-import ecologylab.serialization.types.scalar.FloatType;
-import ecologylab.serialization.types.scalar.IntType;
-import ecologylab.serialization.types.scalar.LongType;
-import ecologylab.serialization.types.scalar.ParsedURLType;
-import ecologylab.serialization.types.scalar.PatternType;
-import ecologylab.serialization.types.scalar.ReferenceBooleanType;
-import ecologylab.serialization.types.scalar.ReferenceDoubleType;
-import ecologylab.serialization.types.scalar.ReferenceFloatType;
-import ecologylab.serialization.types.scalar.ReferenceIntegerType;
-import ecologylab.serialization.types.scalar.ReferenceLongType;
-import ecologylab.serialization.types.scalar.ScalarTypeType;
-import ecologylab.serialization.types.scalar.ShortType;
-import ecologylab.serialization.types.scalar.StringBuilderType;
-import ecologylab.serialization.types.scalar.StringType;
-import ecologylab.serialization.types.scalar.URLType;
-import ecologylab.serialization.types.scalar.UUIDType;
+import ecologylab.serialization.types.scalar.*;
 
 public class FundamentalTypes
 implements CrossLanguageTypeConstants
@@ -89,10 +62,14 @@ implements CrossLanguageTypeConstants
 
 	
 	public static final ScalarType<Short> SHORT_TYPE 					= new ShortType();
+	public static final ScalarType<Short> REFERENCE_SHORT_TYPE			= new ReferenceShortType();
+	
 	
 	public static final ScalarType<Byte> BYTE_TYPE 						= new ByteType();
+	public static final ScalarType<Byte> REFERENCE_BYTE_TYPE			= new ReferenceByteType();
 	
-	public static final ScalarType<Character> CHAR_TYPE 						= new CharType();
+	public static final ScalarType<Character> CHAR_TYPE 				= new CharType();
+	public static final ScalarType<Character> REFERENCE_CHAR_TYPE 		= new ReferenceCharType();
 	
 	
 	public static final ScalarType<URL> URL_TYPE 						= new URLType();

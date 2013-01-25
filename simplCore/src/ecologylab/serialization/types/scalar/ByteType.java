@@ -39,6 +39,11 @@ implements CrossLanguageTypeConstants
 		super(byte.class, DOTNET_BYTE, OBJC_BYTE, null);
 	}
 
+	public ByteType(Class<Byte> thatClass)
+	{
+		super(thatClass, DOTNET_BYTE, OBJC_BYTE, null);
+	}
+	
 	/**
 	 * Convert the parameter to byte.
 	 */

@@ -38,10 +38,6 @@ implements CrossLanguageTypeConstants
 	boolean											isPrimitive;
 	
 
-	public static final Object	DEFAULT_VALUE					= null;
-
-	public static final String	DEFAULT_VALUE_STRING	= "null";
-
 	/**
 	 * Blank constructor for S.IM.PL deserialization.
 	 */
@@ -243,7 +239,7 @@ implements CrossLanguageTypeConstants
 		{
 			T instance = (T) field.get(context);
 			if (instance == null)
-				result = DEFAULT_VALUE_STRING;
+				result = defaultValueString();
 			else
 				result = marshall(instance, null);
 		}
@@ -330,12 +326,10 @@ implements CrossLanguageTypeConstants
 	/**
 	 * The default value for this type, as a String. This value is the one that translateToXML(...)
 	 * wont bother emitting.
-	 * 
-	 * In this case, "null".
 	 */
 	public String defaultValueString()
 	{
-		return DEFAULT_VALUE_STRING;
+		return "";
 	}
 
 	/**
@@ -363,7 +357,7 @@ implements CrossLanguageTypeConstants
 			IllegalAccessException
 	{
 		Object fieldValue = field.get(context);
-		return fieldValue == null || DEFAULT_VALUE_STRING.equals(fieldValue.toString());
+		return fieldValue == null || defaultValueString().equals(fieldValue.toString());
 	}
 
 	/**

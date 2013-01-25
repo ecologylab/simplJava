@@ -38,6 +38,11 @@ public class CharType extends ScalarType<Character> implements CrossLanguageType
 	{
 		super(char.class, DOTNET_CHAR, OBJC_CHAR, null);
 	}
+	
+	public CharType(Class<Character> thatClass)
+	{
+		super(thatClass, DOTNET_CHAR, OBJC_CHAR, null);
+	}
 
 	/**
 	 * Convert the parameter to char.
