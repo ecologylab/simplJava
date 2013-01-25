@@ -123,19 +123,24 @@ implements CrossLanguageTypeConstants
 	public boolean setField(Object context, Field field, String valueString, String[] format,
 			ScalarUnmarshallingContext scalarUnmarshallingContext)
 	{
-		if (valueString == null)
-			return true;
-
 		boolean result = false;
 		T referenceObject;
 
 		try
 		{
-			referenceObject = getInstance(valueString, format, scalarUnmarshallingContext);
-			if (referenceObject != null)
+			if(valueString == null)
 			{
-				field.set(context, referenceObject);
+				field.set(context, null);
 				result = true;
+			}
+			else
+			{
+				referenceObject = getInstance(valueString, format, scalarUnmarshallingContext);
+				if (referenceObject != null)
+				{
+					field.set(context, referenceObject);
+					result = true;
+				}
 			}
 		}
 		catch (Exception e)
@@ -329,7 +334,7 @@ implements CrossLanguageTypeConstants
 	 */
 	public String defaultValueString()
 	{
-		return "";
+		return null;
 	}
 
 	/**
@@ -344,20 +349,27 @@ implements CrossLanguageTypeConstants
 
 	public final int defaultValueLength()
 	{
-		return defaultValueString().length();
+		return defaultValueString() == null ? 0 : defaultValueString().length();
 	}
 
-	public boolean isDefaultValue(String value)
+	public boolean isDefaultValue(Object value)
 	{
-		String defaultValue = defaultValueString();
-		return (defaultValue.length() == value.length()) && defaultValue.equals(value);
+		T defaultValue = this.defaultValue();
+		if(defaultValue == null)
+		{
+			return value == null;
+		}
+		else
+		{
+			return defaultValue.equals(value);
+		}
 	}
 
 	public boolean isDefaultValue(Field field, Object context) throws IllegalArgumentException,
 			IllegalAccessException
 	{
-		Object fieldValue = field.get(context);
-		return fieldValue == null || defaultValueString().equals(fieldValue.toString());
+		Object fieldValue = field.get(context);		
+		return isDefaultValue(fieldValue);
 	}
 
 	/**

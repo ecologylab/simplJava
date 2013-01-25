@@ -161,7 +161,7 @@ public class JSONPullDeserializerTest extends Assert
    * 
    * @throws SIMPLTranslationException
    */
-  @Test(timeout = 1000)
+  @Test(timeout = 2000)
   public void deSerializeEmptyMapInCollectionJSON() throws SIMPLTranslationException
   {
     item1.addAssocItem(null);
@@ -169,7 +169,7 @@ public class JSONPullDeserializerTest extends Assert
     serializeAndValidate();
   }
 
-  @Test(timeout = 1000)
+  @Test(timeout=2000)
   public void deSerializeNonEmptyMapInCollectionJSON() throws SIMPLTranslationException
   {
     item1.addAssocItem(item2);
@@ -182,7 +182,7 @@ public class JSONPullDeserializerTest extends Assert
    * 
    * @throws SIMPLTranslationException
    */
-  @Test(timeout = 1000)
+  @Test(timeout=2000)
   public void deSerializeEmptyCollectionOfScalarsJSON() throws SIMPLTranslationException
   {
     item1.addAlias(null);
@@ -190,7 +190,7 @@ public class JSONPullDeserializerTest extends Assert
     serializeAndValidate();
   }
 
-  @Test(timeout = 1000)
+  @Test(timeout=2000)
   public void deSerializeNonEmptyCollectionOfScalarsJSON() throws SIMPLTranslationException
   {
     item1.addAlias("item one");

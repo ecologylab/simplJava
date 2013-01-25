@@ -260,7 +260,7 @@ public class TLVSerializer extends BinarySerializer implements FieldTypes
 	{
 		try
 		{
-			if (!fd.isDefaultValue(object.toString()))
+			if (!fd.isDefaultValue(object))
 			{
 				outputBuffer.writeInt(fd.getTLVId());
 

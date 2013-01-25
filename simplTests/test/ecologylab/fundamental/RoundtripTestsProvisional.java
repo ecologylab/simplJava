@@ -4,9 +4,14 @@ import static org.junit.Assert.*;
 
 import org.junit.Test;
 
+import ecologylab.serialization.ClassDescriptor;
+import ecologylab.serialization.FieldDescriptor;
 import ecologylab.serialization.SIMPLTranslationException;
 import ecologylab.serialization.SimplTypesScope;
+import ecologylab.serialization.TranslationContext;
 import ecologylab.serialization.formatenums.StringFormat;
+import ecologylab.serialization.types.ScalarType;
+import ecologylab.serialization.types.TypeRegistry;
 
 public class RoundtripTestsProvisional {
 
@@ -54,5 +59,44 @@ public class RoundtripTestsProvisional {
 		assertEquals(ts.trickyString, otherString.trickyString);
 	}
 
+	
+	@Test
+	public void TestSimplStringScalarTypeSetsDefaultToNull()
+	{
+		TrickyString ts = new TrickyString();
+		ts.trickyString = "totallyNotDefault";
+		
+		ClassDescriptor<?> cd = ClassDescriptor.getClassDescriptor(TrickyString.class);
+		
+		FieldDescriptor fd = cd.allFieldDescriptors().get(0);
+		TranslationContext tc = null;
+		fd.setFieldToScalarDefault(ts, tc);
+		
+		assertEquals("Should have changed!", null, ts.trickyString);
+		
+	}
+	
+	@Test
+	public void nullStringValue() throws SIMPLTranslationException, IllegalArgumentException, IllegalAccessException, NoSuchFieldException, SecurityException 
+	{
+	    TrickyString ts = new TrickyString();
+	    ts.trickyString = null;
+	    
+	    ScalarType<?> stringType = TypeRegistry.getScalarType(String.class);
+	    
+	    assertTrue("Null is the new default string value - via value check", stringType.isDefaultValue(ts.trickyString));
+	    assertTrue("Null is the new default string value - via field check", stringType.isDefaultValue(ts.getClass().getField("trickyString"), ts));
+	    
+	    String xml = SimplTypesScope.serialize(ts, StringFormat.XML).toString();
+	    System.out.println(xml);
+	    
+		  SimplTypesScope typeScope = SimplTypesScope.get("TrickyString", TrickyString.class);
+	    TrickyString ts1 = (TrickyString) typeScope.deserialize(xml, StringFormat.XML);
+	    assertNotNull("Expecting an object back!", ts1);
+
+	    assertEquals("Expecting null value back!",null, ts1.trickyString);
+	}
+	
+	
 	
 }

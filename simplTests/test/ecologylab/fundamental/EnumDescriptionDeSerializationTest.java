@@ -57,7 +57,10 @@ public class EnumDescriptionDeSerializationTest {
 	{
 		EnumerationDescriptor primaryScenario = EnumerationDescriptor.get(forEnumClass);
 		
-		SimplTypesScope sts = SimplTypesScope.get("enumTest", EnumerationDescriptor.class);
+		SimplTypesScope sts = SimplTypesScope.get("enumDescTest" + theFormat.toString(), EnumerationDescriptor.class);
+	    
+		Class <?> tag = sts.getClassByTag("enumeration_descriptor");
+		assertNotNull("Class not in STS!", tag);
 		StringBuilder staticSerialized = SimplTypesScope.serialize(primaryScenario, theFormat);
 		StringBuilder specificSTSSerialized = sts.serialize(primaryScenario, theFormat);
 		

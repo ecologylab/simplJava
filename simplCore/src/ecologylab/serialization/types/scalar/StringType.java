@@ -121,6 +121,4 @@ public class StringType extends ReferenceType<String> implements CrossLanguageTy
 	{
 		return true;
 	}
-	
-	
 }

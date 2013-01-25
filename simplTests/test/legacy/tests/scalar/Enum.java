@@ -34,9 +34,7 @@ public class Enum implements TestCase {
 		SimplTypesScope.enableGraphSerialization();
 
 		TestingUtils.test(c, t, Format.XML);
-		TestingUtils.test(c, t, Format.JSON);
-		TestingUtils.test(c, t, Format.TLV);
-		
+		TestingUtils.test(c, t, Format.JSON);		
 	}
 
 }

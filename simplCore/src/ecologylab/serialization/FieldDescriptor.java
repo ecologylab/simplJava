@@ -1158,11 +1158,6 @@ public class FieldDescriptor extends DescriptorBase implements IMappable<String>
 		this.wrapped = wrapped;
 	}
 
-	public boolean isDefaultValue(String value)
-	{
-		return scalarType.isDefaultValue(value);
-	}
-
 	public boolean isDefaultValueFromContext(Object context) throws SIMPLTranslationException
 	{
 		try
@@ -1183,7 +1178,7 @@ public class FieldDescriptor extends DescriptorBase implements IMappable<String>
 	{
 		if (this.getType() == FieldType.SCALAR)
 		{
-			return value == null || isDefaultValue(value.toString());
+			return this.scalarType.isDefaultValue(value);
 		}
 		else
 		{
@@ -1435,15 +1430,12 @@ public class FieldDescriptor extends DescriptorBase implements IMappable<String>
 	public void setFieldToScalar(Object context, String value,
 			ScalarUnmarshallingContext scalarUnmarshallingContext)
 	{
-		// Allows for empty values. 
-		if (value == null)
+		if(value != null)
 		{
-			return;
+			value = filterValue(value);
 		}
 		
-		value = filterValue(value);
-		
-		if (!isCDATA)
+		if (!isCDATA && value != null)
 		{
 			value = XMLTools.unescapeXML(value);
 		}
