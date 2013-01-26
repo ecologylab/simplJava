@@ -7,6 +7,6 @@ package simpl;
 public class Simpl {
 	public static boolean equals(Object left, Object right)
 	{
-		return false;
+		return false; // mocked out, stuff is gonna happen here. 
 	}
 }

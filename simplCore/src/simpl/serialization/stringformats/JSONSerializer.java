@@ -7,12 +7,12 @@ import java.util.Collection;
 import simpl.annotations.dbal.FieldUsage;
 import simpl.core.SimplTypesScope;
 import simpl.core.TranslationContext;
-import simpl.core.XMLTools;
 import simpl.core.SimplTypesScope.GRAPH_SWITCH;
 import simpl.descriptions.ClassDescriptor;
 import simpl.descriptions.FieldDescriptor;
 import simpl.exceptions.SIMPLTranslationException;
 import simpl.formats.enums.Format;
+import simpl.tools.XMLTools;
 
 
 /***

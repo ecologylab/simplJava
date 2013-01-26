@@ -6,7 +6,7 @@ import java.util.ArrayList;
 import simpl.annotations.dbal.simpl_collection;
 import simpl.annotations.dbal.simpl_nowrap;
 import simpl.core.ScalarUnmarshallingContext;
-import simpl.core.XMLTools;
+import simpl.tools.XMLTools;
 
 
 public class EnumeratedType extends ReferenceType<Enum>

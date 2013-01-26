@@ -30,6 +30,7 @@ import simpl.formats.enums.Format;
 import simpl.formats.enums.StringFormat;
 import simpl.serialization.FormatSerializer;
 import simpl.serialization.stringformats.StringSerializer;
+import simpl.tools.XMLTools;
 import simpl.types.ScalarType;
 import simpl.types.TypeRegistry;
 

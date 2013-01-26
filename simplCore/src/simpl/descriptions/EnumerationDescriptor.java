@@ -13,9 +13,9 @@ import simpl.annotations.dbal.simpl_scalar;
 import simpl.core.DescriptorBase;
 import simpl.core.ISimplStringMarshaller;
 import simpl.core.SimplIssue;
-import simpl.core.XMLTools;
 import simpl.exceptions.SIMPLDescriptionException;
 import simpl.exceptions.SIMPLTranslationException;
+import simpl.tools.XMLTools;
 
 
 public class EnumerationDescriptor extends DescriptorBase implements ISimplStringMarshaller {

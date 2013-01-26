@@ -10,8 +10,8 @@ import org.json.simple.JSONObject;
 import simpl.annotations.dbal.simpl_inherit;
 import simpl.core.ScalarUnmarshallingContext;
 import simpl.core.TranslationContext;
-import simpl.core.XMLTools;
 import simpl.formats.enums.Format;
+import simpl.tools.XMLTools;
 import simpl.types.CrossLanguageTypeConstants;
 
 

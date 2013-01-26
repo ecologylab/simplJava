@@ -11,10 +11,10 @@ import simpl.annotations.dbal.simpl_map;
 import simpl.annotations.dbal.simpl_map_key_field;
 import simpl.annotations.dbal.simpl_nowrap;
 import simpl.annotations.dbal.simpl_scalar;
-import simpl.core.JSONTools;
 import simpl.core.SimplTypesScope;
 import simpl.exceptions.SIMPLTranslationException;
 import simpl.formats.enums.StringFormat;
+import simpl.tools.JSONTools;
 import simpl.types.element.IMappable;
 
 import ecologylab.generic.HashMapArrayList;

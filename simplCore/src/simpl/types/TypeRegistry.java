@@ -5,8 +5,8 @@ import java.lang.reflect.Modifier;
 import java.util.HashMap;
 import java.util.Map;
 
-import simpl.core.XMLTools;
 import simpl.platformspecifics.SimplPlatformSpecifics;
+import simpl.tools.XMLTools;
 import simpl.types.scalar.CompositeAsScalarType;
 
 import ecologylab.generic.Debug;

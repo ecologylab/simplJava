@@ -6,7 +6,6 @@ import java.io.OutputStream;
 
 import simpl.core.SimplTypesScope;
 import simpl.core.TranslationContext;
-import simpl.core.TranslationContextPool;
 import simpl.core.SimplTypesScope.GRAPH_SWITCH;
 import simpl.descriptions.ClassDescriptor;
 import simpl.descriptions.FieldDescriptor;
@@ -41,9 +40,8 @@ public abstract class FormatSerializer
 	 */
 	public void serialize(Object object, OutputStream outputStream) throws SIMPLTranslationException
 	{
-		TranslationContext translationContext = TranslationContextPool.get().acquire();
+		TranslationContext translationContext = new TranslationContext();
 		serialize(object, outputStream, translationContext);
-		TranslationContextPool.get().release(translationContext);
 	}
 
 	public abstract void serialize(Object object, OutputStream outputStream,
@@ -58,9 +56,8 @@ public abstract class FormatSerializer
 	 */
 	public void serialize(Object object, File outputFile) throws SIMPLTranslationException
 	{		
-		TranslationContext translationContext = TranslationContextPool.get().acquire();
+		TranslationContext translationContext = new TranslationContext();
 		serialize(object, outputFile, translationContext);
-		TranslationContextPool.get().release(translationContext);
 	}
 
 	public abstract void serialize(Object object, File outputFile,

@@ -7,9 +7,9 @@ import java.util.Date;
 import simpl.annotations.dbal.simpl_inherit;
 import simpl.annotations.dbal.simpl_scalar;
 import simpl.core.SimplTypesScope;
-import simpl.core.XMLTools;
 import simpl.exceptions.SIMPLTranslationException;
 import simpl.formats.enums.StringFormat;
+import simpl.tools.XMLTools;
 
 import ecologylab.appframework.types.prefs.Pref;
 import ecologylab.io.Files;

@@ -18,9 +18,9 @@ import simpl.annotations.dbal.simpl_collection;
 import simpl.annotations.dbal.simpl_scope;
 import simpl.core.ElementState;
 import simpl.core.SimplTypesScope;
-import simpl.core.XMLTools;
 import simpl.exceptions.SIMPLTranslationException;
 import simpl.formats.enums.StringFormat;
+import simpl.tools.XMLTools;
 
 import ecologylab.appframework.ApplicationEnvironment;
 import ecologylab.appframework.Memory;

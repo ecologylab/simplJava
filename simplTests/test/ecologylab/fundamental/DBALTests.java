@@ -7,9 +7,9 @@ import org.junit.Test;
 import simpl.annotations.dbal.FieldUsage;
 import simpl.annotations.dbal.simpl_collection;
 import simpl.annotations.dbal.simpl_scalar;
-import simpl.core.XMLTools;
 import simpl.descriptions.ClassDescriptor;
 import simpl.descriptions.FieldDescriptor;
+import simpl.tools.XMLTools;
 import static org.junit.Assert.*;
 
 

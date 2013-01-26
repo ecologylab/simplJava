@@ -9,10 +9,9 @@ import java.io.PrintStream;
 import java.io.UnsupportedEncodingException;
 
 import simpl.core.TranslationContext;
-import simpl.core.TranslationContextPool;
-import simpl.core.XMLTools;
 import simpl.exceptions.SIMPLTranslationException;
 import simpl.serialization.FormatSerializer;
+import simpl.tools.XMLTools;
 
 
 public abstract class StringSerializer extends FormatSerializer
@@ -65,9 +64,8 @@ public abstract class StringSerializer extends FormatSerializer
 	 */
 	public StringBuilder serialize(Object object) throws SIMPLTranslationException
 	{
-		TranslationContext translationContext = TranslationContextPool.get().acquire();
+		TranslationContext translationContext = new TranslationContext();
 		StringBuilder sb = serialize(object, translationContext);
-		TranslationContextPool.get().release(translationContext);
 		return sb;
 	}
 

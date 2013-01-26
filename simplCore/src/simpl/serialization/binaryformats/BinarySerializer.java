@@ -7,9 +7,9 @@ import java.io.IOException;
 import java.io.OutputStream;
 
 import simpl.core.TranslationContext;
-import simpl.core.XMLTools;
 import simpl.exceptions.SIMPLTranslationException;
 import simpl.serialization.FormatSerializer;
+import simpl.tools.XMLTools;
 
 
 public abstract class BinarySerializer extends FormatSerializer

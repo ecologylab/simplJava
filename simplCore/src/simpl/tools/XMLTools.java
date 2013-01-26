@@ -1,4 +1,4 @@
-package simpl.core;
+package simpl.tools;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -49,6 +49,8 @@ import simpl.annotations.dbal.simpl_inherit_parent_tag;
 import simpl.annotations.dbal.simpl_map;
 import simpl.annotations.dbal.simpl_scalar;
 import simpl.annotations.dbal.simpl_tag;
+import simpl.core.ElementState;
+import simpl.core.SpecialCharacterEntities;
 import simpl.exceptions.SIMPLTranslationException;
 import simpl.types.CrossLanguageTypeConstants;
 import simpl.types.ScalarType;

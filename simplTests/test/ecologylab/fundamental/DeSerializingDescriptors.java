@@ -9,7 +9,6 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-import simpl.core.JSONTools;
 import simpl.core.SimplTypesScope;
 import simpl.core.SimplTypesScope.GRAPH_SWITCH;
 import simpl.descriptions.ClassDescriptor;
@@ -17,6 +16,7 @@ import simpl.descriptions.FieldDescriptor;
 import simpl.exceptions.SIMPLTranslationException;
 import simpl.formats.enums.Format;
 import simpl.formats.enums.StringFormat;
+import simpl.tools.JSONTools;
 
 
 public class DeSerializingDescriptors extends Assert
