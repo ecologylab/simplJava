@@ -1,4 +1,4 @@
-package ecologylab.serialization.serializers.stringformats;
+package simpl.serialization.stringformats;
 
 import java.io.IOException;
 import java.util.ArrayList;

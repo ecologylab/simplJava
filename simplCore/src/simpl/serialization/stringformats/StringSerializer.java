@@ -1,4 +1,4 @@
-package ecologylab.serialization.serializers.stringformats;
+package simpl.serialization.stringformats;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -12,8 +12,8 @@ import simpl.core.TranslationContext;
 import simpl.core.TranslationContextPool;
 import simpl.core.XMLTools;
 import simpl.exceptions.SIMPLTranslationException;
+import simpl.serialization.FormatSerializer;
 
-import ecologylab.serialization.serializers.FormatSerializer;
 
 public abstract class StringSerializer extends FormatSerializer
 {

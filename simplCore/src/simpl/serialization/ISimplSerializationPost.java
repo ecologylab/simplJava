@@ -1,4 +1,4 @@
-package ecologylab.serialization.serializers;
+package simpl.serialization;
 
 import simpl.core.TranslationContext;
 

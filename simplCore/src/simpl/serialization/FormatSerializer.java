@@ -1,4 +1,4 @@
-package ecologylab.serialization.serializers;
+package simpl.serialization;
 
 import java.io.File;
 import java.io.IOException;
@@ -14,12 +14,12 @@ import simpl.exceptions.SIMPLTranslationException;
 import simpl.formats.enums.BinaryFormat;
 import simpl.formats.enums.Format;
 import simpl.formats.enums.StringFormat;
+import simpl.serialization.binaryformats.TLVSerializer;
+import simpl.serialization.stringformats.BibtexSerializer;
+import simpl.serialization.stringformats.JSONSerializer;
+import simpl.serialization.stringformats.StringSerializer;
+import simpl.serialization.stringformats.XMLSerializer;
 
-import ecologylab.serialization.serializers.binaryformats.TLVSerializer;
-import ecologylab.serialization.serializers.stringformats.BibtexSerializer;
-import ecologylab.serialization.serializers.stringformats.JSONSerializer;
-import ecologylab.serialization.serializers.stringformats.StringSerializer;
-import ecologylab.serialization.serializers.stringformats.XMLSerializer;
 
 /**
  * FormatSerializer. an abstract base class from where format-specific serializers derive. Its main

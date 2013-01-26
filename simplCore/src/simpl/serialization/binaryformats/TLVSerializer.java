@@ -1,4 +1,4 @@
-package ecologylab.serialization.serializers.binaryformats;
+package simpl.serialization.binaryformats;
 
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;

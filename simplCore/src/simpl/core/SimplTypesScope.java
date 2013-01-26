@@ -28,14 +28,14 @@ import simpl.exceptions.SIMPLTranslationException;
 import simpl.formats.enums.BinaryFormat;
 import simpl.formats.enums.Format;
 import simpl.formats.enums.StringFormat;
+import simpl.serialization.FormatSerializer;
+import simpl.serialization.stringformats.StringSerializer;
 import simpl.types.ScalarType;
 import simpl.types.TypeRegistry;
 
 import ecologylab.collections.Scope;
 import ecologylab.generic.HashMapArrayList;
 import ecologylab.net.ParsedURL;
-import ecologylab.serialization.serializers.FormatSerializer;
-import ecologylab.serialization.serializers.stringformats.StringSerializer;
 
 /**
  * A set of bindings between XML element names (tags) and associated simple (without package) class

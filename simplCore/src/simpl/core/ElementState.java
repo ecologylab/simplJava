@@ -6,10 +6,10 @@ import java.util.Stack;
 import simpl.descriptions.ClassDescriptor;
 import simpl.deserialization.ISimplDeserializationHooks;
 import simpl.exceptions.SIMPLTranslationException;
+import simpl.serialization.ISimplSerializationPost;
+import simpl.serialization.ISimplSerializationPre;
 
 import ecologylab.generic.Debug;
-import ecologylab.serialization.serializers.ISimplSerializationPost;
-import ecologylab.serialization.serializers.ISimplSerializationPre;
 
 public class ElementState<PES extends ElementState> extends Debug implements XMLTranslationExceptionTypes, ISimplSerializationPre, ISimplSerializationPost,ISimplDeserializationHooks{
 

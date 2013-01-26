@@ -1,4 +1,4 @@
-package ecologylab.serialization.serializers.binaryformats;
+package simpl.serialization.binaryformats;
 
 import java.io.DataOutputStream;
 import java.io.File;
@@ -9,8 +9,8 @@ import java.io.OutputStream;
 import simpl.core.TranslationContext;
 import simpl.core.XMLTools;
 import simpl.exceptions.SIMPLTranslationException;
+import simpl.serialization.FormatSerializer;
 
-import ecologylab.serialization.serializers.FormatSerializer;
 
 public abstract class BinarySerializer extends FormatSerializer
 {
