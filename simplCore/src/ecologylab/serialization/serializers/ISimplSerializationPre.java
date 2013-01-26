@@ -1,6 +1,6 @@
 package ecologylab.serialization.serializers;
 
-import ecologylab.serialization.TranslationContext;
+import simpl.core.TranslationContext;
 
 /**
  * Interface for applications to plugin functionality before serialization of an object.

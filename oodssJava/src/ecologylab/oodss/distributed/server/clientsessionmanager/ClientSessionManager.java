@@ -2,7 +2,9 @@ package ecologylab.oodss.distributed.server.clientsessionmanager;
 
 import java.nio.channels.SelectionKey;
 
+import simpl.core.SimplTypesScope;
 import simpl.exceptions.SIMPLTranslationException;
+import simpl.formats.enums.StringFormat;
 
 import ecologylab.collections.Scope;
 import ecologylab.oodss.distributed.common.ServerConstants;
@@ -11,8 +13,6 @@ import ecologylab.oodss.distributed.server.NIOServerProcessor;
 import ecologylab.oodss.messages.RequestMessage;
 import ecologylab.oodss.messages.ResponseMessage;
 import ecologylab.oodss.messages.UpdateMessage;
-import ecologylab.serialization.SimplTypesScope;
-import ecologylab.serialization.formatenums.StringFormat;
 
 /**
  * Stores information about the connection context for the client on the server. Should be extended

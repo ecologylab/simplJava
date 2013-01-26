@@ -1,8 +1,8 @@
 package ecologylab.serialization.library.xaml;
 
+import simpl.core.NameSpaceDecl;
+import simpl.core.SimplTypesScope;
 import ecologylab.generic.Debug;
-import ecologylab.serialization.NameSpaceDecl;
-import ecologylab.serialization.SimplTypesScope;
 
 
 public class XamlTranslations extends Debug

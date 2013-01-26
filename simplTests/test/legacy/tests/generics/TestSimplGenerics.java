@@ -5,11 +5,11 @@ import java.util.ArrayList;
 import org.junit.Assert;
 import org.junit.Test;
 
+import simpl.core.GenericTypeVar;
+import simpl.core.SimplTypesScope;
 import simpl.descriptions.ClassDescriptor;
 import simpl.descriptions.FieldDescriptor;
 
-import ecologylab.serialization.GenericTypeVar;
-import ecologylab.serialization.SimplTypesScope;
 
 public class TestSimplGenerics
 {

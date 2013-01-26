@@ -7,13 +7,13 @@ import java.io.IOException;
 import java.lang.reflect.Field;
 
 import simpl.annotations.dbal.simpl_inherit;
+import simpl.core.ScalarUnmarshallingContext;
+import simpl.core.TranslationContext;
 import simpl.descriptions.FieldDescriptor;
+import simpl.formats.enums.Format;
 import simpl.types.CrossLanguageTypeConstants;
 import simpl.types.ScalarType;
 
-import ecologylab.serialization.ScalarUnmarshallingContext;
-import ecologylab.serialization.TranslationContext;
-import ecologylab.serialization.formatenums.Format;
 
 /**
  * Type system entry for short, a built-in primitive.

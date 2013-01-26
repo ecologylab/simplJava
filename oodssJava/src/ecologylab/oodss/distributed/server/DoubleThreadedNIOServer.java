@@ -15,6 +15,8 @@ import java.nio.charset.CharsetDecoder;
 import java.util.Arrays;
 import java.util.Iterator;
 
+import simpl.core.SimplTypesScope;
+
 import ecologylab.collections.Scope;
 import ecologylab.generic.CharBufferPool;
 import ecologylab.generic.HashMapArrayList;
@@ -30,7 +32,6 @@ import ecologylab.oodss.distributed.server.clientsessionmanager.ClientSessionMan
 import ecologylab.oodss.distributed.server.clientsessionmanager.SessionHandle;
 import ecologylab.oodss.distributed.server.clientsessionmanager.TCPClientSessionManager;
 import ecologylab.oodss.exceptions.BadClientException;
-import ecologylab.serialization.SimplTypesScope;
 
 /**
  * A server that uses NIO and two threads (one for handling IO, the other for handling interfacing

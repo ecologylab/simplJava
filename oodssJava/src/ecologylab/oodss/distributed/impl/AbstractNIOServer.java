@@ -8,13 +8,14 @@ import java.net.BindException;
 import java.net.InetAddress;
 import java.nio.channels.SelectionKey;
 
+import simpl.core.SimplTypesScope;
+
 import ecologylab.collections.Scope;
 import ecologylab.net.NetTools;
 import ecologylab.oodss.distributed.common.SessionObjects;
 import ecologylab.oodss.distributed.server.NIOServerDataReader;
 import ecologylab.oodss.distributed.server.clientsessionmanager.BaseSessionManager;
 import ecologylab.oodss.messages.InitConnectionRequest;
-import ecologylab.serialization.SimplTypesScope;
 
 /**
  * Provides access to an NIOServerIOThread, which handles the details of network connections.

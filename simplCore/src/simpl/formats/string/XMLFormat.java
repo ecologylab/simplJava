@@ -1,7 +1,7 @@
 package simpl.formats.string;
 
-import ecologylab.serialization.ISimplStringFormat;
-import ecologylab.serialization.XMLTools;
+import simpl.core.ISimplStringFormat;
+import simpl.core.XMLTools;
 
 // TODO: May need to move to Platform Specifics in the future. 
 public class XMLFormat implements ISimplStringFormat{

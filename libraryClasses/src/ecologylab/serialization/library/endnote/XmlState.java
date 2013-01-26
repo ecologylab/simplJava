@@ -6,8 +6,8 @@ package ecologylab.serialization.library.endnote;
 import java.util.ArrayList;
 
 import simpl.annotations.dbal.simpl_collection;
+import simpl.core.ElementState;
 
-import ecologylab.serialization.ElementState;
 
 /**
  * @author Zachary O. Toups (toupsz@cs.tamu.edu)

@@ -3,8 +3,8 @@
  */
 package ecologylab.appframework.types.prefs;
 
+import simpl.core.SimplTypesScope;
 import ecologylab.generic.Debug;
-import ecologylab.serialization.SimplTypesScope;
 
 /**
  * Translations used inside of MetaPrefSet.

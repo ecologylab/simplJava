@@ -2,7 +2,8 @@ package ecologylab.serialization.library.geom;
 
 import java.awt.geom.Point2D;
 
-import ecologylab.serialization.ElementState;
+import simpl.core.ElementState;
+
 
 /**
  * The base class for all the Vector classes, so that, even though they do not

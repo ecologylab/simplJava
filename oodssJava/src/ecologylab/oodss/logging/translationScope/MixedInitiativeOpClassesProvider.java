@@ -1,7 +1,7 @@
 package ecologylab.oodss.logging.translationScope;
 
+import simpl.core.TranslationsClassProvider;
 import ecologylab.logging.MixedInitiativeOp;
-import ecologylab.serialization.TranslationsClassProvider;
 
 /**
  * Provide base log operation classes for translating a polymorphic list of Ops.
@@ -18,7 +18,7 @@ public class MixedInitiativeOpClassesProvider extends TranslationsClassProvider
 	}
 
 	/**
-	 * @see ecologylab.serialization.TranslationsClassProvider#specificSuppliedClasses()
+	 * @see simpl.core.TranslationsClassProvider#specificSuppliedClasses()
 	 */
 	@Override
 	protected Class[] specificSuppliedClasses()

@@ -6,6 +6,8 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.nio.channels.SelectionKey;
 
+import simpl.core.SimplTypesScope;
+
 import ecologylab.collections.Scope;
 import ecologylab.generic.Debug;
 import ecologylab.logging.MixedInitiativeOp;
@@ -13,7 +15,6 @@ import ecologylab.net.NetTools;
 import ecologylab.oodss.distributed.common.ServicesHostsAndPorts;
 import ecologylab.oodss.distributed.server.DoubleThreadedNIOServer;
 import ecologylab.oodss.messages.DefaultServicesTranslations;
-import ecologylab.serialization.SimplTypesScope;
 
 /**
  * A server that automatically records any incoming log data to a local file. The file is specified

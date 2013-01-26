@@ -8,11 +8,11 @@ import java.io.File;
 import simpl.annotations.dbal.simpl_composite;
 import simpl.annotations.dbal.simpl_scalar;
 import simpl.annotations.dbal.simpl_tag;
+import simpl.core.ElementState;
 import simpl.exceptions.SIMPLTranslationException;
+import simpl.formats.enums.Format;
 
 import ecologylab.generic.Debug;
-import ecologylab.serialization.ElementState;
-import ecologylab.serialization.formatenums.Format;
 
 /**
  * @author Zachary O. Toups (zach@ecologylab.net)

@@ -19,7 +19,9 @@ import java.util.zip.DataFormatException;
 import java.util.zip.Deflater;
 import java.util.zip.Inflater;
 
+import simpl.core.SimplTypesScope;
 import simpl.exceptions.SIMPLTranslationException;
+import simpl.formats.enums.StringFormat;
 
 import ecologylab.collections.Scope;
 import ecologylab.generic.CappedResourcePool;
@@ -28,8 +30,6 @@ import ecologylab.generic.ResourcePool;
 import ecologylab.oodss.distributed.common.NetworkingConstants;
 import ecologylab.oodss.distributed.exception.MessageTooLargeException;
 import ecologylab.oodss.messages.ServiceMessage;
-import ecologylab.serialization.SimplTypesScope;
-import ecologylab.serialization.formatenums.StringFormat;
 
 /**
  * 

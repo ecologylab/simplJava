@@ -8,9 +8,9 @@ import java.util.ArrayList;
 import simpl.annotations.dbal.simpl_collection;
 import simpl.annotations.dbal.simpl_inherit;
 import simpl.annotations.dbal.simpl_scalar;
+import simpl.core.ElementState;
 
 import ecologylab.net.ParsedURL;
-import ecologylab.serialization.ElementState;
 
 /**
  * Nestable Outline Processor Markup Language construct.

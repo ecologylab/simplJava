@@ -12,8 +12,8 @@ import java.util.List;
 
 import simpl.annotations.dbal.simpl_collection;
 import simpl.annotations.dbal.simpl_inherit;
+import simpl.core.ElementState;
 
-import ecologylab.serialization.ElementState;
 
 /**
  * Encapsulates a Polygon for use in translating to/from XML.

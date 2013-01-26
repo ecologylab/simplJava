@@ -5,12 +5,12 @@ package ecologylab.oodss;
 
 import java.io.File;
 
+import simpl.core.ElementState;
+import simpl.core.SimplTypesScope;
 import simpl.exceptions.SIMPLTranslationException;
+import simpl.formats.enums.Format;
 
 import ecologylab.oodss.exceptions.SaveFailedException;
-import ecologylab.serialization.ElementState;
-import ecologylab.serialization.SimplTypesScope;
-import ecologylab.serialization.formatenums.Format;
 
 /**
  * This class is configured with a file path that serves as its backing store and provides a save()

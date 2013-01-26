@@ -5,7 +5,7 @@ package ecologylab.serialization.library.xaml;
 
 import simpl.annotations.dbal.simpl_scalar;
 import simpl.annotations.dbal.simpl_tag;
-import ecologylab.serialization.SimplTypesScope;
+import simpl.core.SimplTypesScope;
 
 /**
  * 

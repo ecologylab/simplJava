@@ -7,6 +7,7 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.nio.channels.SelectionKey;
 
+import simpl.core.SimplTypesScope;
 import simpl.exceptions.SIMPLTranslationException;
 
 import ecologylab.collections.Scope;
@@ -15,7 +16,6 @@ import ecologylab.oodss.distributed.server.NIOServerProcessor;
 import ecologylab.oodss.messages.HttpGetRequest;
 import ecologylab.oodss.messages.RequestMessage;
 import ecologylab.oodss.messages.ResponseMessage;
-import ecologylab.serialization.SimplTypesScope;
 
 /**
  * A ContextManager for handling HTTP Get requests. Can be used to respond to browser requests.

@@ -4,8 +4,8 @@ import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
 
 import simpl.annotations.dbal.simpl_scalar;
+import simpl.core.ElementState;
 
-import ecologylab.serialization.ElementState;
 
 /**
  * Encapsulates a Point2D.Double for use in translating to/from XML.

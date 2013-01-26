@@ -8,15 +8,15 @@ import simpl.annotations.dbal.simpl_hints;
 import simpl.annotations.dbal.simpl_inherit;
 import simpl.annotations.dbal.simpl_nowrap;
 import simpl.annotations.dbal.simpl_scalar;
+import simpl.core.ElementState;
+import simpl.core.SimplTypesScope;
 import simpl.exceptions.SIMPLTranslationException;
+import simpl.formats.enums.StringFormat;
 
 import ecologylab.net.ParsedURL;
-import ecologylab.serialization.ElementState;
-import ecologylab.serialization.SimplTypesScope;
-import ecologylab.serialization.formatenums.StringFormat;
 
 /**
- * RSS parser <code>channel</code> element {@link ecologylab.serialization.ElementState
+ * RSS parser <code>channel</code> element {@link simpl.core.ElementState
  * ElementState} declaration. Used with most RSS versions.
  * 
  * @author andruid

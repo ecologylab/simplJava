@@ -1,6 +1,6 @@
 package ecologylab.generic;
 
-import ecologylab.serialization.ElementState;
+import simpl.core.ElementState;
 
 /**
  * Reference version of a double type. Re-writable, unlike java.lang.Double.

@@ -8,12 +8,12 @@ import java.io.IOException;
 import org.json.simple.JSONObject;
 
 import simpl.annotations.dbal.simpl_inherit;
+import simpl.core.ScalarUnmarshallingContext;
+import simpl.core.TranslationContext;
+import simpl.core.XMLTools;
+import simpl.formats.enums.Format;
 import simpl.types.CrossLanguageTypeConstants;
 
-import ecologylab.serialization.ScalarUnmarshallingContext;
-import ecologylab.serialization.TranslationContext;
-import ecologylab.serialization.XMLTools;
-import ecologylab.serialization.formatenums.Format;
 
 /**
  * Type system entry for {@link java.lang.String String}. A very simple case.

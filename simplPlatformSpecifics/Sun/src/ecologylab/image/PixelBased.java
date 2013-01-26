@@ -18,6 +18,7 @@ import simpl.annotations.dbal.simpl_composite;
 import simpl.annotations.dbal.simpl_inherit;
 import simpl.annotations.dbal.simpl_scalar;
 import simpl.annotations.dbal.simpl_wrap;
+import simpl.core.ElementState;
 
 import ecologylab.concurrent.BasicSite;
 import ecologylab.concurrent.Downloadable;
@@ -26,7 +27,6 @@ import ecologylab.generic.Colors;
 import ecologylab.generic.ConsoleUtils;
 import ecologylab.generic.MathTools;
 import ecologylab.net.ParsedURL;
-import ecologylab.serialization.ElementState;
 
 /**
  * Infrastructure to display, keep track of, and manipulate pixel based media.

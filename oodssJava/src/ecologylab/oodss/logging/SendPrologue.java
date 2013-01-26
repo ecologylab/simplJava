@@ -6,16 +6,16 @@ import java.util.Date;
 
 import simpl.annotations.dbal.simpl_inherit;
 import simpl.annotations.dbal.simpl_scalar;
+import simpl.core.SimplTypesScope;
+import simpl.core.XMLTools;
 import simpl.exceptions.SIMPLTranslationException;
+import simpl.formats.enums.StringFormat;
 
 import ecologylab.appframework.types.prefs.Pref;
 import ecologylab.io.Files;
 import ecologylab.net.NetTools;
 import ecologylab.oodss.messages.ErrorResponse;
 import ecologylab.oodss.messages.ResponseMessage;
-import ecologylab.serialization.SimplTypesScope;
-import ecologylab.serialization.XMLTools;
-import ecologylab.serialization.formatenums.StringFormat;
 
 /**
  * Allows the application to send application-specific content to the log, at the beginning of a

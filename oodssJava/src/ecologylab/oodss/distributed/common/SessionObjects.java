@@ -1,7 +1,7 @@
 package ecologylab.oodss.distributed.common;
 
+import simpl.core.SimplTypesScope;
 import ecologylab.oodss.messages.DefaultServicesTranslations;
-import ecologylab.serialization.SimplTypesScope;
 
 /**
  * Constants that define general ecologylab objects that get stored in the

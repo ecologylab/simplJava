@@ -7,9 +7,9 @@ import simpl.annotations.dbal.simpl_collection;
 import simpl.annotations.dbal.simpl_composite;
 import simpl.annotations.dbal.simpl_hints;
 import simpl.annotations.dbal.simpl_scalar;
+import simpl.core.ElementState;
 
 import ecologylab.net.ParsedURL;
-import ecologylab.serialization.ElementState;
 
 /**
  * Primary element of the media XML name space. As in <media:content>

@@ -13,9 +13,9 @@ import simpl.annotations.dbal.simpl_collection;
 import simpl.annotations.dbal.simpl_inherit;
 import simpl.annotations.dbal.simpl_nowrap;
 import simpl.annotations.dbal.simpl_tag;
+import simpl.core.TranslationContext;
+import simpl.deserialization.ISimplDeserializationHooks;
 
-import ecologylab.serialization.TranslationContext;
-import ecologylab.serialization.deserializers.ISimplDeserializationHooks;
 
 /**
  * @author Zachary O. Toups (zach@ecologylab.net)

@@ -3,11 +3,11 @@
  */
 package ecologylab.standalone;
 
+import simpl.core.SimplTypesScope;
 import simpl.exceptions.SIMPLTranslationException;
 import ecologylab.appframework.SingletonApplicationEnvironment;
 import ecologylab.appframework.types.prefs.PrefsTranslationsProvider;
 import ecologylab.appframework.types.prefs.gui.PrefsEditor;
-import ecologylab.serialization.SimplTypesScope;
 
 /**
  * Standalone app to open a prefs editing dialog.

@@ -5,11 +5,11 @@ import java.lang.reflect.Modifier;
 import java.util.HashMap;
 import java.util.Map;
 
+import simpl.core.XMLTools;
 import simpl.platformspecifics.SimplPlatformSpecifics;
 import simpl.types.scalar.CompositeAsScalarType;
 
 import ecologylab.generic.Debug;
-import ecologylab.serialization.XMLTools;
 
 /**
  * This class implements registries of instances of ScalarType and CollectionType. 

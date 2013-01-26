@@ -7,7 +7,7 @@ import simpl.annotations.dbal.Hint;
 import simpl.annotations.dbal.simpl_composite;
 import simpl.annotations.dbal.simpl_hints;
 import simpl.annotations.dbal.simpl_scalar;
-import ecologylab.serialization.ElementState;
+import simpl.core.ElementState;
 
 /**
  * @author Zachary O. Toups (toupsz@cs.tamu.edu)

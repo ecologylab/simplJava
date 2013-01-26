@@ -3,8 +3,8 @@
  */
 package ecologylab.serialization.library.icdl;
 
+import simpl.core.SimplTypesScope;
 import ecologylab.generic.Debug;
-import ecologylab.serialization.SimplTypesScope;
 
 /**
  * Translations for parsing International Childrens Digital Library stuff.

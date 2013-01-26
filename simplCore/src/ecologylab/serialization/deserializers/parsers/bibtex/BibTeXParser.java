@@ -5,13 +5,13 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import simpl.core.ElementState;
+import simpl.core.SimplTypesScope;
 import simpl.exceptions.SIMPLTranslationException;
+import simpl.formats.enums.StringFormat;
 
-import ecologylab.serialization.ElementState;
-import ecologylab.serialization.SimplTypesScope;
 import ecologylab.serialization.deserializers.parsers.bibtex.entrytypes.AbstractBibTeXEntry;
 import ecologylab.serialization.deserializers.parsers.bibtex.entrytypes.BibTeXInProceedings;
-import ecologylab.serialization.formatenums.StringFormat;
 
 /**
  * The BibTeX parser class.

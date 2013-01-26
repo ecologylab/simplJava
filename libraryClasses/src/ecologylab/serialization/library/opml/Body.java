@@ -4,7 +4,7 @@
 package ecologylab.serialization.library.opml;
 
 import simpl.annotations.dbal.simpl_composite;
-import ecologylab.serialization.ElementState;
+import simpl.core.ElementState;
 
 /**
  * OPML <body> element

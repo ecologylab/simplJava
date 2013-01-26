@@ -4,7 +4,9 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.nio.channels.SelectionKey;
 
+import simpl.core.SimplTypesScope;
 import simpl.exceptions.SIMPLTranslationException;
+import simpl.formats.enums.StringFormat;
 
 import ecologylab.collections.Scope;
 import ecologylab.oodss.distributed.impl.NIOServerIOThread;
@@ -12,8 +14,6 @@ import ecologylab.oodss.distributed.server.NIOServerProcessor;
 import ecologylab.oodss.messages.HttpRequest;
 import ecologylab.oodss.messages.RequestMessage;
 import ecologylab.oodss.messages.ResponseMessage;
-import ecologylab.serialization.SimplTypesScope;
-import ecologylab.serialization.formatenums.StringFormat;
 
 public class HTTPPostClientSessionManager extends HTTPClientSessionManager
 {	

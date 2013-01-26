@@ -10,8 +10,11 @@ import java.net.URLConnection;
 import java.net.URLDecoder;
 import java.util.Stack;
 
+import simpl.core.SimplTypesScope;
+import simpl.core.XMLTranslationExceptionTypes;
 import simpl.descriptions.ClassDescriptor;
 import simpl.exceptions.SIMPLTranslationException;
+import simpl.formats.enums.StringFormat;
 import simpl.platformspecifics.SimplPlatformSpecifics;
 
 import ecologylab.appframework.types.prefs.MetaPrefSet;
@@ -24,9 +27,6 @@ import ecologylab.io.Assets;
 import ecologylab.io.AssetsRoot;
 import ecologylab.io.Files;
 import ecologylab.net.ParsedURL;
-import ecologylab.serialization.SimplTypesScope;
-import ecologylab.serialization.XMLTranslationExceptionTypes;
-import ecologylab.serialization.formatenums.StringFormat;
 
 /**
  * An instance of Environment, which is an application, rather than an applet, or a servlet. The

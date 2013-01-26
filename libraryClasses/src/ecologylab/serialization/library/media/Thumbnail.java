@@ -1,8 +1,8 @@
 package ecologylab.serialization.library.media;
 
 import simpl.annotations.dbal.simpl_scalar;
+import simpl.core.ElementState;
 import ecologylab.net.ParsedURL;
-import ecologylab.serialization.ElementState;
 
 /**
  * Thumbnail element. Optionally used to provide representative images

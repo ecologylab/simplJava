@@ -8,8 +8,8 @@ import java.util.ArrayList;
 import simpl.annotations.dbal.simpl_collection;
 import simpl.annotations.dbal.simpl_inherit;
 import simpl.annotations.dbal.simpl_nowrap;
+import simpl.core.ElementState;
 
-import ecologylab.serialization.ElementState;
 
 public @simpl_inherit class Records extends ElementState
 {

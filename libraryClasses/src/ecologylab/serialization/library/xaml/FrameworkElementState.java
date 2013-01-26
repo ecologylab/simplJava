@@ -10,8 +10,8 @@ import simpl.annotations.dbal.simpl_collection;
 import simpl.annotations.dbal.simpl_inherit;
 import simpl.annotations.dbal.simpl_scalar;
 import simpl.annotations.dbal.simpl_tag;
+import simpl.core.ElementState;
 
-import ecologylab.serialization.ElementState;
 
 /**
  * ecologylab.serialization representation of the Microsoft WPF FrameworkElement object. FrameworkElement

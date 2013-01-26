@@ -1,6 +1,6 @@
 package ecologylab.serialization.library.endnote;
 
-import ecologylab.serialization.SimplTypesScope;
+import simpl.core.SimplTypesScope;
 
 /**
  * Contains all of the information necessary to translate XML objects used in

@@ -10,14 +10,14 @@ import java.util.ArrayList;
 
 import simpl.annotations.dbal.simpl_composite;
 import simpl.annotations.dbal.simpl_scalar;
+import simpl.core.SimplTypesScope;
 import simpl.exceptions.SIMPLTranslationException;
+import simpl.formats.enums.Format;
 
 import legacy.tests.TestCase;
 import legacy.tests.TestingUtils;
 
 import ecologylab.net.ParsedURL;
-import ecologylab.serialization.SimplTypesScope;
-import ecologylab.serialization.formatenums.Format;
 
 public class Rss implements TestCase
 {

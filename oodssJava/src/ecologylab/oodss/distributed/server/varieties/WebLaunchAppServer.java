@@ -8,13 +8,14 @@ import java.net.BindException;
 import java.net.InetAddress;
 import java.nio.channels.SelectionKey;
 
+import simpl.core.SimplTypesScope;
+
 import ecologylab.collections.Scope;
 import ecologylab.net.NetTools;
 import ecologylab.oodss.distributed.common.ServicesHostsAndPorts;
 import ecologylab.oodss.distributed.server.DoubleThreadedNIOServer;
 import ecologylab.oodss.distributed.server.clientsessionmanager.HTTPPostClientSessionManager;
 import ecologylab.oodss.messages.DefaultServicesTranslations;
-import ecologylab.serialization.SimplTypesScope;
 
 /**
  * A server that runs on an application that uses web launch, listening for commands from the web

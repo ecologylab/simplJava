@@ -4,6 +4,7 @@ import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
 import javax.xml.stream.XMLStreamConstants;
 
+import simpl.deserialization.stringformats.XMLParser;
 import simpl.exceptions.SIMPLTranslationException;
 
 

@@ -3,10 +3,10 @@ package simpl.types.scalar;
 import java.util.UUID;
 
 import simpl.annotations.dbal.simpl_inherit;
+import simpl.core.ScalarUnmarshallingContext;
 import simpl.types.CrossLanguageTypeConstants;
 import simpl.types.ScalarType;
 
-import ecologylab.serialization.ScalarUnmarshallingContext;
 
 @simpl_inherit
 public class UUIDType extends ScalarType<UUID>

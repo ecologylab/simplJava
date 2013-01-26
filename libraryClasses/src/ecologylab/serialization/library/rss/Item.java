@@ -7,12 +7,12 @@ import simpl.annotations.dbal.simpl_collection;
 import simpl.annotations.dbal.simpl_hints;
 import simpl.annotations.dbal.simpl_nowrap;
 import simpl.annotations.dbal.simpl_scalar;
+import simpl.core.ElementState;
 
 import ecologylab.net.ParsedURL;
-import ecologylab.serialization.ElementState;
 
 /**
- * RSS parser <code>ite</code> element {@link ecologylab.serialization.ElementState ElementState} declaration.
+ * RSS parser <code>ite</code> element {@link simpl.core.ElementState ElementState} declaration.
  * Used with most (perhaps all) RSS versions.
  * <p/>
  * Includes support for funky included namespace content, such as DublinCore, Yahoo Media, and Feedburner.

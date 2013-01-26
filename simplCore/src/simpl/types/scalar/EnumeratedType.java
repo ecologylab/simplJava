@@ -5,9 +5,9 @@ import java.util.ArrayList;
 
 import simpl.annotations.dbal.simpl_collection;
 import simpl.annotations.dbal.simpl_nowrap;
+import simpl.core.ScalarUnmarshallingContext;
+import simpl.core.XMLTools;
 
-import ecologylab.serialization.ScalarUnmarshallingContext;
-import ecologylab.serialization.XMLTools;
 
 public class EnumeratedType extends ReferenceType<Enum>
 {		

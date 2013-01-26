@@ -14,6 +14,8 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import javax.xml.bind.DatatypeConverter;
 
+import simpl.core.SimplTypesScope;
+
 import ecologylab.collections.Scope;
 import ecologylab.generic.CharBufferPool;
 import ecologylab.generic.HashMapArrayList;
@@ -28,7 +30,6 @@ import ecologylab.oodss.messages.MultiRequestMessage;
 import ecologylab.oodss.messages.RequestMessage;
 import ecologylab.oodss.messages.ResponseMessage;
 import ecologylab.oodss.messages.ServiceMessage;
-import ecologylab.serialization.SimplTypesScope;
 
 /**
  * OODSS Datagram server.

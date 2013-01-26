@@ -9,13 +9,13 @@ import java.net.URLDecoder;
 import java.util.regex.Pattern;
 
 import simpl.annotations.dbal.simpl_inherit;
+import simpl.core.ScalarUnmarshallingContext;
+import simpl.core.TranslationContext;
 import simpl.types.CrossLanguageTypeConstants;
 
 import ecologylab.appframework.PropertiesAndDirectories;
 import ecologylab.generic.StringTools;
 import ecologylab.net.ParsedURL;
-import ecologylab.serialization.ScalarUnmarshallingContext;
-import ecologylab.serialization.TranslationContext;
 
 /**
  * Type system entry for java.awt.Color. Uses a hex string as initialization.

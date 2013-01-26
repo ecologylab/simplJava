@@ -3,8 +3,8 @@
  */
 package ecologylab.serialization.library.jnlp;
 
+import simpl.core.SimplTypesScope;
 import ecologylab.oodss.AppFrameworkTranslations;
-import ecologylab.serialization.SimplTypesScope;
 import ecologylab.serialization.library.jnlp.applet.AppletDesc;
 import ecologylab.serialization.library.jnlp.applet.Param;
 import ecologylab.serialization.library.jnlp.application.ApplicationDesc;

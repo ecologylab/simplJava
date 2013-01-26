@@ -10,8 +10,8 @@ import java.util.Map;
 import simpl.annotations.dbal.simpl_collection;
 import simpl.annotations.dbal.simpl_inherit;
 import simpl.annotations.dbal.simpl_scalar;
+import simpl.core.GenericTypeVar;
 
-import ecologylab.serialization.GenericTypeVar;
 
 /**
  * Basic cross-platform unit for managing Collection and Map types in S.IM.PL Serialization.

@@ -3,7 +3,7 @@
  */
 package simpl.exceptions;
 
-import ecologylab.serialization.SimplTypesScope;
+import simpl.core.SimplTypesScope;
 
 /**
  * An exception to throw when lookup of the root element fails in the TranslationSpace.

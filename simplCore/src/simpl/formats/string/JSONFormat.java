@@ -2,7 +2,8 @@ package simpl.formats.string;
 
 import org.json.simple.JSONValue;
 
-import ecologylab.serialization.ISimplStringFormat;
+import simpl.core.ISimplStringFormat;
+
 
 // TODO: MAY need to move to platform specifics. :\ 
 public class JSONFormat implements ISimplStringFormat{

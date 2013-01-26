@@ -38,8 +38,19 @@ import simpl.annotations.dbal.simpl_scalar;
 import simpl.annotations.dbal.simpl_scope;
 import simpl.annotations.dbal.simpl_tag;
 import simpl.annotations.dbal.simpl_wrap;
+import simpl.core.DescriptorBase;
+import simpl.core.ElementState;
+import simpl.core.FieldType;
+import simpl.core.GenericTypeVar;
+import simpl.core.MetaInformation;
+import simpl.core.ScalarUnmarshallingContext;
+import simpl.core.SimplTypesScope;
+import simpl.core.TranslationContext;
+import simpl.core.XMLTools;
+import simpl.core.MetaInformation.Argument;
 import simpl.exceptions.SIMPLDescriptionException;
 import simpl.exceptions.SIMPLTranslationException;
+import simpl.formats.enums.Format;
 import simpl.formats.string.FormatRegistry;
 import simpl.platformspecifics.SimplPlatformSpecifics;
 import simpl.types.CollectionType;
@@ -52,17 +63,6 @@ import ecologylab.generic.HashMapArrayList;
 import ecologylab.generic.ReflectionTools;
 import ecologylab.generic.StringBuilderBaseUtils;
 import ecologylab.generic.StringTools;
-import ecologylab.serialization.DescriptorBase;
-import ecologylab.serialization.ElementState;
-import ecologylab.serialization.FieldType;
-import ecologylab.serialization.GenericTypeVar;
-import ecologylab.serialization.MetaInformation;
-import ecologylab.serialization.ScalarUnmarshallingContext;
-import ecologylab.serialization.SimplTypesScope;
-import ecologylab.serialization.TranslationContext;
-import ecologylab.serialization.XMLTools;
-import ecologylab.serialization.MetaInformation.Argument;
-import ecologylab.serialization.formatenums.Format;
 
 /**
  * Used to provide convenient access for setting and getting values, using the

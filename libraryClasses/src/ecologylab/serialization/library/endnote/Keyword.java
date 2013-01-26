@@ -4,7 +4,7 @@
 package ecologylab.serialization.library.endnote;
 
 import simpl.annotations.dbal.simpl_inherit;
-import ecologylab.serialization.ElementState;
+import simpl.core.ElementState;
 
 /**
  * @author Zachary O. Toups (toupsz@cs.tamu.edu)

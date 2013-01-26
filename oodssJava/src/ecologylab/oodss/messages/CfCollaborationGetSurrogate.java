@@ -5,10 +5,10 @@ import simpl.annotations.dbal.Hint;
 import simpl.annotations.dbal.simpl_hints;
 import simpl.annotations.dbal.simpl_inherit;
 import simpl.annotations.dbal.simpl_scalar;
+import simpl.core.SimplTypesScope;
 import simpl.exceptions.SIMPLTranslationException;
 import ecologylab.collections.Scope;
 import ecologylab.generic.Debug;
-import ecologylab.serialization.SimplTypesScope;
 
 @simpl_inherit
 public class CfCollaborationGetSurrogate extends RequestMessage {

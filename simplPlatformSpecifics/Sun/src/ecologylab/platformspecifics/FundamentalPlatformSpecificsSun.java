@@ -15,8 +15,10 @@ import javax.imageio.ImageIO;
 import javax.swing.JOptionPane;
 import javax.xml.stream.XMLInputFactory;
 
+import simpl.core.GenericTypeVar;
 import simpl.descriptions.ClassDescriptor;
 import simpl.descriptions.FieldDescriptor;
+import simpl.deserialization.stringformats.XMLParser;
 import simpl.exceptions.SIMPLTranslationException;
 import simpl.platformspecifics.ISimplPlatformSpecifics;
 
@@ -32,8 +34,6 @@ import ecologylab.generic.Debug;
 import ecologylab.generic.ReflectionTools;
 import ecologylab.generic.StringInputStream;
 import ecologylab.net.ParsedURL;
-import ecologylab.serialization.GenericTypeVar;
-import ecologylab.serialization.deserializers.pullhandlers.stringformats.XMLParser;
 import ecologylab.serialization.deserializers.pullhandlers.stringformats.XMLParserSun;
 import ecologylab.serialization.types.PlatformSpecificTypesSun;
 

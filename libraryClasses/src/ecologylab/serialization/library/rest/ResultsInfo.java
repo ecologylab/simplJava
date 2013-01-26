@@ -3,7 +3,7 @@ package ecologylab.serialization.library.rest;
 import simpl.annotations.dbal.Hint;
 import simpl.annotations.dbal.simpl_hints;
 import simpl.annotations.dbal.simpl_scalar;
-import ecologylab.serialization.ElementState;
+import simpl.core.ElementState;
 
 public class ResultsInfo extends ElementState
 {

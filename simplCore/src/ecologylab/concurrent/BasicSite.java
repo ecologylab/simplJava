@@ -7,10 +7,10 @@ import java.util.Random;
 
 import simpl.annotations.dbal.simpl_scalar;
 import simpl.annotations.dbal.simpl_tag;
+import simpl.core.ElementState;
 import simpl.types.element.IMappable;
 
 import ecologylab.net.ParsedURL;
-import ecologylab.serialization.ElementState;
 
 /**
  * 

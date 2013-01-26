@@ -11,11 +11,11 @@ import simpl.annotations.dbal.simpl_collection;
 import simpl.annotations.dbal.simpl_inherit;
 import simpl.annotations.dbal.simpl_scalar;
 import simpl.annotations.dbal.simpl_tag;
+import simpl.core.ElementState;
+import simpl.core.TranslationContext;
 import simpl.types.ScalarType;
 
 import ecologylab.collections.Scope;
-import ecologylab.serialization.ElementState;
-import ecologylab.serialization.TranslationContext;
 
 /**
  * Metadata about a Preference. Defines information to enable editing the Preference.

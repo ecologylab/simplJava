@@ -5,13 +5,13 @@ import java.util.ArrayList;
 import java.util.Collection;
 
 import simpl.annotations.dbal.FieldUsage;
+import simpl.core.TranslationContext;
+import simpl.core.XMLTools;
 import simpl.descriptions.ClassDescriptor;
 import simpl.descriptions.FieldDescriptor;
 import simpl.exceptions.SIMPLTranslationException;
+import simpl.formats.enums.Format;
 
-import ecologylab.serialization.TranslationContext;
-import ecologylab.serialization.XMLTools;
-import ecologylab.serialization.formatenums.Format;
 
 /**
  * 

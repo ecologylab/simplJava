@@ -3,8 +3,8 @@ package ecologylab.serialization.library.itunes;
 import simpl.annotations.dbal.Hint;
 import simpl.annotations.dbal.simpl_hints;
 import simpl.annotations.dbal.simpl_scalar;
+import simpl.core.ElementState;
 import ecologylab.net.ParsedURL;
-import ecologylab.serialization.ElementState;
 
 /**
  * XMLNS (namespace) corresponding to itunes podcasts.

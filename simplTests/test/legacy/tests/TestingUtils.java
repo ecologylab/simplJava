@@ -6,11 +6,11 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 
+import simpl.core.SimplTypesScope;
+import simpl.deserialization.binaryformats.tlv.Utils;
 import simpl.exceptions.SIMPLTranslationException;
+import simpl.formats.enums.Format;
 
-import ecologylab.serialization.SimplTypesScope;
-import ecologylab.serialization.deserializers.parsers.tlv.Utils;
-import ecologylab.serialization.formatenums.Format;
 
 public class TestingUtils
 {

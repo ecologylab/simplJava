@@ -5,7 +5,7 @@ package ecologylab.appframework.types.prefs;
 
 import simpl.annotations.dbal.simpl_inherit;
 import simpl.annotations.dbal.simpl_scalar;
-import ecologylab.serialization.ElementState;
+import simpl.core.ElementState;
 
 /**
  * @author andruid

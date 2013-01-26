@@ -6,10 +6,10 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 
+import simpl.core.TranslationContext;
+import simpl.core.XMLTools;
 import simpl.exceptions.SIMPLTranslationException;
 
-import ecologylab.serialization.TranslationContext;
-import ecologylab.serialization.XMLTools;
 import ecologylab.serialization.serializers.FormatSerializer;
 
 public abstract class BinarySerializer extends FormatSerializer

@@ -3,9 +3,9 @@
  */
 package ecologylab.appframework.types.prefs;
 
+import simpl.core.SimplTypesScope;
 import simpl.platformspecifics.SimplPlatformSpecifics;
 import ecologylab.generic.Debug;
-import ecologylab.serialization.SimplTypesScope;
 
 /**
  * @author andrew

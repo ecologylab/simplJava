@@ -3,9 +3,10 @@ package simpl.formats.string;
 import java.util.HashMap;
 import java.util.Map;
 
-import ecologylab.serialization.ISimplStringFormat;
-import ecologylab.serialization.formatenums.Format;
-import ecologylab.serialization.formatenums.StringFormat;
+import simpl.core.ISimplStringFormat;
+import simpl.formats.enums.Format;
+import simpl.formats.enums.StringFormat;
+
 
 public class FormatRegistry {
 

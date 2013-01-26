@@ -3,14 +3,14 @@ package simpl.types.scalar;
 import java.io.IOException;
 
 import simpl.annotations.dbal.simpl_inherit;
+import simpl.core.ElementState;
+import simpl.core.ScalarUnmarshallingContext;
+import simpl.core.TranslationContext;
 import simpl.descriptions.ClassDescriptor;
 import simpl.descriptions.FieldDescriptor;
+import simpl.formats.enums.Format;
 import simpl.types.ScalarType;
 
-import ecologylab.serialization.ElementState;
-import ecologylab.serialization.ScalarUnmarshallingContext;
-import ecologylab.serialization.TranslationContext;
-import ecologylab.serialization.formatenums.Format;
 
 /*
  * This is not being used as composite are only treated as scalars in a certain context of serialization. for example bibtex 

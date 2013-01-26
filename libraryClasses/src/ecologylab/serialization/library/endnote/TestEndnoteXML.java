@@ -5,11 +5,11 @@ package ecologylab.serialization.library.endnote;
 
 import java.io.File;
 
+import simpl.core.SimplTypesScope;
 import simpl.exceptions.SIMPLTranslationException;
+import simpl.formats.enums.Format;
+import simpl.formats.enums.StringFormat;
 
-import ecologylab.serialization.SimplTypesScope;
-import ecologylab.serialization.formatenums.Format;
-import ecologylab.serialization.formatenums.StringFormat;
 
 public class TestEndnoteXML
 {

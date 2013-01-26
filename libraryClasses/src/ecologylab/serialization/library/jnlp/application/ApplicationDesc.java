@@ -11,13 +11,13 @@ import simpl.annotations.dbal.simpl_collection;
 import simpl.annotations.dbal.simpl_nowrap;
 import simpl.annotations.dbal.simpl_scalar;
 import simpl.annotations.dbal.simpl_tag;
+import simpl.core.ElementState;
+import simpl.core.SimplTypesScope;
+import simpl.core.TranslationContext;
 import simpl.exceptions.SIMPLTranslationException;
+import simpl.formats.enums.StringFormat;
 
 import ecologylab.appframework.types.prefs.PrefSet;
-import ecologylab.serialization.ElementState;
-import ecologylab.serialization.SimplTypesScope;
-import ecologylab.serialization.TranslationContext;
-import ecologylab.serialization.formatenums.StringFormat;
 
 /**
  * @author Zachary O. Toups (zach@ecologylab.net)
@@ -84,7 +84,7 @@ public class ApplicationDesc extends ElementState
 	}
 
 	/**
-	 * @see ecologylab.serialization.ElementState#serializationPreHook()
+	 * @see simpl.core.ElementState#serializationPreHook()
 	 */
 	@Override
 	public void serializationPreHook(TranslationContext translationContext)
@@ -113,7 +113,7 @@ public class ApplicationDesc extends ElementState
 	}
 
 	/**
-	 * @see ecologylab.serialization.ElementState#serializationPostHook()
+	 * @see simpl.core.ElementState#serializationPostHook()
 	 */
 	@Override
 	public void serializationPostHook(TranslationContext translationContext)

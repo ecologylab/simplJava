@@ -1,11 +1,11 @@
 package legacy.tests.graph.diamond;
 
 import simpl.annotations.dbal.simpl_composite;
+import simpl.core.SimplTypesScope;
 import simpl.exceptions.SIMPLTranslationException;
+import simpl.formats.enums.Format;
 import legacy.tests.TestCase;
 import legacy.tests.TestingUtils;
-import ecologylab.serialization.SimplTypesScope;
-import ecologylab.serialization.formatenums.Format;
 
 public class ClassD implements TestCase
 {

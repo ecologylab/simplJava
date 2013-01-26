@@ -4,7 +4,7 @@
  */
 package ecologylab.generic;
 
-import ecologylab.serialization.ElementObserver;
+import simpl.core.ElementObserver;
 
 /**
  * @author Andrew Webb

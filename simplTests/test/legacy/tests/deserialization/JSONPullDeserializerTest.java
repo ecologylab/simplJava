@@ -11,13 +11,13 @@ import simpl.annotations.dbal.simpl_map;
 import simpl.annotations.dbal.simpl_map_key_field;
 import simpl.annotations.dbal.simpl_nowrap;
 import simpl.annotations.dbal.simpl_scalar;
+import simpl.core.JSONTools;
+import simpl.core.SimplTypesScope;
 import simpl.exceptions.SIMPLTranslationException;
+import simpl.formats.enums.StringFormat;
 import simpl.types.element.IMappable;
 
 import ecologylab.generic.HashMapArrayList;
-import ecologylab.serialization.JSONTools;
-import ecologylab.serialization.SimplTypesScope;
-import ecologylab.serialization.formatenums.StringFormat;
 
 /**
  * Test cases for some edge behaviors of the JSON pull deserializer.

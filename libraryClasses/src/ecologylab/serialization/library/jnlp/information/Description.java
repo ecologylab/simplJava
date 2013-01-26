@@ -6,8 +6,8 @@ package ecologylab.serialization.library.jnlp.information;
 import simpl.annotations.dbal.Hint;
 import simpl.annotations.dbal.simpl_hints;
 import simpl.annotations.dbal.simpl_scalar;
+import simpl.core.ElementState;
 import simpl.types.element.IMappable;
-import ecologylab.serialization.ElementState;
 
 /**
  * A short statement about the application. Description elements are optional. The kind attribute defines how the

@@ -3,10 +3,10 @@ package ecologylab.oodss.logging;
 import java.util.Date;
 
 import simpl.annotations.dbal.simpl_scalar;
+import simpl.core.ElementState;
 
 import ecologylab.appframework.types.prefs.Pref;
 import ecologylab.net.NetTools;
-import ecologylab.serialization.ElementState;
 
 /**
  * request message for the Logging server to open new log file and write the header.

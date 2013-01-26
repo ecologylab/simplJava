@@ -4,10 +4,10 @@
 package ecologylab.oodss.messages;
 
 import simpl.annotations.dbal.simpl_scalar;
+import simpl.core.SimplTypesScope;
 import simpl.exceptions.SIMPLTranslationException;
+import simpl.formats.enums.StringFormat;
 import ecologylab.collections.Scope;
-import ecologylab.serialization.SimplTypesScope;
-import ecologylab.serialization.formatenums.StringFormat;
 
 /**
  * Request to start a new connection to a server. If the message has no sessionId value, then it is

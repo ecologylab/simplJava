@@ -16,7 +16,11 @@ import java.util.ArrayList;
 
 import simpl.annotations.dbal.simpl_collection;
 import simpl.annotations.dbal.simpl_scope;
+import simpl.core.ElementState;
+import simpl.core.SimplTypesScope;
+import simpl.core.XMLTools;
 import simpl.exceptions.SIMPLTranslationException;
+import simpl.formats.enums.StringFormat;
 
 import ecologylab.appframework.ApplicationEnvironment;
 import ecologylab.appframework.Memory;
@@ -34,10 +38,6 @@ import ecologylab.oodss.distributed.common.ServicesHostsAndPorts;
 import ecologylab.oodss.distributed.exception.MessageTooLargeException;
 import ecologylab.oodss.messages.DefaultServicesTranslations;
 import ecologylab.oodss.messages.ResponseMessage;
-import ecologylab.serialization.ElementState;
-import ecologylab.serialization.SimplTypesScope;
-import ecologylab.serialization.XMLTools;
-import ecologylab.serialization.formatenums.StringFormat;
 
 /**
  * Provides a framework for interaction logging. Uses ecologylab.serialization to serialize user and

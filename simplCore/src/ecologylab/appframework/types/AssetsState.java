@@ -6,8 +6,8 @@ import java.util.HashMap;
 import simpl.annotations.dbal.simpl_inherit;
 import simpl.annotations.dbal.simpl_map;
 import simpl.annotations.dbal.simpl_nowrap;
+import simpl.core.ElementState;
 
-import ecologylab.serialization.ElementState;
 
 /**
  * Handles the loading and parsing of the asset version XML file

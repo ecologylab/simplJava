@@ -3,7 +3,7 @@
  */
 package ecologylab.serialization.library.jnlp.resource;
 
-import ecologylab.serialization.ElementState;
+import simpl.core.ElementState;
 
 /**
  * @author Zachary O. Toups (zach@ecologylab.net)

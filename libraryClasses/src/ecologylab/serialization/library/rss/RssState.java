@@ -5,18 +5,18 @@ import java.util.ArrayList;
 
 import simpl.annotations.dbal.simpl_composite;
 import simpl.annotations.dbal.simpl_scalar;
+import simpl.core.ElementState;
+import simpl.core.SimplTypesScope;
 import simpl.descriptions.ClassDescriptor;
 import simpl.descriptions.FieldDescriptor;
 import simpl.exceptions.SIMPLTranslationException;
+import simpl.formats.enums.Format;
+import simpl.formats.enums.StringFormat;
 
 import ecologylab.net.ParsedURL;
-import ecologylab.serialization.ElementState;
-import ecologylab.serialization.SimplTypesScope;
-import ecologylab.serialization.formatenums.Format;
-import ecologylab.serialization.formatenums.StringFormat;
 
 /**
- * {@link ecologylab.serialization.ElementState ElementState} for the root element of the RSS
+ * {@link simpl.core.ElementState ElementState} for the root element of the RSS
  * parser. In particular, this supports RSS versions such as .91, .92, .93, .94, and 2.0.
  * 
  * @author andruid

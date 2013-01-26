@@ -1,9 +1,9 @@
 package ecologylab.oodss;
 
+import simpl.core.SimplTypesScope;
 import ecologylab.appframework.types.prefs.PrefsTranslationsProvider;
 import ecologylab.generic.Debug;
 import ecologylab.oodss.messages.DefaultServicesTranslations;
-import ecologylab.serialization.SimplTypesScope;
 
 /**
  * Base translations for applications that use the ecologylab appframework and services.

@@ -10,12 +10,12 @@ import simpl.annotations.dbal.bibtex_type;
 import simpl.annotations.dbal.simpl_collection;
 import simpl.annotations.dbal.simpl_nowrap;
 import simpl.annotations.dbal.simpl_scalar;
+import simpl.core.ElementState;
+import simpl.core.SimplTypesScope;
 import simpl.exceptions.SIMPLTranslationException;
+import simpl.formats.enums.StringFormat;
 
 import ecologylab.net.ParsedURL;
-import ecologylab.serialization.ElementState;
-import ecologylab.serialization.SimplTypesScope;
-import ecologylab.serialization.formatenums.StringFormat;
 
 @bibtex_type("article")
 public class Entry extends ElementState

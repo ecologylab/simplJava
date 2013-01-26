@@ -14,7 +14,9 @@ import java.util.Arrays;
 import org.java_websocket.WebSocket;
 import org.java_websocket.WebSocketImpl;
 
+import simpl.core.SimplTypesScope;
 import simpl.exceptions.SIMPLTranslationException;
+import simpl.formats.enums.StringFormat;
 
 import ecologylab.collections.Scope;
 import ecologylab.generic.HashMapArrayList;
@@ -28,8 +30,6 @@ import ecologylab.oodss.exceptions.BadClientException;
 import ecologylab.oodss.messages.ResponseMessage;
 import ecologylab.oodss.messages.ServiceMessage;
 import ecologylab.oodss.messages.UpdateMessage;
-import ecologylab.serialization.SimplTypesScope;
-import ecologylab.serialization.formatenums.StringFormat;
 
 /**
  * An OODSS server based on websocket

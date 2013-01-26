@@ -9,15 +9,15 @@ import java.util.List;
 
 import org.junit.Test;
 
+import simpl.core.SimplTypesScope;
+import simpl.core.TranslationContext;
 import simpl.descriptions.ClassDescriptor;
 import simpl.descriptions.FieldDescriptor;
 import simpl.exceptions.SIMPLTranslationException;
+import simpl.formats.enums.StringFormat;
 
-import ecologylab.serialization.SimplTypesScope;
-import ecologylab.serialization.TranslationContext;
 import ecologylab.serialization.primaryScenarioEnum;
 import ecologylab.serialization.secondaryScenarioEnum;
-import ecologylab.serialization.formatenums.StringFormat;
 
 public class ListDeSerializationTests {
 

@@ -11,10 +11,10 @@ import simpl.annotations.dbal.simpl_inherit;
 import simpl.annotations.dbal.simpl_nowrap;
 import simpl.annotations.dbal.simpl_scalar;
 import simpl.annotations.dbal.simpl_scope;
+import simpl.core.ElementState;
 
 import ecologylab.collections.Scope;
 import ecologylab.logging.MixedInitiativeOp;
-import ecologylab.serialization.ElementState;
 
 @simpl_inherit
 public class PrefDelayedOp<O extends MixedInitiativeOp> extends PrefOp<O> implements ActionListener

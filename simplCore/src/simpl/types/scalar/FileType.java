@@ -7,12 +7,12 @@ import java.io.File;
 import java.io.IOException;
 
 import simpl.annotations.dbal.simpl_inherit;
+import simpl.core.ScalarUnmarshallingContext;
+import simpl.core.TranslationContext;
 import simpl.types.CrossLanguageTypeConstants;
 
 import ecologylab.generic.StringTools;
 import ecologylab.io.Files;
-import ecologylab.serialization.ScalarUnmarshallingContext;
-import ecologylab.serialization.TranslationContext;
 
 /**
  * @author Zachary O. Toups (toupsz@cs.tamu.edu)

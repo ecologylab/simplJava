@@ -24,12 +24,13 @@ import java.util.Map;
 
 import javax.xml.bind.DatatypeConverter;
 
+import simpl.core.SimplTypesScope;
+
 import ecologylab.collections.Scope;
 import ecologylab.generic.ObjectOrHashMap;
 import ecologylab.oodss.distributed.common.ServerConstants;
 import ecologylab.oodss.distributed.server.NIOServerDataReader;
 import ecologylab.oodss.exceptions.BadClientException;
-import ecologylab.serialization.SimplTypesScope;
 
 /**
  * The backend portion of the NIO Server, which handles low-level communication with clients.

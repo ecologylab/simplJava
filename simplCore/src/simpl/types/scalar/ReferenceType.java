@@ -8,11 +8,11 @@ import java.io.IOException;
 import org.json.simple.JSONObject;
 
 import simpl.annotations.dbal.simpl_inherit;
+import simpl.core.TranslationContext;
+import simpl.core.XMLTools;
+import simpl.formats.enums.Format;
 import simpl.types.ScalarType;
 
-import ecologylab.serialization.TranslationContext;
-import ecologylab.serialization.XMLTools;
-import ecologylab.serialization.formatenums.Format;
 
 /**
  * All non-primitive ScalarType subclasses should extend this class.

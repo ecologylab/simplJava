@@ -17,12 +17,13 @@ import java.util.Queue;
 
 import javax.naming.OperationNotSupportedException;
 
+import simpl.core.SimplTypesScope;
+
 import ecologylab.collections.Scope;
 import ecologylab.io.ByteBufferPool;
 import ecologylab.oodss.exceptions.BadClientException;
 import ecologylab.oodss.exceptions.ClientOfflineException;
 import ecologylab.oodss.messages.DefaultServicesTranslations;
-import ecologylab.serialization.SimplTypesScope;
 
 /**
  * Handles backend, low-level communication between distributed programs, using NIO. This is the

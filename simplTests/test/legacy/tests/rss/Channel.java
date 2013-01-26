@@ -9,9 +9,9 @@ import simpl.annotations.dbal.simpl_collection;
 import simpl.annotations.dbal.simpl_hints;
 import simpl.annotations.dbal.simpl_nowrap;
 import simpl.annotations.dbal.simpl_scalar;
+import simpl.core.ElementState;
 
 import ecologylab.net.ParsedURL;
-import ecologylab.serialization.ElementState;
 
 public class Channel extends ElementState
 {

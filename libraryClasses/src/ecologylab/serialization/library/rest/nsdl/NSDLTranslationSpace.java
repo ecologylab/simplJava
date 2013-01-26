@@ -1,7 +1,7 @@
 package ecologylab.serialization.library.rest.nsdl;
 
+import simpl.core.SimplTypesScope;
 import ecologylab.generic.Debug;
-import ecologylab.serialization.SimplTypesScope;
 import ecologylab.serialization.library.rest.RESTTranslationSpace;
 import ecologylab.serialization.library.rest.SearchResults;
 

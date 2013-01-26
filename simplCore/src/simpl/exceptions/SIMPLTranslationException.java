@@ -2,10 +2,11 @@ package simpl.exceptions;
 
 import java.util.List;
 import java.util.ArrayList;
+
+import simpl.core.SimplIssue;
+import simpl.core.XMLTranslationExceptionTypes;
 import ecologylab.generic.Debug;
 import ecologylab.net.ParsedURL;
-import ecologylab.serialization.SimplIssue;
-import ecologylab.serialization.XMLTranslationExceptionTypes;
 
 /**
  * There are certain rules one has to follow while using this framework for

@@ -7,8 +7,8 @@ import simpl.annotations.dbal.bibtex_tag;
 import simpl.annotations.dbal.simpl_collection;
 import simpl.annotations.dbal.simpl_inherit;
 import simpl.annotations.dbal.simpl_scalar;
+import simpl.core.ElementState;
 
-import ecologylab.serialization.ElementState;
 
 /**
  * The abstract base class for BibTeX entry types. Holds the citation key and common fields such

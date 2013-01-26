@@ -9,15 +9,15 @@ import java.util.List;
 import org.junit.Test;
 
 import simpl.annotations.dbal.simpl_collection;
+import simpl.core.FieldType;
+import simpl.core.SimplTypesScope;
 import simpl.descriptions.ClassDescriptor;
 import simpl.descriptions.FieldDescriptor;
 import simpl.exceptions.SIMPLTranslationException;
+import simpl.formats.enums.StringFormat;
 
-import ecologylab.serialization.FieldType;
-import ecologylab.serialization.SimplTypesScope;
 import ecologylab.serialization.primaryScenarioEnum;
 import ecologylab.serialization.secondaryScenarioEnum;
-import ecologylab.serialization.formatenums.StringFormat;
 
 public class EnumerationSerializationDeserialization {
 	

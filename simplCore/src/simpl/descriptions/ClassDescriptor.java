@@ -30,7 +30,15 @@ import simpl.annotations.dbal.simpl_other_tags;
 import simpl.annotations.dbal.simpl_scalar;
 import simpl.annotations.dbal.simpl_tag;
 import simpl.annotations.dbal.simpl_use_equals_equals;
+import simpl.core.DescriptorBase;
+import simpl.core.FieldType;
+import simpl.core.GenericTypeVar;
+import simpl.core.MetaInformation;
+import simpl.core.SimplTypesScope;
+import simpl.core.TranslationContext;
+import simpl.core.XMLTools;
 import simpl.exceptions.SIMPLTranslationException;
+import simpl.formats.enums.StringFormat;
 import simpl.platformspecifics.SimplPlatformSpecifics;
 import simpl.types.CollectionType;
 import simpl.types.ScalarType;
@@ -39,14 +47,6 @@ import simpl.types.element.IMappable;
 
 import ecologylab.generic.HashMapArrayList;
 import ecologylab.generic.ReflectionTools;
-import ecologylab.serialization.DescriptorBase;
-import ecologylab.serialization.FieldType;
-import ecologylab.serialization.GenericTypeVar;
-import ecologylab.serialization.MetaInformation;
-import ecologylab.serialization.SimplTypesScope;
-import ecologylab.serialization.TranslationContext;
-import ecologylab.serialization.XMLTools;
-import ecologylab.serialization.formatenums.StringFormat;
 
 /**
  * Cached object that holds all of the structures needed to optimize

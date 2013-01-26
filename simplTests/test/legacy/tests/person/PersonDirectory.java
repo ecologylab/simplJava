@@ -4,13 +4,13 @@ import java.util.ArrayList;
 
 import simpl.annotations.dbal.simpl_classes;
 import simpl.annotations.dbal.simpl_collection;
+import simpl.core.SimplTypesScope;
 import simpl.exceptions.SIMPLTranslationException;
+import simpl.formats.enums.Format;
 
 import legacy.tests.TestCase;
 import legacy.tests.TestingUtils;
 
-import ecologylab.serialization.SimplTypesScope;
-import ecologylab.serialization.formatenums.Format;
 
 public class PersonDirectory implements TestCase
 {

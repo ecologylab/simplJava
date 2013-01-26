@@ -8,14 +8,14 @@ import java.lang.reflect.Field;
 import java.util.HashMap;
 
 import simpl.annotations.dbal.simpl_inherit;
+import simpl.core.ScalarUnmarshallingContext;
+import simpl.core.TranslationContext;
 import simpl.descriptions.FieldDescriptor;
+import simpl.formats.enums.Format;
 import simpl.types.CrossLanguageTypeConstants;
 import simpl.types.ScalarType;
 
 import ecologylab.generic.text.EfficientDecimalFormat;
-import ecologylab.serialization.ScalarUnmarshallingContext;
-import ecologylab.serialization.TranslationContext;
-import ecologylab.serialization.formatenums.Format;
 
 /**
  * Type system entry for double, a built-in primitive.

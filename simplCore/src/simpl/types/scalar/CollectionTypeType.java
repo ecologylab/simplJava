@@ -4,10 +4,10 @@
 package simpl.types.scalar;
 
 import simpl.annotations.dbal.simpl_inherit;
+import simpl.core.ScalarUnmarshallingContext;
+import simpl.core.TranslationContext;
 import simpl.types.CollectionType;
 import simpl.types.TypeRegistry;
-import ecologylab.serialization.ScalarUnmarshallingContext;
-import ecologylab.serialization.TranslationContext;
 
 /**
  * @author andruid

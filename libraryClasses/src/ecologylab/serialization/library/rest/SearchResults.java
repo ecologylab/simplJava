@@ -5,8 +5,8 @@ import java.util.ArrayList;
 import simpl.annotations.dbal.simpl_collection;
 import simpl.annotations.dbal.simpl_composite;
 import simpl.annotations.dbal.simpl_nowrap;
+import simpl.core.ElementState;
 
-import ecologylab.serialization.ElementState;
 
 /**
  * Represents REST search results

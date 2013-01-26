@@ -7,13 +7,13 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 
-import ecologylab.serialization.DescriptorBase;
-import ecologylab.serialization.ISimplStringMarshaller;
-import ecologylab.serialization.SimplIssue;
-import ecologylab.serialization.XMLTools;
 
 import simpl.annotations.dbal.simpl_collection;
 import simpl.annotations.dbal.simpl_scalar;
+import simpl.core.DescriptorBase;
+import simpl.core.ISimplStringMarshaller;
+import simpl.core.SimplIssue;
+import simpl.core.XMLTools;
 import simpl.exceptions.SIMPLDescriptionException;
 import simpl.exceptions.SIMPLTranslationException;
 

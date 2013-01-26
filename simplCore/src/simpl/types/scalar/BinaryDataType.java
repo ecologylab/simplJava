@@ -3,12 +3,12 @@ package simpl.types.scalar;
 import java.nio.ByteBuffer;
 
 import simpl.annotations.dbal.simpl_inherit;
+import simpl.core.ScalarUnmarshallingContext;
+import simpl.core.TranslationContext;
 import simpl.types.CrossLanguageTypeConstants;
 import simpl.types.ScalarType;
 
 import ecologylab.generic.Base64Coder;
-import ecologylab.serialization.ScalarUnmarshallingContext;
-import ecologylab.serialization.TranslationContext;
 
 @simpl_inherit
 public class BinaryDataType extends ScalarType<ByteBuffer>

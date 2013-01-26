@@ -1,5 +1,6 @@
 package ecologylab.oodss.logging.translationScope;
 
+import simpl.core.SimplTypesScope;
 import simpl.types.element.ElementTypeTranslationsProvider;
 import ecologylab.oodss.logging.Epilogue;
 import ecologylab.oodss.logging.LogEvent;
@@ -9,7 +10,6 @@ import ecologylab.oodss.logging.LogueMessage;
 import ecologylab.oodss.logging.Prologue;
 import ecologylab.oodss.logging.SendEpilogue;
 import ecologylab.oodss.logging.SendPrologue;
-import ecologylab.serialization.SimplTypesScope;
 
 /**
  * Provide XML translation for logging basics.

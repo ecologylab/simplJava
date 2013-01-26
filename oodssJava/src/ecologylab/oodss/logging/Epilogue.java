@@ -1,6 +1,6 @@
 package ecologylab.oodss.logging;
 
-import ecologylab.serialization.ElementState;
+import simpl.core.ElementState;
 
 /**
  * Request message about letting the server to write closing block for xml logs and close the log file.

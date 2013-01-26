@@ -5,8 +5,8 @@ package ecologylab.net;
 
 import simpl.annotations.dbal.simpl_scalar;
 import simpl.annotations.dbal.simpl_tag;
+import simpl.core.ElementState;
 import simpl.types.element.IMappable;
-import ecologylab.serialization.ElementState;
 
 /**
  * @author awebb

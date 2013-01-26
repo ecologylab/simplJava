@@ -12,14 +12,14 @@ import simpl.annotations.dbal.simpl_composite;
 import simpl.annotations.dbal.simpl_nowrap;
 import simpl.annotations.dbal.simpl_scalar;
 import simpl.annotations.dbal.simpl_tag;
+import simpl.core.ElementState;
+import simpl.core.SimplTypesScope;
 import simpl.exceptions.SIMPLTranslationException;
+import simpl.formats.enums.StringFormat;
 
 import ecologylab.appframework.types.prefs.PrefSet;
 import ecologylab.appframework.types.prefs.PrefSetBaseClassProvider;
 import ecologylab.generic.Debug;
-import ecologylab.serialization.ElementState;
-import ecologylab.serialization.SimplTypesScope;
-import ecologylab.serialization.formatenums.StringFormat;
 import ecologylab.serialization.library.jnlp.applet.AppletDesc;
 import ecologylab.serialization.library.jnlp.application.ApplicationDesc;
 import ecologylab.serialization.library.jnlp.information.InformationElement;

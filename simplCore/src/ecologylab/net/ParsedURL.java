@@ -11,7 +11,9 @@ import java.net.URLEncoder;
 import java.util.HashMap;
 import java.util.StringTokenizer;
 
+import simpl.core.SimplTypesScope;
 import simpl.exceptions.SIMPLTranslationException;
+import simpl.formats.enums.Format;
 import simpl.platformspecifics.SimplPlatformSpecifics;
 
 import ecologylab.collections.CollectionTools;
@@ -19,8 +21,6 @@ import ecologylab.generic.Debug;
 import ecologylab.generic.IntSlot;
 import ecologylab.generic.StringTools;
 import ecologylab.io.Files;
-import ecologylab.serialization.SimplTypesScope;
-import ecologylab.serialization.formatenums.Format;
 
 /**
  * Extends the URL with many features for the convenience and power of network programmers. New

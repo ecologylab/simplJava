@@ -3,7 +3,7 @@ package simpl.types;
 import simpl.annotations.dbal.simpl_inherit;
 import simpl.annotations.dbal.simpl_other_tags;
 import simpl.annotations.dbal.simpl_scalar;
-import ecologylab.serialization.ElementState;
+import simpl.core.ElementState;
 
 /**
  * Common base class for S.IM.PL scalar (ScalarType), composite (ClassDescriptor), and collection (CollectionType) types.

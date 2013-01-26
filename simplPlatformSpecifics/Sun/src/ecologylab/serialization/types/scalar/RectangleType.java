@@ -8,11 +8,11 @@ import java.util.Scanner;
 import java.util.regex.Pattern;
 
 import simpl.annotations.dbal.simpl_inherit;
+import simpl.core.ScalarUnmarshallingContext;
+import simpl.core.TranslationContext;
 import simpl.types.CrossLanguageTypeConstants;
 import simpl.types.ScalarType;
 
-import ecologylab.serialization.ScalarUnmarshallingContext;
-import ecologylab.serialization.TranslationContext;
 
 /**
  * @author andrew

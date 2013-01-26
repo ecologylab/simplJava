@@ -3,10 +3,10 @@ package ecologylab.fundamental;
 import org.junit.Before;
 import org.junit.Test;
 
+import simpl.core.SimplTypesScope;
 import simpl.descriptions.ClassDescriptor;
 import simpl.descriptions.FieldDescriptor;
 
-import ecologylab.serialization.SimplTypesScope;
 
 public class DescriptorsCanBeDescribed{
 

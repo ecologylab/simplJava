@@ -8,9 +8,9 @@ import java.net.URL;
 import java.util.regex.Pattern;
 
 import simpl.annotations.dbal.simpl_inherit;
+import simpl.core.ScalarUnmarshallingContext;
 import simpl.types.CrossLanguageTypeConstants;
 
-import ecologylab.serialization.ScalarUnmarshallingContext;
 
 /**
  * Type system entry for {@link java.net.URL URL}.

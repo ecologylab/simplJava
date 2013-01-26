@@ -6,16 +6,16 @@ import java.util.ArrayList;
 import simpl.annotations.dbal.simpl_collection;
 import simpl.annotations.dbal.simpl_nowrap;
 import simpl.annotations.dbal.simpl_tag;
+import simpl.core.ElementState;
+import simpl.core.SimplTypesScope;
 import simpl.exceptions.SIMPLTranslationException;
+import simpl.formats.enums.Format;
+import simpl.formats.enums.StringFormat;
 
 import ecologylab.net.ParsedURL;
-import ecologylab.serialization.ElementState;
-import ecologylab.serialization.SimplTypesScope;
-import ecologylab.serialization.formatenums.Format;
-import ecologylab.serialization.formatenums.StringFormat;
 
 /**
- * Alternative root element {@link ecologylab.serialization.ElementState ElementState} declarations
+ * Alternative root element {@link simpl.core.ElementState ElementState} declarations
  * for RSS parser: that nasty RSS versions: .90 and 1.0.
  * <p/>
  * This is a bit of a hack, in that it makes no attempt to handle general RDF, or to support

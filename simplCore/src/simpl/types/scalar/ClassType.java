@@ -4,10 +4,10 @@
 package simpl.types.scalar;
 
 import simpl.annotations.dbal.simpl_inherit;
+import simpl.core.ScalarUnmarshallingContext;
+import simpl.core.SimplTypesScope;
+import simpl.core.TranslationContext;
 import simpl.types.CrossLanguageTypeConstants;
-import ecologylab.serialization.ScalarUnmarshallingContext;
-import ecologylab.serialization.SimplTypesScope;
-import ecologylab.serialization.TranslationContext;
 
 /**
  * For marshalling Class objects themselves. Particularly useful in ports.

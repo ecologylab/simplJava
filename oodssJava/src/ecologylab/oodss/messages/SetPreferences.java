@@ -2,12 +2,12 @@ package ecologylab.oodss.messages;
 
 import simpl.annotations.dbal.simpl_composite;
 import simpl.annotations.dbal.simpl_inherit;
+import simpl.core.SimplTypesScope;
 import simpl.exceptions.SIMPLTranslationException;
+import simpl.formats.enums.StringFormat;
 import ecologylab.appframework.types.prefs.PrefSet;
 import ecologylab.collections.Scope;
 import ecologylab.generic.ConsoleUtils;
-import ecologylab.serialization.SimplTypesScope;
-import ecologylab.serialization.formatenums.StringFormat;
 
 /**
  * The message sent by ServicesClientApplet to Java application running ServicesServer at 

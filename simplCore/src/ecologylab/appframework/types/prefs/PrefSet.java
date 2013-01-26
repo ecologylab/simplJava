@@ -13,14 +13,14 @@ import simpl.annotations.dbal.simpl_inherit;
 import simpl.annotations.dbal.simpl_map;
 import simpl.annotations.dbal.simpl_nowrap;
 import simpl.annotations.dbal.simpl_scope;
+import simpl.core.ElementState;
+import simpl.core.SimplTypesScope;
 import simpl.exceptions.SIMPLTranslationException;
+import simpl.formats.enums.Format;
+import simpl.formats.enums.StringFormat;
 
 import ecologylab.appframework.ApplicationPropertyNames;
 import ecologylab.net.ParsedURL;
-import ecologylab.serialization.ElementState;
-import ecologylab.serialization.SimplTypesScope;
-import ecologylab.serialization.formatenums.Format;
-import ecologylab.serialization.formatenums.StringFormat;
 
 /**
  * A serial set of Pref objects. Used for reading and writing (load and save). The static

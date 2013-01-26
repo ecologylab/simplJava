@@ -3,8 +3,8 @@
  */
 package simpl.types.element;
 
+import simpl.core.SimplTypesScope;
 import ecologylab.generic.Debug;
-import ecologylab.serialization.SimplTypesScope;
 
 /**
  * Translations for built-in element types.

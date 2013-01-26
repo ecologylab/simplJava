@@ -30,7 +30,10 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.zip.DeflaterOutputStream;
 import java.util.zip.InflaterInputStream;
 
+import simpl.core.SimplTypesScope;
 import simpl.exceptions.SIMPLTranslationException;
+import simpl.formats.enums.Format;
+import simpl.formats.enums.StringFormat;
 
 import ecologylab.collections.Scope;
 import ecologylab.generic.Debug;
@@ -52,9 +55,6 @@ import ecologylab.oodss.messages.ResponseMessage;
 import ecologylab.oodss.messages.SendableRequest;
 import ecologylab.oodss.messages.ServiceMessage;
 import ecologylab.oodss.messages.UpdateMessage;
-import ecologylab.serialization.SimplTypesScope;
-import ecologylab.serialization.formatenums.Format;
-import ecologylab.serialization.formatenums.StringFormat;
 
 /**
  * Services Client using NIO; a major difference with the NIO version is state tracking. Since the

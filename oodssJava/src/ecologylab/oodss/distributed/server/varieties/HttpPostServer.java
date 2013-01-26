@@ -8,10 +8,11 @@ import java.net.BindException;
 import java.net.InetAddress;
 import java.nio.channels.SelectionKey;
 
+import simpl.core.SimplTypesScope;
+
 import ecologylab.collections.Scope;
 import ecologylab.oodss.distributed.server.DoubleThreadedNIOServer;
 import ecologylab.oodss.distributed.server.clientsessionmanager.HTTPPostClientSessionManager;
-import ecologylab.serialization.SimplTypesScope;
 
 /**
  * @author Nic Lupfer (nic@ecologylab.net)

@@ -1,12 +1,12 @@
 package ecologylab.oodss.messages;
 
+import simpl.core.SimplTypesScope;
 import simpl.types.element.ElementTypeTranslationsProvider;
 import ecologylab.oodss.logging.Epilogue;
 import ecologylab.oodss.logging.LogOps;
 import ecologylab.oodss.logging.Prologue;
 import ecologylab.oodss.logging.SendEpilogue;
 import ecologylab.oodss.logging.SendPrologue;
-import ecologylab.serialization.SimplTypesScope;
 
 /**
  * Provide XML translation mappings for use in processing CF services requests.

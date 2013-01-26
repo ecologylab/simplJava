@@ -4,15 +4,15 @@ import static org.junit.Assert.*;
 
 import org.junit.Test;
 
+import simpl.core.SimplTypesScope;
 import simpl.descriptions.ClassDescriptor;
 import simpl.descriptions.EnumerationDescriptor;
 import simpl.exceptions.SIMPLDescriptionException;
 import simpl.exceptions.SIMPLTranslationException;
+import simpl.formats.enums.StringFormat;
 
-import ecologylab.serialization.SimplTypesScope;
 import ecologylab.serialization.primaryScenarioEnum;
 import ecologylab.serialization.secondaryScenarioEnum;
-import ecologylab.serialization.formatenums.StringFormat;
 
 public class EnumDescriptionDeSerializationTest {
 

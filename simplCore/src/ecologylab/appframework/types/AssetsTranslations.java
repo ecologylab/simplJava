@@ -3,8 +3,8 @@
  */
 package ecologylab.appframework.types;
 
+import simpl.core.SimplTypesScope;
 import ecologylab.generic.Debug;
-import ecologylab.serialization.SimplTypesScope;
 
 /**
  * Simple translations used just for loading the assets.xml file.

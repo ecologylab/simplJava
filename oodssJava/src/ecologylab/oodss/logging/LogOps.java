@@ -1,10 +1,10 @@
 package ecologylab.oodss.logging;
 
 import simpl.annotations.dbal.simpl_inherit;
+import simpl.core.SimplTypesScope;
 import simpl.exceptions.SIMPLTranslationException;
+import simpl.formats.enums.StringFormat;
 import ecologylab.logging.MixedInitiativeOp;
-import ecologylab.serialization.SimplTypesScope;
-import ecologylab.serialization.formatenums.StringFormat;
 
 /**
  * Bundle a sequence of {@link MixedInitiativeOp MixedInitiativeOp}s, and send them to the logging

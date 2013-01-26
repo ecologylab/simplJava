@@ -4,9 +4,12 @@ import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
 
+import simpl.core.FieldType;
+import simpl.core.SimplTypesScope;
 import simpl.descriptions.ClassDescriptor;
 import simpl.descriptions.FieldDescriptor;
 import simpl.exceptions.SIMPLTranslationException;
+import simpl.formats.enums.StringFormat;
 import simpl.types.scalar.*;
 
 import ecologylab.fundamental.simplescalar.SimpleBoolean;
@@ -32,9 +35,6 @@ import ecologylab.fundamental.simplescalar.Simpleprimfloat;
 import ecologylab.fundamental.simplescalar.Simpleprimint;
 import ecologylab.fundamental.simplescalar.Simpleprimlong;
 import ecologylab.fundamental.simplescalar.Simpleprimshort;
-import ecologylab.serialization.SimplTypesScope;
-import ecologylab.serialization.formatenums.StringFormat;
-import ecologylab.serialization.FieldType;
 
 public class ConstructClassDescriptor {
 

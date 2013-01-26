@@ -6,10 +6,10 @@ package simpl.types.scalar;
 import java.lang.reflect.Field;
 
 import simpl.annotations.dbal.simpl_inherit;
+import simpl.core.ScalarUnmarshallingContext;
+import simpl.core.TranslationContext;
 import simpl.types.CrossLanguageTypeConstants;
 
-import ecologylab.serialization.ScalarUnmarshallingContext;
-import ecologylab.serialization.TranslationContext;
 
 /**
  * For marshalling the name of a field, for transmission to other platforms.

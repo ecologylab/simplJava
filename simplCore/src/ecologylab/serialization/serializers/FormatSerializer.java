@@ -4,17 +4,17 @@ import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
 
+import simpl.core.SimplTypesScope;
+import simpl.core.TranslationContext;
+import simpl.core.TranslationContextPool;
+import simpl.core.SimplTypesScope.GRAPH_SWITCH;
 import simpl.descriptions.ClassDescriptor;
 import simpl.descriptions.FieldDescriptor;
 import simpl.exceptions.SIMPLTranslationException;
+import simpl.formats.enums.BinaryFormat;
+import simpl.formats.enums.Format;
+import simpl.formats.enums.StringFormat;
 
-import ecologylab.serialization.SimplTypesScope;
-import ecologylab.serialization.TranslationContextPool;
-import ecologylab.serialization.SimplTypesScope.GRAPH_SWITCH;
-import ecologylab.serialization.TranslationContext;
-import ecologylab.serialization.formatenums.BinaryFormat;
-import ecologylab.serialization.formatenums.Format;
-import ecologylab.serialization.formatenums.StringFormat;
 import ecologylab.serialization.serializers.binaryformats.TLVSerializer;
 import ecologylab.serialization.serializers.stringformats.BibtexSerializer;
 import ecologylab.serialization.serializers.stringformats.JSONSerializer;

@@ -5,15 +5,15 @@ import java.util.ArrayList;
 import java.util.Collection;
 
 import simpl.annotations.dbal.FieldUsage;
+import simpl.core.SimplTypesScope;
+import simpl.core.TranslationContext;
+import simpl.core.XMLTools;
+import simpl.core.SimplTypesScope.GRAPH_SWITCH;
 import simpl.descriptions.ClassDescriptor;
 import simpl.descriptions.FieldDescriptor;
 import simpl.exceptions.SIMPLTranslationException;
+import simpl.formats.enums.Format;
 
-import ecologylab.serialization.SimplTypesScope;
-import ecologylab.serialization.SimplTypesScope.GRAPH_SWITCH;
-import ecologylab.serialization.TranslationContext;
-import ecologylab.serialization.XMLTools;
-import ecologylab.serialization.formatenums.Format;
 
 /**
  * XML Specific serializer. contains functionalities specific to ouput syntax for XML from an objet

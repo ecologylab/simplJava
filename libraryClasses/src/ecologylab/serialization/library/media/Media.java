@@ -4,8 +4,8 @@ import simpl.annotations.dbal.Hint;
 import simpl.annotations.dbal.simpl_composite;
 import simpl.annotations.dbal.simpl_hints;
 import simpl.annotations.dbal.simpl_scalar;
-import ecologylab.serialization.ElementState;
-import ecologylab.serialization.SimplTypesScope;
+import simpl.core.ElementState;
+import simpl.core.SimplTypesScope;
 
 /**
  * Root class for inserting elements from the Yahoo Media XML Namespace.

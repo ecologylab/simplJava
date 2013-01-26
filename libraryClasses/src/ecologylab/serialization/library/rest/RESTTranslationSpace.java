@@ -1,7 +1,7 @@
 package ecologylab.serialization.library.rest;
 
+import simpl.core.SimplTypesScope;
 import ecologylab.generic.Debug;
-import ecologylab.serialization.SimplTypesScope;
 import ecologylab.serialization.library.dc.Dc;
 
 public class RESTTranslationSpace extends Debug

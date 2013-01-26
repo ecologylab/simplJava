@@ -2,7 +2,7 @@ package ecologylab.serialization.library.html;
 
 import simpl.annotations.dbal.simpl_scalar;
 import simpl.annotations.dbal.simpl_tag;
-import ecologylab.serialization.ElementState;
+import simpl.core.ElementState;
 
 public class HtmlElement extends ElementState
 {

@@ -2,7 +2,7 @@ package ecologylab.oodss.logging;
 
 import simpl.annotations.dbal.simpl_inherit;
 import simpl.annotations.dbal.simpl_scalar;
-import ecologylab.serialization.XMLTools;
+import simpl.core.XMLTools;
 
 /**
  * Base class for SendPrologue and SendEpilogue. Probably should not be used for anything else. Enables passing of the

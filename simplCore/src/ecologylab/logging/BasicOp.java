@@ -2,8 +2,8 @@ package ecologylab.logging;
 
 import simpl.annotations.dbal.simpl_inherit;
 import simpl.annotations.dbal.simpl_scalar;
-import ecologylab.serialization.ElementState;
-import ecologylab.serialization.TranslationContext;
+import simpl.core.ElementState;
+import simpl.core.TranslationContext;
 
 /**
  * A basic operation that only logs the time that operation took place.
@@ -27,7 +27,7 @@ class BasicOp extends ElementState
 	 * Sets the session time immediately before translating to XML. The session time is based from the
 	 * time the log started recording.
 	 * 
-	 * @see ecologylab.serialization.ElementState#serializationPreHook()
+	 * @see simpl.core.ElementState#serializationPreHook()
 	 */
 	@Override
 	public void serializationPreHook(TranslationContext translationContext)

@@ -11,8 +11,8 @@ import simpl.annotations.dbal.simpl_hints;
 import simpl.annotations.dbal.simpl_inherit;
 import simpl.annotations.dbal.simpl_nowrap;
 import simpl.annotations.dbal.simpl_scalar;
+import simpl.core.ElementState;
 
-import ecologylab.serialization.ElementState;
 /**
  * The root element in a reply to ICDL BookXMLResults.
  * 

@@ -1,7 +1,7 @@
 package simpl.types.element;
 
 import simpl.annotations.dbal.simpl_scalar;
-import ecologylab.serialization.ElementState;
+import simpl.core.ElementState;
 
 
 /**

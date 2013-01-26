@@ -4,7 +4,7 @@
 package ecologylab.serialization.library.media;
 
 import simpl.annotations.dbal.simpl_composite;
-import ecologylab.serialization.ElementState;
+import simpl.core.ElementState;
 
 /**
  * Yahoo Media XML Namespace Group element.

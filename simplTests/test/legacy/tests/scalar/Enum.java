@@ -9,10 +9,10 @@ import legacy.tests.circle.Point;
 import org.junit.Test;
 
 import simpl.annotations.dbal.simpl_scalar;
+import simpl.core.SimplTypesScope;
 import simpl.exceptions.SIMPLTranslationException;
+import simpl.formats.enums.Format;
 
-import ecologylab.serialization.SimplTypesScope;
-import ecologylab.serialization.formatenums.Format;
 
 
 public class Enum implements TestCase {

@@ -7,8 +7,8 @@ import java.util.ArrayList;
 
 import simpl.annotations.dbal.simpl_collection;
 import simpl.annotations.dbal.simpl_nowrap;
+import simpl.core.ElementState;
 
-import ecologylab.serialization.ElementState;
 /**
  * @author Zachary O. Toups (toupsz@cs.tamu.edu)
  */

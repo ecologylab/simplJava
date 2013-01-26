@@ -6,9 +6,9 @@ package simpl.types.scalar;
 import java.util.regex.Pattern;
 
 import simpl.annotations.dbal.simpl_inherit;
+import simpl.core.ScalarUnmarshallingContext;
 import simpl.types.CrossLanguageTypeConstants;
 
-import ecologylab.serialization.ScalarUnmarshallingContext;
 
 /**
  * @author andruid

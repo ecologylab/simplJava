@@ -6,11 +6,11 @@ package ecologylab.serialization.types.scalar;
 import java.awt.Color;
 
 import simpl.annotations.dbal.simpl_inherit;
+import simpl.core.ScalarUnmarshallingContext;
+import simpl.core.TranslationContext;
 import simpl.types.CrossLanguageTypeConstants;
 import simpl.types.ScalarType;
 
-import ecologylab.serialization.ScalarUnmarshallingContext;
-import ecologylab.serialization.TranslationContext;
 
 /**
  * Type system entry for java.awt.Color. Uses a hex string as initialization.

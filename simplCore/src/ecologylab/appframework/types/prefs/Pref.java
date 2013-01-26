@@ -9,13 +9,13 @@ import java.util.LinkedList;
 
 import simpl.annotations.dbal.simpl_inherit;
 import simpl.annotations.dbal.simpl_scalar;
+import simpl.core.ElementState;
+import simpl.core.TranslationContext;
 import simpl.platformspecifics.SimplPlatformSpecifics;
 import simpl.types.element.IMappable;
 
 import ecologylab.appframework.SingletonApplicationEnvironment;
 import ecologylab.collections.Scope;
-import ecologylab.serialization.ElementState;
-import ecologylab.serialization.TranslationContext;
 
 /**
  * Generic base class for application Preference objects.

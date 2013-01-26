@@ -4,11 +4,11 @@
 package simpl.types.scalar;
 
 import simpl.annotations.dbal.simpl_inherit;
+import simpl.core.ScalarUnmarshallingContext;
+import simpl.core.TranslationContext;
 import simpl.types.CrossLanguageTypeConstants;
 import simpl.types.ScalarType;
 import simpl.types.TypeRegistry;
-import ecologylab.serialization.ScalarUnmarshallingContext;
-import ecologylab.serialization.TranslationContext;
 
 /**
  * For storing actual ScalarType values as meta-metadata.

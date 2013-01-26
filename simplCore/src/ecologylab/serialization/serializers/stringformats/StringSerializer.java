@@ -8,11 +8,11 @@ import java.io.OutputStream;
 import java.io.PrintStream;
 import java.io.UnsupportedEncodingException;
 
+import simpl.core.TranslationContext;
+import simpl.core.TranslationContextPool;
+import simpl.core.XMLTools;
 import simpl.exceptions.SIMPLTranslationException;
 
-import ecologylab.serialization.TranslationContext;
-import ecologylab.serialization.TranslationContextPool;
-import ecologylab.serialization.XMLTools;
 import ecologylab.serialization.serializers.FormatSerializer;
 
 public abstract class StringSerializer extends FormatSerializer

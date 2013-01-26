@@ -9,11 +9,11 @@ import java.util.regex.Pattern;
 
 import simpl.annotations.dbal.simpl_inherit;
 import simpl.annotations.dbal.simpl_scalar;
+import simpl.core.ScalarUnmarshallingContext;
+import simpl.core.TranslationContext;
 import simpl.descriptions.FieldDescriptor;
+import simpl.formats.enums.Format;
 
-import ecologylab.serialization.ScalarUnmarshallingContext;
-import ecologylab.serialization.TranslationContext;
-import ecologylab.serialization.formatenums.Format;
 
 /**
  * Basic unit of the scalar type system. Manages marshalling from a Java class that represents a

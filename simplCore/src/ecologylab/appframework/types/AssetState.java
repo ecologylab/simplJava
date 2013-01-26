@@ -4,8 +4,8 @@
 package ecologylab.appframework.types;
 
 import simpl.annotations.dbal.simpl_scalar;
+import simpl.core.ElementState;
 import simpl.types.element.IMappable;
-import ecologylab.serialization.ElementState;
 
 /**
  * @author robinson

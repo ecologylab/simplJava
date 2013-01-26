@@ -43,10 +43,10 @@ import java.io.IOException;
 
 import javax.imageio.ImageIO;
 
+import simpl.core.ScalarUnmarshallingContext;
+import simpl.core.TranslationContext;
 import simpl.types.scalar.ImageType;
 
-import ecologylab.serialization.ScalarUnmarshallingContext;
-import ecologylab.serialization.TranslationContext;
 
 public class AwtImageType<I extends Image> extends ImageType<I>
 {

@@ -16,6 +16,7 @@ import javax.swing.Timer;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 
+import simpl.core.SimplTypesScope;
 import simpl.exceptions.SIMPLTranslationException;
 
 import ecologylab.appframework.PropertiesAndDirectories;
@@ -23,7 +24,6 @@ import ecologylab.appframework.SingletonApplicationEnvironment;
 import ecologylab.logging.MixedInitiativeOp;
 import ecologylab.oodss.logging.Logging;
 import ecologylab.oodss.logging.translationScope.MixedInitiativeOpClassesProvider;
-import ecologylab.serialization.SimplTypesScope;
 
 /**
  * The main application for playing back log files.

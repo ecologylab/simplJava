@@ -28,6 +28,9 @@ import javax.swing.SpinnerNumberModel;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
+import simpl.core.SimplTypesScope;
+import simpl.formats.enums.Format;
+
 import ecologylab.appframework.types.prefs.Choice;
 import ecologylab.appframework.types.prefs.MetaPref;
 import ecologylab.appframework.types.prefs.MetaPrefBoolean;
@@ -40,8 +43,6 @@ import ecologylab.appframework.types.prefs.ValueChangedListener;
 import ecologylab.collections.Scope;
 import ecologylab.generic.Debug;
 import ecologylab.net.ParsedURL;
-import ecologylab.serialization.SimplTypesScope;
-import ecologylab.serialization.formatenums.Format;
 
 /**
  * Contains methods for creating widgets associated with Prefs.

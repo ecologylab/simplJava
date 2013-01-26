@@ -10,8 +10,8 @@ import java.awt.geom.Rectangle2D;
 
 import simpl.annotations.dbal.simpl_inherit;
 import simpl.annotations.dbal.simpl_scalar;
+import simpl.core.ElementState;
 
-import ecologylab.serialization.ElementState;
 
 /**
  * Encapsulates a Rectangle2D.Double for use in translating to/from XML.

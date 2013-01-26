@@ -4,10 +4,10 @@ import java.util.ArrayList;
 
 import simpl.annotations.dbal.simpl_composite;
 import simpl.annotations.dbal.simpl_inherit;
+import simpl.core.GenericTypeVar;
 import simpl.descriptions.ClassDescriptor;
 import simpl.descriptions.FieldDescriptor;
 
-import ecologylab.serialization.GenericTypeVar;
 
 @simpl_inherit
 public class MediaSearchResult<M extends Media> extends SearchResult

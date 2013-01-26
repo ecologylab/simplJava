@@ -1,6 +1,6 @@
 package ecologylab.serialization.deserializers.parsers.bibtex;
 
-import ecologylab.serialization.SimplTypesScope;
+import simpl.core.SimplTypesScope;
 import ecologylab.serialization.deserializers.parsers.bibtex.entrytypes.AbstractBibTeXEntry;
 import ecologylab.serialization.deserializers.parsers.bibtex.entrytypes.BibTeXArticle;
 import ecologylab.serialization.deserializers.parsers.bibtex.entrytypes.BibTeXBook;

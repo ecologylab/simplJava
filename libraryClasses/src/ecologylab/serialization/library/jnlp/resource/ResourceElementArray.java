@@ -9,8 +9,8 @@ import simpl.annotations.dbal.simpl_classes;
 import simpl.annotations.dbal.simpl_collection;
 import simpl.annotations.dbal.simpl_nowrap;
 import simpl.annotations.dbal.simpl_scalar;
+import simpl.core.ElementState;
 
-import ecologylab.serialization.ElementState;
 
 /**
  * The resources element is used to specify all the resources, such as Java class files, native

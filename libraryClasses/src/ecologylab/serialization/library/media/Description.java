@@ -1,7 +1,7 @@
 package ecologylab.serialization.library.media;
 
 import simpl.annotations.dbal.simpl_scalar;
-import ecologylab.serialization.ElementState;
+import simpl.core.ElementState;
 
 /**
  * Media leaf node, but not marked up as such cause it has its own attribute.

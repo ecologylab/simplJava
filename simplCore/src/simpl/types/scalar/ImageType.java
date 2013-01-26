@@ -1,8 +1,8 @@
 package simpl.types.scalar;
 
+import simpl.core.ScalarUnmarshallingContext;
+import simpl.core.TranslationContext;
 import simpl.types.ScalarType;
-import ecologylab.serialization.ScalarUnmarshallingContext;
-import ecologylab.serialization.TranslationContext;
 
 public abstract class ImageType<T> extends ScalarType<T> 
 
