@@ -15,10 +15,9 @@ import java.util.Map;
 import ecologylab.appframework.PropertiesAndDirectories;
 import ecologylab.generic.Debug;
 import ecologylab.generic.HashMapArrayList;
-import ecologylab.semantics.metametadata.exceptions.MetaMetadataException;
 import ecologylab.serialization.ClassDescriptor;
 import ecologylab.serialization.FieldDescriptor;
-import ecologylab.serialization.FieldTypes;
+import ecologylab.serialization.FieldType;
 import ecologylab.serialization.SIMPLTranslationException;
 import ecologylab.serialization.SimplTypesScope;
 import ecologylab.serialization.formatenums.StringFormat;
@@ -245,29 +244,29 @@ public class HibernateXmlMappingGenerator extends Debug
 	{
 		HibernateFieldBase thatField = null;
 
-		int typeCode = fd.getType();
+		FieldType typeCode = fd.getType();
 		switch (typeCode)
 		{
-		case FieldTypes.SCALAR:
+		case SCALAR:
 			thatField = generatePropertyMapping(cd, fd);
 			break;
-		case FieldTypes.COMPOSITE_ELEMENT:
+		case COMPOSITE_ELEMENT:
 			thatField = generateCompositeMapping(cd, fd);
 			break;
-		case FieldTypes.COLLECTION_ELEMENT:
+		case COLLECTION_ELEMENT:
 			thatField = generateListOfElementMapping(cd, fd);
 			break;
-		case FieldTypes.COLLECTION_SCALAR:
+		case COLLECTION_SCALAR:
 			thatField = generateListOfScalarMapping(cd, fd);
 			break;
-		case FieldTypes.MAP_ELEMENT:
+		case MAP_ELEMENT:
 			thatField = generateMapOfElementMapping(cd, fd);
 			break;
-		case FieldTypes.MAP_SCALAR:
+		case MAP_SCALAR:
 			thatField = generateMapOfScalarMapping(cd, fd);
 			break;
 		default:
-			throw new MetaMetadataException("Unknown field type: " + cd + ": " + fd + ": " + typeCode);
+			throw new RuntimeException("Unknown field type: " + cd + ": " + fd + ": " + typeCode);
 		}
 
 		return thatField;

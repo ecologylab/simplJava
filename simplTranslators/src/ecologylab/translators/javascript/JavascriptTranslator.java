@@ -11,6 +11,7 @@ import ecologylab.generic.HashMapArrayList;
 import ecologylab.serialization.ClassDescriptor;
 import ecologylab.serialization.ElementState;
 import ecologylab.serialization.FieldDescriptor;
+import ecologylab.serialization.FieldType;
 import ecologylab.serialization.FieldTypes;
 import ecologylab.serialization.SIMPLTranslationException;
 import ecologylab.serialization.SimplTypesScope;
@@ -91,9 +92,9 @@ public class JavascriptTranslator
 
 			fieldName = XMLTools.getXmlTagName(fieldDescriptor.getName(), "");
 
-			if (fieldDescriptor.getType() == FieldTypes.MAP_ELEMENT
-					|| fieldDescriptor.getType() == FieldTypes.MAP_SCALAR
-					|| fieldDescriptor.getType() == FieldTypes.COLLECTION_ELEMENT)
+			if (fieldDescriptor.getType() == FieldType.MAP_ELEMENT
+					|| fieldDescriptor.getType() == FieldType.MAP_SCALAR
+					|| fieldDescriptor.getType() == FieldType.COLLECTION_ELEMENT)
 				if (!fieldDescriptor.isWrapped())
 					fieldName = XMLTools.getXmlTagName(fieldDescriptor.getCollectionOrMapTagName(), "");
 			parameters += "," + fieldName;
@@ -102,7 +103,7 @@ public class JavascriptTranslator
 			if (fieldName.equals("moves"))
 				System.out.println("Found moves");
 
-			if (fieldDescriptor.getType() == FieldTypes.COLLECTION_ELEMENT)
+			if (fieldDescriptor.getType() == FieldType.COLLECTION_ELEMENT)
 			{
 				if (hasCollectionBefore)
 					leadingCommaCollection = ",";
@@ -111,7 +112,7 @@ public class JavascriptTranslator
 				collectionTypes += leadingCommaCollection + "\"" + fieldName + "\":\"" + elementType + "\"";
 				hasCollectionBefore = true;
 			}
-			else if (fieldDescriptor.getType() == FieldTypes.COMPOSITE_ELEMENT)
+			else if (fieldDescriptor.getType() == FieldType.COMPOSITE_ELEMENT)
 			{
 				if (hasCompositeBefore)
 					leadingCommaComposite = ",";
@@ -121,8 +122,8 @@ public class JavascriptTranslator
 				compositeTypes += leadingCommaComposite + "\"" + fieldName + "\":\"" + elementType + "\"";
 			}
 
-			if (fieldDescriptor.getType() == FieldTypes.MAP_ELEMENT
-					|| fieldDescriptor.getType() == FieldTypes.MAP_SCALAR)
+			if (fieldDescriptor.getType() == FieldType.MAP_ELEMENT
+					|| fieldDescriptor.getType() == FieldType.MAP_SCALAR)
 			{
 				if (hasMapBefore)
 					leadingCommaMap = ",";

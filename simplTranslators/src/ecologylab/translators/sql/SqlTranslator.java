@@ -15,9 +15,7 @@ import java.util.HashSet;
 import org.junit.Test;
 
 import ecologylab.generic.HashMapArrayList;
-import ecologylab.semantics.generated.library.RepositoryMetadataTranslationScope;
 import ecologylab.serialization.ClassDescriptor;
-import ecologylab.serialization.ElementState;
 import ecologylab.serialization.FieldDescriptor;
 import ecologylab.serialization.SIMPLTranslationException;
 import ecologylab.serialization.SimplTypesScope;
@@ -29,7 +27,6 @@ import ecologylab.serialization.library.rss.Item;
 import ecologylab.serialization.library.rss.RssState;
 import ecologylab.translators.sql.testing.ecologylabXmlTest.ChannelTest;
 import ecologylab.translators.sql.testing.ecologylabXmlTest.ItemTest;
-import ecologylab.translators.sql.testing.ecologylabXmlTest.PdfTest;
 import ecologylab.translators.sql.testing.ecologylabXmlTest.RssStateTest;
 
 public class SqlTranslator extends SqlTranslatorUtil
@@ -232,10 +229,10 @@ public class SqlTranslator extends SqlTranslatorUtil
 		SimplTypesScope thisTranslationScope = null;  
 			
 		thisTranslationScope = SimplTypesScope.get("thisTranslationScope",
-				RssStateTest.class, ItemTest.class, ChannelTest.class, PdfTest.class);
+				RssStateTest.class, ItemTest.class, ChannelTest.class); // , PdfTest.class);
 		
 		/*test case for GeneratedMetadataTranslationScope*/ 
-		thisTranslationScope = RepositoryMetadataTranslationScope.get();
+		thisTranslationScope = null; // RepositoryMetadataTranslationScope.get();
 		
 		Collection<ClassDescriptor<? extends FieldDescriptor>> thisClassDescriptor = thisTranslationScope.getClassDescriptors();
 		for (ClassDescriptor classDescriptor : thisClassDescriptor)
@@ -582,7 +579,7 @@ public class SqlTranslator extends SqlTranslatorUtil
 			
 //		thisTranslationScope = TranslationScope.get("thisTranslationScope", RssStateTest.class, ItemTest.class, ChannelTest.class);
 		
-		thisTranslationScope = RepositoryMetadataTranslationScope.get(); 
+		thisTranslationScope = null; // RepositoryMetadataTranslationScope.get(); 
 		 
 		thisSqlTranslator.createSQLTableSchema(thisTranslationScope, DEFAULT_CREATE_TABLE_MODE);
 		thisSqlTranslator.createSQLTableSchema(thisTranslationScope, DEFAULT_COMPOSITE_TYPE_TABLE_MODE);

@@ -3,7 +3,7 @@ package ecologylab.translators.net;
 import java.util.HashMap;
 import java.util.Map;
 
-import ecologylab.semantics.html.utils.StringBuilderUtils;
+import ecologylab.generic.StringBuilderBaseUtils;
 import ecologylab.serialization.ClassDescriptor;
 import ecologylab.serialization.FieldDescriptor;
 import ecologylab.serialization.XMLTools;
@@ -179,7 +179,7 @@ public class DotNetTranslationUtilities
 	{
 		String fieldName = fieldDescriptor.getName();
 		
-		StringBuilder propertyNameBuilder = StringBuilderUtils.acquire();
+		StringBuilder propertyNameBuilder = StringBuilderBaseUtils.acquire();
 		String propertyName = null;
 		String declaringClassName = context.getDescribedClassSimpleName();
 		if (Character.isLowerCase(fieldName.charAt(0)))
@@ -199,7 +199,7 @@ public class DotNetTranslationUtilities
 			propertyNameBuilder.append(PROPERTY_SAFE_SUFFIX);
 			propertyName = propertyNameBuilder.toString();
 		}
-		StringBuilderUtils.release(propertyNameBuilder);
+		StringBuilderBaseUtils.release(propertyNameBuilder);
 		return propertyName;
 	}
 

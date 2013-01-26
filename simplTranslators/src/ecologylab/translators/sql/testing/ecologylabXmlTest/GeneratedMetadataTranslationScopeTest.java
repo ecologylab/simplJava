@@ -7,7 +7,7 @@ package ecologylab.translators.sql.testing.ecologylabXmlTest;
  **/
 
 // import sun.awt.image.ImageWatched.Link;
-import ecologylab.semantics.generated.library.RepositoryMetadataTranslationScope;
+//import ecologylab.semantics.generated.library.RepositoryMetadataTranslationScope;
 import ecologylab.serialization.SimplTypesScope;
 
 /**
@@ -16,11 +16,11 @@ import ecologylab.serialization.SimplTypesScope;
 
 public class GeneratedMetadataTranslationScopeTest
 {
-	protected static final Class	TRANSLATIONS[]	= {AcmProceedingTest.class,};
-
-	public static SimplTypesScope get()
-	{
-		return SimplTypesScope.get("generated_metadata_translations_test",
-				RepositoryMetadataTranslationScope.get(), TRANSLATIONS);
-	}
+//	protected static final Class	TRANSLATIONS[]	= {AcmProceedingTest.class,};
+//
+//	public static SimplTypesScope get()
+//	{
+//		return SimplTypesScope.get("generated_metadata_translations_test",
+//				RepositoryMetadataTranslationScope.get(), TRANSLATIONS);
+//	}
 }

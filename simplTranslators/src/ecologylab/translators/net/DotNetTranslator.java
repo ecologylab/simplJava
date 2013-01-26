@@ -15,7 +15,7 @@ import java.util.Set;
 
 import ecologylab.generic.Debug;
 import ecologylab.generic.HashMapArrayList;
-import ecologylab.semantics.html.utils.StringBuilderUtils;
+import ecologylab.generic.StringBuilderBaseUtils;
 import ecologylab.serialization.ClassDescriptor;
 import ecologylab.serialization.FieldDescriptor;
 import ecologylab.serialization.MetaInformation;
@@ -128,7 +128,7 @@ public class DotNetTranslator extends AbstractCodeTranslator implements DotNetTr
 
 	protected String javaPackage2CSharpNamespace(String packageName)
 	{
-    StringBuilder sb = StringBuilderUtils.acquire();
+    StringBuilder sb = StringBuilderBaseUtils.acquire();
     for (int i = 0; i < packageName.length(); ++i)
     {
       char c = packageName.charAt(i);
@@ -137,7 +137,7 @@ public class DotNetTranslator extends AbstractCodeTranslator implements DotNetTr
         sb.append((i == 0 || pc == '.' || pc == '_') ? Character.toUpperCase(c) : c);
     }
     String result = sb.toString();
-    StringBuilderUtils.release(sb);
+    StringBuilderBaseUtils.release(sb);
     return result;
 	}
 	
@@ -158,10 +158,10 @@ public class DotNetTranslator extends AbstractCodeTranslator implements DotNetTr
 		inputClass.resolvePolymorphicAnnotations();
 		currentClassDependencies = new HashSet<String>(globalDependencies);
 
-		StringBuilder classBody = StringBuilderUtils.acquire();
+		StringBuilder classBody = StringBuilderBaseUtils.acquire();
 		
 		// file header
-		StringBuilder header = StringBuilderUtils.acquire();
+		StringBuilder header = StringBuilderBaseUtils.acquire();
 		appendHeaderComments(inputClass.getDescribedClassSimpleName(), SINGLE_LINE_COMMENT, FILE_EXTENSION, header);
 		
 		// unit scope
@@ -205,8 +205,8 @@ public class DotNetTranslator extends AbstractCodeTranslator implements DotNetTr
 		appendable.append(header);
 		appendable.append(classBody);
 		
-		StringBuilderUtils.release(header);
-		StringBuilderUtils.release(classBody);
+		StringBuilderBaseUtils.release(header);
+		StringBuilderBaseUtils.release(classBody);
 	}
 
 	@Override

@@ -3,7 +3,7 @@ package ecologylab.translators.net;
 import java.util.List;
 
 import ecologylab.generic.Debug;
-import ecologylab.semantics.html.utils.StringBuilderUtils;
+import ecologylab.generic.StringBuilderBaseUtils;
 import ecologylab.serialization.ClassDescriptor;
 import ecologylab.serialization.GenericTypeVar;
 
@@ -13,7 +13,7 @@ public class DotNetGenericsUtils
 	static protected String toDeclarationWithGenerics(ClassDescriptor classDescriptor,
 																										List<GenericTypeVar> genericTypeVars)
 	{
-		StringBuilder sb = StringBuilderUtils.acquire();
+		StringBuilder sb = StringBuilderBaseUtils.acquire();
 		sb.append(classDescriptor.getDescribedClassSimpleName());
 		if (genericTypeVars != null && genericTypeVars.size() > 0)
 		{
@@ -38,7 +38,7 @@ public class DotNetGenericsUtils
 			sb.append('>');
 		}
 		String result = sb.toString();
-		StringBuilderUtils.release(sb);
+		StringBuilderBaseUtils.release(sb);
 		return result;
 	}
 
@@ -49,7 +49,7 @@ public class DotNetGenericsUtils
 	
 	static public String toDefinitionWithGenerics(ClassDescriptor classDescriptor)
 	{
-		StringBuilder sb = StringBuilderUtils.acquire();
+		StringBuilder sb = StringBuilderBaseUtils.acquire();
 		
 		// class name, and generic type var list if any
 		sb.append(classDescriptor.getDescribedClassSimpleName());
@@ -107,7 +107,7 @@ public class DotNetGenericsUtils
 		}
 		
 		String result = sb.toString();
-		StringBuilderUtils.release(sb);
+		StringBuilderBaseUtils.release(sb);
 		return result;
 	}
 	

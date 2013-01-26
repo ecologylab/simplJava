@@ -19,7 +19,6 @@ import org.junit.Test;
 
 import ecologylab.generic.Debug;
 import ecologylab.serialization.SIMPLTranslationException;
-import ecologylab.translators.sql.testing.ecologylabXmlTest.AcmProceedingTest;
 
 public class DBUtil extends Debug implements DBInterface
 {
@@ -272,7 +271,7 @@ public class DBUtil extends Debug implements DBInterface
 		 * TODO convert class to byte array
 		 */
 		thisWritePreparedStatement.setString(1, "testObject");
-		thisWritePreparedStatement.setBytes(2, this.convertClassToByteArray(AcmProceedingTest.class));
+//		thisWritePreparedStatement.setBytes(2, this.convertClassToByteArray(AcmProceedingTest.class));
 
 		thisWritePreparedStatement.executeUpdate();
 

@@ -856,8 +856,8 @@ public class CocoaTranslator
 									appendable.append(CocoaTranslationConstants.INCLUDE_OBJECT.replace(
 											CocoaTranslationConstants.AT, fieldDescriptor.getObjectiveCTypeName()));
 									appendable.append(CocoaTranslationConstants.SINGLE_LINE_BREAK);
-									enumeratedTypes.put(fieldDescriptor.getObjectiveCTypeName(),
-											fieldDescriptor.getEnumerateType());
+//									enumeratedTypes.put(fieldDescriptor.getObjectiveCTypeName(),
+//											fieldDescriptor.getEnumerateType());
 								}
 							}
 							else
