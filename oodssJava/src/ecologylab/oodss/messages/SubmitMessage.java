@@ -1,7 +1,7 @@
 package ecologylab.oodss.messages;
 
+import simpl.annotations.dbal.simpl_inherit;
 import ecologylab.collections.Scope;
-import ecologylab.serialization.annotations.simpl_inherit;
 
 @simpl_inherit
 public class SubmitMessage extends RequestMessage 

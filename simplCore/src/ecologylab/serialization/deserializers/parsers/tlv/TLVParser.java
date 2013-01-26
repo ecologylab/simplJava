@@ -1,9 +1,8 @@
 package ecologylab.serialization.deserializers.parsers.tlv;
 
-import ecologylab.serialization.ClassDescriptor;
-import ecologylab.serialization.FieldDescriptor;
+import simpl.descriptions.ClassDescriptor;
+import simpl.descriptions.FieldDescriptor;
 import ecologylab.serialization.FieldType;
-import ecologylab.serialization.FieldTypes;
 import ecologylab.serialization.SimplTypesScope;
 
 /**
@@ -22,7 +21,7 @@ import ecologylab.serialization.SimplTypesScope;
  * 
  * @version 1.0
  */
-public class TLVParser implements FieldTypes
+public class TLVParser
 {
 	/**
 	 * an object which implements TLVEvents will get the appropriate events from the parser.

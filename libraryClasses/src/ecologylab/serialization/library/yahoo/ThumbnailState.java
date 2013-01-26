@@ -1,11 +1,11 @@
 package ecologylab.serialization.library.yahoo;
 
+import simpl.annotations.dbal.Hint;
+import simpl.annotations.dbal.simpl_hints;
+import simpl.annotations.dbal.simpl_scalar;
+import simpl.annotations.dbal.simpl_tag;
 import ecologylab.net.ParsedURL;
 import ecologylab.serialization.ElementState;
-import ecologylab.serialization.annotations.Hint;
-import ecologylab.serialization.annotations.simpl_hints;
-import ecologylab.serialization.annotations.simpl_scalar;
-import ecologylab.serialization.annotations.simpl_tag;
 
 /**
  * Yahoo image search Thumbnail image XML description.

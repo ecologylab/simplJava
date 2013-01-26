@@ -5,9 +5,9 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import simpl.exceptions.SIMPLTranslationException;
+
 import ecologylab.serialization.ElementState;
-import ecologylab.serialization.FieldTypes;
-import ecologylab.serialization.SIMPLTranslationException;
 import ecologylab.serialization.SimplTypesScope;
 import ecologylab.serialization.deserializers.parsers.bibtex.entrytypes.AbstractBibTeXEntry;
 import ecologylab.serialization.deserializers.parsers.bibtex.entrytypes.BibTeXInProceedings;
@@ -19,7 +19,7 @@ import ecologylab.serialization.formatenums.StringFormat;
  * @author quyin
  * 
  */
-public class BibTeXParser implements FieldTypes
+public class BibTeXParser
 {
 
 	static enum State

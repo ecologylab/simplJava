@@ -37,26 +37,28 @@ import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 import org.xml.sax.SAXParseException;
 
+import simpl.annotations.dbal.Hint;
+import simpl.annotations.dbal.bibtex_key;
+import simpl.annotations.dbal.bibtex_tag;
+import simpl.annotations.dbal.simpl_collection;
+import simpl.annotations.dbal.simpl_composite;
+import simpl.annotations.dbal.simpl_composite_as_scalar;
+import simpl.annotations.dbal.simpl_format;
+import simpl.annotations.dbal.simpl_hints;
+import simpl.annotations.dbal.simpl_inherit_parent_tag;
+import simpl.annotations.dbal.simpl_map;
+import simpl.annotations.dbal.simpl_scalar;
+import simpl.annotations.dbal.simpl_tag;
+import simpl.exceptions.SIMPLTranslationException;
+import simpl.types.CrossLanguageTypeConstants;
+import simpl.types.ScalarType;
+import simpl.types.TypeRegistry;
+
 import ecologylab.collections.Scope;
 import ecologylab.generic.Debug;
 import ecologylab.generic.HashMapArrayList;
 import ecologylab.generic.StringInputStream;
 import ecologylab.net.ParsedURL;
-import ecologylab.serialization.annotations.Hint;
-import ecologylab.serialization.annotations.bibtex_key;
-import ecologylab.serialization.annotations.bibtex_tag;
-import ecologylab.serialization.annotations.simpl_collection;
-import ecologylab.serialization.annotations.simpl_composite;
-import ecologylab.serialization.annotations.simpl_composite_as_scalar;
-import ecologylab.serialization.annotations.simpl_format;
-import ecologylab.serialization.annotations.simpl_hints;
-import ecologylab.serialization.annotations.simpl_inherit_parent_tag;
-import ecologylab.serialization.annotations.simpl_map;
-import ecologylab.serialization.annotations.simpl_scalar;
-import ecologylab.serialization.annotations.simpl_tag;
-import ecologylab.serialization.types.CrossLanguageTypeConstants;
-import ecologylab.serialization.types.ScalarType;
-import ecologylab.serialization.types.TypeRegistry;
 
 /**
  * Static helper methods that are used during the translation of java objects to XML and back. The
@@ -67,8 +69,13 @@ import ecologylab.serialization.types.TypeRegistry;
  * @author Madhur Khandelwal
  * @version 0.5
  */
-public class XMLTools extends Debug implements CharacterConstants, SpecialCharacterEntities
+public class XMLTools extends Debug implements SpecialCharacterEntities
 {
+	
+	static public final char TAB	= 0x09;
+	   static public final char LF	= 0x0a; // also known as NEWLINE
+	   static public final char CR	= 0x0d;
+	   
 	private static final int				DEFAULT_TAG_LENGTH	= 15;
 
 	static HashMap<String, String>	entityTable					= new HashMap<String, String>();

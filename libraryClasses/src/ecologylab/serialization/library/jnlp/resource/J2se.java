@@ -3,9 +3,9 @@
  */
 package ecologylab.serialization.library.jnlp.resource;
 
-import ecologylab.serialization.annotations.simpl_inherit;
-import ecologylab.serialization.annotations.simpl_scalar;
-import ecologylab.serialization.annotations.simpl_tag;
+import simpl.annotations.dbal.simpl_inherit;
+import simpl.annotations.dbal.simpl_scalar;
+import simpl.annotations.dbal.simpl_tag;
 
 /**
  * The j2se element specifies what Java 2 SE Runtime Environment (JRE) versions an application is supported on, as well

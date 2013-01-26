@@ -1,14 +1,14 @@
 package ecologylab.oodss.messages;
 
 
+import simpl.annotations.dbal.Hint;
+import simpl.annotations.dbal.simpl_hints;
+import simpl.annotations.dbal.simpl_inherit;
+import simpl.annotations.dbal.simpl_scalar;
+import simpl.exceptions.SIMPLTranslationException;
 import ecologylab.collections.Scope;
 import ecologylab.generic.Debug;
-import ecologylab.serialization.SIMPLTranslationException;
 import ecologylab.serialization.SimplTypesScope;
-import ecologylab.serialization.annotations.Hint;
-import ecologylab.serialization.annotations.simpl_hints;
-import ecologylab.serialization.annotations.simpl_inherit;
-import ecologylab.serialization.annotations.simpl_scalar;
 
 @simpl_inherit
 public class CfCollaborationGetSurrogate extends RequestMessage {

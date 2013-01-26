@@ -1,7 +1,7 @@
 package ecologylab.oodss.messages;
 
+import simpl.annotations.dbal.simpl_composite;
 import ecologylab.collections.Scope;
-import ecologylab.serialization.annotations.simpl_composite;
 
 public class SubmitHttpRequest extends HttpGetRequest
 {

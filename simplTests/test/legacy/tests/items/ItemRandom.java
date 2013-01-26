@@ -1,7 +1,7 @@
 package legacy.tests.items;
 
-import ecologylab.serialization.annotations.simpl_scalar;
-import ecologylab.serialization.annotations.simpl_tag;
+import simpl.annotations.dbal.simpl_scalar;
+import simpl.annotations.dbal.simpl_tag;
 
 @simpl_tag("item_one")
 public class ItemRandom extends ItemBase

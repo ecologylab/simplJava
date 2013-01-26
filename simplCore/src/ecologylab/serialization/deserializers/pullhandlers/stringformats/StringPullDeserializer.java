@@ -2,11 +2,12 @@ package ecologylab.serialization.deserializers.pullhandlers.stringformats;
 
 import java.io.File;
 
+import simpl.descriptions.ClassDescriptor;
+import simpl.descriptions.FieldDescriptor;
+import simpl.exceptions.SIMPLTranslationException;
+
 import ecologylab.net.ParsedURL;
-import ecologylab.serialization.ClassDescriptor;
 import ecologylab.serialization.DeserializationHookStrategy;
-import ecologylab.serialization.FieldDescriptor;
-import ecologylab.serialization.SIMPLTranslationException;
 import ecologylab.serialization.ScalarUnmarshallingContext;
 import ecologylab.serialization.SimplTypesScope;
 import ecologylab.serialization.TranslationContext;

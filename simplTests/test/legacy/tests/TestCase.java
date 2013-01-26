@@ -1,6 +1,6 @@
 package legacy.tests;
 
-import ecologylab.serialization.SIMPLTranslationException;
+import simpl.exceptions.SIMPLTranslationException;
 
 public interface TestCase
 {

@@ -5,11 +5,12 @@ package ecologylab.serialization.library.apple;
 
 import java.io.File;
 
+import simpl.annotations.dbal.simpl_inherit;
+import simpl.annotations.dbal.simpl_tag;
+import simpl.exceptions.SIMPLTranslationException;
+
 import ecologylab.generic.Debug;
-import ecologylab.serialization.SIMPLTranslationException;
 import ecologylab.serialization.SimplTypesScope;
-import ecologylab.serialization.annotations.simpl_inherit;
-import ecologylab.serialization.annotations.simpl_tag;
 import ecologylab.serialization.formatenums.Format;
 import ecologylab.serialization.formatenums.StringFormat;
 

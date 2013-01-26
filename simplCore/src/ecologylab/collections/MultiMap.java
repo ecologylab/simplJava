@@ -3,8 +3,9 @@ package ecologylab.collections;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import ecologylab.serialization.ClassDescriptor;
-import ecologylab.serialization.FieldDescriptor;
+import simpl.descriptions.ClassDescriptor;
+import simpl.descriptions.FieldDescriptor;
+
 
 public class MultiMap<T, S extends Object>
 {

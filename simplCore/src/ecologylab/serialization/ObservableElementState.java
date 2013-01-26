@@ -5,7 +5,8 @@ package ecologylab.serialization;
 
 import java.util.Vector;
 
-import ecologylab.serialization.annotations.simpl_inherit;
+import simpl.annotations.dbal.simpl_inherit;
+
 
 
 /**

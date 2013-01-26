@@ -8,13 +8,14 @@ import java.net.BindException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 
+import simpl.annotations.dbal.simpl_inherit;
+
 import ecologylab.collections.Scope;
 import ecologylab.oodss.distributed.client.NIOClient;
 import ecologylab.oodss.distributed.common.SessionObjects;
 import ecologylab.oodss.distributed.exception.MessageTooLargeException;
 import ecologylab.oodss.distributed.server.DoubleThreadedNIOServer;
 import ecologylab.oodss.distributed.server.clientsessionmanager.SessionHandle;
-import ecologylab.serialization.annotations.simpl_inherit;
 
 /**
  * A request that indicates that the client wishes to be permanently disconnected from the server.

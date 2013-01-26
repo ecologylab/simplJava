@@ -1,9 +1,9 @@
 package ecologylab.oodss.logging;
 
+import simpl.annotations.dbal.simpl_inherit;
+import simpl.exceptions.SIMPLTranslationException;
 import ecologylab.logging.MixedInitiativeOp;
-import ecologylab.serialization.SIMPLTranslationException;
 import ecologylab.serialization.SimplTypesScope;
-import ecologylab.serialization.annotations.simpl_inherit;
 import ecologylab.serialization.formatenums.StringFormat;
 
 /**

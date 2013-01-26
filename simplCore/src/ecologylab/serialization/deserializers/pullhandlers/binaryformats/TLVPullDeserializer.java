@@ -8,16 +8,17 @@ import java.nio.charset.Charset;
 import java.util.Collection;
 import java.util.Map;
 
-import ecologylab.serialization.ClassDescriptor;
+import simpl.descriptions.ClassDescriptor;
+import simpl.descriptions.FieldDescriptor;
+import simpl.exceptions.SIMPLTranslationException;
+import simpl.types.element.IMappable;
+
 import ecologylab.serialization.DeserializationHookStrategy;
 import ecologylab.serialization.ElementState;
-import ecologylab.serialization.FieldDescriptor;
 import ecologylab.serialization.FieldType;
-import ecologylab.serialization.SIMPLTranslationException;
 import ecologylab.serialization.SimplTypesScope;
 import ecologylab.serialization.TranslationContext;
 import ecologylab.serialization.deserializers.pullhandlers.DeserializationProcedureState;
-import ecologylab.serialization.types.element.IMappable;
 
 /**
  * 

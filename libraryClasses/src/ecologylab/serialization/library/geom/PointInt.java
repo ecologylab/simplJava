@@ -3,7 +3,7 @@
  */
 package ecologylab.serialization.library.geom;
 
-import ecologylab.serialization.annotations.simpl_scalar;
+import simpl.annotations.dbal.simpl_scalar;
 
 /**
  * @author andruid

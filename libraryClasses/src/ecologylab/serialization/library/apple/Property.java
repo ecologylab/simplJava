@@ -3,8 +3,8 @@
  */
 package ecologylab.serialization.library.apple;
 
+import simpl.annotations.dbal.simpl_inherit;
 import ecologylab.serialization.ElementState;
-import ecologylab.serialization.annotations.simpl_inherit;
 
 /**
  * A generic property in an Apple P(roperty) List.

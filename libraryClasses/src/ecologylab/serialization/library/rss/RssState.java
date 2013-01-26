@@ -3,14 +3,15 @@ package ecologylab.serialization.library.rss;
 import java.io.File;
 import java.util.ArrayList;
 
+import simpl.annotations.dbal.simpl_composite;
+import simpl.annotations.dbal.simpl_scalar;
+import simpl.descriptions.ClassDescriptor;
+import simpl.descriptions.FieldDescriptor;
+import simpl.exceptions.SIMPLTranslationException;
+
 import ecologylab.net.ParsedURL;
-import ecologylab.serialization.ClassDescriptor;
 import ecologylab.serialization.ElementState;
-import ecologylab.serialization.FieldDescriptor;
-import ecologylab.serialization.SIMPLTranslationException;
 import ecologylab.serialization.SimplTypesScope;
-import ecologylab.serialization.annotations.simpl_composite;
-import ecologylab.serialization.annotations.simpl_scalar;
 import ecologylab.serialization.formatenums.Format;
 import ecologylab.serialization.formatenums.StringFormat;
 

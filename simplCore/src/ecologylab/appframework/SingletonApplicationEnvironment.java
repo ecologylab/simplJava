@@ -10,6 +10,10 @@ import java.net.URLConnection;
 import java.net.URLDecoder;
 import java.util.Stack;
 
+import simpl.descriptions.ClassDescriptor;
+import simpl.exceptions.SIMPLTranslationException;
+import simpl.platformspecifics.SimplPlatformSpecifics;
+
 import ecologylab.appframework.types.prefs.MetaPrefSet;
 import ecologylab.appframework.types.prefs.MetaPrefsTranslationScope;
 import ecologylab.appframework.types.prefs.Pref;
@@ -20,9 +24,6 @@ import ecologylab.io.Assets;
 import ecologylab.io.AssetsRoot;
 import ecologylab.io.Files;
 import ecologylab.net.ParsedURL;
-import ecologylab.platformspecifics.FundamentalPlatformSpecifics;
-import ecologylab.serialization.ClassDescriptor;
-import ecologylab.serialization.SIMPLTranslationException;
 import ecologylab.serialization.SimplTypesScope;
 import ecologylab.serialization.XMLTranslationExceptionTypes;
 import ecologylab.serialization.formatenums.StringFormat;
@@ -1201,7 +1202,7 @@ public class SingletonApplicationEnvironment extends ApplicationEnvironment impl
 		{
 			if (prefSet == null)
 				prefSet = new PrefSet();
-			result = FundamentalPlatformSpecifics.get().getOrCreatePrefsEditor(metaPrefSet, prefSet, prefsPURL, createJFrame, isStandalone);
+			result = SimplPlatformSpecifics.get().getOrCreatePrefsEditor(metaPrefSet, prefSet, prefsPURL, createJFrame, isStandalone);
 		}
 		return result;
 	}

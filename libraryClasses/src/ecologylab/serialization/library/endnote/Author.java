@@ -3,11 +3,11 @@
  */
 package ecologylab.serialization.library.endnote;
 
+import simpl.annotations.dbal.Hint;
+import simpl.annotations.dbal.simpl_hints;
+import simpl.annotations.dbal.simpl_inherit;
+import simpl.annotations.dbal.simpl_scalar;
 import ecologylab.serialization.ElementState;
-import ecologylab.serialization.annotations.Hint;
-import ecologylab.serialization.annotations.simpl_hints;
-import ecologylab.serialization.annotations.simpl_inherit;
-import ecologylab.serialization.annotations.simpl_scalar;
 
 public @simpl_inherit
 class Author extends ElementState

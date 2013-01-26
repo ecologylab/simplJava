@@ -1,14 +1,15 @@
 package ecologylab.fundamental;
 
 import org.junit.Test;
+
+import simpl.annotations.dbal.simpl_scalar;
+import simpl.descriptions.ClassDescriptor;
+import simpl.descriptions.FieldDescriptor;
+import simpl.exceptions.SIMPLTranslationException;
 import static org.junit.Assert.*;
 
-import ecologylab.serialization.ClassDescriptor;
-import ecologylab.serialization.FieldDescriptor;
 import ecologylab.serialization.FieldType;
-import ecologylab.serialization.SIMPLTranslationException;
 import ecologylab.serialization.primaryScenarioEnum;
-import ecologylab.serialization.annotations.simpl_scalar;
 
 public class FieldDescriptionTest {
 

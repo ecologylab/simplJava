@@ -5,13 +5,14 @@ package ecologylab.serialization.library.icdl;
 
 import java.util.ArrayList;
 
+import simpl.annotations.dbal.Hint;
+import simpl.annotations.dbal.simpl_collection;
+import simpl.annotations.dbal.simpl_hints;
+import simpl.annotations.dbal.simpl_inherit;
+import simpl.annotations.dbal.simpl_nowrap;
+import simpl.annotations.dbal.simpl_scalar;
+
 import ecologylab.serialization.ElementState;
-import ecologylab.serialization.annotations.Hint;
-import ecologylab.serialization.annotations.simpl_collection;
-import ecologylab.serialization.annotations.simpl_hints;
-import ecologylab.serialization.annotations.simpl_inherit;
-import ecologylab.serialization.annotations.simpl_nowrap;
-import ecologylab.serialization.annotations.simpl_scalar;
 /**
  * The root element in a reply to ICDL BookXMLResults.
  * 

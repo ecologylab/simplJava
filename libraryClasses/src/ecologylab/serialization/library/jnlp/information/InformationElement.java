@@ -5,15 +5,16 @@ package ecologylab.serialization.library.jnlp.information;
 
 import java.util.ArrayList;
 
+import simpl.annotations.dbal.Hint;
+import simpl.annotations.dbal.simpl_collection;
+import simpl.annotations.dbal.simpl_composite;
+import simpl.annotations.dbal.simpl_hints;
+import simpl.annotations.dbal.simpl_inherit;
+import simpl.annotations.dbal.simpl_nowrap;
+import simpl.annotations.dbal.simpl_scalar;
+import simpl.annotations.dbal.simpl_tag;
+
 import ecologylab.serialization.ElementState;
-import ecologylab.serialization.annotations.Hint;
-import ecologylab.serialization.annotations.simpl_collection;
-import ecologylab.serialization.annotations.simpl_composite;
-import ecologylab.serialization.annotations.simpl_hints;
-import ecologylab.serialization.annotations.simpl_inherit;
-import ecologylab.serialization.annotations.simpl_nowrap;
-import ecologylab.serialization.annotations.simpl_scalar;
-import ecologylab.serialization.annotations.simpl_tag;
 
 /**
  * @author Zachary O. Toups (toupsz@cs.tamu.edu)

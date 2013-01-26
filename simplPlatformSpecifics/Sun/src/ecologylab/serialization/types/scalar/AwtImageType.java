@@ -43,6 +43,8 @@ import java.io.IOException;
 
 import javax.imageio.ImageIO;
 
+import simpl.types.scalar.ImageType;
+
 import ecologylab.serialization.ScalarUnmarshallingContext;
 import ecologylab.serialization.TranslationContext;
 

@@ -3,10 +3,10 @@
  */
 package ecologylab.standalone;
 
+import simpl.exceptions.SIMPLTranslationException;
 import ecologylab.appframework.SingletonApplicationEnvironment;
 import ecologylab.appframework.types.prefs.PrefsTranslationsProvider;
 import ecologylab.appframework.types.prefs.gui.PrefsEditor;
-import ecologylab.serialization.SIMPLTranslationException;
 import ecologylab.serialization.SimplTypesScope;
 
 /**

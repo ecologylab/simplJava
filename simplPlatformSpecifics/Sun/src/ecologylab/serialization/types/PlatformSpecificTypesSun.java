@@ -3,6 +3,7 @@
  */
 package ecologylab.serialization.types;
 
+import simpl.types.ScalarType;
 import ecologylab.generic.Debug;
 import ecologylab.serialization.types.scalar.BufferedImageType;
 import ecologylab.serialization.types.scalar.ColorType;

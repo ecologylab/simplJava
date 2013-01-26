@@ -1,8 +1,8 @@
 package legacy.tests.maps;
 
+import simpl.exceptions.SIMPLTranslationException;
 import legacy.tests.TestCase;
 import legacy.tests.TestingUtils;
-import ecologylab.serialization.SIMPLTranslationException;
 import ecologylab.serialization.SimplTypesScope;
 import ecologylab.serialization.formatenums.Format;
 

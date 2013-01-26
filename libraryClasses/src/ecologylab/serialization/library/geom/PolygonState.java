@@ -10,9 +10,10 @@ import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
 import java.util.List;
 
+import simpl.annotations.dbal.simpl_collection;
+import simpl.annotations.dbal.simpl_inherit;
+
 import ecologylab.serialization.ElementState;
-import ecologylab.serialization.annotations.simpl_collection;
-import ecologylab.serialization.annotations.simpl_inherit;
 
 /**
  * Encapsulates a Polygon for use in translating to/from XML.

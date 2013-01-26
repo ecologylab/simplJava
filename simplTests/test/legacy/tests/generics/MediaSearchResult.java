@@ -2,11 +2,12 @@ package legacy.tests.generics;
 
 import java.util.ArrayList;
 
-import ecologylab.serialization.ClassDescriptor;
-import ecologylab.serialization.FieldDescriptor;
+import simpl.annotations.dbal.simpl_composite;
+import simpl.annotations.dbal.simpl_inherit;
+import simpl.descriptions.ClassDescriptor;
+import simpl.descriptions.FieldDescriptor;
+
 import ecologylab.serialization.GenericTypeVar;
-import ecologylab.serialization.annotations.simpl_composite;
-import ecologylab.serialization.annotations.simpl_inherit;
 
 @simpl_inherit
 public class MediaSearchResult<M extends Media> extends SearchResult

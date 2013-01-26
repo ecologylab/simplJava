@@ -6,17 +6,18 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+import simpl.annotations.dbal.simpl_collection;
+import simpl.annotations.dbal.simpl_map;
+import simpl.annotations.dbal.simpl_map_key_field;
+import simpl.annotations.dbal.simpl_nowrap;
+import simpl.annotations.dbal.simpl_scalar;
+import simpl.exceptions.SIMPLTranslationException;
+import simpl.types.element.IMappable;
+
 import ecologylab.generic.HashMapArrayList;
 import ecologylab.serialization.JSONTools;
-import ecologylab.serialization.SIMPLTranslationException;
 import ecologylab.serialization.SimplTypesScope;
-import ecologylab.serialization.annotations.simpl_collection;
-import ecologylab.serialization.annotations.simpl_map;
-import ecologylab.serialization.annotations.simpl_map_key_field;
-import ecologylab.serialization.annotations.simpl_nowrap;
-import ecologylab.serialization.annotations.simpl_scalar;
 import ecologylab.serialization.formatenums.StringFormat;
-import ecologylab.serialization.types.element.IMappable;
 
 /**
  * Test cases for some edge behaviors of the JSON pull deserializer.

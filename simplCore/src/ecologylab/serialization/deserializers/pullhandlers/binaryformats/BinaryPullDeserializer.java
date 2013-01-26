@@ -1,6 +1,6 @@
 package ecologylab.serialization.deserializers.pullhandlers.binaryformats;
 
-import ecologylab.serialization.SIMPLTranslationException;
+import simpl.exceptions.SIMPLTranslationException;
 import ecologylab.serialization.SimplTypesScope;
 import ecologylab.serialization.TranslationContext;
 import ecologylab.serialization.deserializers.pullhandlers.PullDeserializer;

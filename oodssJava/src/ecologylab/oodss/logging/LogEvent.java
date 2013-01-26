@@ -3,15 +3,16 @@ package ecologylab.oodss.logging;
 import java.io.IOException;
 import java.io.Writer;
 
+import simpl.annotations.dbal.Hint;
+import simpl.annotations.dbal.simpl_hints;
+import simpl.annotations.dbal.simpl_inherit;
+import simpl.annotations.dbal.simpl_scalar;
+
 import ecologylab.generic.StringTools;
 import ecologylab.oodss.messages.ErrorResponse;
 import ecologylab.oodss.messages.OkResponse;
 import ecologylab.oodss.messages.RequestMessage;
 import ecologylab.oodss.messages.ResponseMessage;
-import ecologylab.serialization.annotations.Hint;
-import ecologylab.serialization.annotations.simpl_hints;
-import ecologylab.serialization.annotations.simpl_inherit;
-import ecologylab.serialization.annotations.simpl_scalar;
 
 /**
  * Transport for getting log data to the server, without need for any additional translation.

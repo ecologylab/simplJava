@@ -8,14 +8,15 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 
+import simpl.annotations.dbal.simpl_composite;
+import simpl.annotations.dbal.simpl_scalar;
+import simpl.exceptions.SIMPLTranslationException;
+
 import legacy.tests.TestCase;
 import legacy.tests.TestingUtils;
 
 import ecologylab.net.ParsedURL;
-import ecologylab.serialization.SIMPLTranslationException;
 import ecologylab.serialization.SimplTypesScope;
-import ecologylab.serialization.annotations.simpl_composite;
-import ecologylab.serialization.annotations.simpl_scalar;
 import ecologylab.serialization.formatenums.Format;
 
 public class Rss implements TestCase

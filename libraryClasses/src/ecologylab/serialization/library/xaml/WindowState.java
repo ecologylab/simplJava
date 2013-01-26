@@ -3,9 +3,9 @@
  */
 package ecologylab.serialization.library.xaml;
 
+import simpl.annotations.dbal.simpl_scalar;
+import simpl.annotations.dbal.simpl_tag;
 import ecologylab.serialization.SimplTypesScope;
-import ecologylab.serialization.annotations.simpl_scalar;
-import ecologylab.serialization.annotations.simpl_tag;
 
 /**
  * 

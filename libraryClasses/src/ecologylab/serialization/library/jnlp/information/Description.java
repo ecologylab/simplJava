@@ -3,11 +3,11 @@
  */
 package ecologylab.serialization.library.jnlp.information;
 
+import simpl.annotations.dbal.Hint;
+import simpl.annotations.dbal.simpl_hints;
+import simpl.annotations.dbal.simpl_scalar;
+import simpl.types.element.IMappable;
 import ecologylab.serialization.ElementState;
-import ecologylab.serialization.annotations.Hint;
-import ecologylab.serialization.annotations.simpl_hints;
-import ecologylab.serialization.annotations.simpl_scalar;
-import ecologylab.serialization.types.element.IMappable;
 
 /**
  * A short statement about the application. Description elements are optional. The kind attribute defines how the
@@ -44,7 +44,7 @@ public class Description extends ElementState implements IMappable<String>
     }
 
     /**
-     * @see ecologylab.serialization.types.element.IMappable#key()
+     * @see simpl.types.element.IMappable#key()
      */
     @Override
 	public String key()

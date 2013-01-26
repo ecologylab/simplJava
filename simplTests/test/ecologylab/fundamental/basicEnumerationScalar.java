@@ -1,7 +1,7 @@
 package ecologylab.fundamental;
 
+import simpl.annotations.dbal.simpl_scalar;
 import ecologylab.serialization.primaryScenarioEnum;
-import ecologylab.serialization.annotations.simpl_scalar;
 
 final class basicEnumerationScalar
 {

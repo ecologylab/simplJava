@@ -1,12 +1,12 @@
 package ecologylab.oodss.messages;
 
+import simpl.annotations.dbal.simpl_composite;
+import simpl.annotations.dbal.simpl_inherit;
+import simpl.exceptions.SIMPLTranslationException;
 import ecologylab.appframework.types.prefs.PrefSet;
 import ecologylab.collections.Scope;
 import ecologylab.generic.ConsoleUtils;
-import ecologylab.serialization.SIMPLTranslationException;
 import ecologylab.serialization.SimplTypesScope;
-import ecologylab.serialization.annotations.simpl_composite;
-import ecologylab.serialization.annotations.simpl_inherit;
 import ecologylab.serialization.formatenums.StringFormat;
 
 /**

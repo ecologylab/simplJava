@@ -3,7 +3,8 @@ package ecologylab.fundamental;
 import java.util.ArrayList;
 import java.util.List;
 
-import ecologylab.serialization.annotations.simpl_collection;
+import simpl.annotations.dbal.simpl_collection;
+
 import ecologylab.serialization.primaryScenarioEnum;
 
 

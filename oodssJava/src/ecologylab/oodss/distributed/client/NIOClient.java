@@ -30,6 +30,8 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.zip.DeflaterOutputStream;
 import java.util.zip.InflaterInputStream;
 
+import simpl.exceptions.SIMPLTranslationException;
+
 import ecologylab.collections.Scope;
 import ecologylab.generic.Debug;
 import ecologylab.generic.Generic;
@@ -50,7 +52,6 @@ import ecologylab.oodss.messages.ResponseMessage;
 import ecologylab.oodss.messages.SendableRequest;
 import ecologylab.oodss.messages.ServiceMessage;
 import ecologylab.oodss.messages.UpdateMessage;
-import ecologylab.serialization.SIMPLTranslationException;
 import ecologylab.serialization.SimplTypesScope;
 import ecologylab.serialization.formatenums.Format;
 import ecologylab.serialization.formatenums.StringFormat;

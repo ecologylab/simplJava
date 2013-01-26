@@ -3,9 +3,9 @@
  */
 package ecologylab.serialization.library.xaml;
 
+import simpl.annotations.dbal.simpl_scalar;
+import simpl.annotations.dbal.simpl_tag;
 import ecologylab.net.ParsedURL;
-import ecologylab.serialization.annotations.simpl_scalar;
-import ecologylab.serialization.annotations.simpl_tag;
 
 /**
  * ecologylab.serialization representation of the Image WPF element for translating to XAML.

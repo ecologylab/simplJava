@@ -2,16 +2,17 @@ package legacy.tests.person;
 
 import java.util.ArrayList;
 
+import simpl.annotations.dbal.Hint;
+import simpl.annotations.dbal.simpl_collection;
+import simpl.annotations.dbal.simpl_hints;
+import simpl.annotations.dbal.simpl_nowrap;
+import simpl.annotations.dbal.simpl_scalar;
+import simpl.exceptions.SIMPLTranslationException;
+
 import legacy.tests.TestCase;
 import legacy.tests.TestingUtils;
 
-import ecologylab.serialization.SIMPLTranslationException;
 import ecologylab.serialization.SimplTypesScope;
-import ecologylab.serialization.annotations.Hint;
-import ecologylab.serialization.annotations.simpl_collection;
-import ecologylab.serialization.annotations.simpl_hints;
-import ecologylab.serialization.annotations.simpl_nowrap;
-import ecologylab.serialization.annotations.simpl_scalar;
 import ecologylab.serialization.formatenums.Format;
 
 public class StudentDirectory implements TestCase

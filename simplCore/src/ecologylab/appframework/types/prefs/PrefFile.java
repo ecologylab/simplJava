@@ -5,10 +5,11 @@ package ecologylab.appframework.types.prefs;
 
 import java.io.File;
 
+import simpl.annotations.dbal.simpl_inherit;
+import simpl.annotations.dbal.simpl_scalar;
+
 import ecologylab.appframework.EnvironmentGeneric;
 import ecologylab.appframework.PropertiesAndDirectories;
-import ecologylab.serialization.annotations.simpl_inherit;
-import ecologylab.serialization.annotations.simpl_scalar;
 
 /**
  * Pref indicating a File. Stores a value that indicates either an absolute path, or one relative to

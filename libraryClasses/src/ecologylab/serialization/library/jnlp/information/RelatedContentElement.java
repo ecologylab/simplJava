@@ -3,9 +3,9 @@
  */
 package ecologylab.serialization.library.jnlp.information;
 
+import simpl.annotations.dbal.simpl_composite;
+import simpl.annotations.dbal.simpl_scalar;
 import ecologylab.serialization.ElementState;
-import ecologylab.serialization.annotations.simpl_composite;
-import ecologylab.serialization.annotations.simpl_scalar;
 
 /**
  * related-content element: The optional related-content element describes an additional piece of related content, such

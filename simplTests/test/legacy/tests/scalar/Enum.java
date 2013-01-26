@@ -8,9 +8,10 @@ import legacy.tests.circle.Point;
 
 import org.junit.Test;
 
-import ecologylab.serialization.SIMPLTranslationException;
+import simpl.annotations.dbal.simpl_scalar;
+import simpl.exceptions.SIMPLTranslationException;
+
 import ecologylab.serialization.SimplTypesScope;
-import ecologylab.serialization.annotations.simpl_scalar;
 import ecologylab.serialization.formatenums.Format;
 
 

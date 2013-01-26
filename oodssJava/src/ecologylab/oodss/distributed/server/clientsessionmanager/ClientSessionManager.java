@@ -2,6 +2,8 @@ package ecologylab.oodss.distributed.server.clientsessionmanager;
 
 import java.nio.channels.SelectionKey;
 
+import simpl.exceptions.SIMPLTranslationException;
+
 import ecologylab.collections.Scope;
 import ecologylab.oodss.distributed.common.ServerConstants;
 import ecologylab.oodss.distributed.impl.NIOServerIOThread;
@@ -9,7 +11,6 @@ import ecologylab.oodss.distributed.server.NIOServerProcessor;
 import ecologylab.oodss.messages.RequestMessage;
 import ecologylab.oodss.messages.ResponseMessage;
 import ecologylab.oodss.messages.UpdateMessage;
-import ecologylab.serialization.SIMPLTranslationException;
 import ecologylab.serialization.SimplTypesScope;
 import ecologylab.serialization.formatenums.StringFormat;
 

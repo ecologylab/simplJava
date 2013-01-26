@@ -1,10 +1,10 @@
 package ecologylab.serialization.deserializers.parsers.bibtex.entrytypes;
 
-import ecologylab.serialization.annotations.bibtex_tag;
-import ecologylab.serialization.annotations.bibtex_type;
-import ecologylab.serialization.annotations.simpl_inherit;
-import ecologylab.serialization.annotations.simpl_scalar;
-import ecologylab.serialization.annotations.simpl_tag;
+import simpl.annotations.dbal.bibtex_tag;
+import simpl.annotations.dbal.bibtex_type;
+import simpl.annotations.dbal.simpl_inherit;
+import simpl.annotations.dbal.simpl_scalar;
+import simpl.annotations.dbal.simpl_tag;
 
 @simpl_inherit
 @simpl_tag("bibtex_phdthesis")

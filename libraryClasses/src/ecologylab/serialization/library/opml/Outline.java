@@ -5,11 +5,12 @@ package ecologylab.serialization.library.opml;
 
 import java.util.ArrayList;
 
+import simpl.annotations.dbal.simpl_collection;
+import simpl.annotations.dbal.simpl_inherit;
+import simpl.annotations.dbal.simpl_scalar;
+
 import ecologylab.net.ParsedURL;
 import ecologylab.serialization.ElementState;
-import ecologylab.serialization.annotations.simpl_collection;
-import ecologylab.serialization.annotations.simpl_inherit;
-import ecologylab.serialization.annotations.simpl_scalar;
 
 /**
  * Nestable Outline Processor Markup Language construct.

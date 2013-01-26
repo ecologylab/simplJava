@@ -1,11 +1,11 @@
 package legacy.tests.composite;
 
+import simpl.annotations.dbal.simpl_classes;
+import simpl.annotations.dbal.simpl_composite;
+import simpl.exceptions.SIMPLTranslationException;
 import legacy.tests.TestCase;
 import legacy.tests.TestingUtils;
-import ecologylab.serialization.SIMPLTranslationException;
 import ecologylab.serialization.SimplTypesScope;
-import ecologylab.serialization.annotations.simpl_classes;
-import ecologylab.serialization.annotations.simpl_composite;
 import ecologylab.serialization.formatenums.Format;
 
 public class Container implements TestCase

@@ -2,7 +2,8 @@ package legacy.tests.generics;
 
 import java.util.List;
 
-import ecologylab.serialization.annotations.simpl_collection;
+import simpl.annotations.dbal.simpl_collection;
+
 
 public class Search<T extends SearchResult>
 {

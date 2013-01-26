@@ -6,6 +6,9 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 
+import simpl.descriptions.ClassDescriptor;
+import simpl.descriptions.FieldDescriptor;
+
 import ecologylab.collections.MultiMap;
 import ecologylab.generic.Debug;
 import ecologylab.net.ParsedURL;
@@ -16,7 +19,7 @@ import ecologylab.serialization.SimplTypesScope.GRAPH_SWITCH;
  * @author nabeelshahzad
  * 
  */
-public class TranslationContext extends Debug implements ScalarUnmarshallingContext, FieldTypes
+public class TranslationContext extends Debug implements ScalarUnmarshallingContext
 {
 
 	public static final String				SIMPL_NAMESPACE	= " xmlns:simpl=\"http://ecologylab.net/research/simplGuide/serialization/index.html\"";

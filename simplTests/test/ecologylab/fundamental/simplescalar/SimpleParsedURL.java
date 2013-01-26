@@ -1,6 +1,6 @@
 package ecologylab.fundamental.simplescalar;
+import simpl.annotations.dbal.simpl_scalar;
 import ecologylab.net.ParsedURL;
-import ecologylab.serialization.annotations.simpl_scalar;
 public class SimpleParsedURL {
 	@simpl_scalar
 	private ParsedURL simpleparsedurl;

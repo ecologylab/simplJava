@@ -1,6 +1,6 @@
 package legacy.tests.generics;
 
-import ecologylab.serialization.annotations.simpl_scalar;
+import simpl.annotations.dbal.simpl_scalar;
 
 public class SearchResult
 {

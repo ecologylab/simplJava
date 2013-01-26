@@ -1,6 +1,7 @@
 package ecologylab.fundamental.simplescalar;
 import java.util.Date;
-import ecologylab.serialization.annotations.simpl_scalar;
+
+import simpl.annotations.dbal.simpl_scalar;
 public class SimpleDate {
 	@simpl_scalar
 	private Date simpledate;

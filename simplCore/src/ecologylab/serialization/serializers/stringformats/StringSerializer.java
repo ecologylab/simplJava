@@ -8,7 +8,8 @@ import java.io.OutputStream;
 import java.io.PrintStream;
 import java.io.UnsupportedEncodingException;
 
-import ecologylab.serialization.SIMPLTranslationException;
+import simpl.exceptions.SIMPLTranslationException;
+
 import ecologylab.serialization.TranslationContext;
 import ecologylab.serialization.TranslationContextPool;
 import ecologylab.serialization.XMLTools;

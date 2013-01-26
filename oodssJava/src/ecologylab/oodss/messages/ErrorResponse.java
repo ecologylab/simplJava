@@ -1,6 +1,6 @@
 package ecologylab.oodss.messages;
 
-import ecologylab.serialization.annotations.simpl_inherit;
+import simpl.annotations.dbal.simpl_inherit;
 
 /**
  * Base class for all ResponseMessages that indicate errors.

@@ -2,9 +2,10 @@ package ecologylab.oodss.messages;
 
 import java.util.Collection;
 
+import simpl.annotations.dbal.simpl_inherit;
+
 import ecologylab.collections.Scope;
 import ecologylab.net.ParsedURL;
-import ecologylab.serialization.annotations.simpl_inherit;
 
 /**
  * Abstract base class for ecologylab.oodss DCF request messages.

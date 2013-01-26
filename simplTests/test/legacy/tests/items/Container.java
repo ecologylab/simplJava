@@ -2,14 +2,15 @@ package legacy.tests.items;
 
 import java.util.ArrayList;
 
+import simpl.annotations.dbal.simpl_collection;
+import simpl.annotations.dbal.simpl_nowrap;
+import simpl.annotations.dbal.simpl_scope;
+import simpl.exceptions.SIMPLTranslationException;
+
 import legacy.tests.TestCase;
 import legacy.tests.TestingUtils;
 
-import ecologylab.serialization.SIMPLTranslationException;
 import ecologylab.serialization.SimplTypesScope;
-import ecologylab.serialization.annotations.simpl_collection;
-import ecologylab.serialization.annotations.simpl_nowrap;
-import ecologylab.serialization.annotations.simpl_scope;
 import ecologylab.serialization.formatenums.Format;
 
 public class Container implements TestCase

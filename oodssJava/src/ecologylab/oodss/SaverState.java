@@ -5,9 +5,10 @@ package ecologylab.oodss;
 
 import java.io.File;
 
+import simpl.exceptions.SIMPLTranslationException;
+
 import ecologylab.oodss.exceptions.SaveFailedException;
 import ecologylab.serialization.ElementState;
-import ecologylab.serialization.SIMPLTranslationException;
 import ecologylab.serialization.SimplTypesScope;
 import ecologylab.serialization.formatenums.Format;
 

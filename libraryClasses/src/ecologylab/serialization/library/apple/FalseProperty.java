@@ -3,8 +3,8 @@
  */
 package ecologylab.serialization.library.apple;
 
-import ecologylab.serialization.annotations.simpl_inherit;
-import ecologylab.serialization.annotations.simpl_tag;
+import simpl.annotations.dbal.simpl_inherit;
+import simpl.annotations.dbal.simpl_tag;
 
 /**
  * @author Zachary O. Toups (zach@ecologylab.net)

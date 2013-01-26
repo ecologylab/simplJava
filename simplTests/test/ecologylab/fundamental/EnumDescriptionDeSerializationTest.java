@@ -4,10 +4,11 @@ import static org.junit.Assert.*;
 
 import org.junit.Test;
 
-import ecologylab.serialization.ClassDescriptor;
-import ecologylab.serialization.EnumerationDescriptor;
-import ecologylab.serialization.SIMPLDescriptionException;
-import ecologylab.serialization.SIMPLTranslationException;
+import simpl.descriptions.ClassDescriptor;
+import simpl.descriptions.EnumerationDescriptor;
+import simpl.exceptions.SIMPLDescriptionException;
+import simpl.exceptions.SIMPLTranslationException;
+
 import ecologylab.serialization.SimplTypesScope;
 import ecologylab.serialization.primaryScenarioEnum;
 import ecologylab.serialization.secondaryScenarioEnum;

@@ -7,11 +7,13 @@ import java.lang.reflect.Type;
 import java.lang.reflect.TypeVariable;
 import java.util.ArrayList;
 
+import simpl.annotations.dbal.simpl_collection;
+import simpl.annotations.dbal.simpl_composite;
+import simpl.annotations.dbal.simpl_scalar;
+import simpl.descriptions.ClassDescriptor;
+import simpl.platformspecifics.SimplPlatformSpecifics;
+
 import ecologylab.generic.Debug;
-import ecologylab.platformspecifics.FundamentalPlatformSpecifics;
-import ecologylab.serialization.annotations.simpl_collection;
-import ecologylab.serialization.annotations.simpl_composite;
-import ecologylab.serialization.annotations.simpl_scalar;
 
 /**
  * This class encapsulates generic type variables declarations on classes and fields.
@@ -339,18 +341,18 @@ public class GenericTypeVar extends Debug
 	
 	public static void checkBoundParameterizedTypeImpl (GenericTypeVar g, Type bounds)
 	{
-		FundamentalPlatformSpecifics.get().checkBoundParameterizedTypeImpl(g, bounds);
+		SimplPlatformSpecifics.get().checkBoundParameterizedTypeImpl(g, bounds);
 	}
 	
 	// added two helper functions for GenericTypeVar
 	public static void checkTypeWildcardTypeImpl(GenericTypeVar g, Type type)
 	{
-		FundamentalPlatformSpecifics.get().checkTypeWildcardTypeImpl(g, type);
+		SimplPlatformSpecifics.get().checkTypeWildcardTypeImpl(g, type);
 	}
 	
 	public static void checkTypeParameterizedTypeImpl(GenericTypeVar g, Type type)
 	{
-		FundamentalPlatformSpecifics.get().checkTypeParameterizedTypeImpl(g, type);
+		SimplPlatformSpecifics.get().checkTypeParameterizedTypeImpl(g, type);
 	}
 	
 	public boolean isDef()

@@ -1,5 +1,7 @@
 package ecologylab.serialization;
 
+import simpl.exceptions.SIMPLTranslationException;
+
 /**
  * Represents an interfaces for classes that can marshal 
  * a given object to a "Simpl" string representation and from a representation to an object.

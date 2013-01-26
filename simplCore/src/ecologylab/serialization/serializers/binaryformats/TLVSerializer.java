@@ -8,15 +8,15 @@ import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.Collection;
 
-import ecologylab.serialization.ClassDescriptor;
-import ecologylab.serialization.FieldDescriptor;
-import ecologylab.serialization.FieldTypes;
-import ecologylab.serialization.SIMPLTranslationException;
+import simpl.annotations.dbal.FieldUsage;
+import simpl.descriptions.ClassDescriptor;
+import simpl.descriptions.FieldDescriptor;
+import simpl.exceptions.SIMPLTranslationException;
+
 import ecologylab.serialization.SimplTypesScope;
 import ecologylab.serialization.SimplTypesScope.GRAPH_SWITCH;
 import ecologylab.serialization.TranslationContext;
 import ecologylab.serialization.XMLTools;
-import ecologylab.serialization.annotations.FieldUsage;
 import ecologylab.serialization.formatenums.Format;
 
 /**
@@ -24,7 +24,7 @@ import ecologylab.serialization.formatenums.Format;
  * @author nabeel
  * 
  */
-public class TLVSerializer extends BinarySerializer implements FieldTypes
+public class TLVSerializer extends BinarySerializer
 {
 
 	public TLVSerializer()

@@ -5,7 +5,8 @@ package ecologylab.serialization.library.geom;
 
 import java.awt.Shape;
 
-import ecologylab.serialization.annotations.simpl_inherit;
+import simpl.annotations.dbal.simpl_inherit;
+
 
 
 

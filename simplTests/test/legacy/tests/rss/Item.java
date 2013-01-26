@@ -4,13 +4,14 @@ package legacy.tests.rss;
 
 import java.util.ArrayList;
 
+import simpl.annotations.dbal.Hint;
+import simpl.annotations.dbal.simpl_collection;
+import simpl.annotations.dbal.simpl_hints;
+import simpl.annotations.dbal.simpl_nowrap;
+import simpl.annotations.dbal.simpl_scalar;
+
 import ecologylab.net.ParsedURL;
 import ecologylab.serialization.ElementState;
-import ecologylab.serialization.annotations.Hint;
-import ecologylab.serialization.annotations.simpl_collection;
-import ecologylab.serialization.annotations.simpl_hints;
-import ecologylab.serialization.annotations.simpl_nowrap;
-import ecologylab.serialization.annotations.simpl_scalar;
 
 public class Item extends ElementState
 {

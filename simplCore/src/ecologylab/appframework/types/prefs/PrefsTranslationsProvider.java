@@ -3,9 +3,9 @@
  */
 package ecologylab.appframework.types.prefs;
 
+import simpl.types.element.ElementTypeTranslationsProvider;
 import ecologylab.generic.Debug;
 import ecologylab.serialization.SimplTypesScope;
-import ecologylab.serialization.types.element.ElementTypeTranslationsProvider;
 
 /**
  * Translations for the pref/meta_pref system.

@@ -1,9 +1,9 @@
 package ecologylab.oodss.messages;
 
 
+import simpl.annotations.dbal.simpl_inherit;
+import simpl.annotations.dbal.simpl_scalar;
 import ecologylab.collections.Scope;
-import ecologylab.serialization.annotations.simpl_inherit;
-import ecologylab.serialization.annotations.simpl_scalar;
 
 @simpl_inherit
 public class UrlMessage extends RequestMessage

@@ -1,12 +1,12 @@
 package legacy.tests.person;
 
+import simpl.annotations.dbal.simpl_scalar;
+import simpl.exceptions.SIMPLTranslationException;
+import simpl.types.element.IMappable;
 import legacy.tests.TestCase;
 import legacy.tests.TestingUtils;
-import ecologylab.serialization.SIMPLTranslationException;
 import ecologylab.serialization.SimplTypesScope;
-import ecologylab.serialization.annotations.simpl_scalar;
 import ecologylab.serialization.formatenums.Format;
-import ecologylab.serialization.types.element.IMappable;
 
 public class Person implements TestCase, IMappable<String>
 {

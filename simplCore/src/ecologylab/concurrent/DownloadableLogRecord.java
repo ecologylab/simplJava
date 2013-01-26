@@ -2,8 +2,9 @@ package ecologylab.concurrent;
 
 import java.util.ArrayList;
 
-import ecologylab.serialization.annotations.simpl_composite;
-import ecologylab.serialization.annotations.simpl_scalar;
+import simpl.annotations.dbal.simpl_composite;
+import simpl.annotations.dbal.simpl_scalar;
+
 
 public class DownloadableLogRecord
 {

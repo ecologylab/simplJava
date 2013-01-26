@@ -1,7 +1,7 @@
 package ecologylab.oodss.messages;
 
+import simpl.annotations.dbal.simpl_inherit;
 import ecologylab.collections.Scope;
-import ecologylab.serialization.annotations.simpl_inherit;
 
 /**
  * Base class for all ResponseMessages that were processed successfully.

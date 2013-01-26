@@ -1,7 +1,7 @@
 package ecologylab.serialization.library.media;
 
+import simpl.annotations.dbal.simpl_scalar;
 import ecologylab.serialization.ElementState;
-import ecologylab.serialization.annotations.simpl_scalar;
 
 /**
  * Leaf node with attributes (so not declared as such).

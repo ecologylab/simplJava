@@ -6,7 +6,8 @@ import java.awt.geom.PathIterator;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 
-import ecologylab.serialization.annotations.simpl_inherit;
+import simpl.annotations.dbal.simpl_inherit;
+
 
 /**
  * Encapsulates a Rectangle2D.Double for use in translating to/from XML.

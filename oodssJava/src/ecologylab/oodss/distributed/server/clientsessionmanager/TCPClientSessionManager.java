@@ -21,6 +21,8 @@ import java.util.zip.DataFormatException;
 import java.util.zip.Deflater;
 import java.util.zip.Inflater;
 
+import simpl.exceptions.SIMPLTranslationException;
+
 import ecologylab.collections.Scope;
 import ecologylab.generic.StringTools;
 import ecologylab.oodss.distributed.common.NetworkingConstants;
@@ -34,7 +36,6 @@ import ecologylab.oodss.exceptions.BadClientException;
 import ecologylab.oodss.messages.RequestMessage;
 import ecologylab.oodss.messages.ResponseMessage;
 import ecologylab.oodss.messages.UpdateMessage;
-import ecologylab.serialization.SIMPLTranslationException;
 import ecologylab.serialization.SimplTypesScope;
 import ecologylab.serialization.formatenums.StringFormat;
 

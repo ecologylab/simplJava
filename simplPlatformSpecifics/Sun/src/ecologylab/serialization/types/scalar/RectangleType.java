@@ -7,11 +7,12 @@ import java.awt.Rectangle;
 import java.util.Scanner;
 import java.util.regex.Pattern;
 
+import simpl.annotations.dbal.simpl_inherit;
+import simpl.types.CrossLanguageTypeConstants;
+import simpl.types.ScalarType;
+
 import ecologylab.serialization.ScalarUnmarshallingContext;
 import ecologylab.serialization.TranslationContext;
-import ecologylab.serialization.annotations.simpl_inherit;
-import ecologylab.serialization.types.CrossLanguageTypeConstants;
-import ecologylab.serialization.types.ScalarType;
 
 /**
  * @author andrew

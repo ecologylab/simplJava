@@ -2,11 +2,12 @@ package legacy.tests.net;
 
 import java.util.HashMap;
 
+import simpl.exceptions.SIMPLTranslationException;
+
 import legacy.tests.TestCase;
 
 import ecologylab.generic.Debug;
 import ecologylab.net.ParsedURL;
-import ecologylab.serialization.SIMPLTranslationException;
 
 public class ParsedURLMapTest extends Debug implements TestCase
 {

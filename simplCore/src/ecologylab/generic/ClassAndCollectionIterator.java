@@ -3,7 +3,8 @@ package ecologylab.generic;
 import java.lang.reflect.Field;
 import java.util.Iterator;
 
-import ecologylab.serialization.FieldDescriptor;
+import simpl.descriptions.FieldDescriptor;
+
 
 /**
  * Iterates through a Collection of things, and then through an Iterator

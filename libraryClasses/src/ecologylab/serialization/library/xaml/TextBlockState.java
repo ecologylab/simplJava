@@ -3,10 +3,10 @@
  */
 package ecologylab.serialization.library.xaml;
 
-import ecologylab.serialization.annotations.Hint;
-import ecologylab.serialization.annotations.simpl_hints;
-import ecologylab.serialization.annotations.simpl_scalar;
-import ecologylab.serialization.annotations.simpl_tag;
+import simpl.annotations.dbal.Hint;
+import simpl.annotations.dbal.simpl_hints;
+import simpl.annotations.dbal.simpl_scalar;
+import simpl.annotations.dbal.simpl_tag;
 
 /**
  * ecologylab.serialization representation of the TextBlock WPF element for translating to XAML.

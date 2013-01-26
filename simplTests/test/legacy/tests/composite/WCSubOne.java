@@ -1,6 +1,6 @@
 package legacy.tests.composite;
 
-import ecologylab.serialization.annotations.simpl_scalar;
+import simpl.annotations.dbal.simpl_scalar;
 
 
 public class WCSubOne extends WCBase

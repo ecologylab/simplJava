@@ -20,7 +20,7 @@ public class EndnoteNameSpace
     protected static final Class  TRANSLATIONS[] =
                                                  {
 
-            ecologylab.serialization.types.element.StringState.class, ecologylab.serialization.types.element.IntState.class,
+            simpl.types.element.StringState.class, simpl.types.element.IntState.class,
             ecologylab.serialization.library.endnote.Author.class,
             ecologylab.serialization.library.endnote.ContributorList.class,
             ecologylab.serialization.library.endnote.DateList.class,

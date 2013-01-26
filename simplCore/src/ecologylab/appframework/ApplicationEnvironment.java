@@ -10,6 +10,9 @@ import java.net.URLConnection;
 import java.net.URLDecoder;
 import java.util.Stack;
 
+import simpl.exceptions.SIMPLTranslationException;
+import simpl.platformspecifics.SimplPlatformSpecifics;
+
 import ecologylab.appframework.types.prefs.Pref;
 import ecologylab.appframework.types.prefs.PrefEnum;
 import ecologylab.appframework.types.prefs.PrefSet;
@@ -20,8 +23,6 @@ import ecologylab.io.DownloadProcessor;
 import ecologylab.io.Files;
 import ecologylab.io.ZipDownload;
 import ecologylab.net.ParsedURL;
-import ecologylab.platformspecifics.FundamentalPlatformSpecifics;
-import ecologylab.serialization.SIMPLTranslationException;
 import ecologylab.serialization.SimplTypesScope;
 import ecologylab.serialization.XMLTranslationExceptionTypes;
 import ecologylab.serialization.formatenums.StringFormat;
@@ -40,7 +41,7 @@ public class ApplicationEnvironment extends Debug implements Environment,
 	
 	static
 	{
-		FundamentalPlatformSpecifics.get().initializePlatformSpecificTranslation();
+		SimplPlatformSpecifics.get().initializePlatformSpecificTranslation();
 	}
 	
 	public static final PrefEnum	LAUNCH_TYPE_PREF	= Pref.usePrefEnum(	LAUNCH_TYPE,

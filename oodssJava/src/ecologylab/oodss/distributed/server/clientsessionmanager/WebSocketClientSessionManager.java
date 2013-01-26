@@ -5,6 +5,8 @@ import java.nio.channels.SelectionKey;
 
 import org.java_websocket.WebSocket;
 
+import simpl.exceptions.SIMPLTranslationException;
+
 import ecologylab.collections.Scope;
 import ecologylab.generic.Debug;
 import ecologylab.oodss.distributed.common.SessionObjects;
@@ -16,7 +18,6 @@ import ecologylab.oodss.messages.InitConnectionResponse;
 import ecologylab.oodss.messages.RequestMessage;
 import ecologylab.oodss.messages.ResponseMessage;
 import ecologylab.oodss.messages.UpdateMessage;
-import ecologylab.serialization.SIMPLTranslationException;
 import ecologylab.serialization.SimplTypesScope;
 import ecologylab.serialization.formatenums.StringFormat;
 

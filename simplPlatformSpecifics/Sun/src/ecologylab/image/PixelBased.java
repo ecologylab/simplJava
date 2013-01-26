@@ -13,6 +13,12 @@ import java.awt.image.PackedColorModel;
 import java.io.IOException;
 import java.net.URL;
 
+import simpl.annotations.dbal.simpl_classes;
+import simpl.annotations.dbal.simpl_composite;
+import simpl.annotations.dbal.simpl_inherit;
+import simpl.annotations.dbal.simpl_scalar;
+import simpl.annotations.dbal.simpl_wrap;
+
 import ecologylab.concurrent.BasicSite;
 import ecologylab.concurrent.Downloadable;
 import ecologylab.concurrent.DownloadableLogRecord;
@@ -21,11 +27,6 @@ import ecologylab.generic.ConsoleUtils;
 import ecologylab.generic.MathTools;
 import ecologylab.net.ParsedURL;
 import ecologylab.serialization.ElementState;
-import ecologylab.serialization.annotations.simpl_classes;
-import ecologylab.serialization.annotations.simpl_composite;
-import ecologylab.serialization.annotations.simpl_inherit;
-import ecologylab.serialization.annotations.simpl_scalar;
-import ecologylab.serialization.annotations.simpl_wrap;
 
 /**
  * Infrastructure to display, keep track of, and manipulate pixel based media.

@@ -1,8 +1,8 @@
 package legacy.tests.inheritance;
 
-import ecologylab.serialization.annotations.simpl_other_tags;
-import ecologylab.serialization.annotations.simpl_scalar;
-import ecologylab.serialization.annotations.simpl_tag;
+import simpl.annotations.dbal.simpl_other_tags;
+import simpl.annotations.dbal.simpl_scalar;
+import simpl.annotations.dbal.simpl_tag;
 
 @simpl_other_tags({"the_field"})
 @simpl_tag("fred")

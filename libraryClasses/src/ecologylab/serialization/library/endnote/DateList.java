@@ -3,9 +3,9 @@
  */
 package ecologylab.serialization.library.endnote;
 
+import simpl.annotations.dbal.simpl_composite;
+import simpl.types.element.StringState;
 import ecologylab.serialization.ElementState;
-import ecologylab.serialization.annotations.simpl_composite;
-import ecologylab.serialization.types.element.StringState;
 
 /**
  * @author Zachary O. Toups (toupsz@cs.tamu.edu)

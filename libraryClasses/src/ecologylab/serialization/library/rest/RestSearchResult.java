@@ -2,12 +2,13 @@ package ecologylab.serialization.library.rest;
 
 import java.net.URL;
 
+import simpl.annotations.dbal.Hint;
+import simpl.annotations.dbal.simpl_composite;
+import simpl.annotations.dbal.simpl_hints;
+import simpl.annotations.dbal.simpl_scalar;
+import simpl.annotations.dbal.simpl_tag;
+
 import ecologylab.serialization.ElementState;
-import ecologylab.serialization.annotations.Hint;
-import ecologylab.serialization.annotations.simpl_composite;
-import ecologylab.serialization.annotations.simpl_hints;
-import ecologylab.serialization.annotations.simpl_scalar;
-import ecologylab.serialization.annotations.simpl_tag;
 
 /**
  * Rest Search Results

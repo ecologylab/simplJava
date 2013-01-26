@@ -13,13 +13,21 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 
+import simpl.annotations.dbal.simpl_map;
+import simpl.annotations.dbal.simpl_nowrap;
+import simpl.annotations.dbal.simpl_scalar;
+import simpl.annotations.dbal.simpl_tag;
+import simpl.descriptions.ClassDescriptor;
+import simpl.descriptions.EnumerationDescriptor;
+import simpl.descriptions.FieldDescriptor;
+import simpl.exceptions.SIMPLDescriptionException;
+import simpl.exceptions.SIMPLTranslationException;
+import simpl.types.ScalarType;
+import simpl.types.TypeRegistry;
+
 import ecologylab.collections.Scope;
 import ecologylab.generic.HashMapArrayList;
 import ecologylab.net.ParsedURL;
-import ecologylab.serialization.annotations.simpl_map;
-import ecologylab.serialization.annotations.simpl_nowrap;
-import ecologylab.serialization.annotations.simpl_scalar;
-import ecologylab.serialization.annotations.simpl_tag;
 import ecologylab.serialization.deserializers.pullhandlers.PullDeserializer;
 import ecologylab.serialization.deserializers.pullhandlers.binaryformats.BinaryPullDeserializer;
 import ecologylab.serialization.deserializers.pullhandlers.stringformats.StringPullDeserializer;
@@ -28,8 +36,6 @@ import ecologylab.serialization.formatenums.Format;
 import ecologylab.serialization.formatenums.StringFormat;
 import ecologylab.serialization.serializers.FormatSerializer;
 import ecologylab.serialization.serializers.stringformats.StringSerializer;
-import ecologylab.serialization.types.ScalarType;
-import ecologylab.serialization.types.TypeRegistry;
 
 /**
  * A set of bindings between XML element names (tags) and associated simple (without package) class
@@ -922,7 +928,7 @@ public final class SimplTypesScope extends ElementState
 	 *          a set of Classes to be used as a part of this SimplTypesScope
 	 * @return
 	 */
-	public static SimplTypesScope get(String name, Class... translations)
+	public static SimplTypesScope get(String name, Class<?>... translations)
 	{
 		SimplTypesScope result = lookup(name);
 		if (result == null)
@@ -950,7 +956,7 @@ public final class SimplTypesScope extends ElementState
 	 * @return
 	 */
 	public static SimplTypesScope get(String name, SimplTypesScope inheritedTranslations,
-			Class[]... translations)
+			Class<?>[]... translations)
 	{
 		SimplTypesScope result = lookup(name);
 		if (result == null)

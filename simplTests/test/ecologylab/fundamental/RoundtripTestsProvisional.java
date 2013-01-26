@@ -4,14 +4,15 @@ import static org.junit.Assert.*;
 
 import org.junit.Test;
 
-import ecologylab.serialization.ClassDescriptor;
-import ecologylab.serialization.FieldDescriptor;
-import ecologylab.serialization.SIMPLTranslationException;
+import simpl.descriptions.ClassDescriptor;
+import simpl.descriptions.FieldDescriptor;
+import simpl.exceptions.SIMPLTranslationException;
+import simpl.types.ScalarType;
+import simpl.types.TypeRegistry;
+
 import ecologylab.serialization.SimplTypesScope;
 import ecologylab.serialization.TranslationContext;
 import ecologylab.serialization.formatenums.StringFormat;
-import ecologylab.serialization.types.ScalarType;
-import ecologylab.serialization.types.TypeRegistry;
 
 public class RoundtripTestsProvisional {
 

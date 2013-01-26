@@ -1,5 +1,5 @@
 package ecologylab.fundamental.simplescalar;
-import ecologylab.serialization.annotations.simpl_scalar;
+import simpl.annotations.dbal.simpl_scalar;
 public class Simpleprimshort {
 	@simpl_scalar
 	private short simpleprimshort;

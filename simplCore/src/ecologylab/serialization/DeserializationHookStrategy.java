@@ -3,6 +3,8 @@
  */
 package ecologylab.serialization;
 
+import simpl.descriptions.FieldDescriptor;
+
 /**
  * Used to connect the state of an object (outside the ElementState subclasses being created)
  * to deserialization hooks.

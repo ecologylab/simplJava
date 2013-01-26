@@ -14,6 +14,10 @@ import java.nio.charset.Charset;
 import java.nio.charset.CharsetEncoder;
 import java.util.ArrayList;
 
+import simpl.annotations.dbal.simpl_collection;
+import simpl.annotations.dbal.simpl_scope;
+import simpl.exceptions.SIMPLTranslationException;
+
 import ecologylab.appframework.ApplicationEnvironment;
 import ecologylab.appframework.Memory;
 import ecologylab.appframework.PropertiesAndDirectories;
@@ -31,11 +35,8 @@ import ecologylab.oodss.distributed.exception.MessageTooLargeException;
 import ecologylab.oodss.messages.DefaultServicesTranslations;
 import ecologylab.oodss.messages.ResponseMessage;
 import ecologylab.serialization.ElementState;
-import ecologylab.serialization.SIMPLTranslationException;
 import ecologylab.serialization.SimplTypesScope;
 import ecologylab.serialization.XMLTools;
-import ecologylab.serialization.annotations.simpl_collection;
-import ecologylab.serialization.annotations.simpl_scope;
 import ecologylab.serialization.formatenums.StringFormat;
 
 /**

@@ -4,9 +4,10 @@ import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
 
-import ecologylab.serialization.ClassDescriptor;
-import ecologylab.serialization.FieldDescriptor;
-import ecologylab.serialization.SIMPLTranslationException;
+import simpl.descriptions.ClassDescriptor;
+import simpl.descriptions.FieldDescriptor;
+import simpl.exceptions.SIMPLTranslationException;
+
 import ecologylab.serialization.SimplTypesScope;
 import ecologylab.serialization.TranslationContextPool;
 import ecologylab.serialization.SimplTypesScope.GRAPH_SWITCH;

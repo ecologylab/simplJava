@@ -1,7 +1,7 @@
 package legacy.tests.composite;
 
+import simpl.annotations.dbal.simpl_scalar;
 import ecologylab.serialization.ElementState;
-import ecologylab.serialization.annotations.simpl_scalar;
 
 public class WCBase extends ElementState
 {

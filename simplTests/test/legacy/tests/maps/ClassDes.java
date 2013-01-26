@@ -2,10 +2,11 @@ package legacy.tests.maps;
 
 import java.util.HashMap;
 
-import ecologylab.serialization.annotations.simpl_map;
-import ecologylab.serialization.annotations.simpl_nowrap;
-import ecologylab.serialization.annotations.simpl_scalar;
-import ecologylab.serialization.types.element.IMappable;
+import simpl.annotations.dbal.simpl_map;
+import simpl.annotations.dbal.simpl_nowrap;
+import simpl.annotations.dbal.simpl_scalar;
+import simpl.types.element.IMappable;
+
 
 public class ClassDes implements IMappable<String>
 {

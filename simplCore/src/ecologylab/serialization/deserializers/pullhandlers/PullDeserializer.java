@@ -9,13 +9,14 @@ import java.io.InputStream;
 import java.net.URL;
 import java.nio.charset.Charset;
 
+import simpl.exceptions.SIMPLTranslationException;
+
 import ecologylab.generic.Debug;
 import ecologylab.net.ConnectionAdapter;
 import ecologylab.net.PURLConnection;
 import ecologylab.net.ParsedURL;
 import ecologylab.serialization.DeserializationHookStrategy;
 import ecologylab.serialization.FieldType;
-import ecologylab.serialization.SIMPLTranslationException;
 import ecologylab.serialization.SimplTypesScope;
 import ecologylab.serialization.TranslationContext;
 import ecologylab.serialization.deserializers.ISimplDeserializationIn;

@@ -2,13 +2,14 @@ package legacy.tests.scalar;
 
 import java.util.ArrayList;
 
+import simpl.annotations.dbal.FieldUsage;
+import simpl.annotations.dbal.simpl_collection;
+import simpl.exceptions.SIMPLTranslationException;
+
 import legacy.tests.TestCase;
 import legacy.tests.TestingUtils;
 
-import ecologylab.serialization.SIMPLTranslationException;
 import ecologylab.serialization.SimplTypesScope;
-import ecologylab.serialization.annotations.FieldUsage;
-import ecologylab.serialization.annotations.simpl_collection;
 import ecologylab.serialization.formatenums.Format;
 
 public class EnumCollection implements TestCase{

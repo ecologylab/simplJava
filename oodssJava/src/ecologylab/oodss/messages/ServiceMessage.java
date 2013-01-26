@@ -2,9 +2,10 @@ package ecologylab.oodss.messages;
 
 import java.net.InetAddress;
 
+import simpl.annotations.dbal.simpl_scalar;
+
 import ecologylab.collections.Scope;
 import ecologylab.serialization.ElementState;
-import ecologylab.serialization.annotations.simpl_scalar;
 
 /**
  * Abstract base class for ecologylab.oodss DCF request and response messages.

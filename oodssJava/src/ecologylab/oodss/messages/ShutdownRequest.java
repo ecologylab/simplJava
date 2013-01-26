@@ -3,10 +3,10 @@
  */
 package ecologylab.oodss.messages;
 
+import simpl.annotations.dbal.simpl_inherit;
 import ecologylab.collections.Scope;
 import ecologylab.oodss.distributed.common.SessionObjects;
 import ecologylab.oodss.distributed.impl.Shutdownable;
-import ecologylab.serialization.annotations.simpl_inherit;
 
 /**
  * A message indicating that the server should shut down it's associated

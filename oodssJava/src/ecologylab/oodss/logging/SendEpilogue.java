@@ -3,12 +3,13 @@ package ecologylab.oodss.logging;
 import java.io.IOException;
 import java.io.Writer;
 
+import simpl.annotations.dbal.simpl_inherit;
+import simpl.exceptions.SIMPLTranslationException;
+
 import ecologylab.oodss.messages.ErrorResponse;
 import ecologylab.oodss.messages.OkResponse;
 import ecologylab.oodss.messages.ResponseMessage;
-import ecologylab.serialization.SIMPLTranslationException;
 import ecologylab.serialization.SimplTypesScope;
-import ecologylab.serialization.annotations.simpl_inherit;
 import ecologylab.serialization.formatenums.StringFormat;
 
 /**

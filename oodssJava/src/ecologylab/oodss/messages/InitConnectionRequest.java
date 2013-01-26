@@ -3,10 +3,10 @@
  */
 package ecologylab.oodss.messages;
 
+import simpl.annotations.dbal.simpl_scalar;
+import simpl.exceptions.SIMPLTranslationException;
 import ecologylab.collections.Scope;
-import ecologylab.serialization.SIMPLTranslationException;
 import ecologylab.serialization.SimplTypesScope;
-import ecologylab.serialization.annotations.simpl_scalar;
 import ecologylab.serialization.formatenums.StringFormat;
 
 /**

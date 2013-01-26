@@ -7,14 +7,15 @@ package ecologylab.appframework.types.prefs;
 import java.io.File;
 import java.util.LinkedList;
 
+import simpl.annotations.dbal.simpl_inherit;
+import simpl.annotations.dbal.simpl_scalar;
+import simpl.platformspecifics.SimplPlatformSpecifics;
+import simpl.types.element.IMappable;
+
 import ecologylab.appframework.SingletonApplicationEnvironment;
 import ecologylab.collections.Scope;
-import ecologylab.platformspecifics.FundamentalPlatformSpecifics;
 import ecologylab.serialization.ElementState;
 import ecologylab.serialization.TranslationContext;
-import ecologylab.serialization.annotations.simpl_inherit;
-import ecologylab.serialization.annotations.simpl_scalar;
-import ecologylab.serialization.types.element.IMappable;
 
 /**
  * Generic base class for application Preference objects.
@@ -264,7 +265,7 @@ public abstract class Pref<T> extends ElementState implements IMappable<String>,
 	 */
 	public static Object usePrefColor(String name, Object defaultValue)
 	{
-		return FundamentalPlatformSpecifics.get().usePrefColor(name, defaultValue);
+		return SimplPlatformSpecifics.get().usePrefColor(name, defaultValue);
 	}
 
 	/**
@@ -541,7 +542,7 @@ public abstract class Pref<T> extends ElementState implements IMappable<String>,
 	 */
 	public static Object lookupColor(String name, Object defaultValue)
 	{
-		return FundamentalPlatformSpecifics.get().lookupColor(name, defaultValue);		
+		return SimplPlatformSpecifics.get().lookupColor(name, defaultValue);		
 	}
 
 	/**
@@ -635,7 +636,7 @@ public abstract class Pref<T> extends ElementState implements IMappable<String>,
 	}
 
 	/**
-	 * @see ecologylab.serialization.types.element.IMappable#key()
+	 * @see simpl.types.element.IMappable#key()
 	 */
 	@Override
 	public String key()

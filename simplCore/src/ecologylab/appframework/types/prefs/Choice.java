@@ -1,7 +1,7 @@
 package ecologylab.appframework.types.prefs;
 
+import simpl.annotations.dbal.simpl_scalar;
 import ecologylab.serialization.ElementState;
-import ecologylab.serialization.annotations.simpl_scalar;
 
 /**
  * Multi-choice option for a preference.

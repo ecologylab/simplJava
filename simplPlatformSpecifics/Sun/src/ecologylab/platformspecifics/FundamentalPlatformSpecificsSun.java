@@ -15,6 +15,11 @@ import javax.imageio.ImageIO;
 import javax.swing.JOptionPane;
 import javax.xml.stream.XMLInputFactory;
 
+import simpl.descriptions.ClassDescriptor;
+import simpl.descriptions.FieldDescriptor;
+import simpl.exceptions.SIMPLTranslationException;
+import simpl.platformspecifics.ISimplPlatformSpecifics;
+
 import ecologylab.appframework.types.prefs.MetaPrefColor;
 import ecologylab.appframework.types.prefs.MetaPrefSet;
 import ecologylab.appframework.types.prefs.MetaPrefsTranslationScope;
@@ -27,15 +32,12 @@ import ecologylab.generic.Debug;
 import ecologylab.generic.ReflectionTools;
 import ecologylab.generic.StringInputStream;
 import ecologylab.net.ParsedURL;
-import ecologylab.serialization.ClassDescriptor;
-import ecologylab.serialization.FieldDescriptor;
 import ecologylab.serialization.GenericTypeVar;
-import ecologylab.serialization.SIMPLTranslationException;
 import ecologylab.serialization.deserializers.pullhandlers.stringformats.XMLParser;
 import ecologylab.serialization.deserializers.pullhandlers.stringformats.XMLParserSun;
 import ecologylab.serialization.types.PlatformSpecificTypesSun;
 
-public class FundamentalPlatformSpecificsSun implements IFundamentalPlatformSpecifics
+public class FundamentalPlatformSpecificsSun implements ISimplPlatformSpecifics
 {
 	public void initializePlatformSpecificTranslation()
 	{

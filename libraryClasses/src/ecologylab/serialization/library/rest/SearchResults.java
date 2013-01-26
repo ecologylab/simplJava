@@ -2,10 +2,11 @@ package ecologylab.serialization.library.rest;
 
 import java.util.ArrayList;
 
+import simpl.annotations.dbal.simpl_collection;
+import simpl.annotations.dbal.simpl_composite;
+import simpl.annotations.dbal.simpl_nowrap;
+
 import ecologylab.serialization.ElementState;
-import ecologylab.serialization.annotations.simpl_collection;
-import ecologylab.serialization.annotations.simpl_composite;
-import ecologylab.serialization.annotations.simpl_nowrap;
 
 /**
  * Represents REST search results

@@ -5,10 +5,11 @@ package ecologylab.appframework.types.prefs;
 
 import java.io.File;
 
-import ecologylab.serialization.annotations.simpl_inherit;
-import ecologylab.serialization.annotations.simpl_scalar;
-import ecologylab.serialization.types.ScalarType;
-import ecologylab.serialization.types.TypeRegistry;
+import simpl.annotations.dbal.simpl_inherit;
+import simpl.annotations.dbal.simpl_scalar;
+import simpl.types.ScalarType;
+import simpl.types.TypeRegistry;
+
 
 /**
  * Metadata about a File Preference.

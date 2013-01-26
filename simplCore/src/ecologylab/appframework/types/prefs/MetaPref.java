@@ -6,15 +6,16 @@ package ecologylab.appframework.types.prefs;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 
+import simpl.annotations.dbal.simpl_classes;
+import simpl.annotations.dbal.simpl_collection;
+import simpl.annotations.dbal.simpl_inherit;
+import simpl.annotations.dbal.simpl_scalar;
+import simpl.annotations.dbal.simpl_tag;
+import simpl.types.ScalarType;
+
 import ecologylab.collections.Scope;
 import ecologylab.serialization.ElementState;
 import ecologylab.serialization.TranslationContext;
-import ecologylab.serialization.annotations.simpl_classes;
-import ecologylab.serialization.annotations.simpl_collection;
-import ecologylab.serialization.annotations.simpl_inherit;
-import ecologylab.serialization.annotations.simpl_scalar;
-import ecologylab.serialization.annotations.simpl_tag;
-import ecologylab.serialization.types.ScalarType;
 
 /**
  * Metadata about a Preference. Defines information to enable editing the Preference.

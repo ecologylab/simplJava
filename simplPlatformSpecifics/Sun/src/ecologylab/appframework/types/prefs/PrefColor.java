@@ -5,7 +5,8 @@ package ecologylab.appframework.types.prefs;
 
 import java.awt.Color;
 
-import ecologylab.serialization.annotations.simpl_scalar;
+import simpl.annotations.dbal.simpl_scalar;
+
 
 /**
  * A preference that is a Color.

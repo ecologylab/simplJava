@@ -6,11 +6,12 @@ package ecologylab.serialization;
 import java.util.ArrayList;
 import java.util.List;
 
-import ecologylab.serialization.annotations.simpl_collection;
-import ecologylab.serialization.annotations.simpl_inherit;
-import ecologylab.serialization.annotations.simpl_nowrap;
-import ecologylab.serialization.annotations.simpl_scalar;
-import ecologylab.serialization.types.SimplBaseType;
+import simpl.annotations.dbal.simpl_collection;
+import simpl.annotations.dbal.simpl_inherit;
+import simpl.annotations.dbal.simpl_nowrap;
+import simpl.annotations.dbal.simpl_scalar;
+import simpl.types.SimplBaseType;
+
 
 /**
  * Common code for ClassDescriptor and FieldDescriptor.

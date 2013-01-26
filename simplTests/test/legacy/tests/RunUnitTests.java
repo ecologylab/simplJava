@@ -23,7 +23,8 @@ import legacy.tests.scalar.ScalarCollection;
 
 import org.junit.Test;
 
-import ecologylab.serialization.SIMPLTranslationException;
+import simpl.exceptions.SIMPLTranslationException;
+
 
 
 public class RunUnitTests

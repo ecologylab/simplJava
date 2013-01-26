@@ -2,13 +2,14 @@ package ecologylab.serialization.library.html;
 
 import java.util.ArrayList;
 
-import ecologylab.serialization.annotations.Hint;
-import ecologylab.serialization.annotations.simpl_classes;
-import ecologylab.serialization.annotations.simpl_collection;
-import ecologylab.serialization.annotations.simpl_hints;
-import ecologylab.serialization.annotations.simpl_inherit;
-import ecologylab.serialization.annotations.simpl_nowrap;
-import ecologylab.serialization.annotations.simpl_scalar;
+import simpl.annotations.dbal.Hint;
+import simpl.annotations.dbal.simpl_classes;
+import simpl.annotations.dbal.simpl_collection;
+import simpl.annotations.dbal.simpl_hints;
+import simpl.annotations.dbal.simpl_inherit;
+import simpl.annotations.dbal.simpl_nowrap;
+import simpl.annotations.dbal.simpl_scalar;
+
 
 @simpl_inherit
 public class Div extends HtmlElement

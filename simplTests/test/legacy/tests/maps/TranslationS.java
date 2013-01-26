@@ -2,8 +2,9 @@ package legacy.tests.maps;
 
 import java.util.HashMap;
 
-import ecologylab.serialization.annotations.simpl_map;
-import ecologylab.serialization.annotations.simpl_nowrap;
+import simpl.annotations.dbal.simpl_map;
+import simpl.annotations.dbal.simpl_nowrap;
+
 
 public class TranslationS 
 {

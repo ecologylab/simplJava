@@ -8,12 +8,13 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import simpl.annotations.dbal.simpl_classes;
+import simpl.annotations.dbal.simpl_collection;
+import simpl.annotations.dbal.simpl_inherit;
+import simpl.annotations.dbal.simpl_nowrap;
+import simpl.annotations.dbal.simpl_tag;
+
 import ecologylab.serialization.TranslationContext;
-import ecologylab.serialization.annotations.simpl_classes;
-import ecologylab.serialization.annotations.simpl_collection;
-import ecologylab.serialization.annotations.simpl_inherit;
-import ecologylab.serialization.annotations.simpl_nowrap;
-import ecologylab.serialization.annotations.simpl_tag;
 import ecologylab.serialization.deserializers.ISimplDeserializationPost;
 
 /**

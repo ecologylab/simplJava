@@ -1,6 +1,6 @@
 package ecologylab.serialization.deserializers.pullhandlers.stringformats;
 
-import ecologylab.serialization.SIMPLTranslationException;
+import simpl.exceptions.SIMPLTranslationException;
 
 public interface XMLParser
 {

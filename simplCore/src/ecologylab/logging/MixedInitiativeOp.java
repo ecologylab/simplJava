@@ -1,7 +1,7 @@
 package ecologylab.logging;
 
-import ecologylab.serialization.annotations.simpl_inherit;
-import ecologylab.serialization.annotations.simpl_scalar;
+import simpl.annotations.dbal.simpl_inherit;
+import simpl.annotations.dbal.simpl_scalar;
 
 /**
  * A user operation, which can be serialized, logged, Undo/Redo'ed, played in history, and so on.

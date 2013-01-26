@@ -1,6 +1,6 @@
 package ecologylab.oodss.messages;
 
-import ecologylab.serialization.annotations.simpl_inherit;
+import simpl.annotations.dbal.simpl_inherit;
 
 /**
  * A message to be sent to a ServicesServer through HTTP that the Services will 

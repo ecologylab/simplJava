@@ -4,16 +4,17 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 
+import simpl.annotations.dbal.bibtex_key;
+import simpl.annotations.dbal.bibtex_tag;
+import simpl.annotations.dbal.bibtex_type;
+import simpl.annotations.dbal.simpl_collection;
+import simpl.annotations.dbal.simpl_nowrap;
+import simpl.annotations.dbal.simpl_scalar;
+import simpl.exceptions.SIMPLTranslationException;
+
 import ecologylab.net.ParsedURL;
 import ecologylab.serialization.ElementState;
-import ecologylab.serialization.SIMPLTranslationException;
 import ecologylab.serialization.SimplTypesScope;
-import ecologylab.serialization.annotations.bibtex_key;
-import ecologylab.serialization.annotations.bibtex_tag;
-import ecologylab.serialization.annotations.bibtex_type;
-import ecologylab.serialization.annotations.simpl_collection;
-import ecologylab.serialization.annotations.simpl_nowrap;
-import ecologylab.serialization.annotations.simpl_scalar;
 import ecologylab.serialization.formatenums.StringFormat;
 
 @bibtex_type("article")

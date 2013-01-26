@@ -5,8 +5,9 @@ package ecologylab.serialization.library.geom;
 
 import java.awt.geom.Point2D;
 
-import ecologylab.serialization.annotations.simpl_scalar;
-import ecologylab.serialization.annotations.simpl_tag;
+import simpl.annotations.dbal.simpl_scalar;
+import simpl.annotations.dbal.simpl_tag;
+
 
 /**
  * @author Zachary O. Toups (toupsz@cs.tamu.edu)

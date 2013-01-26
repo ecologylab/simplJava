@@ -10,16 +10,17 @@ import javax.xml.stream.XMLStreamException;
 
 import org.codehaus.jackson.JsonParseException;
 
-import ecologylab.platformspecifics.FundamentalPlatformSpecifics;
-import ecologylab.serialization.ClassDescriptor;
+import simpl.descriptions.ClassDescriptor;
+import simpl.descriptions.FieldDescriptor;
+import simpl.exceptions.SIMPLTranslationException;
+import simpl.platformspecifics.SimplPlatformSpecifics;
+import simpl.types.element.IMappable;
+
 import ecologylab.serialization.DeserializationHookStrategy;
 import ecologylab.serialization.ElementState;
-import ecologylab.serialization.FieldDescriptor;
 import ecologylab.serialization.FieldType;
-import ecologylab.serialization.SIMPLTranslationException;
 import ecologylab.serialization.SimplTypesScope;
 import ecologylab.serialization.TranslationContext;
-import ecologylab.serialization.types.element.IMappable;
 
 /**
  * Pull API implementation to transform XML documents to corresponding object models. Utilizes
@@ -147,7 +148,7 @@ public class XMLPullDeserializer extends StringPullDeserializer
 	 */
 	private void configure(InputStream inputStream, Charset charSet) throws SIMPLTranslationException
 	{
-		xmlParser = FundamentalPlatformSpecifics.get().getXMLParser(inputStream, charSet);
+		xmlParser = SimplPlatformSpecifics.get().getXMLParser(inputStream, charSet);
 	}
 	
 	/**
@@ -158,7 +159,7 @@ public class XMLPullDeserializer extends StringPullDeserializer
 	 */
 	private void configure(InputStream inputStream) throws SIMPLTranslationException
 	{
-		xmlParser = FundamentalPlatformSpecifics.get().getXMLParser(inputStream);
+		xmlParser = SimplPlatformSpecifics.get().getXMLParser(inputStream);
 	}
 
 	/**
@@ -169,7 +170,7 @@ public class XMLPullDeserializer extends StringPullDeserializer
 	 */
 	private void configure(CharSequence charSequence) throws SIMPLTranslationException
 	{
-		xmlParser = FundamentalPlatformSpecifics.get().getXMLParser(charSequence);
+		xmlParser = SimplPlatformSpecifics.get().getXMLParser(charSequence);
 	}
 
 	/**

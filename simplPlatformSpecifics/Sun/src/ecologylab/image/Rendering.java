@@ -18,14 +18,15 @@ import java.awt.image.SinglePixelPackedSampleModel;
 import java.awt.image.WritableRaster;
 import java.lang.ref.WeakReference;
 
+import simpl.annotations.dbal.simpl_classes;
+import simpl.annotations.dbal.simpl_composite;
+import simpl.annotations.dbal.simpl_inherit;
+import simpl.annotations.dbal.simpl_scalar;
+import simpl.annotations.dbal.simpl_wrap;
+
 import ecologylab.generic.Colors;
 import ecologylab.generic.ImageTools;
 import ecologylab.serialization.ElementState;
-import ecologylab.serialization.annotations.simpl_classes;
-import ecologylab.serialization.annotations.simpl_composite;
-import ecologylab.serialization.annotations.simpl_inherit;
-import ecologylab.serialization.annotations.simpl_scalar;
-import ecologylab.serialization.annotations.simpl_wrap;
 
 /**
  * The basic unit of an image processing rendering pipeline;

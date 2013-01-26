@@ -8,9 +8,10 @@ import java.awt.geom.Point2D;
 import java.awt.geom.Point2D.Double;
 import java.awt.geom.Rectangle2D;
 
-import ecologylab.serialization.annotations.simpl_inherit;
-import ecologylab.serialization.annotations.simpl_other_tags;
-import ecologylab.serialization.annotations.simpl_tag;
+import simpl.annotations.dbal.simpl_inherit;
+import simpl.annotations.dbal.simpl_other_tags;
+import simpl.annotations.dbal.simpl_tag;
+
 
 /**
  * Encapsulates a Ellipse2D.Double for use in translating to/from XML.

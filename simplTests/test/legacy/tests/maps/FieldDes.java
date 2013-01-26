@@ -1,7 +1,7 @@
 package legacy.tests.maps;
 
-import ecologylab.serialization.annotations.simpl_scalar;
-import ecologylab.serialization.types.element.IMappable;
+import simpl.annotations.dbal.simpl_scalar;
+import simpl.types.element.IMappable;
 
 public class FieldDes implements IMappable<String>
 {

@@ -3,9 +3,9 @@
  */
 package ecologylab.serialization.library.opml;
 
+import simpl.annotations.dbal.simpl_composite;
 import ecologylab.serialization.ElementState;
 import ecologylab.serialization.SimplTypesScope;
-import ecologylab.serialization.annotations.simpl_composite;
 
 /**
  * Outline Processor Markup Language root element.

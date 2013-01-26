@@ -5,11 +5,12 @@ package ecologylab.serialization.library.jnlp.resource;
 
 import java.util.ArrayList;
 
+import simpl.annotations.dbal.simpl_classes;
+import simpl.annotations.dbal.simpl_collection;
+import simpl.annotations.dbal.simpl_nowrap;
+import simpl.annotations.dbal.simpl_scalar;
+
 import ecologylab.serialization.ElementState;
-import ecologylab.serialization.annotations.simpl_classes;
-import ecologylab.serialization.annotations.simpl_collection;
-import ecologylab.serialization.annotations.simpl_nowrap;
-import ecologylab.serialization.annotations.simpl_scalar;
 
 /**
  * The resources element is used to specify all the resources, such as Java class files, native

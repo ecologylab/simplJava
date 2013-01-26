@@ -3,9 +3,9 @@
  */
 package ecologylab.serialization.library.jnlp.information;
 
+import simpl.annotations.dbal.simpl_scalar;
+import simpl.annotations.dbal.simpl_tag;
 import ecologylab.serialization.ElementState;
-import ecologylab.serialization.annotations.simpl_scalar;
-import ecologylab.serialization.annotations.simpl_tag;
 
 /**
  * @author Zachary O. Toups (toupsz@cs.tamu.edu)

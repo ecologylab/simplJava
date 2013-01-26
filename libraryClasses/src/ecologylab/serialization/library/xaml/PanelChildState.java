@@ -5,9 +5,10 @@ package ecologylab.serialization.library.xaml;
 
 import java.awt.Rectangle;
 
-import ecologylab.serialization.annotations.simpl_inherit;
-import ecologylab.serialization.annotations.simpl_scalar;
-import ecologylab.serialization.annotations.simpl_tag;
+import simpl.annotations.dbal.simpl_inherit;
+import simpl.annotations.dbal.simpl_scalar;
+import simpl.annotations.dbal.simpl_tag;
+
 
 /**
  * A base class for representing WPF FrameworkElements that are children of a WPF
