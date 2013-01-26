@@ -19,9 +19,7 @@ import ecologylab.serialization.DeserializationHookStrategy;
 import ecologylab.serialization.FieldType;
 import ecologylab.serialization.SimplTypesScope;
 import ecologylab.serialization.TranslationContext;
-import ecologylab.serialization.deserializers.ISimplDeserializationIn;
-import ecologylab.serialization.deserializers.ISimplDeserializationPost;
-import ecologylab.serialization.deserializers.ISimplDeserializationPre;
+import ecologylab.serialization.deserializers.ISimplDeserializationHooks;
 import ecologylab.serialization.deserializers.pullhandlers.binaryformats.BinaryPullDeserializer;
 import ecologylab.serialization.deserializers.pullhandlers.binaryformats.TLVPullDeserializer;
 import ecologylab.serialization.deserializers.pullhandlers.stringformats.JSONPullDeserializer;
@@ -157,9 +155,9 @@ public abstract class PullDeserializer extends Debug
 	 */
 	protected void deserializationPreHook(Object object, TranslationContext translationContext)
 	{
-		if (object instanceof ISimplDeserializationPre)
+		if (object instanceof ISimplDeserializationHooks)
 		{
-			((ISimplDeserializationPre) object).deserializationPreHook(translationContext);
+			((ISimplDeserializationHooks) object).deserializationPreHook(translationContext);
 		}
 	}
 
@@ -170,9 +168,9 @@ public abstract class PullDeserializer extends Debug
 	 */
 	protected void deserializationInHook(Object object, TranslationContext translationContext)
 	{
-		if (object instanceof ISimplDeserializationIn)
+		if (object instanceof ISimplDeserializationHooks)
 		{
-			((ISimplDeserializationIn) object).deserializationInHook(translationContext);
+			((ISimplDeserializationHooks) object).deserializationInHook(translationContext);
 		}
 	}
 
@@ -184,9 +182,9 @@ public abstract class PullDeserializer extends Debug
 	 */
 	protected void deserializationPostHook(Object object, TranslationContext translationContext)
 	{
-		if (object instanceof ISimplDeserializationPost)
+		if (object instanceof ISimplDeserializationHooks)
 		{
-			((ISimplDeserializationPost) object).deserializationPostHook(translationContext, object);
+			((ISimplDeserializationHooks) object).deserializationPostHook(translationContext, object);
 		}
 	}
 

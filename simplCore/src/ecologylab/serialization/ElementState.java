@@ -7,14 +7,11 @@ import simpl.descriptions.ClassDescriptor;
 import simpl.exceptions.SIMPLTranslationException;
 
 import ecologylab.generic.Debug;
-import ecologylab.serialization.deserializers.ISimplDeserializationIn;
-import ecologylab.serialization.deserializers.ISimplDeserializationPost;
-import ecologylab.serialization.deserializers.ISimplDeserializationPre;
+import ecologylab.serialization.deserializers.ISimplDeserializationHooks;
 import ecologylab.serialization.serializers.ISimplSerializationPost;
 import ecologylab.serialization.serializers.ISimplSerializationPre;
 
-public class ElementState<PES extends ElementState> extends Debug implements XMLTranslationExceptionTypes, ISimplSerializationPre, ISimplSerializationPost,
-		ISimplDeserializationPre, ISimplDeserializationPost, ISimplDeserializationIn{
+public class ElementState<PES extends ElementState> extends Debug implements XMLTranslationExceptionTypes, ISimplSerializationPre, ISimplSerializationPost,ISimplDeserializationHooks{
 
 	private boolean													isRoot										= false;
 
