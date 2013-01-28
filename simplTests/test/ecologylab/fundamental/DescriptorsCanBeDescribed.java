@@ -4,6 +4,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import simpl.core.SimplTypesScope;
+import simpl.core.SimplTypesScopeFactory;
 import simpl.descriptions.ClassDescriptor;
 import simpl.descriptions.FieldDescriptor;
 
@@ -33,10 +34,10 @@ public class DescriptorsCanBeDescribed{
 	@Test
 	public void YinsCase()
 	{
-		SimplTypesScope tscope = SimplTypesScope.get("test-de/serialize descriptors in json",
-                FieldDescriptor.class,
+		SimplTypesScope tscope = SimplTypesScopeFactory.name("test-de/serialize descriptors in json")
+                .translations(FieldDescriptor.class,
                 ClassDescriptor.class,
-                SimplTypesScope.class);
+                SimplTypesScope.class).create();
 
 	}
 	//TODO: Better validation on these.

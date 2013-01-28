@@ -319,20 +319,6 @@ public class ParsedURL extends Debug implements MimeType
 		return result;
 	}
 
-	/**
-	 * Use this as the source of stuff to translate from XML
-	 * 
-	 * @param translationScope
-	 *          Translations that specify package + class names for translating.
-	 * @return ElementState object derived from XML at the InputStream of this.
-	 * @throws SIMPLTranslationException
-	 */
-	public Object translateFromXML(SimplTypesScope translationScope)
-			throws SIMPLTranslationException
-	{
-		return translationScope.deserialize(this, Format.XML);
-	}
-
 	public static URL getURL(URL base, String path, String error)
 	{
 		// ??? might want to allow this default behaviour ???

@@ -11,6 +11,7 @@ import java.net.URLDecoder;
 import java.util.Stack;
 
 import simpl.core.SimplTypesScope;
+import simpl.core.SimplTypesScopeFactory;
 import simpl.core.XMLTranslationExceptionTypes;
 import simpl.exceptions.SIMPLTranslationException;
 import simpl.formats.enums.StringFormat;
@@ -246,7 +247,7 @@ public class ApplicationEnvironment extends Debug implements Environment,
 		if (customPrefs == null)
 			customPrefs = PrefSetBaseClassProvider.STATIC_INSTANCE.provideClasses();
 
-		return SimplTypesScope.get(PrefSet.PREFS_TRANSLATION_SCOPE, customPrefs);
+		return SimplTypesScopeFactory.name(PrefSet.PREFS_TRANSLATION_SCOPE).translations(customPrefs).create();
 	}
 
 	/**
@@ -505,17 +506,22 @@ public class ApplicationEnvironment extends Debug implements Environment,
 		SimplTypesScope prefTranslations;
 		if (customPrefsTranslationScope != null)
 		{
-			SimplTypesScope[] arrayToMakeJavaShutUp =
-			{ customPrefsTranslationScope };
-			prefTranslations = SimplTypesScope.get(PrefSet.PREFS_TRANSLATION_SCOPE,
-																							arrayToMakeJavaShutUp,
-																							PrefSetBaseClassProvider.STATIC_INSTANCE.provideClasses());
+			prefTranslations = SimplTypesScopeFactory
+					.name(PrefSet.PREFS_TRANSLATION_SCOPE)
+					.inherits(customPrefsTranslationScope)
+					.translations(PrefSetBaseClassProvider.STATIC_INSTANCE.provideClasses())
+					.create();
+			
+			
+			
 		}
 		else
 		{
 			Class[] customPrefs = PrefSetBaseClassProvider.STATIC_INSTANCE.provideClasses();
 
-			prefTranslations = SimplTypesScope.get(PrefSet.PREFS_TRANSLATION_SCOPE, customPrefs);
+			prefTranslations = SimplTypesScopeFactory
+					.name(PrefSet.PREFS_TRANSLATION_SCOPE)
+					.translations(customPrefs).create();
 		}
 
 		this.sessionScope = sessionScope;

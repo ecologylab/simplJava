@@ -11,6 +11,7 @@ import org.junit.Test;
 
 import simpl.core.SimplTypesScope;
 import simpl.core.SimplTypesScope.GRAPH_SWITCH;
+import simpl.core.SimplTypesScopeFactory;
 import simpl.descriptions.ClassDescriptor;
 import simpl.descriptions.FieldDescriptor;
 import simpl.exceptions.SIMPLTranslationException;
@@ -30,10 +31,10 @@ public class DeSerializingDescriptors extends Assert
 
   public void deSerializeDescriptorsJSON() throws SIMPLTranslationException, IOException
   {
-    SimplTypesScope tscope = SimplTypesScope.get("test-de/serialize descriptors in json",
+    SimplTypesScope tscope = SimplTypesScopeFactory.name("test-de/serialize descriptors in json").translations(
                                                  FieldDescriptor.class,
                                                  ClassDescriptor.class,
-                                                 SimplTypesScope.class);
+                                                 SimplTypesScope.class).create();
     String json = SimplTypesScope.serialize(tscope, StringFormat.JSON).toString();
     System.out.println("serialized json string:\n" + json);
     assertTrue(JSONTools.validate(json));
@@ -45,9 +46,9 @@ public class DeSerializingDescriptors extends Assert
      SimplTypesScope newTscope = (SimplTypesScope) tscope.deserialize(json, StringFormat.JSON);
 //    SimplTypesScope newTscope = (SimplTypesScope) tscope.deserialize(testScopeFile, Format.JSON);
     assertNotNull(newTscope);
-    assertNotNull(newTscope.getClassDescriptorBySimpleName("FieldDescriptor"));
-    assertNotNull(newTscope.getClassDescriptorBySimpleName("ClassDescriptor"));
-    assertNotNull(newTscope.getClassDescriptorBySimpleName("SimplTypesScope"));
+    assertNotNull(newTscope.classDescriptors.by.SimplName.get("FieldDescriptor"));
+    assertNotNull(newTscope.classDescriptors.by.SimplName.get("ClassDescriptor"));
+    assertNotNull(newTscope.classDescriptors.by.SimplName.get("SimplTypesScope"));
   }
 
 
