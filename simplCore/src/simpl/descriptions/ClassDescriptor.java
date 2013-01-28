@@ -178,10 +178,6 @@ public class ClassDescriptor<FD extends FieldDescriptor> extends DescriptorBase
 	@simpl_scalar
 	private String explictObjectiveCTypeName;
 
-	private boolean isCloned;
-
-	private ClassDescriptor clonedFrom;
-
 	private List<FieldDescriptorsDerivedEventListener> fieldDescriptorsDerivedEventListeners;
 
 	static {
@@ -1346,28 +1342,6 @@ public class ClassDescriptor<FD extends FieldDescriptor> extends DescriptorBase
 						otherTags.toArray()));
 		}
 		return metaInfo;
-	}
-
-	@Override
-	public Object clone() {
-		ClassDescriptor cloned = null;
-		try {
-			cloned = (ClassDescriptor) super.clone();
-			cloned.isCloned = true;
-			cloned.clonedFrom = this;
-		} catch (CloneNotSupportedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		return cloned;
-	}
-
-	public boolean isCloned() {
-		return isCloned;
-	}
-
-	public ClassDescriptor getClonedFrom() {
-		return clonedFrom;
 	}
 
 	public void setDescribedClassSimpleName(String describedClassSimpleName) {
