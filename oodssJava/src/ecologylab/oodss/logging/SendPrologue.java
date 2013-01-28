@@ -10,7 +10,6 @@ import simpl.core.SimplTypesScope;
 import simpl.exceptions.SIMPLTranslationException;
 import simpl.formats.enums.StringFormat;
 import simpl.tools.XMLTools;
-
 import ecologylab.appframework.types.prefs.Pref;
 import ecologylab.io.Files;
 import ecologylab.net.NetTools;

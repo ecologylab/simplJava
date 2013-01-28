@@ -25,7 +25,6 @@ import java.util.Map;
 import javax.xml.bind.DatatypeConverter;
 
 import simpl.core.SimplTypesScope;
-
 import ecologylab.collections.Scope;
 import ecologylab.generic.ObjectOrHashMap;
 import ecologylab.oodss.distributed.common.ServerConstants;

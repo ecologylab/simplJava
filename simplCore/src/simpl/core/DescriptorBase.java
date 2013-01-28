@@ -34,7 +34,7 @@ public abstract class DescriptorBase extends SimplBaseType
 	 */
 	@simpl_nowrap
 	@simpl_collection("other_tag")
-	protected ArrayList<String>			otherTags;
+	public ArrayList<String>			otherTags;
 
 	/**
 	 * Documentation comment for a class or field.
@@ -42,7 +42,7 @@ public abstract class DescriptorBase extends SimplBaseType
 	@simpl_scalar
 	protected String								comment;
 
-	protected List<MetaInformation>	metaInfo;
+	public List<MetaInformation>	metaInfo;
 
 	protected static IJavaParser		javaParser;
 

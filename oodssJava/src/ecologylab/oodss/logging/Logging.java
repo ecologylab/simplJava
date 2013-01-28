@@ -21,7 +21,6 @@ import simpl.core.SimplTypesScope;
 import simpl.exceptions.SIMPLTranslationException;
 import simpl.formats.enums.StringFormat;
 import simpl.tools.XMLTools;
-
 import ecologylab.appframework.ApplicationEnvironment;
 import ecologylab.appframework.Memory;
 import ecologylab.appframework.PropertiesAndDirectories;

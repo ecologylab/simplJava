@@ -8,7 +8,6 @@ import org.java_websocket.WebSocket;
 import simpl.core.SimplTypesScope;
 import simpl.exceptions.SIMPLTranslationException;
 import simpl.formats.enums.StringFormat;
-
 import ecologylab.collections.Scope;
 import ecologylab.generic.Debug;
 import ecologylab.oodss.distributed.common.SessionObjects;

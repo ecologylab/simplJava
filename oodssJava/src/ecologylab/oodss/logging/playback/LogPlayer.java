@@ -18,7 +18,6 @@ import javax.swing.UnsupportedLookAndFeelException;
 
 import simpl.core.SimplTypesScope;
 import simpl.exceptions.SIMPLTranslationException;
-
 import ecologylab.appframework.PropertiesAndDirectories;
 import ecologylab.appframework.SingletonApplicationEnvironment;
 import ecologylab.logging.MixedInitiativeOp;

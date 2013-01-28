@@ -6,6 +6,11 @@ import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 
+import simpl.descriptions.ClassDescriptor;
+import simpl.descriptions.EnumerationDescriptor;
+import simpl.exceptions.SIMPLDescriptionException;
+import simpl.exceptions.SIMPLTranslationException;
+
 public class EnumerationDescriptionTest {
 
 	@Test(expected=SIMPLDescriptionException.class)

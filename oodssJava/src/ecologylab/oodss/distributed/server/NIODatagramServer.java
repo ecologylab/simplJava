@@ -15,7 +15,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import javax.xml.bind.DatatypeConverter;
 
 import simpl.core.SimplTypesScope;
-
 import ecologylab.collections.Scope;
 import ecologylab.generic.CharBufferPool;
 import ecologylab.generic.HashMapArrayList;

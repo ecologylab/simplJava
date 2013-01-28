@@ -24,7 +24,6 @@ import java.util.zip.Inflater;
 import simpl.core.SimplTypesScope;
 import simpl.exceptions.SIMPLTranslationException;
 import simpl.formats.enums.StringFormat;
-
 import ecologylab.collections.Scope;
 import ecologylab.generic.StringTools;
 import ecologylab.oodss.distributed.common.NetworkingConstants;

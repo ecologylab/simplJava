@@ -1,6 +1,5 @@
 package ecologylab.oodss.messages;
 
-
 import simpl.annotations.dbal.simpl_inherit;
 import simpl.annotations.dbal.simpl_scalar;
 import ecologylab.collections.Scope;

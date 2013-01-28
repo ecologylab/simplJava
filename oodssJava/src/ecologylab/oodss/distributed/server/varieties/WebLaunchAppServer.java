@@ -9,7 +9,6 @@ import java.net.InetAddress;
 import java.nio.channels.SelectionKey;
 
 import simpl.core.SimplTypesScope;
-
 import ecologylab.collections.Scope;
 import ecologylab.net.NetTools;
 import ecologylab.oodss.distributed.common.ServicesHostsAndPorts;

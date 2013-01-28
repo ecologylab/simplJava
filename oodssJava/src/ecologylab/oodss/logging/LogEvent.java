@@ -7,7 +7,6 @@ import simpl.annotations.dbal.Hint;
 import simpl.annotations.dbal.simpl_hints;
 import simpl.annotations.dbal.simpl_inherit;
 import simpl.annotations.dbal.simpl_scalar;
-
 import ecologylab.generic.StringTools;
 import ecologylab.oodss.messages.ErrorResponse;
 import ecologylab.oodss.messages.OkResponse;

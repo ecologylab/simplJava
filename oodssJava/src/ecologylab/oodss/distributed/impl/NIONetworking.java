@@ -18,7 +18,6 @@ import java.util.Queue;
 import javax.naming.OperationNotSupportedException;
 
 import simpl.core.SimplTypesScope;
-
 import ecologylab.collections.Scope;
 import ecologylab.io.ByteBufferPool;
 import ecologylab.oodss.exceptions.BadClientException;

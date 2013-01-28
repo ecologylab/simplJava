@@ -9,7 +9,6 @@ import java.nio.channels.SelectionKey;
 import java.util.concurrent.ConcurrentHashMap;
 
 import simpl.core.SimplTypesScope;
-
 import ecologylab.collections.Scope;
 import ecologylab.oodss.distributed.impl.NIODatagramCore;
 import ecologylab.oodss.messages.InitConnectionRequest;
@@ -18,6 +17,7 @@ import ecologylab.oodss.messages.RequestMessage;
 import ecologylab.oodss.messages.ResponseMessage;
 import ecologylab.oodss.messages.ServiceMessage;
 import ecologylab.oodss.messages.UpdateMessage;
+
 
 /**
  * Client subclass of NIOCore. Connects with server address and only

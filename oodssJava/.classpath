@@ -6,5 +6,6 @@
 	<classpathentry combineaccessrules="false" kind="src" path="/simplCore"/>
 	<classpathentry kind="lib" path="lib/WebSocket.jar"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/libraryClasses"/>
+	<classpathentry kind="lib" path="lib/guava-14.0-rc2.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

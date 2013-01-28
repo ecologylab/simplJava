@@ -3,7 +3,6 @@ package ecologylab.oodss.messages;
 import java.util.Collection;
 
 import simpl.annotations.dbal.simpl_inherit;
-
 import ecologylab.collections.Scope;
 import ecologylab.net.ParsedURL;
 

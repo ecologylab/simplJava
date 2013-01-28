@@ -6,7 +6,6 @@ package ecologylab.oodss.logging;
 import java.nio.channels.SelectionKey;
 
 import simpl.core.SimplTypesScope;
-
 import ecologylab.collections.Scope;
 import ecologylab.oodss.distributed.impl.NIOServerIOThread;
 import ecologylab.oodss.distributed.server.clientsessionmanager.ClientSessionManager;

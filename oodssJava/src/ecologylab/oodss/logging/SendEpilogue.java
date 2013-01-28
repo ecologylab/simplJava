@@ -7,7 +7,6 @@ import simpl.annotations.dbal.simpl_inherit;
 import simpl.core.SimplTypesScope;
 import simpl.exceptions.SIMPLTranslationException;
 import simpl.formats.enums.StringFormat;
-
 import ecologylab.oodss.messages.ErrorResponse;
 import ecologylab.oodss.messages.OkResponse;
 import ecologylab.oodss.messages.ResponseMessage;

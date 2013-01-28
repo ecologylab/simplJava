@@ -16,7 +16,6 @@ import simpl.core.ElementState;
 import simpl.core.SimplTypesScope;
 import simpl.exceptions.SIMPLTranslationException;
 import simpl.formats.enums.StringFormat;
-
 import ecologylab.appframework.types.prefs.PrefSet;
 import ecologylab.appframework.types.prefs.PrefSetBaseClassProvider;
 import ecologylab.generic.Debug;

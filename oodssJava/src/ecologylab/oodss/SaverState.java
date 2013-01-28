@@ -9,7 +9,6 @@ import simpl.core.ElementState;
 import simpl.core.SimplTypesScope;
 import simpl.exceptions.SIMPLTranslationException;
 import simpl.formats.enums.Format;
-
 import ecologylab.oodss.exceptions.SaveFailedException;
 
 /**

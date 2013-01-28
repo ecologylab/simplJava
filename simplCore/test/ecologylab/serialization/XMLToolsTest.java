@@ -9,8 +9,11 @@ import java.lang.reflect.Field;
 
 import org.junit.Test;
 
-import ecologylab.serialization.annotations.simpl_inherit_parent_tag;
-import ecologylab.serialization.types.ScalarType;
+import simpl.annotations.dbal.simpl_inherit_parent_tag;
+import simpl.core.ScalarUnmarshallingContext;
+import simpl.tools.XMLTools;
+import simpl.types.ScalarType;
+
 
 public class XMLToolsTest {
 
@@ -19,7 +22,6 @@ public class XMLToolsTest {
 	{
 		@simpl_inherit_parent_tag
 		final class WonkyDummyClassName extends ScalarType<String>{
-
 			@Override
 			public String getInstance(String value, String[] formatStrings,
 					ScalarUnmarshallingContext scalarUnmarshallingContext) {

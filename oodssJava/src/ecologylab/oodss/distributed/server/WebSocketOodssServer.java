@@ -17,7 +17,6 @@ import org.java_websocket.WebSocketImpl;
 import simpl.core.SimplTypesScope;
 import simpl.exceptions.SIMPLTranslationException;
 import simpl.formats.enums.StringFormat;
-
 import ecologylab.collections.Scope;
 import ecologylab.generic.HashMapArrayList;
 import ecologylab.oodss.distributed.common.ServerConstants;

@@ -9,7 +9,6 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 
 import simpl.annotations.dbal.simpl_inherit;
-
 import ecologylab.collections.Scope;
 import ecologylab.oodss.distributed.client.NIOClient;
 import ecologylab.oodss.distributed.common.SessionObjects;

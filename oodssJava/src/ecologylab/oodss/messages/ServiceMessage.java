@@ -4,7 +4,6 @@ import java.net.InetAddress;
 
 import simpl.annotations.dbal.simpl_scalar;
 import simpl.core.ElementState;
-
 import ecologylab.collections.Scope;
 
 /**

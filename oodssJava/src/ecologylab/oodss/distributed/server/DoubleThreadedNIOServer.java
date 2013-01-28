@@ -16,7 +16,6 @@ import java.util.Arrays;
 import java.util.Iterator;
 
 import simpl.core.SimplTypesScope;
-
 import ecologylab.collections.Scope;
 import ecologylab.generic.CharBufferPool;
 import ecologylab.generic.HashMapArrayList;

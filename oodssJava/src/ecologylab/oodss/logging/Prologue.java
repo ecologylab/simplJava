@@ -4,7 +4,6 @@ import java.util.Date;
 
 import simpl.annotations.dbal.simpl_scalar;
 import simpl.core.ElementState;
-
 import ecologylab.appframework.types.prefs.Pref;
 import ecologylab.net.NetTools;
 

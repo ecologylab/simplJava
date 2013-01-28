@@ -1,6 +1,6 @@
 package ecologylab.serialization;
 
-import ecologylab.serialization.annotations.simpl_scalar;
+import simpl.annotations.dbal.simpl_scalar;
 
 public enum secondaryScenarioRejectsNonIntegers {
 

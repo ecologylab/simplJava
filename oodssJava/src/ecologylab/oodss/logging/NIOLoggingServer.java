@@ -7,7 +7,6 @@ import java.net.UnknownHostException;
 import java.nio.channels.SelectionKey;
 
 import simpl.core.SimplTypesScope;
-
 import ecologylab.collections.Scope;
 import ecologylab.generic.Debug;
 import ecologylab.logging.MixedInitiativeOp;

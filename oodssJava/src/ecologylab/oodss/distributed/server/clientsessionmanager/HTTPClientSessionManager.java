@@ -3,7 +3,6 @@ package ecologylab.oodss.distributed.server.clientsessionmanager;
 import java.nio.channels.SelectionKey;
 
 import simpl.core.SimplTypesScope;
-
 import ecologylab.collections.Scope;
 import ecologylab.net.ParsedURL;
 import ecologylab.oodss.distributed.impl.NIOServerIOThread;
