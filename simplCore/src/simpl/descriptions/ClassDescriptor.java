@@ -17,8 +17,6 @@ import java.util.Map.Entry;
 import java.util.Set;
 
 import simpl.annotations.dbal.Hint;
-import simpl.annotations.dbal.bibtex_key;
-import simpl.annotations.dbal.bibtex_type;
 import simpl.annotations.dbal.simpl_collection;
 import simpl.annotations.dbal.simpl_composite;
 import simpl.annotations.dbal.simpl_descriptor_classes;
@@ -64,6 +62,8 @@ public class ClassDescriptor<FD extends FieldDescriptor> extends DescriptorBase
 
 	private static final String PACKAGE_CLASS_SEP = ".";
 
+	
+	
 	/**
 	 * Class object that we are describing.
 	 */
@@ -132,9 +132,6 @@ public class ClassDescriptor<FD extends FieldDescriptor> extends DescriptorBase
 
 	private HashMap<Integer, FD> allFieldDescriptorsByTLVIds = new HashMap<Integer, FD>();
 
-	private FD fieldDescriptorForBibTeXKey = null;
-
-	private HashMap<String, FD> allFieldDescriptorsByBibTeXTag = new HashMap<String, FD>();
 
 	private ArrayList<FD> attributeFieldDescriptors = new ArrayList<FD>();
 
@@ -357,21 +354,9 @@ public class ClassDescriptor<FD extends FieldDescriptor> extends DescriptorBase
 		}
 	}
 
-	@Deprecated
-	public ArrayList<String> getGenericTypeVariables() {
-		return genericTypeVariables;
-	}
-
 	@Override
 	public String getTagName() {
 		return tagName;
-	}
-
-	public String getBibtexType() {
-		if (this.bibtexType == null || this.bibtexType.equals("")) {
-			return tagName;
-		}
-		return bibtexType;
 	}
 
 	/**
@@ -487,26 +472,7 @@ public class ClassDescriptor<FD extends FieldDescriptor> extends DescriptorBase
 		}
 	}
 
-	/**
-	 * Form a pseudo-FieldDescriptor-object for a root element. We say pseudo,
-	 * because there is no Field corresponding to this element. The
-	 * pseudo-FieldDescriptor-object still guides the translation process.
-	 * 
-	 * @return
-	 */
-	public FieldDescriptor pseudoFieldDescriptor() {
-		FieldDescriptor result = pseudoFieldDescriptor;
-		if (result == null) {
-			synchronized (this) {
-				result = pseudoFieldDescriptor;
-				if (result == null) {
-					result = new FieldDescriptor(this);
-					pseudoFieldDescriptor = result;
-				}
-			}
-		}
-		return result;
-	}
+	
 
 	public ArrayList<FD> allFieldDescriptors() {
 		ArrayList<FD> allFieldDescriptors = new ArrayList<FD>();
@@ -549,15 +515,7 @@ public class ClassDescriptor<FD extends FieldDescriptor> extends DescriptorBase
 
 		return allFieldDescriptorsByTLVIds.get(tlvId);
 	}
-
-	public FD getFieldDescriptorForBibTeXKey() {
-		return fieldDescriptorForBibTeXKey;
-	}
-
-	public FD getFieldDescriptorByBibTeXTag(String bibTeXTag) {
-		return allFieldDescriptorsByBibTeXTag.get(bibTeXTag);
-	}
-
+	
 	public FD getFieldDescriptorByFieldName(String fieldName) {
 		return fieldDescriptorsByFieldName.get(fieldName);
 	}
@@ -619,12 +577,6 @@ public class ClassDescriptor<FD extends FieldDescriptor> extends DescriptorBase
 			referFieldDescriptorsFrom(superClassDescriptor);
 		}
 
-		if (classWithFields.isAnnotationPresent(bibtex_type.class)) {
-			bibtex_type bibtexTypeAnnotation = classWithFields
-					.getAnnotation(bibtex_type.class);
-			bibtexType = bibtexTypeAnnotation.value();
-		}
-
 		debug(classWithFields.toString());
 		Field[] fields = classWithFields.getDeclaredFields();
 
@@ -684,18 +636,6 @@ public class ClassDescriptor<FD extends FieldDescriptor> extends DescriptorBase
 				continue; // not translated from XML, so don't add those
 							// mappings
 			}
-
-			// find the field descriptor for bibtex citation key
-			bibtex_key keyAnnotation = thatField
-					.getAnnotation(bibtex_key.class);
-			if (keyAnnotation != null) {
-				fieldDescriptorForBibTeXKey = fieldDescriptor;
-			}
-
-			// create mappings for translateFromBibTeX() -->
-			// allFieldDescriptorsByBibTeXTag
-			final String bibTeXTag = fieldDescriptor.getBibtexTagName();
-			allFieldDescriptorsByBibTeXTag.put(bibTeXTag, fieldDescriptor);
 
 			// create mappings for translateFromXML() -->
 			// allFieldDescriptorsByTagNames
@@ -775,13 +715,6 @@ public class ClassDescriptor<FD extends FieldDescriptor> extends DescriptorBase
 							bookkeeper));
 		}
 
-		for (Entry<String, FD> fieldDescriptorEntry : superClassDescriptor
-				.getAllFieldDescriptorsByBibTeXTag().entrySet()) {
-			allFieldDescriptorsByBibTeXTag.put(
-					fieldDescriptorEntry.getKey(),
-					perhapsCloneGenericField(fieldDescriptorEntry.getValue(),
-							bookkeeper));
-		}
 
 		for (FD fieldDescriptor : superClassDescriptor
 				.attributeFieldDescriptors()) {
@@ -1095,9 +1028,6 @@ public class ClassDescriptor<FD extends FieldDescriptor> extends DescriptorBase
 		return allFieldDescriptorsByTLVIds;
 	}
 
-	public HashMap<String, FD> getAllFieldDescriptorsByBibTeXTag() {
-		return allFieldDescriptorsByBibTeXTag;
-	}
 
 	public ArrayList<FD> getUnresolvedScopeAnnotationFDs() {
 		return this.unresolvedScopeAnnotationFDs;

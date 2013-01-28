@@ -92,8 +92,18 @@ public class FieldDescriptorIndexer extends MultiIndexer<FieldDescriptor> {
 		}
 	}
 	
+	// -- here are the other indexers, by tag name, etc. 
+	
+	
+	
+	
+	
+	
+	
+	
 	public FieldDescriptorIndexer()
 	{
+	// These are all of the type indexers... for use in the de/serialization process.
 		this.ScalarCollections = this.by(new byScalarCollections());
 		this.Scalars = this.by(new byScalars());
 		this.ScalarMaps = this.by(new byScalarMaps());
@@ -102,6 +112,8 @@ public class FieldDescriptorIndexer extends MultiIndexer<FieldDescriptor> {
 		this.CompositeMaps = this.by(new byCompositeMaps());
 		this.IgnoredAttributes = this.by(new byIgnoredAttribute());
 		this.IgnoredElements = this.by(new byIgnoredElement());
+		
+		
 	}
 	
 	@Override
