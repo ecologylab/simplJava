@@ -506,36 +506,6 @@ public class ClassDescriptor<FD extends FieldDescriptor> extends DescriptorBase
 	}
 
 	/**
-	 * Build and return an ArrayList with Field objects for all the annotated
-	 * fields in this class.
-	 * 
-	 * @param fieldDescriptorClass
-	 *            The Class to use for instantiating each FieldDescriptor. The
-	 *            default is FieldDescriptor, but class objects may be passed in
-	 *            that extend that class.
-	 * 
-	 * @return HashMapArrayList of Field objects, using the XML tag name for
-	 *         each field (not its Java field name!) as the keys. Could be
-	 *         empty. Never null.
-	 */
-
-	private Class<FieldDescriptor> fieldDescriptorAnnotationValue(
-			Class<? extends Object> thatClass) {
-		final simpl_descriptor_classes fieldDescriptorsClassAnnotation = thatClass
-				.getAnnotation(simpl_descriptor_classes.class);
-		Class<FieldDescriptor> result = null;
-		if (fieldDescriptorsClassAnnotation != null) {
-			Class<?> annotatedFieldDescriptorClass = fieldDescriptorsClassAnnotation
-					.value()[1];
-			if (annotatedFieldDescriptorClass != null
-					&& FieldDescriptor.class
-							.isAssignableFrom(annotatedFieldDescriptorClass))
-				result = (Class<FieldDescriptor>) annotatedFieldDescriptorClass;
-		}
-		return result;
-	}
-
-	/**
 	 * Recursive method to create optimized data structures needed for
 	 * translation to and from XML, and also for efficient reflection-based
 	 * access to field (descriptors) at run-time, with field name as a variable.

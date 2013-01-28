@@ -140,11 +140,6 @@ public class FieldDescriptor extends DescriptorBase implements IMappable<String>
 	@simpl_map("polymorph_class")
 	private HashMap<String, Class>										polymorphClasses;
 
-	@Deprecated
-	// we now use the package name to infer namespaces.
-	@simpl_map("library_namespace")
-	private HashMap<String, String>	libraryNamespaces = new HashMap<String, String>();
-
 	@simpl_scalar
 	private FieldType type;
 
@@ -324,8 +319,6 @@ public class FieldDescriptor extends DescriptorBase implements IMappable<String>
 		setValueMethod = ReflectionTools.getMethod(declaringClassDescriptor.getDescribedClass(),
 				setMethodName, SET_METHOD_STRING_ARG);
 
-		/// TODO: Nuke this deprecated method.
-		addNamespaces();
 		
 		if (javaParser != null)
 		{
@@ -1601,12 +1594,6 @@ public class FieldDescriptor extends DescriptorBase implements IMappable<String>
 
 	// ----------------------------- convenience methods ---------------------------------------//
 
-	public String elementName(int tlvId)
-	{
-		return isPolymorphic() ? elementClassDescriptor(tlvId).pseudoFieldDescriptor().getTagName()
-				: isCollection() ? collectionOrMapTagName : tagName;
-	}
-
 	public String elementStart()
 	{
 		return isCollection() ? collectionOrMapTagName : isNested() ? compositeTagName : tagName;
@@ -1885,45 +1872,6 @@ public class FieldDescriptor extends DescriptorBase implements IMappable<String>
 		appendable.append(' ');
 		appendable.append(tagName);
 		appendable.append('=');
-	}
-
-	/**
-	 * A method to add the namespaces corresponds to the field descriptor.
-	 */
-	@Deprecated
-	private void addNamespaces()
-	{
-		ArrayList<Class<?>> genericClasses = XMLTools.getGenericParameters(field);
-		Class typeClass = field.getType();
-
-		if (genericClasses != null)
-			for (Class genericClass : genericClasses)
-			{
-				if (ElementState.class.isAssignableFrom(genericClass))
-				{
-					libraryNamespaces.put(genericClass.getPackage().getName(), genericClass.getPackage()
-							.getName());
-				}
-			}
-
-		if (typeClass != null)
-		{
-			if (ElementState.class.isAssignableFrom(typeClass))
-			{
-				libraryNamespaces.put(typeClass.getPackage().getName(), typeClass.getPackage().getName());
-			}
-		}
-	}
-
-	/**
-	 * method to access the namespace information related to field descriptor
-	 * 
-	 * @return HashMap <String, String>
-	 */
-	@Deprecated
-	public HashMap<String, String> getNamespaces()
-	{
-		return libraryNamespaces;
 	}
 
 	@Override
