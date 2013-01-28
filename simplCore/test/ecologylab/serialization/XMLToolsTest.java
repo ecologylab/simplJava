@@ -11,6 +11,7 @@ import org.junit.Test;
 
 import simpl.annotations.dbal.simpl_inherit_parent_tag;
 import simpl.core.ScalarUnmarshallingContext;
+import simpl.descriptions.FieldCategorizer;
 import simpl.tools.XMLTools;
 import simpl.types.ScalarType;
 
@@ -49,19 +50,19 @@ public class XMLToolsTest {
 		
 		Field f = lass.getDeclaredField("ourUsages");
 		assertNotNull(f);
-		assertTrue("Failed to represent field F as a collection. F was : " + f.getName() + " of type: " + f.getType().getName(), XMLTools.representAsCollection(f));
-		assertTrue("Expected F to be an enumeation collection", XMLTools.isEnumCollection(f));
+		assertTrue("Failed to represent field F as a collection. F was : " + f.getName() + " of type: " + f.getType().getName(), FieldCategorizer.representAsCollection(f));
+		assertTrue("Expected F to be an enumeation collection", FieldCategorizer.isEnumCollection(f));
 		
 		Field notGeneric = lass.getDeclaredField("notGeneric");		
 		assertNotNull(notGeneric);
-		assertTrue("expected array list to be collection", XMLTools.representAsCollection(notGeneric));
-		assertFalse("non-generic Should not be an enum", XMLTools.isEnum(notGeneric));
+		assertTrue("expected array list to be collection", FieldCategorizer.representAsCollection(notGeneric));
+		assertFalse("non-generic Should not be an enum", FieldCategorizer.isEnum(notGeneric));
 		
 	
 		Field composite = lass.getDeclaredField("composite");
 		assertNotNull(composite);
-		assertTrue("Composite collection is a collection!", XMLTools.representAsCollection(composite));
-		assertFalse("Composite collection IS NOT an enum collection!", XMLTools.isEnumCollection(composite));
+		assertTrue("Composite collection is a collection!", FieldCategorizer.representAsCollection(composite));
+		assertFalse("Composite collection IS NOT an enum collection!", FieldCategorizer.isEnumCollection(composite));
 	}
 
 }

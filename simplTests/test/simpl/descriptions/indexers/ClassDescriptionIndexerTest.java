@@ -23,6 +23,9 @@ public class ClassDescriptionIndexerTest {
 		{
 			
 		}
+		
+		classDescriptors.mergeIn(null);
+		
 	}
 	
 	

@@ -40,21 +40,15 @@ import org.xml.sax.SAXParseException;
 import simpl.annotations.dbal.Hint;
 import simpl.annotations.dbal.bibtex_key;
 import simpl.annotations.dbal.bibtex_tag;
-import simpl.annotations.dbal.simpl_collection;
-import simpl.annotations.dbal.simpl_composite;
-import simpl.annotations.dbal.simpl_composite_as_scalar;
 import simpl.annotations.dbal.simpl_format;
 import simpl.annotations.dbal.simpl_hints;
 import simpl.annotations.dbal.simpl_inherit_parent_tag;
-import simpl.annotations.dbal.simpl_map;
-import simpl.annotations.dbal.simpl_scalar;
 import simpl.annotations.dbal.simpl_tag;
 import simpl.core.ElementState;
 import simpl.core.SpecialCharacterEntities;
 import simpl.exceptions.SIMPLTranslationException;
 import simpl.types.CrossLanguageTypeConstants;
 import simpl.types.ScalarType;
-import simpl.types.TypeRegistry;
 
 import ecologylab.collections.Scope;
 import ecologylab.generic.Debug;
@@ -1573,50 +1567,10 @@ public class XMLTools extends Debug implements SpecialCharacterEntities
 		return result;
 	}
 
-	public static boolean isScalar(Field field)
-	{
-		return field.isAnnotationPresent(simpl_scalar.class);
-	}
-	
-	public static boolean isCompositeAsScalarvalue(Field field)
-	{
-		return field.isAnnotationPresent(simpl_composite_as_scalar.class);
-	}
-	
-
 	public static Hint simplHint(Field field)
 	{
 		simpl_hints hintsAnnotation = field.getAnnotation(simpl_hints.class);
 		return (hintsAnnotation == null) ? Hint.XML_ATTRIBUTE : hintsAnnotation.value()[0];
-	}
-
-	public static boolean representAsComposite(Field field)
-	{
-		return field.isAnnotationPresent(simpl_composite.class);
-	}
-
-	public static boolean representAsCollectionOrMap(Field field)
-	{
-		return representAsCollection(field) || representAsMap(field);
-	}
-
-	public static boolean representAsMap(Field field)
-	{
-		return field.isAnnotationPresent(simpl_map.class);
-	}
-
-	public static boolean representAsCollection(Field field)
-	{
-		return field.isAnnotationPresent(simpl_collection.class);
-	}
-
-	/**
-	 * @param field
-	 * @return true if the Field is one translated by the Type system.
-	 */
-	public static boolean isScalarValue(Field field)
-	{
-		return TypeRegistry.containsScalarType(field.getType());
 	}
 
 	/**
@@ -1631,39 +1585,6 @@ public class XMLTools extends Debug implements SpecialCharacterEntities
 	{
 		StringBuilder buffy = new StringBuilder(htmlFragmentString.length() + 13);
 		return buffy.append("<html>").append(htmlFragmentString).append("</html>").toString();
-	}
-
-	public static boolean isEnum(Field thatField)
-	{
-		return isEnum(thatField.getType()) || thatField.getType().isEnum();
-	}
-
-	public static boolean isEnum(Class thatClass)
-	{
-		return Enum.class.isAssignableFrom(thatClass);
-	}
-
-	public static boolean isComposite(Class thatClass)
-	{
-		return ElementState.class.isAssignableFrom(thatClass);
-	}
-
-	public static Enum<?> createEnumeratedType(Field field, String valueString)
-	{
-		if (field.getType().isEnum())
-		{
-			Object[] enumArray = field.getType().getEnumConstants();
-			for (Object enumObj : enumArray)
-			{
-				if (enumObj instanceof Enum<?>)
-				{
-					Enum<?> enumeratedType = ((Enum<?>) enumObj);
-					if (enumeratedType.toString().equals(valueString))
-						return enumeratedType;
-				}
-			}
-		}
-		return null;
 	}
 
 	/**
@@ -1854,6 +1775,7 @@ public class XMLTools extends Debug implements SpecialCharacterEntities
 	 */
 	public static String inferCSharpType(Class<?> fieldType)
 	{
+		// TODO: OH LAWD. THIS IS TERRIBLE. TERRIBLE. 
 		String result = null;
 
 		if (int.class == fieldType)
@@ -2249,6 +2171,7 @@ public class XMLTools extends Debug implements SpecialCharacterEntities
 	 */
 	public static String inferJavaType(Class<?> fieldType)
 	{
+		// TODO: OH LAWD. THIS IS A TERRIBLE. TERRIBLE THING. 
 		String result = null;
 		
 		if (int.class == fieldType)
@@ -2354,21 +2277,6 @@ public class XMLTools extends Debug implements SpecialCharacterEntities
 		input = input.replaceAll(p1, "");
 		input = input.replaceAll(p2, keepInnerText ? "$2" : "");
 		return input;
-	}
-
-	public static boolean isEnumCollection(Field f) {
-		if(representAsCollection(f))
-		{
-			ArrayList<Class<?>> classes = XMLTools.getGenericParameters(f);
-			if(classes.isEmpty())
-			{
-				return false;
-			}else{
-				return classes.get(0).isEnum();
-			}
-		}else{
-			return false;
-		}
 	}
 
 }

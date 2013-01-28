@@ -29,7 +29,11 @@ public abstract class ItemIndexPredicate<IndexedItem>{
 	public Collection<String> ObtainIndexes(IndexedItem item)
 	{
 		Collection<String> ourCollection = new LinkedList<String>();
-		ourCollection.add(ObtainIndex(item));
+		String index = ObtainIndex(item);
+		if(index != null || !index.isEmpty())
+		{
+			ourCollection.add(index);
+		}
 		return ourCollection;
 	}
 	

@@ -5,8 +5,8 @@ import java.lang.reflect.Modifier;
 import java.util.HashMap;
 import java.util.Map;
 
+import simpl.descriptions.FieldCategorizer;
 import simpl.platformspecifics.SimplPlatformSpecifics;
-import simpl.tools.XMLTools;
 import simpl.types.scalar.CompositeAsScalarType;
 
 import ecologylab.generic.Debug;
@@ -166,14 +166,14 @@ implements CrossLanguageTypeConstants
 	 */
 	public static <U> ScalarType<U> getScalarType(Class<U> thatClass)
 	{
-		if (XMLTools.isEnum(thatClass))
+		if (FieldCategorizer.isEnum(thatClass))
 		{
 			return scalarRegistry().getTypeByClass(Enum.class);
 		}
 		else 
 		{
 			ScalarType<U> result	= scalarRegistry().getTypeByClass(thatClass);
-			if (result == null && XMLTools.isComposite(thatClass))
+			if (result == null && FieldCategorizer.isComposite(thatClass))
 				result							= scalarRegistry().getTypeByClass(CompositeAsScalarType.class);
 			
 			return result;

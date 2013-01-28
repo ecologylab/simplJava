@@ -112,7 +112,7 @@ public class ClassDescriptorIndexer extends MultiIndexer<ClassDescriptor<?>> {
 		}
 	}
 	
-	final class IndexingShortcut
+	public final class IndexingShortcut
 	{
 		public IndexingShortcut(ClassDescriptorIndexer cdi)
 		{

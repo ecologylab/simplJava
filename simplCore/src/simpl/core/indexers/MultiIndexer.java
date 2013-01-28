@@ -117,6 +117,18 @@ public abstract class MultiIndexer<IndexedObject> implements Iterable<IndexedObj
 		}
 	}
 	
+	/**
+	 * Takes the contents of another indexer and merges it into this one.
+	 * @param otherIndexer
+	 */
+	public void mergeIn(MultiIndexer<IndexedObject> otherIndexer)
+	{
+		for(IndexedObject obj : otherIndexer)
+		{
+			this.Insert(obj);
+		}
+	}
+	
 	public InnerIndexer<IndexedObject> by(String indexID)
 	{
 		return new InnerIndexer<IndexedObject>(this.allmaps.get(indexID));

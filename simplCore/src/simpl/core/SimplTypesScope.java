@@ -3,6 +3,7 @@ package simpl.core;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 
 import simpl.annotations.dbal.simpl_map;
 import simpl.annotations.dbal.simpl_nowrap;
@@ -108,10 +109,10 @@ public final class SimplTypesScope extends Debug implements ISimplDeserializatio
 		this.name = name;
 	}
 	
-	private SimplTypesScope[] inheritedTypesScopes;
+	private List<SimplTypesScope> inheritedTypesScopes = new ArrayList<SimplTypesScope>();
 
-	private ClassDescriptorIndexer classDescriptorIndexer;
-	private EnumerationDescriptorIndexer enumerationDescriptorIndexer;
+	public ClassDescriptorIndexer classDescriptors;
+	public EnumerationDescriptorIndexer enumerationDescriptors;
 	
 	/**
 	 * Fundamentally, a SimplTypesScope consists of a set of class simple names. These are mapped to
@@ -169,13 +170,13 @@ public final class SimplTypesScope extends Debug implements ISimplDeserializatio
 				throw new RuntimeException(sde);
 			}
 				
-			this.enumerationDescriptorIndexer.Insert(ed);
+			this.enumerationDescriptors.Insert(ed);
 		}
 		else
 		{
 			// Add a class!
 			ClassDescriptor entry = ClassDescriptor.getClassDescriptor(classObj);
-			this.classDescriptorIndexer.Insert(entry);
+			this.classDescriptors.Insert(entry);
 		}
 	}
 	
@@ -224,7 +225,7 @@ public final class SimplTypesScope extends Debug implements ISimplDeserializatio
 			simplTypesScope.removeTranslation(classObj);
 		}
 		
-		this.classDescriptorIndexer.Remove(ClassDescriptor.getClassDescriptor(classObj));
+		this.classDescriptors.Remove(ClassDescriptor.getClassDescriptor(classObj));
 	}
 	
 	@Override
@@ -350,7 +351,7 @@ public final class SimplTypesScope extends Debug implements ISimplDeserializatio
 	{
 		for (ClassDescriptor classDescriptor : entriesByTag.values())
 		{
-			this.classDescriptorIndexer.Insert(classDescriptor);
+			this.classDescriptors.Insert(classDescriptor);
 		}
 		
 		if (allTypesScopes.containsKey(name))
@@ -368,7 +369,26 @@ public final class SimplTypesScope extends Debug implements ISimplDeserializatio
 
 	public void inheritFrom(SimplTypesScope sts) {
 
-		// todo: Merge into the indexer. :3 
-		
+		this.classDescriptors.mergeIn(sts.classDescriptors);
+		this.enumerationDescriptors.mergeIn(sts.enumerationDescriptors);
+		this.inheritedTypesScopes.add(sts);
+	}
+
+	@Override
+	public ClassDescriptor<?> getClassDescriptorByTag(String tag) {
+		return this.classDescriptors.by.TagName.get(tag);
+	}
+
+	@Override
+	public EnumerationDescriptor getEnumerationDescriptorByTag(String tag) {
+	
+		return this.enumerationDescriptors.by.TagName.get(tag);
+	}
+	
+	@Override
+	public boolean containsDescriptorForTag(String tag)
+	{
+		return(this.getClassDescriptorByTag(tag) != null ||
+				this.getEnumerationDescriptorByTag(tag) != null);
 	}
 }

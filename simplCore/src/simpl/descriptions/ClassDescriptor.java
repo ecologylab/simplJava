@@ -632,33 +632,15 @@ public class ClassDescriptor<FD extends FieldDescriptor> extends DescriptorBase
 		debug(classWithFields.toString());
 		Field[] fields = classWithFields.getDeclaredFields();
 
+		FieldCategorizer fc = new FieldCategorizer();
+		
 		for (int i = 0; i < fields.length; i++) {
 			Field thatField = fields[i];
 
-			// skip static fields, since we're saving instances,
-			// and inclusion w each instance would be redundant.
-			if ((thatField.getModifiers() & Modifier.STATIC) == Modifier.STATIC) {
-				// debug("Skipping " + thatField + " because its static!");
-				continue;
-			}
-			FieldType fieldType = FieldType.UNSET_TYPE;
-
-			if (XMLTools.isScalar(thatField)) {
-				fieldType = FieldType.SCALAR;
-			} else if (XMLTools.representAsComposite(thatField)) {
-				fieldType = FieldType.COMPOSITE_ELEMENT;
-			} else if (XMLTools.representAsCollection(thatField)) {
-				// WORK AROUND TO HANDLE ENUM COLLECTIONS.
-				// THIS WILL NOT BE A PERMANENT SOLUTION.
-				if (XMLTools.isEnumCollection(thatField)) {
-					// Enums are scalars at the moment.
-					fieldType = FieldType.COLLECTION_ELEMENT;
-				} else {
-					fieldType = FieldType.COLLECTION_ELEMENT;
-				}
-			} else if (XMLTools.representAsMap(thatField)) {
-				fieldType = FieldType.MAP_ELEMENT;
-			}
+			
+			
+			FieldType fieldType = fc.categorizeField(thatField);
+			
 			if (fieldType == FieldType.UNSET_TYPE)
 				continue; // not a simpl serialization annotated field
 
@@ -690,7 +672,7 @@ public class ClassDescriptor<FD extends FieldDescriptor> extends DescriptorBase
 				elementFieldDescriptors.add(fieldDescriptor);
 			}
 
-			if (XMLTools.isCompositeAsScalarvalue(thatField)) {
+			if (FieldCategorizer.isCompositeAsScalarvalue(thatField)) {
 				scalarValueFieldDescripotor = fieldDescriptor;
 			}
 
@@ -1397,19 +1379,6 @@ public class ClassDescriptor<FD extends FieldDescriptor> extends DescriptorBase
 		this.describedClassPackageName = describedClassPackageName;
 	}
 
-	/**
-	 * If this class is a generic class, such as MyClass&lt;T&gt;.
-	 * 
-	 * Currently this is not implemented. Please update this javadoc when you
-	 * implement it.
-	 * 
-	 * @return
-	 */
-	public boolean isGenericClass() {
-		// TODO Auto-generated method stub
-		// NOT YET IMPLEMENTED!
-		return false;
-	}
 
 	public void replace(FD oldFD, FD newFD) {
 		// for deserialization:

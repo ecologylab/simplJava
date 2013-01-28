@@ -3,6 +3,7 @@ package simpl.core;
 import java.util.LinkedList;
 import java.util.List;
 
+import simpl.core.SimplTypesScopeFactory.STSTranslationsCompleted;
 import simpl.descriptions.ClassDescriptor;
 
 public class SimplTypesScopeFactory {
@@ -23,6 +24,7 @@ public class SimplTypesScopeFactory {
 			this.scopesInherited = new LinkedList<SimplTypesScope>();
 		}
 	}
+
 	private static SimplTypesScopeFactory factory = new SimplTypesScopeFactory();
 	
 	public static STSNameCompleted name(String name)
@@ -32,7 +34,7 @@ public class SimplTypesScopeFactory {
 		return factory.new STSNameCompleted(ourData, name);
 	}
 	
-	final class STSNameCompleted
+	public final class STSNameCompleted
 	{
 		private STSFactoryData ourData;
 		
@@ -53,9 +55,10 @@ public class SimplTypesScopeFactory {
 		}
 	}
 	
-	final class STSInheritsCompleted
+	public final class STSInheritsCompleted
 	{
 		private STSFactoryData ourData;
+	
 		public STSInheritsCompleted(STSFactoryData data, SimplTypesScope... scopesInherited)
 		{
 			this.ourData = data;
@@ -79,12 +82,30 @@ public class SimplTypesScopeFactory {
 		{
 			return factory.new STSTranslationsCompleted(this.ourData, translationClasses);
 		}
+
+		public STSTranslationsCompleted translations(Class[] translations,
+				Class... additionalTranslations) {
+			// TODO Auto-generated method stub
+			List<Class<?>> c = new LinkedList<Class<?>>();
+			for(Class<?> k : translations)
+			{
+				c.add(k);
+			}
+			for(Class<?> k : additionalTranslations)
+			{
+				c.add(k);
+			}
+
+			Class<?>[] array = new Class<?>[c.size()];
+			c.toArray(array);
+			
+			return new STSTranslationsCompleted(this.ourData, array);
+		}
 		
 	}
 	
-	final class STSTranslationsCompleted
+	public final class STSTranslationsCompleted
 	{
-
 		STSFactoryData ourData;
 		public STSTranslationsCompleted(STSFactoryData ourData,
 				Class<?>[] translationClasses) {
@@ -120,6 +141,4 @@ public class SimplTypesScopeFactory {
 			return sts;
 		}
 	}
-	
-	
 }

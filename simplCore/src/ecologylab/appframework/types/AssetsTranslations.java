@@ -4,6 +4,7 @@
 package ecologylab.appframework.types;
 
 import simpl.core.SimplTypesScope;
+import simpl.core.SimplTypesScopeFactory;
 import ecologylab.generic.Debug;
 
 /**
@@ -30,6 +31,6 @@ public class AssetsTranslations extends Debug
 	 */
 	public static SimplTypesScope get()
 	{
-		return SimplTypesScope.get(PACKAGE_NAME, TRANSLATIONS);
+		return SimplTypesScopeFactory.name(PACKAGE_NAME).translations(TRANSLATIONS).create();
 	}
 }

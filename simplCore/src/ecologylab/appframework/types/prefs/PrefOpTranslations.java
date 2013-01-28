@@ -4,6 +4,7 @@
 package ecologylab.appframework.types.prefs;
 
 import simpl.core.SimplTypesScope;
+import simpl.core.SimplTypesScopeFactory;
 import simpl.platformspecifics.SimplPlatformSpecifics;
 import ecologylab.generic.Debug;
 
@@ -29,7 +30,7 @@ public class PrefOpTranslations extends Debug
 	
 	public static SimplTypesScope get(SimplTypesScope inheritedScope)
 	{
-		return SimplTypesScope.get(SCOPE_NAME, inheritedScope, TRANSLATIONS, SimplPlatformSpecifics.get().addtionalPrefOpTranslations());
+		return SimplTypesScopeFactory.name(SCOPE_NAME).inherits(inheritedScope).translations(TRANSLATIONS, SimplPlatformSpecifics.get().addtionalPrefOpTranslations()).create();
 	}
 
 }

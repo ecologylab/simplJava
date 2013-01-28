@@ -647,7 +647,7 @@ public class FieldDescriptor extends DescriptorBase implements IMappable<String>
 	 */
 	private FieldType deriveScalarSerialization(Class thatClass, Field field)
 	{
-		isEnum = XMLTools.isEnum(field);
+		isEnum = FieldCategorizer.isEnum(field);
 		xmlHint = XMLTools.simplHint(field); // TODO -- confirm that default case is acceptable
 		scalarType = TypeRegistry.getScalarType(thatClass);
 

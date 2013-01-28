@@ -62,6 +62,25 @@ public class EnumerationDescriptorIndexer extends MultiIndexer<EnumerationDescri
 		
 	}
 	
+	public final class IndexingShortcut
+	{
+		public IndexingShortcut(EnumerationDescriptorIndexer edi)
+		{
+			this.SimplName = edi.by(new bySimplName());
+			this.TagName = edi.by(new byTagName());
+		}
+		
+		public InnerIndexer<EnumerationDescriptor> TagName;
+		public InnerIndexer<EnumerationDescriptor> SimplName;
+	}
+	
+	public IndexingShortcut by;
+	
+	public EnumerationDescriptorIndexer()
+	{
+		this.by = new IndexingShortcut(this);
+	}
+	
 	@Override
 	public List<ItemIndexPredicate<EnumerationDescriptor>> getIndexPredicates() {
 
