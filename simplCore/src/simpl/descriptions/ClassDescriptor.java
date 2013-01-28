@@ -30,6 +30,7 @@ import simpl.annotations.dbal.simpl_tag;
 import simpl.annotations.dbal.simpl_use_equals_equals;
 import simpl.core.SimplTypesScope;
 import simpl.core.TranslationContext;
+import simpl.descriptions.indexers.FieldDescriptorIndexer;
 import simpl.exceptions.SIMPLTranslationException;
 import simpl.formats.enums.StringFormat;
 import simpl.platformspecifics.SimplPlatformSpecifics;
@@ -125,6 +126,8 @@ public class ClassDescriptor<FD extends FieldDescriptor> extends DescriptorBase
 	@simpl_map_key_field("name")
 	private HashMapArrayList<String, FD> declaredFieldDescriptorsByFieldName = new HashMapArrayList<String, FD>();
 
+	
+	public FieldDescriptorIndexer fieldDescriptors = new FieldDescriptorIndexer();
 	/**
 	 * This data structure is handy for translateFromXML(). There can be
 	 * multiple tags (keys in this map) for a single FieldDescriptor if @simpl_other_tags

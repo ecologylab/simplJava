@@ -211,10 +211,6 @@ public class FieldDescriptor extends DescriptorBase implements IMappable<String>
 
 	private Method	setValueMethod;
 
-	private String	bibtexTag = "";
-
-	private boolean isBibtexKey = false;
-
 	@simpl_scalar
 	private String fieldType;
 
@@ -296,9 +292,6 @@ public class FieldDescriptor extends DescriptorBase implements IMappable<String>
 		// this.name = (field != null) ? field.getName() : "NULL";
 
 		derivePolymorphicDescriptors(field);
-
-		this.bibtexTag = XMLTools.getBibtexTagName(field);
-		this.isBibtexKey = XMLTools.getBibtexKey(field);
 
 		this.setType(FieldType.UNSET_TYPE); // for debugging!
 
@@ -1058,19 +1051,6 @@ public class FieldDescriptor extends DescriptorBase implements IMappable<String>
 
 		}
 		return result;
-	}
-
-	/**
-	 * NB: For polymorphic fields, the value of this field is meaningless, except for wrapped
-	 * collections and maps.
-	 * 
-	 * @return The tag name that this field is translated to XML with.
-	 */
-	public String getBibtexTagName()
-	{
-		if (bibtexTag == null || bibtexTag.equals(""))
-			bibtexTag = tagName;
-		return bibtexTag;
 	}
 
 	/**
@@ -1865,15 +1845,7 @@ public class FieldDescriptor extends DescriptorBase implements IMappable<String>
 	{
 		return (!isPolymorphic()) ? elementClassDescriptor : tlvClassDescriptors.get(tlvId);
 	}
-
-	public void writeBibtexCollectionStart(PrintStream appendable)
-	{
-		appendable.append('\n');
-		appendable.append(' ');
-		appendable.append(tagName);
-		appendable.append('=');
-	}
-
+	
 	@Override
 	public String key()
 	{
@@ -2032,10 +2004,6 @@ public class FieldDescriptor extends DescriptorBase implements IMappable<String>
 		}
 	}
 
-	public boolean isBibtexKey()
-	{
-		return isBibtexKey;
-	}
 
 	public boolean isCollectionTag(String tagName)
 	{
