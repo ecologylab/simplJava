@@ -254,7 +254,6 @@ public class FieldDescriptor extends DescriptorBase implements IMappable<String>
 		this.field = null;
 		this.type = FieldType.PSEUDO_FIELD_DESCRIPTOR;
 		this.scalarType = null;
-		this.bibtexTag = baseClassDescriptor.getBibtexType();
 	}
 
 	/**

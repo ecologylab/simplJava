@@ -59,10 +59,19 @@ public class ClassDescriptor<FD extends FieldDescriptor> extends DescriptorBase
 	public static interface FieldDescriptorsDerivedEventListener {
 		void fieldDescriptorsDerived(Object... eventArgs);
 	}
+	
+	/**
+	 * Global map of all ClassDescriptors. Key is the full, qualified name of
+	 * the class == describedClassName.
+	 */
+	private static final HashMap<String, ClassDescriptor<? extends FieldDescriptor>> globalClassDescriptorsMap = new HashMap<String, ClassDescriptor<? extends FieldDescriptor>>();
+
 
 	private static final String PACKAGE_CLASS_SEP = ".";
 
-	
+	static {
+		TypeRegistry.init();
+	}
 	
 	/**
 	 * Class object that we are describing.
@@ -97,13 +106,6 @@ public class ClassDescriptor<FD extends FieldDescriptor> extends DescriptorBase
 	private Class<? extends FieldDescriptor> fieldDescriptorClass;
 
 	/**
-	 * This is a pseudo FieldDescriptor object, defined for the class, for cases
-	 * in which the tag for the root element or a field is determined by class
-	 * name, not by field name.
-	 */
-	private FieldDescriptor pseudoFieldDescriptor;
-
-	/**
 	 * This flag prevents loops when creating descriptors for type graphs.
 	 */
 	private boolean isGetAndOrganizeComplete;
@@ -130,26 +132,16 @@ public class ClassDescriptor<FD extends FieldDescriptor> extends DescriptorBase
 	 */
 	private HashMap<String, FD> allFieldDescriptorsByTagNames = new HashMap<String, FD>();
 
-	private HashMap<Integer, FD> allFieldDescriptorsByTLVIds = new HashMap<Integer, FD>();
-
-
 	private ArrayList<FD> attributeFieldDescriptors = new ArrayList<FD>();
 
 	private ArrayList<FD> elementFieldDescriptors = new ArrayList<FD>();;
 
 	private FD scalarValueFieldDescripotor = null;
 
-	/**
-	 * Global map of all ClassDescriptors. Key is the full, qualified name of
-	 * the class == describedClassName.
-	 */
-	private static final HashMap<String, ClassDescriptor<? extends FieldDescriptor>> globalClassDescriptorsMap = new HashMap<String, ClassDescriptor<? extends FieldDescriptor>>();
-
+	
 	private ArrayList<FD> unresolvedScopeAnnotationFDs;
 
 	private ArrayList<FD> unresolvedClassesAnnotationFDs;
-
-	private String bibtexType = "";
 
 	@simpl_collection("generic_type_variable")
 	private ArrayList<String> genericTypeVariables = new ArrayList<String>();
@@ -177,9 +169,7 @@ public class ClassDescriptor<FD extends FieldDescriptor> extends DescriptorBase
 
 	private List<FieldDescriptorsDerivedEventListener> fieldDescriptorsDerivedEventListeners;
 
-	static {
-		TypeRegistry.init();
-	}
+
 
 	/**
 	 * Default constructor only for use by translateFromXML().
@@ -505,16 +495,6 @@ public class ClassDescriptor<FD extends FieldDescriptor> extends DescriptorBase
 	public FD getFieldDescriptorByTag(String tag, SimplTypesScope tScope) {
 		return getFieldDescriptorByTag(tag, tScope, null);
 	}
-
-	public FD getFieldDescriptorByTLVId(int tlvId) {
-		if (unresolvedScopeAnnotationFDs != null)
-			resolveUnresolvedScopeAnnotationFDs();
-
-		if (unresolvedClassesAnnotationFDs != null)
-			resolveUnresolvedClassesAnnotationFDs();
-
-		return allFieldDescriptorsByTLVIds.get(tlvId);
-	}
 	
 	public FD getFieldDescriptorByFieldName(String fieldName) {
 		return fieldDescriptorsByFieldName.get(fieldName);
@@ -707,14 +687,6 @@ public class ClassDescriptor<FD extends FieldDescriptor> extends DescriptorBase
 							bookkeeper));
 		}
 
-		for (Entry<Integer, FD> fieldDescriptorEntry : superClassDescriptor
-				.getAllFieldDescriptorsByTLVIds().entrySet()) {
-			allFieldDescriptorsByTLVIds.put(
-					fieldDescriptorEntry.getKey(),
-					perhapsCloneGenericField(fieldDescriptorEntry.getValue(),
-							bookkeeper));
-		}
-
 
 		for (FD fieldDescriptor : superClassDescriptor
 				.attributeFieldDescriptors()) {
@@ -892,7 +864,7 @@ public class ClassDescriptor<FD extends FieldDescriptor> extends DescriptorBase
 		if (!fdToMap.isWrapped()) {
 			FD previousMapping = allFieldDescriptorsByTagNames.put(tagName,
 					fdToMap);
-			allFieldDescriptorsByTLVIds.put(tagName.hashCode(), fdToMap);
+		
 			if (previousMapping != null && previousMapping != fdToMap) {
 				warning(" tag <" + tagName + ">:\tfield[" + fdToMap.getName()
 						+ "] overrides field[" + previousMapping.getName()
@@ -1023,11 +995,6 @@ public class ClassDescriptor<FD extends FieldDescriptor> extends DescriptorBase
 	public HashMap<String, FD> getAllFieldDescriptorsByTagNames() {
 		return allFieldDescriptorsByTagNames;
 	}
-
-	public HashMap<Integer, FD> getAllFieldDescriptorsByTLVIds() {
-		return allFieldDescriptorsByTLVIds;
-	}
-
 
 	public ArrayList<FD> getUnresolvedScopeAnnotationFDs() {
 		return this.unresolvedScopeAnnotationFDs;

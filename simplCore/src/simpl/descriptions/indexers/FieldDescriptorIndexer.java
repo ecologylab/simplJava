@@ -9,19 +9,20 @@ import simpl.descriptions.FieldType;
 import java.util.List;
 import java.util.LinkedList;;
 
-public class FieldDescriptorIndexer extends MultiIndexer<FieldDescriptor> {
+public class FieldDescriptorIndexer<FD extends FieldDescriptor> extends MultiIndexer<FD>
+{
 
-	public InnerIndexer<FieldDescriptor> Scalars;
-	public InnerIndexer<FieldDescriptor> ScalarCollections;
-	public InnerIndexer<FieldDescriptor> ScalarMaps;
-	public InnerIndexer<FieldDescriptor> Composites;
-	public InnerIndexer<FieldDescriptor> CompositeCollections;
-	public InnerIndexer<FieldDescriptor> CompositeMaps;
+	public InnerIndexer<FD> Scalars;
+	public InnerIndexer<FD> ScalarCollections;
+	public InnerIndexer<FD> ScalarMaps;
+	public InnerIndexer<FD> Composites;
+	public InnerIndexer<FD> CompositeCollections;
+	public InnerIndexer<FD> CompositeMaps;
 // TODO???	public InnerIndexer<FieldDescriptor> CompositesAsScalars;  //
-	public InnerIndexer<FieldDescriptor> IgnoredElements;
-	public InnerIndexer<FieldDescriptor> IgnoredAttributes;
+	public InnerIndexer<FD> IgnoredElements;
+	public InnerIndexer<FD> IgnoredAttributes;
 	
-	final class byScalars extends FieldTypeItemPredicate{
+	final class byScalars extends FieldTypeItemPredicate<FD>{
 		@Override
 		public FieldType getFieldType() {
 			// TODO Auto-generated method stub
@@ -29,7 +30,7 @@ public class FieldDescriptorIndexer extends MultiIndexer<FieldDescriptor> {
 		}
 	}
 	
-	final class byScalarCollections extends FieldTypeItemPredicate{
+	final class byScalarCollections extends FieldTypeItemPredicate<FD>{
 
 		@Override
 		public FieldType getFieldType() {
@@ -38,7 +39,7 @@ public class FieldDescriptorIndexer extends MultiIndexer<FieldDescriptor> {
 		}
 	}
 	
-	final class byScalarMaps extends FieldTypeItemPredicate{
+	final class byScalarMaps extends FieldTypeItemPredicate<FD>{
 
 		@Override
 		public FieldType getFieldType() {
@@ -48,7 +49,7 @@ public class FieldDescriptorIndexer extends MultiIndexer<FieldDescriptor> {
 		
 	}
 	
-	final class byComposites extends FieldTypeItemPredicate{
+	final class byComposites extends FieldTypeItemPredicate<FD>{
 
 		@Override
 		public FieldType getFieldType() {
@@ -58,7 +59,7 @@ public class FieldDescriptorIndexer extends MultiIndexer<FieldDescriptor> {
 		
 	}
 	
-	final class byCompositeCollections extends FieldTypeItemPredicate{
+	final class byCompositeCollections extends FieldTypeItemPredicate<FD>{
 
 		@Override
 		public FieldType getFieldType() {
@@ -68,7 +69,7 @@ public class FieldDescriptorIndexer extends MultiIndexer<FieldDescriptor> {
 		
 	}
 	
-	final class byCompositeMaps extends FieldTypeItemPredicate{
+	final class byCompositeMaps extends FieldTypeItemPredicate<FD>{
 
 		@Override
 		public FieldType getFieldType() {
@@ -78,14 +79,14 @@ public class FieldDescriptorIndexer extends MultiIndexer<FieldDescriptor> {
 		
 	}
 	
-	final class byIgnoredAttribute extends FieldTypeItemPredicate{
+	final class byIgnoredAttribute extends FieldTypeItemPredicate<FD>{
 		@Override
 		public FieldType getFieldType(){
 			return FieldType.IGNORED_ATTRIBUTE;
 		}
 	}
 	
-	final class byIgnoredElement extends FieldTypeItemPredicate{
+	final class byIgnoredElement extends FieldTypeItemPredicate<FD>{
 		@Override
 		public FieldType getFieldType(){
 			return FieldType.IGNORED_ELEMENT;
@@ -93,6 +94,45 @@ public class FieldDescriptorIndexer extends MultiIndexer<FieldDescriptor> {
 	}
 	
 	// -- here are the other indexers, by tag name, etc. 
+	
+	
+	final class byFieldName extends ItemIndexPredicate<FieldDescriptor>
+	{
+
+		@Override
+		public String GetIndexIdentifier() {
+			// TODO Auto-generated method stub
+			return "fieldName";
+		}
+
+		@Override
+		public String ObtainIndex(FieldDescriptor item) {
+			// TODO Auto-generated method stub
+			return item.getField().getName();
+		}
+	}
+	
+	final class declaredByFieldName extends ItemIndexPredicate<FieldDescriptor>
+	{
+		
+	}
+	
+	final class byTagName extends ItemIndexPredicate<FieldDescriptor>
+	{
+
+		@Override
+		public String GetIndexIdentifier() {
+			// TODO Auto-generated method stub
+			return null;
+		}
+
+		@Override
+		public String ObtainIndex(FieldDescriptor item) {
+			// TODO Auto-generated method stub
+			return null;
+		}
+		
+	}
 	
 	
 	
@@ -117,9 +157,9 @@ public class FieldDescriptorIndexer extends MultiIndexer<FieldDescriptor> {
 	}
 	
 	@Override
-	public List<ItemIndexPredicate<FieldDescriptor>> getIndexPredicates() {
+	public List<ItemIndexPredicate<FD>> getIndexPredicates() {
 		// TODO Auto-generated method stub
-		List<ItemIndexPredicate<FieldDescriptor>> ourList = new LinkedList<ItemIndexPredicate<FieldDescriptor>>();
+		List<ItemIndexPredicate<FD>> ourList = new LinkedList<ItemIndexPredicate<FD>>();
 		ourList.add(new byScalars());
 		ourList.add(new byScalarCollections());
 		ourList.add(new byScalarMaps());
