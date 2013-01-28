@@ -5,6 +5,7 @@ import static org.junit.Assert.*;
 import org.junit.Test;
 
 import simpl.core.SimplTypesScope;
+import simpl.core.SimplTypesScopeFactory;
 import simpl.core.TranslationContext;
 import simpl.descriptions.ClassDescriptor;
 import simpl.descriptions.FieldDescriptor;
@@ -27,7 +28,7 @@ public class RoundtripTestsProvisional {
 		StringBuilder serialized = SimplTypesScope.serialize(ts, StringFormat.JSON);
 		System.out.println(serialized.toString());
 		
-		SimplTypesScope sts = SimplTypesScope.get("stringTest", TrickyString.class);
+		SimplTypesScope sts = SimplTypesScopeFactory.name("stringTest").translations(TrickyString.class).create();
 		
 		Object result = sts.deserialize(serialized.toString(), StringFormat.JSON);
 		assertTrue(result.getClass().equals(TrickyString.class));
