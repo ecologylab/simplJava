@@ -3,8 +3,10 @@ package simpl.core.indexers;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 /**
  * 
@@ -13,10 +15,10 @@ import java.util.Map;
  * @author tom
  *
  */
-public abstract class MultiIndexer<IndexedObject> {
+public abstract class MultiIndexer<IndexedObject> implements Iterable<IndexedObject>{
 
-	public final class InnerIndexer<IndexedObject>{
-		
+	public final class InnerIndexer<IndexedObject> implements Iterable<Entry<String, IndexedObject>>
+	{		
 		Map<String, IndexedObject> ourMap;
 		
 		public InnerIndexer(Map<String, IndexedObject> theMap)
@@ -27,6 +29,17 @@ public abstract class MultiIndexer<IndexedObject> {
 		public IndexedObject get(String indexString)
 		{
 			return this.ourMap.get(indexString);
+		}
+		
+		public boolean contains(String indexString)
+		{
+			return this.ourMap.containsKey(indexString);
+		}
+		
+		@Override
+		public Iterator<Entry<String, IndexedObject>> iterator() {
+			// TODO Auto-generated method stub
+			return this.ourMap.entrySet().iterator();
 		}
 	}
 	
@@ -108,8 +121,25 @@ public abstract class MultiIndexer<IndexedObject> {
 	{
 		return new InnerIndexer<IndexedObject>(this.allmaps.get(indexID));
 	}
+	
+	protected InnerIndexer<IndexedObject> by(ItemIndexPredicate<IndexedObject> predicate)
+	{
+		return this.by(predicate.GetIndexIdentifier());
+	}
 
-	public Integer size() {
+	public Integer size() 
+	{
 		return this.allitems.size();
+	}
+	
+	@Override
+	public Iterator<IndexedObject> iterator() 
+	{
+		return this.allitems.iterator();
+	}
+	
+	public Collection<IndexedObject> getAllItems()
+	{
+		return this.allitems;
 	}
 }

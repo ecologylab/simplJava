@@ -113,11 +113,8 @@ public class SimplTypesScopeFactory {
 			
 			for(Class<?> lass : ourData.translations)
 			{
-				ClassDescriptor<?> cd = ClassDescriptor.getClassDescriptor(lass);
-				sts.addTranslation(cd);
+				sts.addTranslation(lass);
 			}
-			
-			
 			
 			SimplTypesScope.registerSimplTypesScope(sts.getName(), sts);
 			return sts;

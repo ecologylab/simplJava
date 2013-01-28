@@ -467,11 +467,11 @@ public class FieldDescriptor extends DescriptorBase implements IMappable<String>
 	private boolean resolveScopeAnnotation(final String scopeAnnotation)
 	{
 		println(scopeAnnotation);
-		SimplTypesScope scope = SimplTypesScope.get(scopeAnnotation);
+		SimplTypesScope scope =null; // TODO: MANAGE STS GET //SimplTypesScope.get(scopeAnnotation);
 		if (scope != null)
 		{
-			Collection<ClassDescriptor<? extends FieldDescriptor>> scopeClassDescriptors = scope
-					.getClassDescriptors();
+		
+			Collection<ClassDescriptor<? extends FieldDescriptor>> scopeClassDescriptors = null; // TODO: getClassDescriptors scope.getClassDescriptors();
 			initPolymorphClassDescriptorsArrayList(scopeClassDescriptors.size());
 			for (ClassDescriptor<? extends FieldDescriptor> classDescriptor : scopeClassDescriptors)
 			{

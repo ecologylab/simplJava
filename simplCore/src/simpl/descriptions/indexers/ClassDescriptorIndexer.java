@@ -45,7 +45,6 @@ public class ClassDescriptorIndexer extends MultiIndexer<ClassDescriptor<?>> {
 		}
 	}
 	
-
 	final class byClassSimpleName extends ItemIndexPredicate<ClassDescriptor<?>>
 	{
 		public String GetIndexIdentifier() {
@@ -111,7 +110,32 @@ public class ClassDescriptorIndexer extends MultiIndexer<ClassDescriptor<?>> {
 			// TODO Autofgenerated method stub
 			return item.getObjectiveCTypeName();
 		}
+	}
+	
+	final class IndexingShortcut
+	{
+		public IndexingShortcut(ClassDescriptorIndexer cdi)
+		{
+			this.ObjectiveCName = cdi.by(new byObjectiveCName());
+			this.SimplName = cdi.by(new bySimplName());
+			this.ClassName = cdi.by(new byClassName());
+			this.ClassSimpleName = cdi.by(new byClassSimpleName());
+			this.TagName = cdi.by(new byTagName());
+		}
 		
+		public InnerIndexer<ClassDescriptor<?>> ObjectiveCName;
+		public InnerIndexer<ClassDescriptor<?>> SimplName;
+		public InnerIndexer<ClassDescriptor<?>> ClassName;
+		public InnerIndexer<ClassDescriptor<?>> ClassSimpleName;
+		public InnerIndexer<ClassDescriptor<?>> TagName;
+	}
+	
+	public IndexingShortcut by;
+	
+	public ClassDescriptorIndexer()
+	{
+		super();
+		this.by = new IndexingShortcut(this);
 	}
 	
 	public List<ItemIndexPredicate<ClassDescriptor<?>>> getIndexPredicates() {
@@ -121,12 +145,9 @@ public class ClassDescriptorIndexer extends MultiIndexer<ClassDescriptor<?>> {
 		ourList.add(new bySimplName());
 		ourList.add(new byClassName());
 		ourList.add(new byClassSimpleName());
-		ourList.add(new byTLVId());
 		ourList.add(new byTagName());
 		
-		//TODO: OH SHIT. MULTI INDEXING ... OTHER TAGS. MAKE INDEX RETURN LIST? :(
 		return ourList;
-		
 	}
 
 }

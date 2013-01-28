@@ -202,7 +202,7 @@ public class ClassDescriptor<FD extends FieldDescriptor> extends DescriptorBase
 	 * @param thatClass
 	 */
 	protected ClassDescriptor(Class<?> thatClass) {
-		super(XMLTools.getXmlTagName(thatClass, SimplTypesScope.STATE),
+		super(XMLTools.getXmlTagName(thatClass, "State"),
 				thatClass.getName());
 
 		this.describedClass = thatClass;
