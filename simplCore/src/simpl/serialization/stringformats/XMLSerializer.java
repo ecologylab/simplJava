@@ -44,7 +44,7 @@ public class XMLSerializer extends StringSerializer
 
 		try
 		{
-			serialize(object, rootObjectClassDescriptor.pseudoFieldDescriptor(), appendable,
+			serialize(object, null, appendable,
 					translationContext);
 		}
 		catch (IOException e)
@@ -183,9 +183,7 @@ public class XMLSerializer extends StringSerializer
 				Object compositeObject = childFd.getValue(object);
 				if (compositeObject != null)
 				{
-					FieldDescriptor compositeObjectFieldDescriptor = childFd.isPolymorphic() ? getClassDescriptor(
-							compositeObject).pseudoFieldDescriptor()
-							: childFd;
+					FieldDescriptor compositeObjectFieldDescriptor = childFd.isPolymorphic() ? null						: childFd;
 					writeWrap(childFd, appendable, false);
 					serialize(compositeObject, compositeObjectFieldDescriptor, appendable, translationContext);
 					writeWrap(childFd, appendable, true);
@@ -215,8 +213,7 @@ public class XMLSerializer extends StringSerializer
 					writeWrap(childFd, appendable, false);
 					for (Object collectionComposite : compositeCollection)
 					{
-						FieldDescriptor collectionObjectFieldDescriptor = childFd.isPolymorphic() ? getClassDescriptor(
-								collectionComposite).pseudoFieldDescriptor()
+						FieldDescriptor collectionObjectFieldDescriptor = childFd.isPolymorphic() ? null
 								: childFd;
 						serialize(collectionComposite, collectionObjectFieldDescriptor, appendable,
 								translationContext);

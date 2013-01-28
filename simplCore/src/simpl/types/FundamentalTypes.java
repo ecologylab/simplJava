@@ -90,9 +90,7 @@ implements CrossLanguageTypeConstants
 	public static final ScalarType<CollectionType> COLLECTION_TYPE_TYPE = new CollectionTypeType();
 	
 	public static final ScalarType<Pattern> PATTERN_TYPE 				= new PatternType();
-	
-	public static final ScalarType<Enum> ENUMERATED_TYPE 			= new EnumeratedType();
-	
+		
 	public static final ScalarType<Class> CLASS_TYPE 					= new ClassType();
 	
 	public static final ScalarType<Field> FIELD_TYPE 					= new FieldType();

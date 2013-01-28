@@ -50,7 +50,7 @@ public class RoundtripTestsProvisional {
 		StringBuilder serialized = SimplTypesScope.serialize(ts, StringFormat.XML);
 		System.out.println(serialized.toString());
 		
-		SimplTypesScope sts = SimplTypesScope.get("stringTest", TrickyString.class);
+		SimplTypesScope sts = SimplTypesScopeFactory.name("stringTest").translations(TrickyString.class).create();
 		
 		Object result = sts.deserialize(serialized.toString(), StringFormat.XML);
 		assertTrue(result.getClass().equals(TrickyString.class));
@@ -92,7 +92,7 @@ public class RoundtripTestsProvisional {
 	    String xml = SimplTypesScope.serialize(ts, StringFormat.XML).toString();
 	    System.out.println(xml);
 	    
-		  SimplTypesScope typeScope = SimplTypesScope.get("TrickyString", TrickyString.class);
+		  SimplTypesScope typeScope = SimplTypesScopeFactory.name("TrickyString").translations(TrickyString.class).create();
 	    TrickyString ts1 = (TrickyString) typeScope.deserialize(xml, StringFormat.XML);
 	    assertNotNull("Expecting an object back!", ts1);
 

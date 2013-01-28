@@ -78,14 +78,14 @@ public class TLVParser
 		int type = Utils.getInt(dataArray, 0);
 		int length = Utils.getInt(dataArray, 4);
 
-		currentClassDescriptor = translationScope.getClassDescriptorByTLVId(type);
+		currentClassDescriptor = null;
 
 		String rootObjectName = currentClassDescriptor.getTagName();
 
 		// start of first object.
 		listenerObject.startObject(rootObjectName);
 
-		parseTLVBlock(dataArray, HEADER_SIZE, length, currentClassDescriptor.pseudoFieldDescriptor());
+		parseTLVBlock(dataArray, HEADER_SIZE, length, null);
 
 		// end of first object .
 		listenerObject.endObject(rootObjectName);
@@ -116,12 +116,12 @@ public class TLVParser
 			FieldType currentType = currentFieldDescriptor.getType();
 
 			currentFieldDescriptor = (currentType == FieldType.WRAPPER) ? currentFieldDescriptor.getWrappedFD()
-					: currentClassDescriptor.getFieldDescriptorByTLVId(type);
+					: null;
 
 			//if(currentFieldDescriptor.isPolymorphic()) currentFieldDescriptor = currentFieldDescriptor.elementClassDescriptor(type).pseudoFieldDescriptor();
 			
-			String currentObjectName = currentFieldDescriptor.elementName(type);
-
+			String currentObjectName = "";
+			
 			listenerObject.startObject(currentObjectName);
 
 			isScalar = currentFieldDescriptor.isScalar();

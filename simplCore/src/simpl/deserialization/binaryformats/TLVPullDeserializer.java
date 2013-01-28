@@ -83,8 +83,7 @@ public class TLVPullDeserializer extends BinaryPullDeserializer
 
 		nextHeader();
 
-		ClassDescriptor<? extends FieldDescriptor> rootClassDescriptor = translationScope
-				.getClassDescriptorByTlvId(type());
+		ClassDescriptor<? extends FieldDescriptor> rootClassDescriptor = null;
 
 		if (rootClassDescriptor == null)
 		{
@@ -139,7 +138,7 @@ public class TLVPullDeserializer extends BinaryPullDeserializer
 				return translationContext.getFromMap(simplRef.toString());
 			}
 
-			currentFieldDescriptor = rootClassDescriptor.getFieldDescriptorByTLVId(type());
+			currentFieldDescriptor = null;
 
 			FieldType fieldType = currentFieldDescriptor.getType();
 

@@ -10,6 +10,7 @@ import org.junit.Test;
 
 import simpl.annotations.dbal.simpl_collection;
 import simpl.core.SimplTypesScope;
+import simpl.core.SimplTypesScopeFactory;
 import simpl.descriptions.ClassDescriptor;
 import simpl.descriptions.FieldDescriptor;
 import simpl.descriptions.FieldType;
@@ -62,8 +63,8 @@ public class EnumerationSerializationDeserialization {
 		//{"custom_valued_enumeration_scalar":{"our_enum":"secondValue"}}
 	}
 	
-	private static SimplTypesScope ourSTS = SimplTypesScope.get("enumTestsDeSerialize", primaryScenarioEnum.class, secondaryScenarioEnum.class,
-			customValuedEnumerationScalar.class, basicEnumerationScalar.class, basicEnumerationList.class);
+	private static SimplTypesScope ourSTS = SimplTypesScopeFactory.name("enumTestsDeSerialize").translations(primaryScenarioEnum.class, secondaryScenarioEnum.class,
+			customValuedEnumerationScalar.class, basicEnumerationScalar.class, basicEnumerationList.class).create();
 
 	
 	private void validateDeserialization(String representation, StringFormat format, Object expected) throws SIMPLTranslationException, IllegalArgumentException, IllegalAccessException, NoSuchFieldException, SecurityException

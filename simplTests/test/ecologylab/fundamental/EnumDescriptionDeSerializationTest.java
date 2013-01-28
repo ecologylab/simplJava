@@ -5,6 +5,7 @@ import static org.junit.Assert.*;
 import org.junit.Test;
 
 import simpl.core.SimplTypesScope;
+import simpl.core.SimplTypesScopeFactory;
 import simpl.descriptions.ClassDescriptor;
 import simpl.descriptions.EnumerationDescriptor;
 import simpl.exceptions.SIMPLDescriptionException;
@@ -58,7 +59,7 @@ public class EnumDescriptionDeSerializationTest {
 	{
 		EnumerationDescriptor primaryScenario = EnumerationDescriptor.get(forEnumClass);
 		
-		SimplTypesScope sts = SimplTypesScope.get("enumDescTest" + theFormat.toString(), EnumerationDescriptor.class);
+		SimplTypesScope sts = SimplTypesScopeFactory.name("enumDescTest" + theFormat.toString()).translations(EnumerationDescriptor.class).create();
 	    
 		Class <?> tag = sts.getClassByTag("enumeration_descriptor");
 		assertNotNull("Class not in STS!", tag);

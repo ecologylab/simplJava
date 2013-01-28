@@ -10,6 +10,7 @@ import java.util.List;
 import org.junit.Test;
 
 import simpl.core.SimplTypesScope;
+import simpl.core.SimplTypesScopeFactory;
 import simpl.core.TranslationContext;
 import simpl.descriptions.ClassDescriptor;
 import simpl.descriptions.FieldDescriptor;
@@ -22,8 +23,8 @@ import ecologylab.serialization.secondaryScenarioEnum;
 public class ListDeSerializationTests {
 
 	
-	private static SimplTypesScope ourSTS = SimplTypesScope.get("enumTestsDeSerialize", primaryScenarioEnum.class, secondaryScenarioEnum.class,
-			customValuedEnumerationScalar.class, basicEnumerationScalar.class, basicEnumerationList.class, basicScalarList.class, basicComposite.class, basicCompositeList.class); 
+	private static SimplTypesScope ourSTS = SimplTypesScopeFactory.name("enumTestsDeSerialize").translations(primaryScenarioEnum.class, secondaryScenarioEnum.class,
+			customValuedEnumerationScalar.class, basicEnumerationScalar.class, basicEnumerationList.class, basicScalarList.class, basicComposite.class, basicCompositeList.class).create(); 
 	@Test
 	public void EnumerationListsSerialize()
 	{

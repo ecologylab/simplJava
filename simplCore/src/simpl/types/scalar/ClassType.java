@@ -41,7 +41,7 @@ implements CrossLanguageTypeConstants
 			{
 				SimplTypesScope tScope	= SimplTypesScope.get(scopeName);
 				if (tScope != null)
-					result		= tScope.getClassByName(value);
+					result		= tScope.classDescriptors.by.ClassName.get(value).getDescribedClass();
 			}
 		}
 		if (result == null)

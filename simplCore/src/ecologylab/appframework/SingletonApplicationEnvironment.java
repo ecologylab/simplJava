@@ -806,16 +806,8 @@ public class SingletonApplicationEnvironment extends ApplicationEnvironment impl
 			break;
 		}
 		System.out.println("Printing Prefs:\n");
-		try
-		{
-			if (prefSet != null)
-				SimplTypesScope.serialize(prefSet, System.out, StringFormat.XML);				
-		}
-		catch (SIMPLTranslationException e)
-		{
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		if (prefSet != null)
+			SimplTypesScope.serialize(prefSet, System.out, StringFormat.XML);
 		System.out.println("\nPrefs Printed");
 		if (prefSet != null)
 			postProcessPrefs(prefSet);

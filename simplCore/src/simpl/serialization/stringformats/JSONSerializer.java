@@ -44,7 +44,7 @@ public class JSONSerializer extends StringSerializer
 		{
 			writeStart(appendable);
 
-			serialize(object, rootObjectClassDescriptor.pseudoFieldDescriptor(), appendable,
+			serialize(object, null, appendable,
 					translationContext, true);
 
 			writeClose(appendable);
@@ -210,8 +210,7 @@ public class JSONSerializer extends StringSerializer
 			throws SIMPLTranslationException, IOException
 	{
 		Object compositeObject = childFd.getValue(object);
-		FieldDescriptor compositeObjectFieldDescriptor = childFd.isPolymorphic() ? getClassDescriptor(
-				compositeObject).pseudoFieldDescriptor() : childFd;
+		FieldDescriptor compositeObjectFieldDescriptor = childFd.isPolymorphic() ? null : childFd;
 		serialize(compositeObject, compositeObjectFieldDescriptor, appendable, translationContext, true);
 	}
 
@@ -239,8 +238,7 @@ public class JSONSerializer extends StringSerializer
 			writeCollectionStart(childFd, appendable);
 			for (Object collectionComposite : compositeCollection)
 			{
-				FieldDescriptor collectionObjectFieldDescriptor = childFd.isPolymorphic() ? getClassDescriptor(
-						collectionComposite).pseudoFieldDescriptor()
+				FieldDescriptor collectionObjectFieldDescriptor = childFd.isPolymorphic() ? null
 						: childFd;
 	
 				serialize(collectionComposite, collectionObjectFieldDescriptor, appendable,
@@ -276,8 +274,7 @@ public class JSONSerializer extends StringSerializer
 			writePolymorphicCollectionStart(childFd, appendable);
 			for (Object collectionComposite : compositeCollection)
 			{
-				FieldDescriptor collectionObjectFieldDescriptor = childFd.isPolymorphic() ? getClassDescriptor(
-						collectionComposite).pseudoFieldDescriptor()
+				FieldDescriptor collectionObjectFieldDescriptor = childFd.isPolymorphic() ? null
 						: childFd;
 	
 				writeStart(appendable);

@@ -820,16 +820,8 @@ public class ApplicationEnvironment extends Debug implements Environment,
 			break;
 		}
 		System.out.println("Printing Prefs:\n");
-		try
-		{
-			if (prefSet != null)
-				SimplTypesScope.serialize(prefSet, System.out, StringFormat.XML);
-				
-		}
-		catch (SIMPLTranslationException e)
-		{
-			e.printStackTrace();
-		}
+		if (prefSet != null)
+			SimplTypesScope.serialize(prefSet, System.out, StringFormat.XML);
 		System.out.println("\nPrefs Printed");
 		if (prefSet != null)
 			postProcessPrefs(prefSet);

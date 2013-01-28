@@ -5,6 +5,7 @@ import static org.junit.Assert.assertEquals;
 import org.junit.Test;
 
 import simpl.core.SimplTypesScope;
+import simpl.core.SimplTypesScopeFactory;
 import simpl.descriptions.ClassDescriptor;
 import simpl.descriptions.FieldDescriptor;
 import simpl.descriptions.FieldType;
@@ -115,7 +116,7 @@ public class ConstructClassDescriptor {
 		SimpleInteger si = new SimpleInteger();
 		si.setSimpleInteger(0);
 			
-		SimplTypesScope sts = SimplTypesScope.get("inttest", SimpleInteger.class);
+		SimplTypesScope sts = SimplTypesScopeFactory.name("inttest").translations(SimpleInteger.class).create();
 		
 		StringBuilder sb = sts.serialize(si, format);
 		SimpleInteger result = (SimpleInteger)sts.deserialize(sb.toString(), format);

@@ -35,7 +35,7 @@ public class BibtexSerializer extends StringSerializer
 
 		try
 		{
-			serialize(object, rootObjectClassDescriptor.pseudoFieldDescriptor(), appendable,
+			serialize(object,null, appendable,
 					translationContext);
 		}
 		catch (IOException e)
@@ -166,18 +166,10 @@ public class BibtexSerializer extends StringSerializer
 	{
 		if (!fd.isDefaultValueFromContext(object))
 		{
-			if (!fd.isBibtexKey())
-			{
-				appendable.append(fd.getBibtexTagName());
-				appendable.append('=');
-				appendable.append('{');
-			}
 		}
 
 		fd.appendValue(appendable, object, translationContext, Format.BIBTEX);
 
-		if (!fd.isBibtexKey())
-			appendable.append('}');
 	}
 
 	/**
@@ -196,7 +188,7 @@ public class BibtexSerializer extends StringSerializer
 		Object scalarCollectionObject = fd.getValue(object);
 		Collection<?> scalarCollection = XMLTools.getCollection(scalarCollectionObject);
 		
-		String delim = "author".equals(fd.getBibtexTagName()) ? " and " : translationContext
+		String delim = "author".equals("") ? " and " : translationContext
 				.getDelimiter();
 
 		if (scalarCollection.size() > 0)
@@ -238,7 +230,7 @@ public class BibtexSerializer extends StringSerializer
 		Object scalarCollectionObject = fd.getValue(object);
 		Collection<?> scalarCollection = XMLTools.getCollection(scalarCollectionObject);
 
-		String delim = "author".equals(fd.getBibtexTagName()) ? " and " : translationContext
+		String delim = "author".equals("") ? " and " : translationContext
 				.getDelimiter();
 
 		if (scalarCollection.size() > 0)
@@ -313,7 +305,7 @@ public class BibtexSerializer extends StringSerializer
 	private void writeObjectStart(FieldDescriptor fd, Appendable appendable) throws IOException
 	{
 		appendable.append('@');
-		appendable.append(fd.getBibtexTagName());
+		appendable.append("");
 		appendable.append('{');
 	}
 }

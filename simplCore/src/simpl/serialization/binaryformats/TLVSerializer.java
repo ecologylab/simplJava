@@ -52,7 +52,7 @@ public class TLVSerializer extends BinarySerializer
 
 		try
 		{
-			serialize(object, rootObjectClassDescriptor.pseudoFieldDescriptor(), dataOutputStream,
+			serialize(object, null, dataOutputStream,
 					translationContext);
 		}
 		catch (IOException e)
@@ -170,8 +170,7 @@ public class TLVSerializer extends BinarySerializer
 			case COMPOSITE_ELEMENT:
 				Object compositeObject = childFd.getValue(object);
 					
-				FieldDescriptor compositeObjectFieldDescriptor = childFd.isPolymorphic() ? getClassDescriptor(
-						compositeObject).pseudoFieldDescriptor()
+				FieldDescriptor compositeObjectFieldDescriptor = childFd.isPolymorphic() ? null
 						: childFd;
 				writeWrap(childFd, outputBuffer, byteArrayOutputStreamCollection);
 				serialize(compositeObject, compositeObjectFieldDescriptor, outputBuffer, translationContext);
@@ -193,8 +192,7 @@ public class TLVSerializer extends BinarySerializer
 				Collection<?> compositeCollection = XMLTools.getCollection(compositeCollectionObject);
 				for (Object collectionComposite : compositeCollection)
 				{
-					FieldDescriptor collectionObjectFieldDescriptor = childFd.isPolymorphic() ? getClassDescriptor(
-							collectionComposite).pseudoFieldDescriptor()
+					FieldDescriptor collectionObjectFieldDescriptor = childFd.isPolymorphic() ? null
 							: childFd;
 					serialize(collectionComposite, collectionObjectFieldDescriptor, collectionBuffer,
 							translationContext);

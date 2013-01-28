@@ -1,5 +1,7 @@
 package simpl.core;
 
+import java.io.File;
+import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -15,12 +17,18 @@ import simpl.descriptions.indexers.ClassDescriptorIndexer;
 import simpl.descriptions.indexers.EnumerationDescriptorIndexer;
 import simpl.deserialization.ISimplDeserializationHooks;
 import simpl.exceptions.SIMPLDescriptionException;
+import simpl.formats.enums.Format;
+import simpl.formats.enums.StringFormat;
 import simpl.tools.XMLTools;
 import simpl.types.ScalarType;
 import simpl.types.TypeRegistry;
+import ecologylab.appframework.types.AssetsState;
+import ecologylab.appframework.types.prefs.MetaPrefSet;
+import ecologylab.appframework.types.prefs.PrefSet;
 import ecologylab.collections.Scope;
 import ecologylab.generic.Debug;
 import ecologylab.generic.HashMapArrayList;
+import ecologylab.net.ParsedURL;
 
 /**
  * A set of bindings between XML element names (tags) and associated simple (without package) class
@@ -390,5 +398,46 @@ public final class SimplTypesScope extends Debug implements ISimplDeserializatio
 	{
 		return(this.getClassDescriptorByTag(tag) != null ||
 				this.getEnumerationDescriptorByTag(tag) != null);
+	}
+
+	public static SimplTypesScope get(String scopeName) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public static void serialize(PrefSet prfs, PrintStream out, StringFormat xml) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	public Object deserialize(File file, Format xml) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public Object deserialize(ParsedURL purl, Format xml) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public Object deserialize(String prefXML, StringFormat xml) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public static void serialize(Object assetsState, File assetsXmlFile,
+			Format xml) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	public static StringBuilder serialize(Object si, StringFormat format) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public Class<?> getClassByTag(String string) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 }

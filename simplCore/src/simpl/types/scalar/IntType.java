@@ -50,7 +50,9 @@ public class IntType extends ScalarType<Integer> implements CrossLanguageTypeCon
 	 */
 	public int getValue(String valueString)
 	{
+		
 		return Integer.parseInt(valueString);
+		
 	}
 
 	/**
@@ -81,6 +83,7 @@ public class IntType extends ScalarType<Integer> implements CrossLanguageTypeCon
 		{
 			converted = getValue(value);
 			field.setInt(object, converted);
+			
 			result = true;
 		}
 		catch (Exception e)
