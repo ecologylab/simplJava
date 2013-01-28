@@ -21,6 +21,9 @@ import simpl.descriptions.ClassDescriptor;
 import simpl.descriptions.EnumerationDescriptor;
 import simpl.descriptions.FieldDescriptor;
 import simpl.descriptions.NameSpaceDecl;
+import simpl.descriptions.indexers.ClassDescriptorIndexer;
+import simpl.descriptions.indexers.EnumerationDescriptorIndexer;
+import simpl.deserialization.ISimplDeserializationHooks;
 import simpl.deserialization.PullDeserializer;
 import simpl.deserialization.binaryformats.BinaryPullDeserializer;
 import simpl.deserialization.stringformats.StringPullDeserializer;
@@ -36,6 +39,7 @@ import simpl.types.ScalarType;
 import simpl.types.TypeRegistry;
 
 import ecologylab.collections.Scope;
+import ecologylab.generic.Debug;
 import ecologylab.generic.HashMapArrayList;
 import ecologylab.net.ParsedURL;
 
@@ -43,7 +47,7 @@ import ecologylab.net.ParsedURL;
  * A set of bindings between XML element names (tags) and associated simple (without package) class
  * names, and associated Java ElementState classes. Inheritance is supported.
  */
-public final class SimplTypesScope extends ElementState
+public final class SimplTypesScope extends Debug implements ISimplDeserializationHooks
 {
 	/*
 	 * Cyclic graph handling fields, switches and maps
@@ -58,8 +62,16 @@ public final class SimplTypesScope extends ElementState
 	@simpl_scalar
 	private String name;
 
+	public void setName(String name)
+	{
+		this.name = name;
+	}
+	
 	private SimplTypesScope[] inheritedTypesScopes;
 
+	private ClassDescriptorIndexer classDescriptorIndexer;
+	private EnumerationDescriptorIndexer enumerationDescriptorIndexer;
+	
 	/**
 	 * Fundamentally, a SimplTypesScope consists of a set of class simple names. These are mapped to
 	 * tag names (camel case conversion), and to Class objects. Because there are many packages,
@@ -69,19 +81,12 @@ public final class SimplTypesScope extends ElementState
 	 * there are multiple possibilities. This is the case when internal and external versions of a
 	 * message and its constituents are defined for a messaging API.
 	 */
-	private Scope<ClassDescriptor<? extends FieldDescriptor>> entriesByClassSimpleName = new Scope<ClassDescriptor<? extends FieldDescriptor>>();
 
-	private Scope<ClassDescriptor<? extends FieldDescriptor>> entriesByClassName = new Scope<ClassDescriptor<? extends FieldDescriptor>>();
-
+	// TODO: Wrap this w/ the indexer to make it serialize right
 	@simpl_nowrap
 	@simpl_map("class_descriptor")
 	private Scope<ClassDescriptor<? extends FieldDescriptor>> entriesByTag = new Scope<ClassDescriptor<? extends FieldDescriptor>>();
 
-	private HashMap<Integer, ClassDescriptor<? extends FieldDescriptor>> entriesByTLVId = new HashMap<Integer, ClassDescriptor<? extends FieldDescriptor>>();
-
-	private Scope<ClassDescriptor<? extends FieldDescriptor>> entriesByBibTeXType = new Scope<ClassDescriptor<? extends FieldDescriptor>>();
-
-	private final Scope<Class<?>> nameSpaceClassesByURN = new Scope<Class<?>>();
 	
 	/**
 	 * Scope containing all enumerations by their cross platform name
@@ -95,6 +100,8 @@ public final class SimplTypesScope extends ElementState
 	@simpl_map("enumeration_descriptor")
 	private Scope<EnumerationDescriptor> enumerationsByTag = new Scope<EnumerationDescriptor>();
 
+	
+	
 	private static HashMap<String, SimplTypesScope> allTypesScopes = new HashMap<String, SimplTypesScope>();
 
 	/**
@@ -118,273 +125,10 @@ public final class SimplTypesScope extends ElementState
 	}
 
 	/**
-	 * Default constructor only for use by translateFromXML().
+	 * Default constructor only for use by simpl().
 	 */
 	public SimplTypesScope()
 	{
-
-	}
-
-	/**
-	 * Building block called by other constructors for most basic name registration functionality.
-	 * 
-	 * @param name
-	 */
-	private SimplTypesScope(String name)
-	{
-		this.name = name;
-		addSimplTypesScope(name);
-	}
-
-	/**
-	 * Create a new SimplTypesScope that defines how to translate xml tag names into class names of
-	 * subclasses of ElementState. Begin by copying in the translations from another, pre-existing
-	 * "base" SimplTypesScope.
-	 * 
-	 * @param name
-	 * @param inheritedSimplTypesScope
-	 */
-	private SimplTypesScope(String name, SimplTypesScope inheritedSimplTypesScope)
-	{
-		this(name);
-		addTranslations(inheritedSimplTypesScope);
-		SimplTypesScope[] inheritedSimplTypesScopes = new SimplTypesScope[1];
-		inheritedSimplTypesScopes[0] = inheritedSimplTypesScope;
-		this.inheritedTypesScopes = inheritedSimplTypesScopes;
-	}
-
-	private SimplTypesScope(String name, SimplTypesScope inheritedSimplTypesScope,
-			Class<?> translation)
-	{
-		this(name, inheritedSimplTypesScope);
-		addTranslation(translation);
-		addSimplTypesScope(name);
-	}
-
-	/**
-	 * Create a new SimplTypesScope that defines how to translate xml tag names into class names of
-	 * subclasses of ElementState. Begin by creating the inherited SimplTypesScope ad then adding the
-	 * new ClassDescriptor intothat
-	 * 
-	 * @param name
-	 * @param inheritedSimplTypesScope
-	 * @param translation
-	 */
-	private SimplTypesScope(String name, SimplTypesScope inheritedSimplTypesScope,
-			ClassDescriptor translation)
-	{
-		this(name, inheritedSimplTypesScope);
-		addTranslation(translation);
-		addSimplTypesScope(name);
-	}
-
-	/**
-	 * Create a new SimplTypesScope that defines how to translate xml tag names into class names of
-	 * subclasses of ElementState. Begin by copying in the translations from another, pre-existing
-	 * "base" SimplTypesScope.
-	 * 
-	 * @param name
-	 * @param baseTranslationSet
-	 */
-	private SimplTypesScope(String name, SimplTypesScope... inheritedSimplTypesScopes)
-	{
-		this(name);
-
-		if (inheritedSimplTypesScopes != null)
-		{
-			this.inheritedTypesScopes = inheritedSimplTypesScopes;
-			int n = inheritedSimplTypesScopes.length;
-			for (int i = 0; i < n; i++)
-				addTranslations(inheritedSimplTypesScopes[i]);
-		}
-	}
-
-	/**
-	 * Create a new SimplTypesScope that defines how to translate xml tag names into class names of
-	 * subclasses of ElementState. Begin by copying in the translations from another, pre-existing
-	 * "base" SimplTypesScope.
-	 * 
-	 * @param name
-	 * @param baseTranslationSet
-	 */
-	private SimplTypesScope(String name, Collection<SimplTypesScope> baseTranslationsSet)
-	{
-		this(name);
-		for (SimplTypesScope thatSimplTypesScope : baseTranslationsSet)
-			addTranslations(thatSimplTypesScope);
-		inheritedTypesScopes = (SimplTypesScope[]) baseTranslationsSet.toArray();
-	}
-
-	/**
-	 * Create a new SimplTypesScope that defines how to translate xml tag names into class names of
-	 * subclasses of ElementState.
-	 * 
-	 * Set a new default package, and a set of defined translations.
-	 * 
-	 * @param name
-	 *          Name of the TranslationSpace to be A key for use in the TranslationSpace registry.
-	 * @param translations
-	 *          Set of initially defined translations for this.
-	 * @param defaultPackgeName
-	 */
-	private SimplTypesScope(String name, Class<?>... translations)
-	{
-		this(name, (SimplTypesScope[]) null, translations);
-		addSimplTypesScope(name);
-	}
-
-	/**
-	 * Create a new SimplTypesScope that defines how to translate xml tag names into class names of
-	 * subclasses of ElementState.
-	 * 
-	 * Set a new default package, and a set of defined translations.
-	 * 
-	 * @param name
-	 *          Name of the TranslationSpace to be A key for use in the TranslationSpace registry.
-	 * @param translation
-	 *          Set of initially defined translations for this.
-	 */
-	private SimplTypesScope(String name, ClassDescriptor... translation)
-	{
-		this(name, (SimplTypesScope[]) null, translation);
-		addSimplTypesScope(name);
-	}
-
-	/**
-	 * Construct a new SimplTypesScope, with this name, using the baseTranslations first. Then, add
-	 * the array of translations, then, make the defaultPackageName available.
-	 * 
-	 * @param name
-	 * @param inheritedSimplTypesScopes
-	 * @param translations
-	 */
-	private SimplTypesScope(String name, SimplTypesScope[] inheritedSimplTypesScopes,
-			Class<?>[]... translations)
-	{
-		this(name, inheritedSimplTypesScopes);
-		addTranslations(translations);
-	}
-
-	/**
-	 * Construct a new SimplTypesScope, with this name, using the baseTranslations first. Then, add
-	 * the array of translations, then, make the defaultPackageName available.
-	 * 
-	 * @param name
-	 * @param inheritedSimplTypesScopes
-	 * @param translations
-	 */
-	private SimplTypesScope(String name, SimplTypesScope[] inheritedSimplTypesScopes,
-			ClassDescriptor[]... translations)
-	{
-		this(name, inheritedSimplTypesScopes);
-		addTranslations(translations);
-	}
-
-	/**
-	 * Construct a new SimplTypesScope, with this name, using the baseTranslations first. Then, add
-	 * the array of translations, then, make the defaultPackageName available.
-	 * 
-	 * @param name
-	 * @param translations
-	 * @param baseTranslations
-	 */
-	private SimplTypesScope(String name, Collection<SimplTypesScope> inheritedTranslationsSet,
-			Class<?>[] translations)
-	{
-		this(name, inheritedTranslationsSet);
-		addTranslations(translations);
-
-		addSimplTypesScope(name);
-	}
-
-	/**
-	 * Construct a new SimplTypesScope, with this name, using the baseTranslations first. Then, add
-	 * the array of translations, then, make the defaultPackageName available.
-	 * 
-	 * @param name
-	 * @param inheritedTranslationsSet
-	 * @param translations
-	 */
-	private SimplTypesScope(String name, Collection<SimplTypesScope> inheritedTranslationsSet,
-			ClassDescriptor[] translations)
-	{
-		this(name, inheritedTranslationsSet);
-		addTranslations(translations);
-
-		addSimplTypesScope(name);
-	}
-
-	/**
-	 * Construct a new SimplTypesScope, with this name, using the baseTranslations first. Then, add
-	 * the array of translations, then, make the defaultPackageName available.
-	 * 
-	 * @param name
-	 * @param inheritedSimplTypesScope
-	 * @param translations	A set of arrays of classes.
-	 */
-	private SimplTypesScope(String name, SimplTypesScope inheritedSimplTypesScope,
-			Class<?>[]... translations)
-	{
-		this(name, inheritedSimplTypesScope);
-		addTranslations(translations);
-
-		addSimplTypesScope(name);
-	}
-
-	/**
-	 * Construct a new SimplTypesScope, with this name, using the baseTranslations first. Then, add
-	 * the array of translations, then, make the defaultPackageName available.
-	 * 
-	 * @param name
-	 * @param inheritedSimplTypesScope
-	 * @param translations
-	 */
-	private SimplTypesScope(String name, SimplTypesScope inheritedSimplTypesScope,
-			ClassDescriptor[]... translations)
-	{
-		this(name, inheritedSimplTypesScope);
-		addTranslations(translations);
-
-		addSimplTypesScope(name);
-	}
-
-	/**
-	 * Construct a new SimplTypesScope, with this name, using the baseTranslations first. Then, add
-	 * the array of translations, then, make the defaultPackageName available. Map XML Namespace
-	 * declarations.
-	 * 
-	 * @param name
-	 * @param nameSpaceDecls
-	 * @param inheritedSimplTypesScopes
-	 * @param translations
-	 * @param defaultPackgeName
-	 */
-	private SimplTypesScope(String name, NameSpaceDecl[] nameSpaceDecls,
-			SimplTypesScope[] inheritedSimplTypesScopes, Class<?>[] translations)
-	{
-		this(name, inheritedSimplTypesScopes, translations);
-		addNameSpaceDecls(nameSpaceDecls);
-
-		addSimplTypesScope(name);
-	}
-
-	/**
-	 * Construct a new SimplTypesScope, with this name, using the baseTranslations first. Then, add
-	 * the array of translations, then, make the defaultPackageName available. Map XML Namespace
-	 * declarations.
-	 * 
-	 * @param name
-	 * @param nameSpaceDecls
-	 * @param inheritedSimplTypesScopes
-	 * @param translations
-	 */
-	private SimplTypesScope(String name, NameSpaceDecl[] nameSpaceDecls,
-			SimplTypesScope[] inheritedSimplTypesScopes, ClassDescriptor[] translations)
-	{
-		this(name, inheritedSimplTypesScopes, translations);
-		addNameSpaceDecls(nameSpaceDecls);
-
-		addSimplTypesScope(name);
 	}
 
 	/**
@@ -408,7 +152,7 @@ public final class SimplTypesScope extends ElementState
 	 */
 	private void registerNameSpaceDecl(NameSpaceDecl nsd)
 	{
-		nameSpaceClassesByURN.put(nsd.urn, nsd.esClass);
+		//nameSpaceClassesByURN.put(nsd.urn, nsd.esClass);
 	}
 
 	/**
@@ -438,116 +182,6 @@ public final class SimplTypesScope extends ElementState
 		allTypesScopes.put(name, this);
 	}
 
-	/**
-	 * Add translations, where each translation is defined by an actual Class object. We can get both
-	 * the class name and the package name from the Class object.
-	 * 
-	 * @param arrayOfClasses
-	 */
-	private void addTranslations(ClassDescriptor[]... arrayOfClasses)
-	{
-		if (arrayOfClasses != null)
-		{
-			int numClasses = arrayOfClasses.length;
-
-			for (int i = 0; i < numClasses; i++)
-			{
-				if (arrayOfClasses[i] != null)
-				{
-					for (ClassDescriptor thatClass : arrayOfClasses[i])
-					{
-						addTranslation(thatClass);
-					}
-				}
-			}
-		}
-
-		allTypesScopes.put(name, this);
-	}
-
-	/**
-	 * Utility for composing <code>SimplTypesScope</code>s. Performs composition by value. That is,
-	 * the entries are copied.
-	 * 
-	 * Unlike in union(), if there are duplicates, they will override identical entries in this.
-	 * 
-	 * @param inheritedTypesScope
-	 */
-	private void addTranslations(SimplTypesScope inheritedTypesScope)
-	{
-		if (inheritedTypesScope != null)
-		{
-			// copy map entries from inherited maps into new maps
-			updateMapWithValues(inheritedTypesScope.entriesByClassSimpleName,
-					entriesByClassSimpleName, "classSimpleName");
-			updateMapWithValues(inheritedTypesScope.entriesByClassName, entriesByClassName,
-					"className");
-			updateMapWithValues(inheritedTypesScope.entriesByTag, entriesByTag, "tagName");
-
-			HashMap<String, Class<?>> inheritedNameSpaceClassesByURN = inheritedTypesScope.nameSpaceClassesByURN;
-			if (inheritedNameSpaceClassesByURN != null)
-			{
-				for (String urn : inheritedNameSpaceClassesByURN.keySet())
-				{
-					nameSpaceClassesByURN.put(urn, inheritedNameSpaceClassesByURN.get(urn));
-				}
-			}
-		}
-	}
-
-	/**
-	 * Update the Map with all the entries in the inherited Map.
-	 * 
-	 * @param inheritedMap
-	 * @param warn
-	 */
-	private void updateMapWithValues(
-			Map<String, ClassDescriptor<? extends FieldDescriptor>> inheritedMap,
-			Map<String, ClassDescriptor<? extends FieldDescriptor>> newMap, String warn)
-	{
-		// XXX ANDRUID + ZACH -> concurrent modification exception can occur here (for loop) if
-		// inheritedMap is modified elsewhere
-		for (String key : inheritedMap.keySet())
-		{
-			ClassDescriptor<? extends FieldDescriptor> translationEntry = inheritedMap.get(key);
-			updateMapWithEntry(newMap, key, translationEntry, warn);
-		}
-	}
-
-	/**
-	 * Update the Map with the entry.
-	 * 
-	 * @param newMap
-	 * @param key
-	 * @param translationEntry
-	 *          Must be non-null.
-	 * @param warn
-	 */
-	private void updateMapWithEntry(Map<String, ClassDescriptor<? extends FieldDescriptor>> newMap,
-			String key, ClassDescriptor<? extends FieldDescriptor> translationEntry, String warn)
-	{
-		ClassDescriptor<? extends FieldDescriptor> existingEntry = newMap.get(key);
-
-		// final boolean entryExists = existingEntry != null;
-		// final boolean newEntry = existingEntry != translationEntry;
-
-		final boolean entryExists = existingEntry != null;
-		final boolean newEntry = !entryExists ? true
-				: existingEntry.getDescribedClass() != translationEntry.getDescribedClass();
-
-		if (newEntry)
-		{
-			if (entryExists) // look out for redundant entries
-				warning("Overriding " + warn + " " + key + " with " + translationEntry);
-
-			newMap.put(key, translationEntry);
-		}
-		// if (entryExists && newEntry) // look out for redundant entries
-		// warning("Overriding " + warn + " " + key + " with " + translationEntry);
-		//
-		// if (/** !entryExists || **/ newEntry)
-		// newMap.put(key, translationEntry);
-	}
 
 	/**
 	 * Add a translation table entry for an ElementState derived sub-class. Assumes that the xmlTag
@@ -578,47 +212,14 @@ public final class SimplTypesScope extends ElementState
 				
 				this.enumerationsByTag.put(ed.getTagName(), ed);
 				this.enumerationsBySimpleName.put(ed.getName(), ed);
-				
-				// Don't think we have other tags here, we really just need simple name
-				// But putting it here just in case. 
-				ArrayList<String> otherTags = ed.otherTags();
-				if (otherTags != null)
-				{
-					for (String otherTag : otherTags)
-					{
-						if ((otherTag != null) && (!otherTag.isEmpty()))
-						{
-							enumerationsByTag.put(otherTag, ed);
-						}
-					}
-				}
+		
 			}
 		}
 		else
 		{
 			// Add a class!
 			ClassDescriptor entry = ClassDescriptor.getClassDescriptor(classObj);
-			String tagName = entry.getTagName();
-	
-			entriesByTag.put(entry.getTagName(), entry);
-			entriesByClassSimpleName.put(entry.getDescribedClassSimpleName(), entry);
-			entriesByClassName.put(classObj.getName(), entry);
-	
-			entriesByTLVId.put(entry.getTagName().hashCode(), entry);
-			entriesByBibTeXType.put(entry.getBibtexType(), entry);
-	
-			ArrayList<String> otherTags = entry.otherTags();
-			if (otherTags != null)
-			{
-				for (String otherTag : otherTags)
-				{
-					if ((otherTag != null) && (otherTag.length() > 0))
-					{
-						entriesByTag.put(otherTag, entry);
-						entriesByTLVId.put(otherTag.hashCode(), entry);
-					}
-				}
-			}
+			this.classDescriptorIndexer.Insert(entry);
 		}
 	}
 	
@@ -672,25 +273,7 @@ public final class SimplTypesScope extends ElementState
 	
 	private void removeTranslation(ClassDescriptor<?> entry, String className)
 	{
-		entriesByTag.remove(entry.getTagName());
-		entriesByClassSimpleName.remove(entry.getDescribedClassSimpleName());
-		entriesByClassName.remove(className);
-
-		entriesByTLVId.remove(entry.getTagName().hashCode());
-		entriesByBibTeXType.remove(entry.getBibtexType());
-
-		ArrayList<String> otherTags = entry.otherTags();
-		if (otherTags != null)
-		{
-			for (String otherTag : otherTags)
-			{
-				if ((otherTag != null) && (otherTag.length() > 0))
-				{
-					entriesByTag.remove(otherTag);
-					entriesByTLVId.remove(otherTag.hashCode());
-				}
-			}
-		}
+		this.classDescriptorIndexer.Remove(entry);
 	}
 	
 
@@ -702,169 +285,11 @@ public final class SimplTypesScope extends ElementState
 	 * @param classObj
 	 *          The object for the class.
 	 */
-	public void addTranslation(ClassDescriptor classObj)
-	{
-		ClassDescriptor entry = classObj;
-		String tagName = entry.getTagName();
-
-		entriesByTag.put(entry.getTagName(), entry);
-		entriesByClassSimpleName.put(entry.getDescribedClassSimpleName(), entry);
-		entriesByClassName.put(classObj.getName(), entry);
-
-		entriesByTLVId.put(entry.getTagName().hashCode(), entry);
-		entriesByBibTeXType.put(entry.getBibtexType(), entry);
-
-		ArrayList<String> otherTags = entry.otherTags();
-		if (otherTags != null)
-			for (String otherTag : otherTags)
-			{
-				if ((otherTag != null) && (otherTag.length() > 0))
-				{
-					entriesByTag.put(otherTag, entry);
-					entriesByTLVId.put(otherTag.hashCode(), entry);
-				}
-			}
+	public void addTranslation(ClassDescriptor<?> classObj)
+	{		
+		this.classDescriptorIndexer.Insert(classObj);
 	}
 
-	/**
-	 * Look-up a <code>Class</code> object for the xmlTag, using translations in this, and in
-	 * inherited SimplTypesScopes. Will use defaultPackage name here and, recursivley, in inherited
-	 * scopes, as necessary.
-	 * 
-	 * @param xmlTag
-	 *          XML node name that we're seeking a Class for.
-	 * @return Class object, or null if there is no associated translation.
-	 */
-	public Class<?> xmlTagToClass(String xmlTag)
-	{
-		ClassDescriptor entry = xmlTagToTranslationEntry(xmlTag);
-		return entry.isEmpty() ? null : entry.getDescribedClass();
-	}
-
-	/**
-	 * Seek the entry associated with the tag. Recurse through inherited SimplTypesScopes, if
-	 * necessary.
-	 * 
-	 * @param xmlTag
-	 * @return
-	 */
-	private ClassDescriptor xmlTagToTranslationEntry(String xmlTag)
-	{
-		return getClassDescriptorByTag(xmlTag);
-	}
-
-	/**
-	 * Get the Class object associated with this tag, if there is one. Unlike xmlTagToClass, this call
-	 * will not generate a new blank NameEntry.
-	 * 
-	 * @param tag
-	 * @return
-	 */
-	public Class<?> getClassByTag(String tag)
-	{
-		ClassDescriptor entry = getClassDescriptorByTag(tag);
-
-		return (entry == null) ? null : entry.getDescribedClass();
-	}
-
-	public ClassDescriptor<? extends FieldDescriptor> getClassDescriptorByTag(String tag)
-	{
-		return entriesByTag.get(tag);
-	}
-	
-	public ClassDescriptor<? extends FieldDescriptor> getClassDescriptorByTlvId(int id)
-	{
-		return entriesByTLVId.get(id);
-	}
-
-	public ClassDescriptor getClassDescriptorByTLVId(int tlvId)
-	{
-		return entriesByTLVId.get(tlvId);
-	}
-
-	public ClassDescriptor getClassDescriptorByBibTeXType(String typeName)
-	{
-		return entriesByBibTeXType.get(typeName);
-	}
-
-	/**
-	 * Get the Class object associated with the provided class name, if there is one. Unlike
-	 * xmlTagToClass, this call will not generate a new blank NameEntry.
-	 * 
-	 * @param classSimpleName
-	 *          Simple name of the class (no package).
-	 * @return
-	 */
-	public Class<?> getClassBySimpleName(String classSimpleName)
-	{
-		ClassDescriptor entry = getClassDescriptorBySimpleName(classSimpleName);
-		return (entry == null) ? null : entry.getDescribedClass();
-	}
-
-	public ClassDescriptor getClassDescriptorBySimpleName(String classSimpleName)
-	{
-		return entriesByClassSimpleName.get(classSimpleName);
-	}
-
-	public Class<?> getClassByName(String className)
-	{
-		ClassDescriptor entry = entriesByClassName.get(className);
-
-		return (entry == null) ? null : entry.getDescribedClass();
-	}
-
-	public ClassDescriptor getClassDescriptorByClassName(String className)
-	{
-		return entriesByClassName.get(className);
-	}
-
-	public ArrayList<Class<?>> getAllClasses()
-	{
-		ArrayList<Class<?>> classes = new ArrayList<Class<?>>();
-		Collection<ClassDescriptor<? extends FieldDescriptor>> classDescriptors = this
-				.getClassDescriptors();
-
-		for (SimplTypesScope typesScope : allTypesScopes.values())
-		{
-			for (ClassDescriptor<? extends FieldDescriptor> classDescriptor : typesScope.entriesByClassSimpleName
-					.values())
-			{
-				classes.add(classDescriptor.getDescribedClass());
-			}
-		}
-		return classes;
-	}
-
-	/**
-	 * Use this SimplTypesScope to lookup a class that has the same simple name as the argument
-	 * passed in here. It may have a different full name, that is, a different package, which could be
-	 * quite convenient for overriding with subclasses.
-	 * 
-	 * @param thatClass
-	 * @return
-	 */
-	public Class<?> getClassBySimpleNameOfClass(Class<?> thatClass)
-	{
-		return getClassBySimpleName(classSimpleName(thatClass));
-	}
-
-	/**
-	 * Lookup the tag for the class in question, using this.
-	 * 
-	 * @param thatClass
-	 * @return
-	 */
-	public String getTag(Class<?> thatClass)
-	{
-		return getTagBySimpleName(classSimpleName(thatClass));
-	}
-
-	public String getTagBySimpleName(String simpleName)
-	{
-		ClassDescriptor entry = entriesByClassSimpleName.get(simpleName);
-
-		return (entry == null) ? null : entry.getTagName();
-	}
 
 	/**
 	 * Derive the XML tag from the Class object, using camel case conversion, or the @simpl_tag
@@ -910,319 +335,6 @@ public final class SimplTypesScope extends ElementState
 	}
 
 	/**
-	 * Unlike other get() methods in this class, this one is not a factory, but a simple accessor. It
-	 * performs a lookup, but does not construct.
-	 * 
-	 * @param name
-	 * @return
-	 */
-	public static SimplTypesScope get(String name)
-	{
-		return lookup(name);
-	}
-
-	/**
-	 * Find an existing SimplTypesScope by this name, or create a new one.
-	 * 
-	 * @param name
-	 *          the name of the SimplTypesScope
-	 * @param translations
-	 *          a set of Classes to be used as a part of this SimplTypesScope
-	 * @return
-	 */
-	public static SimplTypesScope get(String name, Class<?>... translations)
-	{
-		SimplTypesScope result = lookup(name);
-		if (result == null)
-		{
-			synchronized (name)
-			{
-				result = lookup(name);
-				if (result == null)
-					result = new SimplTypesScope(name, translations);
-			}
-		}
-		return result;
-	}
-
-	/**
-	 * Find an existing SimplTypesScope by this name, or create a new one. Inherit from the previous
-	 * SimplTypesScope, by including all mappings from there.
-	 * 
-	 * If new translations are provided when the SimplTypesScope already exists in the static scope
-	 * map, they are ignored.
-	 * 
-	 * @param name
-	 * @param inheritedTranslations
-	 * @param translations
-	 * @return
-	 */
-	public static SimplTypesScope get(String name, SimplTypesScope inheritedTranslations,
-			Class<?>[]... translations)
-	{
-		SimplTypesScope result = lookup(name);
-		if (result == null)
-		{
-			synchronized (name)
-			{
-				result = lookup(name);
-				if (result == null)
-					result = new SimplTypesScope(name, inheritedTranslations, translations);
-			}
-		}
-		return result;
-	}
-
-	/**
-	 * Find an existing SimplTypesScope by this name, or create a new one. Inherit from the previous
-	 * SimplTypesScope, by including all mappings from there.
-	 * 
-	 * If new translations are provided when the SimplTypesScope already exists in the static scope
-	 * map, they are ignored.
-	 * 
-	 * @param name
-	 * @param inheritedTranslations
-	 * @param translations
-	 * @return
-	 */
-	public static SimplTypesScope get(String name, SimplTypesScope inheritedTranslations,
-			Class... translations)
-	{
-		SimplTypesScope result = lookup(name);
-		if (result == null)
-		{
-			synchronized (name)
-			{
-				result = lookup(name);
-				if (result == null)
-					result = new SimplTypesScope(name, inheritedTranslations, translations);
-			}
-		}
-		return result;
-	}
-
-	/**
-	 * Find an existing SimplTypesScope by this name, or create a new one. Build on a previous
-	 * SimplTypesScope, by including all mappings from there. Add just a single new class.
-	 * 
-	 * @param name
-	 * @param inheritedTranslations
-	 * @param translation
-	 * @return
-	 */
-	public static SimplTypesScope get(String name, SimplTypesScope inheritedTranslations,
-			Class<?> translation)
-	{
-		SimplTypesScope result = lookup(name);
-		if (result == null)
-		{
-			synchronized (name)
-			{
-				result = lookup(name);
-				if (result == null)
-					result = new SimplTypesScope(name, inheritedTranslations, translation);
-			}
-		}
-		return result;
-	}
-
-	/**
-	 * Find an existing SimplTypesScope by this name, or create a new one. Add just a single new
-	 * class.
-	 * 
-	 * @param name
-	 * @param translation
-	 * @return
-	 */
-	public static SimplTypesScope get(String name, Class<?> translation)
-	{
-		return get(name, null, translation);
-	}
-
-	/**
-	 * Find an existing SimplTypesScope by this name, or create a new one. Build on the previous
-	 * SimplTypesScope, by including all mappings from there.
-	 * 
-	 * @param name
-	 *          the name of the SimplTypesScope to acquire.
-	 * @param translations
-	 *          an array of translations to add to the scope.
-	 * @param inheritedTranslations
-	 *          a list of previous translation scopes to build upon.
-	 * @return
-	 */
-	public static SimplTypesScope get(String name, SimplTypesScope[] inheritedTranslationsSet,
-			Class... translations)
-	{
-		SimplTypesScope result = lookup(name);
-		if (result == null)
-		{
-			synchronized (name)
-			{
-				result = lookup(name);
-				if (result == null)
-					result = new SimplTypesScope(name, inheritedTranslationsSet, translations);
-			}
-		}
-		return result;
-	}
-
-	/**
-	 * Find an existing SimplTypesScope by this name, or create a new one. Build on the previous
-	 * SimplTypesScope, by including all mappings from there.
-	 * 
-	 * @param name
-	 *          the name of the SimplTypesScope to acquire.
-	 * @param translations
-	 *          an array of translations to add to the scope.
-	 * @param inheritedTranslations
-	 *          a list of previous translation scopes to build upon.
-	 * @return
-	 */
-	public static SimplTypesScope get(String name, SimplTypesScope[] inheritedTranslationsSet,
-			Class[]... translations)
-	{
-		SimplTypesScope result = lookup(name);
-		if (result == null)
-		{
-			synchronized (name)
-			{
-				result = lookup(name);
-				if (result == null)
-					result = new SimplTypesScope(name, inheritedTranslationsSet, translations);
-			}
-		}
-		return result;
-	}
-
-	public static SimplTypesScope get(String name, SimplTypesScope inheritedTranslations0,
-			SimplTypesScope inheritedTranslations1, Class... translations)
-	{
-		SimplTypesScope[] inheritedArray = new SimplTypesScope[2];
-		inheritedArray[0] = inheritedTranslations0;
-		inheritedArray[1] = inheritedTranslations1;
-		return get(name, inheritedArray, translations);
-	}
-
-	public static SimplTypesScope get(String name, NameSpaceDecl[] nameSpaceDecls,
-			Class... translations)
-	{
-		return get(name, nameSpaceDecls, null, translations);
-	}
-
-	/**
-	 * Find an existing SimplTypesScope by this name, or create a new one. Build on a set of
-	 * inherited SimplTypesScopes, by including all mappings from them.
-	 * 
-	 * @param name
-	 * @param nameSpaceDecls
-	 *          Array of ElementState class + URI key map entries for handling XML Namespaces.
-	 * @param inheritedTranslationsSet
-	 * @param translations
-	 * @param defaultPackageName
-	 * @return
-	 */
-	public static SimplTypesScope get(String name, NameSpaceDecl[] nameSpaceDecls,
-			SimplTypesScope[] inheritedTranslationsSet, Class... translations)
-	{
-		SimplTypesScope result = lookup(name);
-		if (result == null)
-		{
-			synchronized (name)
-			{
-				result = lookup(name);
-				if (result == null)
-					result = new SimplTypesScope(name, nameSpaceDecls, inheritedTranslationsSet,
-							translations);
-			}
-		}
-		return result;
-	}
-
-	/**
-	 * Find an existing SimplTypesScope by this name, or create a new one. Build on a set of
-	 * inherited SimplTypesScopes, by including all mappings from them.
-	 * 
-	 * @param name
-	 * @param inheritedTranslations
-	 * @return
-	 */
-	public static SimplTypesScope get(String name, SimplTypesScope... inheritedTranslations)
-	{
-		return get(name, inheritedTranslations, (Class []) null);
-	}
-
-	/**
-	 * Find an existing SimplTypesScope by this name, or create a new one. Build on a set of
-	 * inherited SimplTypesScopes, by including all mappings from them.
-	 * 
-	 * @param name
-	 * @param inheritedTranslationsSet
-	 * @param translations
-	 * @return
-	 */
-	public static SimplTypesScope get(String name,
-			Collection<SimplTypesScope> inheritedTranslationsSet, Class... translations)
-	{
-		SimplTypesScope result = lookup(name);
-		if (result == null)
-		{
-			synchronized (name)
-			{
-				result = lookup(name);
-				if (result == null)
-					result = new SimplTypesScope(name, inheritedTranslationsSet, translations);
-			}
-		}
-		return result;
-	}
-
-	protected HashMap<String, ClassDescriptor<? extends FieldDescriptor>> entriesByClassSimpleName()
-	{
-		return entriesByClassSimpleName;
-	}
-
-	public HashMap<String, ClassDescriptor<? extends FieldDescriptor>> entriesByClassName()
-	{
-		return entriesByClassName;
-	}
-
-	public HashSet<String> addClassNamesToHashSet(HashSet<String> hashSet)
-	{
-		if (inheritedTypesScopes != null)
-		{
-			for (SimplTypesScope inheritedTScope : inheritedTypesScopes)
-			{
-				inheritedTScope.generateImports(hashSet);
-			}
-		}
-		this.generateImports(hashSet);
-		return hashSet;
-	}
-
-	protected void generateImports(HashSet<String> hashSet)
-	{
-		for (String className : entriesByClassName.keySet())
-		{
-			hashSet.add(className);
-		}
-	}
-
-	private ArrayList<ClassDescriptor<? extends FieldDescriptor>>	classDescriptors;
-
-	// FIXME -- implement this!
-	public ArrayList<ClassDescriptor<? extends FieldDescriptor>> getClassDescriptors()
-	{
-		ArrayList<ClassDescriptor<? extends FieldDescriptor>> result = classDescriptors;
-		if (result == null)
-		{
-			result = new ArrayList<ClassDescriptor<? extends FieldDescriptor>>(entriesByTag.values()); // we use entriesByTag so that overriding works well.
-			this.classDescriptors = result;
-		}
-		return result;
-	}
-
-	/**
 	 * Get the Scalar Type corresponding to the Class.
 	 * 
 	 * @param thatClass
@@ -1231,17 +343,6 @@ public final class SimplTypesScope extends ElementState
 	<U> ScalarType<U> getType(Class<U> thatClass)
 	{
 		return TypeRegistry.getScalarType(thatClass);
-	}
-
-	/**
-	 * Lookup a NameSpace ElementState subclass, with a URN as the key.
-	 * 
-	 * @param urn
-	 * @return
-	 */
-	public Class<?> lookupNameSpaceByURN(String urn)
-	{
-		return nameSpaceClassesByURN.get(urn);
 	}
 
 	/**
@@ -1255,14 +356,14 @@ public final class SimplTypesScope extends ElementState
 
 	public static final String	BASIC_TRANSLATIONS	= "basic_translations";
 
-	private void addSimplTypesScope(String name)
+	public static void registerSimplTypesScope(String name, SimplTypesScope sts)
 	{
 		synchronized(allTypesScopes)
 		{
 			if(!allTypesScopes.containsKey(name))
 			{
 				// TODO: Concurrency? yo. 
-				allTypesScopes.put(name, this);
+				allTypesScopes.put(name, sts);
 			}else{
 				//throw new RuntimeException("OH NO EVERYTHING IS AMISS FOR: " + name);
 			}
@@ -1444,23 +545,6 @@ public Object deserialize(InputStream inputStream, TranslationContext translatio
 		return binaryPullDeserializer.parse(byteArray);
 	}
 
-	public static SimplTypesScope getBasicTranslations()
-	{
-		return get(BASIC_TRANSLATIONS, SimplTypesScope.class, FieldDescriptor.class,
-				ClassDescriptor.class);
-	}
-
-	public static SimplTypesScope augmentTranslationScope(SimplTypesScope simplTypesScope)
-	{
-		ArrayList<Class<?>> allClasses = simplTypesScope.getAllClasses();
-		Collection<Class<?>> augmentedClasses = augmentTranslationScope(allClasses).values();
-
-		Class<?>[] augmentedClassesArray = augmentedClasses
-				.toArray(new Class<?>[augmentedClasses.size()]);
-
-		return new SimplTypesScope(simplTypesScope.getName(), augmentedClassesArray);
-	}
-
 	private static HashMap<String, Class<?>> augmentTranslationScope(ArrayList<Class<?>> allClasses)
 	{
 		HashMap<String, Class<?>> augmentedClasses = new HashMap<String, Class<?>>();
@@ -1534,23 +618,6 @@ public Object deserialize(InputStream inputStream, TranslationContext translatio
 		}
 	}
 
-	public void augment()
-	{
-		Class<?>[] augmentedClassesArray = getClassesArray(this);
-
-		this.addTranslations(augmentedClassesArray);
-	}
-
-	private static Class<?>[] getClassesArray(SimplTypesScope simplTypesScope)
-	{
-		ArrayList<Class<?>> allClasses = simplTypesScope.getAllClasses();
-		Collection<Class<?>> augmentedClasses = augmentTranslationScope(allClasses).values();
-
-		Class<?>[] augmentedClassesArray = augmentedClasses
-				.toArray(new Class<?>[augmentedClasses.size()]);
-		return augmentedClassesArray;
-	}
-
 	/**
 	 * @return the performFilters
 	 */
@@ -1568,110 +635,7 @@ public Object deserialize(InputStream inputStream, TranslationContext translatio
 		this.performFilters = performFilters;
 	}
 
-	/**
-	 * Augment the given SimplTypesScope and return the augmented one
-	 * 
-	 * @param simplTypesScope
-	 * @return
-	 */
-	public static SimplTypesScope augmentTranslationScopeWithClassDescriptors(
-			SimplTypesScope simplTypesScope)
-	{
-		Collection<ClassDescriptor<? extends FieldDescriptor>> allClassDescriptors = simplTypesScope
-				.getClassDescriptors();
 
-		ArrayList<ClassDescriptor<? extends FieldDescriptor>> allClasses = simplTypesScope
-				.getAllClassDescriptors();
-		Collection<ClassDescriptor<? extends FieldDescriptor>> augmentedClasses = augmentSimplTypesScopeWithClassDescriptors(
-				allClasses).values();
-
-		ClassDescriptor<? extends FieldDescriptor>[] augmentedClassesArray = augmentedClasses
-				.toArray(new ClassDescriptor[augmentedClasses.size()]);
-
-		return new SimplTypesScope(simplTypesScope.getName(), augmentedClassesArray);
-	}
-
-	/**
-	 * augment the given the list of classes
-	 * 
-	 * @param allClasses
-	 * @return
-	 */
-	private static HashMap<String, ClassDescriptor<? extends FieldDescriptor>> augmentSimplTypesScopeWithClassDescriptors(
-			ArrayList<ClassDescriptor<? extends FieldDescriptor>> allClasses)
-	{
-		HashMap<String, ClassDescriptor<? extends FieldDescriptor>> augmentedClasses = new HashMap<String, ClassDescriptor<? extends FieldDescriptor>>();
-		for (ClassDescriptor<? extends FieldDescriptor> thatClass : allClasses)
-		{
-			augmentSimplTypesScope(thatClass, augmentedClasses);
-		}
-		return augmentedClasses;
-	}
-
-	/**
-	 * augment the given ClassDescriptor
-	 * 
-	 * @param thatClass
-	 * @param augmentedClasses
-	 */
-	private static void augmentSimplTypesScope(ClassDescriptor<? extends FieldDescriptor> thatClass,
-			HashMap<String, ClassDescriptor<? extends FieldDescriptor>> augmentedClasses)
-	{
-		if (augmentedClasses.put(thatClass.getDescribedClassSimpleName(), thatClass) != null)
-			return;
-
-		ClassDescriptor<? extends FieldDescriptor> superClass = thatClass.getSuperClass();
-		if (superClass != null && !"ElementState".equals(superClass.getDescribedClassSimpleName()))
-		{
-			augmentSimplTypesScope(superClass, augmentedClasses);
-		}
-
-		HashMapArrayList<String, ? extends FieldDescriptor> fieldDescriptors = thatClass
-				.getFieldDescriptorsByFieldName();
-
-		if (fieldDescriptors.size() > 0)
-		{
-			thatClass.resolvePolymorphicAnnotations();
-
-			for (FieldDescriptor fieldDescriptor : fieldDescriptors)
-			{
-				if (fieldDescriptor.isNested())
-				{
-					augmentSimplTypesScope(fieldDescriptor.getElementClassDescriptor(), augmentedClasses);
-				}
-				else
-				{
-					if (fieldDescriptor.isCollection() && !fieldDescriptor.isPolymorphic())
-					{
-						ArrayList<Class<?>> genericClasses = XMLTools.getGenericParameters(fieldDescriptor
-								.getField());
-
-						for (Class<?> genericClass : genericClasses)
-						{
-							if (genericClass != null && ElementState.class.isAssignableFrom(genericClass))
-							{
-								augmentSimplTypesScope(ClassDescriptor.getClassDescriptor(genericClass
-										.asSubclass(ElementState.class)), augmentedClasses);
-							}
-						}
-					}
-					else if (fieldDescriptor.isPolymorphic())
-					{
-						Collection<ClassDescriptor> polymorphDescriptors = fieldDescriptor
-								.getPolymorphicClassDescriptors();
-
-						if (polymorphDescriptors != null)
-						{
-							for (ClassDescriptor<? extends FieldDescriptor> classDescriptor : polymorphDescriptors)
-							{
-								augmentSimplTypesScope(classDescriptor, augmentedClasses);
-							}
-						}
-					}
-				}
-			}
-		}
-	}
 
 	/**
 	 * Method returning all the class descriptors corresponds to all the translation Scopes
@@ -1693,78 +657,7 @@ public Object deserialize(InputStream inputStream, TranslationContext translatio
 		return classes;
 	}
 
-	/**
-	 * Make a new SimplTypesScope from a subset of this, making sure that the class of all entries in
-	 * the subset is either superClassCriterion or a subclass thereof.
-	 * 
-	 * @param newName
-	 *          Name for new SimplTypesScope.
-	 * @param superClassCriterion
-	 *          Super class discriminant for all classes in the subset.
-	 * 
-	 * @return New or existing SimplTypesScope with subset of classes in this, based on
-	 *         assignableCriterion.
-	 */
-	public SimplTypesScope getAssignableSubset(String newName, Class<?> superClassCriterion)
-	{
-		SimplTypesScope result = lookup(newName);
-		if (result == null)
-		{
-			synchronized (entriesByClassName)
-			{
-				result = lookup(newName);
-				if (result == null)
-				{
-					result = new SimplTypesScope(newName);
-					addSimplTypesScope(newName);
-					for (ClassDescriptor classDescriptor : entriesByClassName.values())
-					{
-						Class<?> thatClass = classDescriptor.getDescribedClass();
-						if (superClassCriterion.isAssignableFrom(thatClass))
-							result.addTranslation(classDescriptor);
-					}
-				}
-			}
-		}
-		return result;
-	}
-
-	/**
-	 * Make a new SimplTypesScope from a subset of this, making sure that the class of all entries in
-	 * never either superClassCriterion or a subclass thereof.
-	 * 
-	 * @param newName
-	 *          Name for new SimplTypesScope.
-	 * @param superClassCriterion
-	 *          Super class discriminant for all classes to remove from the subset.
-	 * 
-	 * @return New or existing SimplTypesScope with subset of classes in this, based on
-	 *         assignableCriterion.
-	 */
-	public SimplTypesScope getSubtractedSubset(String newName, Class<?> superClassCriterion)
-	{
-		SimplTypesScope result = lookup(newName);
-		if (result == null)
-		{
-			synchronized (entriesByClassName)
-			{
-				result = lookup(newName);
-				if (result == null)
-				{
-					result = new SimplTypesScope(newName);
-					addSimplTypesScope(newName);
-					for (ClassDescriptor classDescriptor : entriesByClassName.values())
-					{
-						Class<?> thatClass = classDescriptor.getDescribedClass();
-						if (!superClassCriterion.isAssignableFrom(thatClass))
-							result.addTranslation(classDescriptor);
-					}
-				}
-			}
-		}
-		return result;
-	}
-
+	
 	/**
 	 * This will switch on the graph serialization
 	 */
@@ -1789,14 +682,14 @@ public Object deserialize(InputStream inputStream, TranslationContext translatio
 	{
 		for (ClassDescriptor classDescriptor : entriesByTag.values())
 		{
-			entriesByClassName.put(classDescriptor.getName(), classDescriptor);
-			String simpleName = classDescriptor.getDescribedClassSimpleName();
-			entriesByClassSimpleName.put(simpleName, classDescriptor);
+			this.classDescriptorIndexer.Insert(classDescriptor);
 		}
+		
 		if (allTypesScopes.containsKey(name))
 			warning("REPLACING another SimplTypesScope of the SAME NAME during deserialization!\t"
 					+ name);
-		allTypesScopes.put(name, this);
+		
+		SimplTypesScope.registerSimplTypesScope(this.getName(), this);
 	}
 
 	/**
@@ -1981,5 +874,23 @@ public Object deserialize(InputStream inputStream, TranslationContext translatio
 	{
 		TranslationContext translationContext = new TranslationContext();
 		serialize(object, file, format, translationContext);
+	}
+
+	@Override
+	public void deserializationInHook(TranslationContext translationContext) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void deserializationPreHook(TranslationContext translationContext) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	public void inheritFrom(SimplTypesScope sts) {
+		// TODO Auto-generated method stub
+		// todo: Merge into the indexer. :3 
+		
 	}
 }
