@@ -112,11 +112,6 @@ public class FieldDescriptorIndexer<FD extends FieldDescriptor> extends MultiInd
 		}
 	}
 	
-	final class declaredByFieldName extends ItemIndexPredicate<FieldDescriptor>
-	{
-		
-	}
-	
 	final class byTagName extends ItemIndexPredicate<FieldDescriptor>
 	{
 
@@ -136,11 +131,6 @@ public class FieldDescriptorIndexer<FD extends FieldDescriptor> extends MultiInd
 	
 	
 	
-	
-	
-	
-	
-	
 	public FieldDescriptorIndexer()
 	{
 	// These are all of the type indexers... for use in the de/serialization process.
@@ -152,7 +142,6 @@ public class FieldDescriptorIndexer<FD extends FieldDescriptor> extends MultiInd
 		this.CompositeMaps = this.by(new byCompositeMaps());
 		this.IgnoredAttributes = this.by(new byIgnoredAttribute());
 		this.IgnoredElements = this.by(new byIgnoredElement());
-		
 		
 	}
 	
