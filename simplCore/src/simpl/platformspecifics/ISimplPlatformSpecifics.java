@@ -5,9 +5,9 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Type;
 import java.nio.charset.Charset;
 
-import simpl.core.GenericTypeVar;
 import simpl.descriptions.ClassDescriptor;
 import simpl.descriptions.FieldDescriptor;
+import simpl.descriptions.GenericTypeVar;
 import simpl.deserialization.stringformats.XMLParser;
 import simpl.exceptions.SIMPLTranslationException;
 

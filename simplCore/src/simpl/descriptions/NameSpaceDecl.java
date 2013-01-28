@@ -1,8 +1,10 @@
 /**
  * 
  */
-package simpl.core;
+package simpl.descriptions;
 
+import simpl.core.ElementState;
+import simpl.core.SimplTypesScope;
 import ecologylab.generic.Debug;
 
 /**
@@ -12,8 +14,8 @@ import ecologylab.generic.Debug;
  */
 public class NameSpaceDecl extends Debug
 {
-	final String							urn;
-	final Class<? extends ElementState>		esClass;
+	public final String							urn;
+	public final Class<? extends ElementState>		esClass;
 	final SimplTypesScope					translationScope;
 	
 	/**

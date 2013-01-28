@@ -20,6 +20,7 @@ import simpl.annotations.dbal.simpl_tag;
 import simpl.descriptions.ClassDescriptor;
 import simpl.descriptions.EnumerationDescriptor;
 import simpl.descriptions.FieldDescriptor;
+import simpl.descriptions.NameSpaceDecl;
 import simpl.deserialization.PullDeserializer;
 import simpl.deserialization.binaryformats.BinaryPullDeserializer;
 import simpl.deserialization.stringformats.StringPullDeserializer;

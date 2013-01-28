@@ -10,7 +10,6 @@ import java.util.List;
 
 import simpl.annotations.dbal.simpl_collection;
 import simpl.annotations.dbal.simpl_scalar;
-import simpl.core.DescriptorBase;
 import simpl.core.ISimplStringMarshaller;
 import simpl.core.SimplIssue;
 import simpl.exceptions.SIMPLDescriptionException;

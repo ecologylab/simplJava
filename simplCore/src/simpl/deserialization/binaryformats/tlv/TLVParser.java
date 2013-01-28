@@ -1,9 +1,9 @@
 package simpl.deserialization.binaryformats.tlv;
 
-import simpl.core.FieldType;
 import simpl.core.SimplTypesScope;
 import simpl.descriptions.ClassDescriptor;
 import simpl.descriptions.FieldDescriptor;
+import simpl.descriptions.FieldType;
 
 /**
  * This is the basic tlv parser for parsing tlv messages generated from

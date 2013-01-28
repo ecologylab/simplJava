@@ -4,10 +4,10 @@ import static org.junit.Assert.*;
 
 import org.junit.Test;
 
+import simpl.core.indexers.MultiIndexer;
 import simpl.descriptions.ClassDescriptor;
 import simpl.descriptions.indexers.ClassDescriptorIndexer;
 
-import ecologylab.generic.MultiIndexer;
 
 public class MultiIndexerTest {
 

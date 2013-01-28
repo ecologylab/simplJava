@@ -1,7 +1,7 @@
 /**
  * 
  */
-package simpl.core;
+package simpl.descriptions;
 
 import java.lang.reflect.Type;
 import java.lang.reflect.TypeVariable;
@@ -10,7 +10,6 @@ import java.util.ArrayList;
 import simpl.annotations.dbal.simpl_collection;
 import simpl.annotations.dbal.simpl_composite;
 import simpl.annotations.dbal.simpl_scalar;
-import simpl.descriptions.ClassDescriptor;
 import simpl.platformspecifics.SimplPlatformSpecifics;
 
 import ecologylab.generic.Debug;

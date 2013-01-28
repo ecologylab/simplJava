@@ -12,11 +12,11 @@ import org.codehaus.jackson.JsonParseException;
 
 import simpl.core.DeserializationHookStrategy;
 import simpl.core.ElementState;
-import simpl.core.FieldType;
 import simpl.core.SimplTypesScope;
 import simpl.core.TranslationContext;
 import simpl.descriptions.ClassDescriptor;
 import simpl.descriptions.FieldDescriptor;
+import simpl.descriptions.FieldType;
 import simpl.exceptions.SIMPLTranslationException;
 import simpl.platformspecifics.SimplPlatformSpecifics;
 import simpl.types.element.IMappable;

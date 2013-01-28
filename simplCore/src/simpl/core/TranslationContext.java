@@ -9,6 +9,7 @@ import java.util.HashMap;
 import simpl.core.SimplTypesScope.GRAPH_SWITCH;
 import simpl.descriptions.ClassDescriptor;
 import simpl.descriptions.FieldDescriptor;
+import simpl.descriptions.FieldType;
 import simpl.tools.XMLTools;
 
 import ecologylab.collections.MultiMap;

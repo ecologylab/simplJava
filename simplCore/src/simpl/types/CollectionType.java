@@ -10,7 +10,7 @@ import java.util.Map;
 import simpl.annotations.dbal.simpl_collection;
 import simpl.annotations.dbal.simpl_inherit;
 import simpl.annotations.dbal.simpl_scalar;
-import simpl.core.GenericTypeVar;
+import simpl.descriptions.GenericTypeVar;
 
 
 /**

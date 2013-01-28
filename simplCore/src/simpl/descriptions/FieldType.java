@@ -1,4 +1,4 @@
-package simpl.core;
+package simpl.descriptions;
 
 import simpl.annotations.dbal.simpl_scalar;
 

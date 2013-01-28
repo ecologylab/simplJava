@@ -1,7 +1,7 @@
 /**
  * 
  */
-package simpl.core;
+package simpl.descriptions;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -10,6 +10,7 @@ import simpl.annotations.dbal.simpl_collection;
 import simpl.annotations.dbal.simpl_inherit;
 import simpl.annotations.dbal.simpl_nowrap;
 import simpl.annotations.dbal.simpl_scalar;
+import simpl.core.IJavaParser;
 import simpl.types.SimplBaseType;
 
 

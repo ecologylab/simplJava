@@ -1,4 +1,4 @@
-package simpl.core;
+package simpl.descriptions;
 
 import java.lang.annotation.Annotation;
 import java.util.ArrayList;

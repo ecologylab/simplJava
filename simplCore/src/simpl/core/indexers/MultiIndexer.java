@@ -1,18 +1,12 @@
-package ecologylab.generic;
+package simpl.core.indexers;
 
-import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-import sun.reflect.generics.reflectiveObjects.ParameterizedTypeImpl;
-
 /**
- * 1-3
- * 420-450; :3
  * 
  * A class that indexes inserted objects by a set of multiple criteria. implementors provide the critera in the form of 
  * ItemIndexer predicates, marshalling happens via .by();
@@ -34,7 +28,6 @@ public abstract class MultiIndexer<IndexedObject> {
 		{
 			return this.ourMap.get(indexString);
 		}
-		
 	}
 	
 	private HashMap<String, HashMap<String, IndexedObject>> allmaps;
@@ -80,9 +73,13 @@ public abstract class MultiIndexer<IndexedObject> {
 		{
 			String indexID = index.GetIndexIdentifier();
 			
-			String indexValue = index.ObtainIndex(object);
+			Collection<String> indexValues = index.ObtainIndexes(object);
 			
-			this.allmaps.get(indexID).put(indexValue, object);
+			// We can index something by multiple values; consider "other tags"
+			for(String indexValue : indexValues)
+			{
+				this.allmaps.get(indexID).put(indexValue, object);
+			}
 		}
 	}
 	
@@ -98,9 +95,12 @@ public abstract class MultiIndexer<IndexedObject> {
 		{
 			String indexID = index.GetIndexIdentifier();
 			
-			String indexValue = index.ObtainIndex(object);
+			Collection<String> indexValues = index.ObtainIndexes(object);
 			
-			this.allmaps.get(indexID).remove(indexValue);
+			for(String indexValue : indexValues)
+			{
+				this.allmaps.get(indexID).remove(indexValue);
+			}
 		}
 	}
 	

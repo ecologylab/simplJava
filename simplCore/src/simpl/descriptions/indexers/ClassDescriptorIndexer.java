@@ -1,46 +1,58 @@
 package simpl.descriptions.indexers;
 
+import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 
 import javax.swing.event.ListSelectionEvent;
 
+import simpl.core.indexers.ItemIndexPredicate;
+import simpl.core.indexers.MultiIndexer;
 import simpl.descriptions.ClassDescriptor;
 
-import ecologylab.generic.ItemIndexPredicate;
-import ecologylab.generic.MultiIndexer;
 
-
+// TODO: Refactor to index enumeration descriptios. 
 public class ClassDescriptorIndexer extends MultiIndexer<ClassDescriptor<?>> {
 
+	// Here are the different indexers we intend to index "by" 
 	
-	final class byTagName implements ItemIndexPredicate<ClassDescriptor<?>>
+	final class byTagName extends ItemIndexPredicate<ClassDescriptor<?>>
 	{
-
-		@Override
 		public String GetIndexIdentifier() {
 			// TODO Auto-generated method stub
 			return "tagname";
 		}
 
-		@Override
+		/**
+		 * ObtainIndex for this indexer doesn't make sense because we 
+		 * intend to index by BOTH the tag name and all "othertags"; thus
+		 * we override ObtainIndexes and return a list of index strings for the given item.
+		 */
 		public String ObtainIndex(ClassDescriptor<?> item) {
-			// TODO Auto-generated method stub
-			return item.getTagName();
+			throw new RuntimeException("Obtain index not supported for this indexer; use ObtainIndexes instead. \"byTagName\"");
+		}
+		
+		@Override
+		/**
+		 * We override OBtainIndexes in this case because we intend to return multiple indexes for a given object. 
+		 * In this case, we index by tag name and all "other tags" for a given class description.
+		 */
+		public Collection<String> ObtainIndexes(ClassDescriptor<?> item) {
+			Collection<String> ourIndexes = new LinkedList<String>();
+			
+			
+			return ourIndexes;
 		}
 	}
 	
 
-	final class byClassSimpleName implements ItemIndexPredicate<ClassDescriptor<?>>
+	final class byClassSimpleName extends ItemIndexPredicate<ClassDescriptor<?>>
 	{
-
-		@Override
 		public String GetIndexIdentifier() {
 			// TODO Auto-generated method stub
 			return "javaclasssimplename";
 		}
 
-		@Override
 		public String ObtainIndex(ClassDescriptor<?> item) {
 			// TODO Auto-generated method stub
 			return item.getDescribedClassSimpleName();
@@ -48,16 +60,13 @@ public class ClassDescriptorIndexer extends MultiIndexer<ClassDescriptor<?>> {
 		
 	}
 	
-	final class byClassName implements ItemIndexPredicate<ClassDescriptor<?>>
+	final class byClassName extends ItemIndexPredicate<ClassDescriptor<?>>
 	{
-
-		@Override
 		public String GetIndexIdentifier() {
 			// TODO Auto-generated method stub
 			return "javaclassname";
 		}
 
-		@Override
 		public String ObtainIndex(ClassDescriptor<?> item) {
 			// TODO Auto-generated method stub
 			return null;
@@ -65,50 +74,39 @@ public class ClassDescriptorIndexer extends MultiIndexer<ClassDescriptor<?>> {
 		
 	}
 	
-	final class byTLVId implements ItemIndexPredicate<ClassDescriptor<?>>
+	final class byTLVId extends ItemIndexPredicate<ClassDescriptor<?>>
 	{
-
-		@Override
 		public String GetIndexIdentifier() {
 			// TODO Auto-generated method stub
 			return "tlvid";
 		}
 
-		@Override
 		public String ObtainIndex(ClassDescriptor<?> item) {
 			// TODO Auto-generated method stub
 			return Integer.toString(item.getTagName().hashCode());
 		}
-		
 	}
 	
-	final class bySimplName implements ItemIndexPredicate<ClassDescriptor<?>> {
-
-		public bySimplName(){}
-		@Override
+	final class bySimplName extends ItemIndexPredicate<ClassDescriptor<?>> 
+	{
 		public String GetIndexIdentifier() {
 			// TODO Auto-generated method stub
 			return "simplname";
 		}
 
-		@Override
 		public String ObtainIndex(ClassDescriptor<?> item) {
 			// TODO Auto-generated method stub
 			return item.getClassSimpleName();
 		}
-		
 	}
 	
-	final class byObjectiveCName implements ItemIndexPredicate<ClassDescriptor<?>>
+	final class byObjectiveCName extends ItemIndexPredicate<ClassDescriptor<?>>
 	{
-		public byObjectiveCName(){}
-		@Override
 		public String GetIndexIdentifier() {
 			// TODO Auto-generated method stub
 			return "objc";
 		}
 
-		@Override
 		public String ObtainIndex(ClassDescriptor<?> item) {
 			// TODO Autofgenerated method stub
 			return item.getObjectiveCTypeName();
@@ -116,28 +114,11 @@ public class ClassDescriptorIndexer extends MultiIndexer<ClassDescriptor<?>> {
 		
 	}
 	
-	final class byBibtexType implements ItemIndexPredicate<ClassDescriptor<?>>
-	{
-		@Override
-		public String GetIndexIdentifier() {
-			// TODO Auto-generated method stub
-			return "bibtextype";
-		}
-		
-
-		@Override
-		public String ObtainIndex(ClassDescriptor<?> item) {
-			// TODO Auto-generated method stub
-			return item.getBibtexType();
-		}	
-	}
-
 	public List<ItemIndexPredicate<ClassDescriptor<?>>> getIndexPredicates() {
 		List<ItemIndexPredicate<ClassDescriptor<?>>> ourList = new LinkedList<ItemIndexPredicate<ClassDescriptor<?>>>();
 		
 		ourList.add(new byObjectiveCName());
 		ourList.add(new bySimplName());
-		ourList.add(new byBibtexType());
 		ourList.add(new byClassName());
 		ourList.add(new byClassSimpleName());
 		ourList.add(new byTLVId());

@@ -15,9 +15,9 @@ import javax.imageio.ImageIO;
 import javax.swing.JOptionPane;
 import javax.xml.stream.XMLInputFactory;
 
-import simpl.core.GenericTypeVar;
 import simpl.descriptions.ClassDescriptor;
 import simpl.descriptions.FieldDescriptor;
+import simpl.descriptions.GenericTypeVar;
 import simpl.deserialization.stringformats.XMLParser;
 import simpl.exceptions.SIMPLTranslationException;
 import simpl.platformspecifics.ISimplPlatformSpecifics;

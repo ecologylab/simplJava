@@ -4,10 +4,10 @@ import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
 
-import simpl.core.FieldType;
 import simpl.core.SimplTypesScope;
 import simpl.descriptions.ClassDescriptor;
 import simpl.descriptions.FieldDescriptor;
+import simpl.descriptions.FieldType;
 import simpl.exceptions.SIMPLTranslationException;
 import simpl.formats.enums.StringFormat;
 import simpl.types.scalar.*;

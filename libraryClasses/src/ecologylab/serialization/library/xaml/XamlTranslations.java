@@ -1,7 +1,7 @@
 package ecologylab.serialization.library.xaml;
 
-import simpl.core.NameSpaceDecl;
 import simpl.core.SimplTypesScope;
+import simpl.descriptions.NameSpaceDecl;
 import ecologylab.generic.Debug;
 
 

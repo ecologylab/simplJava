@@ -3,9 +3,9 @@ package ecologylab.fundamental;
 import org.junit.Test;
 
 import simpl.annotations.dbal.simpl_scalar;
-import simpl.core.FieldType;
 import simpl.descriptions.ClassDescriptor;
 import simpl.descriptions.FieldDescriptor;
+import simpl.descriptions.FieldType;
 import simpl.exceptions.SIMPLTranslationException;
 import static org.junit.Assert.*;
 

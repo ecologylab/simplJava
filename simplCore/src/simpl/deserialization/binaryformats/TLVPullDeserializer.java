@@ -10,11 +10,11 @@ import java.util.Map;
 
 import simpl.core.DeserializationHookStrategy;
 import simpl.core.ElementState;
-import simpl.core.FieldType;
 import simpl.core.SimplTypesScope;
 import simpl.core.TranslationContext;
 import simpl.descriptions.ClassDescriptor;
 import simpl.descriptions.FieldDescriptor;
+import simpl.descriptions.FieldType;
 import simpl.deserialization.DeserializationProcedureState;
 import simpl.exceptions.SIMPLTranslationException;
 import simpl.types.element.IMappable;

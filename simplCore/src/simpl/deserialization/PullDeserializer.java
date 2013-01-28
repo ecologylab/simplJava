@@ -10,9 +10,9 @@ import java.net.URL;
 import java.nio.charset.Charset;
 
 import simpl.core.DeserializationHookStrategy;
-import simpl.core.FieldType;
 import simpl.core.SimplTypesScope;
 import simpl.core.TranslationContext;
+import simpl.descriptions.FieldType;
 import simpl.deserialization.binaryformats.BinaryPullDeserializer;
 import simpl.deserialization.binaryformats.TLVPullDeserializer;
 import simpl.deserialization.stringformats.JSONPullDeserializer;

@@ -9,10 +9,10 @@ import java.util.List;
 import org.junit.Test;
 
 import simpl.annotations.dbal.simpl_collection;
-import simpl.core.FieldType;
 import simpl.core.SimplTypesScope;
 import simpl.descriptions.ClassDescriptor;
 import simpl.descriptions.FieldDescriptor;
+import simpl.descriptions.FieldType;
 import simpl.exceptions.SIMPLTranslationException;
 import simpl.formats.enums.StringFormat;
 
