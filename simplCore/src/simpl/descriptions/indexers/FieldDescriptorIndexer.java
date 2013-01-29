@@ -9,20 +9,20 @@ import simpl.descriptions.FieldType;
 import java.util.List;
 import java.util.LinkedList;;
 
-public class FieldDescriptorIndexer<FD extends FieldDescriptor> extends MultiIndexer<FD>
+public class FieldDescriptorIndexer extends MultiIndexer<FieldDescriptor>
 {
 
-	public InnerIndexer<FD> Scalars;
-	public InnerIndexer<FD> ScalarCollections;
-	public InnerIndexer<FD> ScalarMaps;
-	public InnerIndexer<FD> Composites;
-	public InnerIndexer<FD> CompositeCollections;
-	public InnerIndexer<FD> CompositeMaps;
+	public InnerIndexer<FieldDescriptor> Scalars;
+	public InnerIndexer<FieldDescriptor> ScalarCollections;
+	public InnerIndexer<FieldDescriptor> ScalarMaps;
+	public InnerIndexer<FieldDescriptor> Composites;
+	public InnerIndexer<FieldDescriptor> CompositeCollections;
+	public InnerIndexer<FieldDescriptor> CompositeMaps;
 // TODO???	public InnerIndexer<FieldDescriptor> CompositesAsScalars;  //
-	public InnerIndexer<FD> IgnoredElements;
-	public InnerIndexer<FD> IgnoredAttributes;
+	public InnerIndexer<FieldDescriptor> IgnoredElements;
+	public InnerIndexer<FieldDescriptor> IgnoredAttributes;
 	
-	final class byScalars extends FieldTypeItemPredicate<FD>{
+	final class byScalars extends FieldTypeItemPredicate<FieldDescriptor>{
 		@Override
 		public FieldType getFieldType() {
 			// TODO Auto-generated method stub
@@ -30,7 +30,7 @@ public class FieldDescriptorIndexer<FD extends FieldDescriptor> extends MultiInd
 		}
 	}
 	
-	final class byScalarCollections extends FieldTypeItemPredicate<FD>{
+	final class byScalarCollections extends FieldTypeItemPredicate<FieldDescriptor>{
 
 		@Override
 		public FieldType getFieldType() {
@@ -39,7 +39,7 @@ public class FieldDescriptorIndexer<FD extends FieldDescriptor> extends MultiInd
 		}
 	}
 	
-	final class byScalarMaps extends FieldTypeItemPredicate<FD>{
+	final class byScalarMaps extends FieldTypeItemPredicate<FieldDescriptor>{
 
 		@Override
 		public FieldType getFieldType() {
@@ -49,7 +49,7 @@ public class FieldDescriptorIndexer<FD extends FieldDescriptor> extends MultiInd
 		
 	}
 	
-	final class byComposites extends FieldTypeItemPredicate<FD>{
+	final class byComposites extends FieldTypeItemPredicate<FieldDescriptor>{
 
 		@Override
 		public FieldType getFieldType() {
@@ -59,7 +59,7 @@ public class FieldDescriptorIndexer<FD extends FieldDescriptor> extends MultiInd
 		
 	}
 	
-	final class byCompositeCollections extends FieldTypeItemPredicate<FD>{
+	final class byCompositeCollections extends FieldTypeItemPredicate<FieldDescriptor>{
 
 		@Override
 		public FieldType getFieldType() {
@@ -69,7 +69,7 @@ public class FieldDescriptorIndexer<FD extends FieldDescriptor> extends MultiInd
 		
 	}
 	
-	final class byCompositeMaps extends FieldTypeItemPredicate<FD>{
+	final class byCompositeMaps extends FieldTypeItemPredicate<FieldDescriptor>{
 
 		@Override
 		public FieldType getFieldType() {
@@ -79,14 +79,14 @@ public class FieldDescriptorIndexer<FD extends FieldDescriptor> extends MultiInd
 		
 	}
 	
-	final class byIgnoredAttribute extends FieldTypeItemPredicate<FD>{
+	final class byIgnoredAttribute extends FieldTypeItemPredicate<FieldDescriptor>{
 		@Override
 		public FieldType getFieldType(){
 			return FieldType.IGNORED_ATTRIBUTE;
 		}
 	}
 	
-	final class byIgnoredElement extends FieldTypeItemPredicate<FD>{
+	final class byIgnoredElement extends FieldTypeItemPredicate<FieldDescriptor>{
 		@Override
 		public FieldType getFieldType(){
 			return FieldType.IGNORED_ELEMENT;
@@ -146,9 +146,9 @@ public class FieldDescriptorIndexer<FD extends FieldDescriptor> extends MultiInd
 	}
 	
 	@Override
-	public List<ItemIndexPredicate<FD>> getIndexPredicates() {
+	public List<ItemIndexPredicate<FieldDescriptor>> getIndexPredicates() {
 		// TODO Auto-generated method stub
-		List<ItemIndexPredicate<FD>> ourList = new LinkedList<ItemIndexPredicate<FD>>();
+		List<ItemIndexPredicate<FieldDescriptor>> ourList = new LinkedList<ItemIndexPredicate<FieldDescriptor>>();
 		ourList.add(new byScalars());
 		ourList.add(new byScalarCollections());
 		ourList.add(new byScalarMaps());
@@ -159,5 +159,4 @@ public class FieldDescriptorIndexer<FD extends FieldDescriptor> extends MultiInd
 		ourList.add(new byIgnoredElement());
 		return ourList;
 	}
-
 }

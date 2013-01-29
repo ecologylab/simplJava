@@ -17,7 +17,7 @@ import java.util.Map.Entry;
  */
 public abstract class MultiIndexer<IndexedObject> implements Iterable<IndexedObject>{
 
-	public final class InnerIndexer<IndexedObject> implements Iterable<Entry<String, IndexedObject>>
+	public final class InnerIndexer<IndexedObject> implements Iterable<IndexedObject>
 	{		
 		Map<String, IndexedObject> ourMap;
 		
@@ -37,9 +37,14 @@ public abstract class MultiIndexer<IndexedObject> implements Iterable<IndexedObj
 		}
 		
 		@Override
-		public Iterator<Entry<String, IndexedObject>> iterator() {
+		public Iterator< IndexedObject > iterator() {
 			// TODO Auto-generated method stub
-			return this.ourMap.entrySet().iterator();
+			return this.ourMap.values().iterator();
+		}
+		
+		public int size()
+		{
+			return this.ourMap.entrySet().size();
 		}
 	}
 	
