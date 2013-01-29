@@ -11,7 +11,6 @@ import java.util.LinkedList;;
 
 public class FieldDescriptorIndexer extends MultiIndexer<FieldDescriptor>
 {
-
 	public InnerIndexer<FieldDescriptor> Scalars;
 	public InnerIndexer<FieldDescriptor> ScalarCollections;
 	public InnerIndexer<FieldDescriptor> ScalarMaps;

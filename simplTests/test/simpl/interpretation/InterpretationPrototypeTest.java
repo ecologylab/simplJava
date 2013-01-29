@@ -16,7 +16,7 @@ public class InterpretationPrototypeTest {
 	
 	@Test
 	public void testCoreScenario() throws SIMPLTranslationException
-	{
+	{	
 		SimplInterpreter si = new SimplInterpreter();
 		
 		myScalars ms = new myScalars();
