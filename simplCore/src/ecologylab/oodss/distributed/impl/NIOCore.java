@@ -79,7 +79,7 @@ public abstract class NIOCore extends Debug implements StartAndStoppable, Networ
 		while (running)
 		{
 			// update pending selection operation changes
-			synchronized (this.pendingSelectionOpChanges)
+			//synchronized (this.pendingSelectionOpChanges)
 			{
 				for (SocketModeChangeRequest changeReq : pendingSelectionOpChanges)
 				{
@@ -320,7 +320,7 @@ public abstract class NIOCore extends Debug implements StartAndStoppable, Networ
 		req.type = ((forcePermanent ? true : permanent) ? SocketModeChangeRequestType.INVALIDATE_PERMANENTLY
 				: SocketModeChangeRequestType.INVALIDATE_TEMPORARILY);
 
-		synchronized (pendingSelectionOpChanges)
+		//synchronized (pendingSelectionOpChanges)
 		{
 			this.pendingSelectionOpChanges.offer(req);
 		}
@@ -446,7 +446,7 @@ public abstract class NIOCore extends Debug implements StartAndStoppable, Networ
 		req.type = SocketModeChangeRequestType.CHANGEOPS;
 		req.ops = SelectionKey.OP_ACCEPT;
 
-		synchronized (this.pendingSelectionOpChanges)
+		//synchronized (this.pendingSelectionOpChanges)
 		{
 			// queue the socket channel for writing
 			this.pendingSelectionOpChanges.offer(req);
@@ -460,7 +460,7 @@ public abstract class NIOCore extends Debug implements StartAndStoppable, Networ
 		req.type = SocketModeChangeRequestType.CHANGEOPS;
 		req.ops = SelectionKey.OP_CONNECT;
 
-		synchronized (this.pendingSelectionOpChanges)
+		//synchronized (this.pendingSelectionOpChanges)
 		{
 			// queue the socket channel for writing
 			this.pendingSelectionOpChanges.offer(req);
@@ -474,7 +474,7 @@ public abstract class NIOCore extends Debug implements StartAndStoppable, Networ
 		req.type = SocketModeChangeRequestType.CHANGEOPS;
 		req.ops = SelectionKey.OP_READ;
 
-		synchronized (this.pendingSelectionOpChanges)
+		//synchronized (this.pendingSelectionOpChanges)
 		{
 			// queue the socket channel for writing
 			this.pendingSelectionOpChanges.offer(req);
@@ -488,7 +488,7 @@ public abstract class NIOCore extends Debug implements StartAndStoppable, Networ
 		req.type = SocketModeChangeRequestType.CHANGEOPS;
 		req.ops = SelectionKey.OP_WRITE;
 
-		synchronized (this.pendingSelectionOpChanges)
+		//synchronized (this.pendingSelectionOpChanges)
 		{
 			// queue the socket channel for writing
 			this.pendingSelectionOpChanges.offer(req);
