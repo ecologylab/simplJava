@@ -441,6 +441,12 @@ public class ClassDescriptor<FD extends FieldDescriptor> extends DescriptorBase
 
 				}
 			}
+			
+			for(FieldDescriptor fd : result.allFieldDescriptors())
+			{
+				result.fieldDescriptors.Insert(fd);
+			}
+			
 		}
 		return result;
 	}
@@ -941,8 +947,10 @@ public class ClassDescriptor<FD extends FieldDescriptor> extends DescriptorBase
 		return null;
 	}
 
+	// TODO: Make it default all scalar values. 
 	public Object getInstance() throws SIMPLTranslationException {
-		return XMLTools.getInstance(describedClass);
+		Object ourObject = XMLTools.getInstance(describedClass);
+		return ourObject;
 	}
 
 	public int numFields() {

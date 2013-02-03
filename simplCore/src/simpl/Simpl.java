@@ -17,7 +17,9 @@ public class Simpl {
 	 */
 	public static boolean equals(Object left, Object right)
 	{
-		return false; // mocked out, stuff is gonna happen here. 
+		return SimplEquals.equals(left, right); 
+		// We're delegating this implementation into another class...
+		// So that this class remains a grab bag of utilities but still easy to navigate.
 	}
 	
 	/**
