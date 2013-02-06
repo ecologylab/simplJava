@@ -11,7 +11,7 @@ log4j.appender.console.layout=org.apache.log4j.PatternLayout
 log4j.appender.console.layout.ConversionPattern=%d{yyyy-MM-dd HH:mm:ss,SSS} %-5p [%t] %c %x -  %m%n
 
 
-log4j.logger.ecologylab.semantic.service=debug, fileoutD, console
+log4j.logger.ecologylab.bigsemantics.service=debug, fileoutD, console
 
 log4j.appender.fileoutD=org.apache.log4j.RollingFileAppender
 log4j.appender.fileoutD.File=${jetty.dir}${ps}logs${ps}details.log
@@ -44,7 +44,7 @@ log4j.appender.fileoutD.layout.ConversionPattern=%d{yyyy-MM-dd HH:mm:ss,SSS} %-5
 #log4j.appender.fileoutM.layout.ConversionPattern=%-4r [%t] %-5p %c %x -  %m%n
 
 
-log4j.logger.ecologylab.semantic.service.mmd=debug, fileout
+log4j.logger.ecologylab.bigsemantics.service.mmd=debug, fileout
 
 log4j.appender.fileout=org.apache.log4j.RollingFileAppender
 log4j.appender.fileout.File=${jetty.dir}${ps}logs${ps}mmd.log
@@ -55,7 +55,7 @@ log4j.appender.fileout.layout=org.apache.log4j.PatternLayout
 log4j.appender.fileout.layout.ConversionPattern=%d{yyyy-MM-dd HH:mm:ss,SSS} %-5p [%t] %c %x -  %m%n
 
 
-log4j.logger.ecologylab.semantic.service.metadata=debug, fileout1
+log4j.logger.ecologylab.bigsemantics.service.metadata=debug, fileout1
 
 log4j.appender.fileout1=org.apache.log4j.RollingFileAppender
 log4j.appender.fileout1.File=${jetty.dir}${ps}logs${ps}metadata.log
@@ -66,7 +66,7 @@ log4j.appender.fileout1.layout=org.apache.log4j.PatternLayout
 log4j.appender.fileout1.layout.ConversionPattern=%d{yyyy-MM-dd HH:mm:ss,SSS} %-5p [%t] %c %x -  %m%n
 
 
-log4j.logger.ecologylab.semantic.service.PERF=debug, fileout11
+log4j.logger.ecologylab.bigsemantics.service.PERF=debug, fileout11
 
 log4j.appender.fileout11=org.apache.log4j.RollingFileAppender
 log4j.appender.fileout11.File=${jetty.dir}${ps}logs${ps}metadataPerf.log
