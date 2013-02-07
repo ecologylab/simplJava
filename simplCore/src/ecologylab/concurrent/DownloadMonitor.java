@@ -118,9 +118,15 @@ public class DownloadMonitor<T extends Downloadable> extends Monitor implements
 			BasicSite site					= thatDownloadable.getDownloadSite();
 			if (site != null)
 				site.queuedDownload();
+						
+			DownloadableLogRecord logRecord = thatDownloadable.getLogRecord();
 			
 			debug("\n download("+thatDownloadable.getDownloadLocation() + ")");
 			toDownload.add(new DownloadState<T>(thatDownloadable, continuation, this));
+
+			if (logRecord != null)
+				logRecord.setEnQueueTimestamp(System.currentTimeMillis());
+			
 			if (downloadThreads == null)
 				startPerformDownloadsThreads();
 			else
@@ -352,7 +358,7 @@ public class DownloadMonitor<T extends Downloadable> extends Monitor implements
 						DownloadableLogRecord logRecord = downloadable.getLogRecord();
 						if (logRecord != null)
 							logRecord.addQueuePeekInterval(
-									(System.currentTimeMillis() - logRecord.getEnQueueTimestamp()) / 1000);
+									System.currentTimeMillis() - logRecord.getEnQueueTimestamp());
 						
 						if (downloadable.isCached())
 						{
