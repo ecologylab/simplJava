@@ -13,6 +13,12 @@ import simpl.tools.ReflectionTools;
 public class BooleanType extends ScalarType{
 	
 	@Override
+	public Object getDefaultValue()
+	{
+		return new Boolean(false);
+	}
+	
+	@Override
 	public String marshal(Object object) throws SIMPLTranslationException {
 		Boolean ourBool = (Boolean)object;
 		return ourBool.toString();

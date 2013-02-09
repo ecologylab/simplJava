@@ -129,4 +129,44 @@ public class JavaScalarTypeTests {
 
 		assertEquals(true, s.getSimpleprimboolean());
 	}
+	
+	@Test
+	public void TestBooleanScalarChecksDefaultValueForNonPritive() throws Exception 
+	{
+		
+		BooleanType bt = new BooleanType();
+		
+		SimpleBoolean s = new SimpleBoolean();
+
+		Field f = s.getClass().getDeclaredField("simpleboolean");
+		
+		s.setSimpleBoolean(new Boolean(false));
+		
+		assertTrue(bt.isFieldDefaultValue(f, s));
+		
+		s.setSimpleBoolean(new Boolean(true));
+		
+		assertFalse(bt.isFieldDefaultValue(f, s));
+	}
+
+	@Test
+	public void TestBooleanScalarChecksDefaultValueForPritive() throws Exception 
+	{
+		
+		BooleanType bt = new BooleanType();
+		
+		Simpleprimboolean s = new Simpleprimboolean();
+
+		Field f = s.getClass().getDeclaredField("simpleprimboolean");
+		
+		s.setSimpleprimboolean(false);
+		
+		assertTrue(bt.isFieldDefaultValue(f, s));
+		
+		s.setSimpleprimboolean(true);
+		
+		assertFalse(bt.isFieldDefaultValue(f, s));
+	}
+
+
 }

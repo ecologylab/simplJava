@@ -1,16 +1,11 @@
 package simpl.types.newStuff;
 
-import java.awt.List;
 import java.lang.reflect.Field;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 
-import com.sun.xml.internal.bind.v2.runtime.unmarshaller.XsiNilLoader.Array;
-
 import simpl.annotations.ScalarSupportFor;
 import simpl.core.ISimplStringMarshaller;
-import simpl.core.SimplIssue;
 import simpl.exceptions.SIMPLTranslationException;
 import simpl.tools.ReflectionTools;
 
@@ -30,11 +25,12 @@ public abstract class ScalarType implements ISimplStringMarshaller{
 		return f.getType().isPrimitive();
 	}
 	
-	public String getFieldString(Field f, Object context) throws SIMPLTranslationException
+	public Object getFieldBoxedObject(Field f, Object context)throws SIMPLTranslationException
 	{
 		checkTypeSupported(f.getType());
 		
 		Object fieldValue;
+		
 		if(fieldIsPrimitive(f))
 		{
 			fieldValue = getBoxedValue(f, context);
@@ -42,7 +38,21 @@ public abstract class ScalarType implements ISimplStringMarshaller{
 			fieldValue = ReflectionTools.getFieldValue(f, context);
 		}
 		
-		return marshal(fieldValue);
+		return fieldValue;
+	}
+	
+	public String getFieldString(Field f, Object context) throws SIMPLTranslationException
+	{		
+		Object boxedObject = getFieldBoxedObject(f,context);
+		return marshal(boxedObject);
+	}
+	
+	public boolean isFieldDefaultValue(Field f, Object context) throws SIMPLTranslationException
+	{
+		Object defaultObject = getDefaultValue();
+		Object boxedObject = getFieldBoxedObject(f,context);
+		
+		return defaultObject.equals(boxedObject);
 	}
 	
 	public void setFieldValue(String simplString, Field f, Object context) throws SIMPLTranslationException
@@ -66,6 +76,14 @@ public abstract class ScalarType implements ISimplStringMarshaller{
 	
 	@Override
 	public abstract Object unmarshal(String string) throws SIMPLTranslationException;
+	
+	/**
+	 * Returns the default value for this particular scalar type, in boxed format.
+	 * Primitive types will be unboxed and compared to this default value.
+	 * The type correctly implement equals for default value functionality to work as planned. 
+	 * @return
+	 */
+	public abstract Object getDefaultValue();
 	
 	protected Object getBoxedValue(Field f, Object context) throws SIMPLTranslationException
 	{
