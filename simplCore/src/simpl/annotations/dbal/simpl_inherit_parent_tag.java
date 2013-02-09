@@ -14,7 +14,6 @@ import java.lang.annotation.Target;
  * This facilitates easy dummy-ing and replacement of classes. 
  * @author twhite
  */
-
 @Inherited
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)

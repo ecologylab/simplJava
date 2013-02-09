@@ -56,7 +56,8 @@ public class SIMPLTranslationException extends Exception implements
 
     public SIMPLTranslationException(SimplIssue si)
     {
-    	this();
+    	this(si.exception.getMessage());
+    	
     	this.simplIssues.add(si);
     }
 
@@ -98,7 +99,12 @@ public class SIMPLTranslationException extends Exception implements
         this.exceptionType = exceptionType;
     }
 
-    /**
+    public SIMPLTranslationException(Exception e) {
+    	this(e.getMessage());
+    	this.simplIssues.add(new SimplIssue(e));
+    }
+
+	/**
      * Returns the type of exception that generated the XmlTranslationException.
      * These can be referenced from the interface XmlTranslationExceptionTypes.
      * 

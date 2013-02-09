@@ -20,8 +20,7 @@ import ecologylab.generic.Debug;
  * this way, because automatic translation is performed based on Field declarations, and the Field
  * declarations do not know about these Types, only about the underlying Java types.
  */
-public class TypeRegistry<ST extends SimplType> extends Debug
-implements CrossLanguageTypeConstants
+public class TypeRegistry<ST extends SimplType>
 {
 	/**
 	 * This is now a doubleton class, like a singleton, but there are 2.
@@ -152,10 +151,8 @@ implements CrossLanguageTypeConstants
 		String simpleName 	= type.getSimpleName();
 		ST previous					= typesBySimpleName.put(simpleName, type);
 		boolean definingNewType 		= previous != null && !previous.equals(type);
-		if (definingNewType)
-		{
-			warning("registerType(): Redefining type: " + simpleName);
-		}
+
+	
 		return definingNewType;
 	}
 	/**
@@ -308,7 +305,6 @@ implements CrossLanguageTypeConstants
 			else
 			{
 				String crossPlatformName	= SimplType.deriveCrossPlatformName(javaClass, false);
-				collectionRegistry().warning("No CollectionType was pre-defined for " + crossPlatformName + ", so constructing one on the fly.\nCross-language code for fields defined with this type cannot be generated.");
 				result										= new CollectionType(javaClass, null, null);
 			}
 		}

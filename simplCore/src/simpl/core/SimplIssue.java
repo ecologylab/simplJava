@@ -33,6 +33,11 @@ public class SimplIssue {
 		this.problematicObject = problemObject;
 	}
 
+	public SimplIssue(Exception e) {
+		// TODO Auto-generated constructor stub
+		this.exception(e);
+	}
+
 	public SimplIssue exception(Exception ex) {
 		this.exception = ex;
 		return this;
