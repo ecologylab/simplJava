@@ -72,7 +72,7 @@ public class RoundtripTestsProvisional {
 		
 		FieldDescriptor fd = cd.allFieldDescriptors().get(0);
 		TranslationContext tc = null;
-		fd.setFieldToScalarDefault(ts, tc);
+		//fd.setFieldToScalarDefault(ts, tc);
 		
 		assertEquals("Should have changed!", null, ts.trickyString);
 		

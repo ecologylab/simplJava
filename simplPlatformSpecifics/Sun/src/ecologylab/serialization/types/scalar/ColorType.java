@@ -8,7 +8,6 @@ import java.awt.Color;
 import simpl.annotations.dbal.simpl_inherit;
 import simpl.core.ScalarUnmarshallingContext;
 import simpl.core.TranslationContext;
-import simpl.types.CrossLanguageTypeConstants;
 import simpl.types.ScalarType;
 
 
@@ -18,9 +17,9 @@ import simpl.types.ScalarType;
  * @author andruid
  */
 @simpl_inherit
-public class ColorType extends ScalarType<Color>
-implements CrossLanguageTypeConstants
+public class ColorType// extends ScalarType<Color>
 {
+
 /**
  * This constructor should only be called once per session, through
  * a static initializer, typically in TypeRegistry.
@@ -28,7 +27,7 @@ implements CrossLanguageTypeConstants
  * To get the instance of this type object for use in translations, call
  * <code>TypeRegistry.get("java.awt.Color")</code>.
  * 
- */
+ *//*
 	public ColorType()
 	{
 		super(Color.class, DOTNET_COLOR, OBJC_COLOR, null);
@@ -40,7 +39,6 @@ implements CrossLanguageTypeConstants
 	 * but acceptable.
 	 * 
 	 * @see simpl.types.ScalarType#getInstance(java.lang.String, String[], ScalarUnmarshallingContext)
-	 */
 	public Color getInstance(String value, String[] formatStrings, ScalarUnmarshallingContext scalarUnmarshallingContext)
 	{
 	   if (value.indexOf('#') == 0)
@@ -59,7 +57,6 @@ implements CrossLanguageTypeConstants
 	 * The default just calls the toString() method on the instance.
 	 * @param color
 	 * @return
-	 */
 	@Override
 	public String marshall(Color color, TranslationContext serializationContext)
 	{
@@ -72,5 +69,5 @@ implements CrossLanguageTypeConstants
 		result		= Integer.toHexString(argb);
 		return '#' + result;
 	}
-
+*/
 }

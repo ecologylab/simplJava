@@ -45,12 +45,11 @@ import javax.imageio.ImageIO;
 
 import simpl.core.ScalarUnmarshallingContext;
 import simpl.core.TranslationContext;
-import simpl.types.scalar.ImageType;
 
 
-public class AwtImageType<I extends Image> extends ImageType<I>
+public class AwtImageType//<I extends Image> extends ImageType<I>
 {
-
+/*
 	public AwtImageType()
 	{
 		this(Image.class);
@@ -105,5 +104,5 @@ public class AwtImageType<I extends Image> extends ImageType<I>
 
 		return null;
 	}
-
+*/
 }

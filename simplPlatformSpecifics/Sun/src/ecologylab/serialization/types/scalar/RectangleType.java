@@ -10,7 +10,6 @@ import java.util.regex.Pattern;
 import simpl.annotations.dbal.simpl_inherit;
 import simpl.core.ScalarUnmarshallingContext;
 import simpl.core.TranslationContext;
-import simpl.types.CrossLanguageTypeConstants;
 import simpl.types.ScalarType;
 
 
@@ -19,9 +18,9 @@ import simpl.types.ScalarType;
  *
  */
 @simpl_inherit
-public class RectangleType extends ScalarType<Rectangle>
-implements CrossLanguageTypeConstants
+public class RectangleType //extends ScalarType<Rectangle>
 {
+/*
 	private static final Pattern DELIMITER_PATTERN = Pattern.compile("[, ]");
 	
 	public RectangleType()
@@ -62,5 +61,6 @@ implements CrossLanguageTypeConstants
 	{
 		return rectangle.x + " " + rectangle.y + " " + rectangle.width + " " + rectangle.height;
 	}
+	*/
 
 }

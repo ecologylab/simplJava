@@ -98,7 +98,13 @@ public class SimplEqualsScalarTests {
 	// seperating this out b/c this API may change. 
 	private void setValue(Object context, FieldDescriptor fd, Object value)
 	{
-		fd.setField(context, value);
+		try{
+		fd.getScalarType().setFieldValue(fd.getScalarType().marshal(value), fd.getField(), context);
+		}
+		catch(Exception e)
+		{
+			throw new RuntimeException(e);
+		}
 	}
 	
 	

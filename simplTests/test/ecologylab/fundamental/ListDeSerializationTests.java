@@ -131,7 +131,7 @@ public class ListDeSerializationTests {
 		ClassDescriptor<?> cd = ClassDescriptor.getClassDescriptor(bc.getClass());
 		for(FieldDescriptor fd : cd.allFieldDescriptors())
 		{
-			fd.setFieldToScalarDefault(bc, tc);
+			//fd.setFieldToScalarDefault(bc, tc);
 		}
 		
 		assertTrue(bc.a.equals(new Integer(0)));
