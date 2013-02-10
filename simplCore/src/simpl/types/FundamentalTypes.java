@@ -37,6 +37,7 @@ implements CrossLanguageTypeConstants
 		TypeRegistry.setDefaultMapType(HASHMAP_TYPE);
 	}
 	
+	/*
 	public static final ScalarType<String> STRING_TYPE 					= new StringType();
 	
 	public static final ScalarType<StringBuilder> STRING_BUILDER_TYPE	= new StringBuilderType();
@@ -96,5 +97,6 @@ implements CrossLanguageTypeConstants
 	public static final ScalarType<Field> FIELD_TYPE 					= new FieldType();
 	
 	public static final ScalarType COMPOSITE_AS_SCALAR_TYPE = new CompositeAsScalarType(); 
+	*/
 	
 }

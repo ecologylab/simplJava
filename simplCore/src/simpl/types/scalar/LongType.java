@@ -1,4 +1,4 @@
-package simpl.types.newStuff;
+package simpl.types.scalar;
 
 import java.lang.reflect.Field;
 
@@ -6,36 +6,35 @@ import simpl.annotations.ScalarSupportFor;
 import simpl.exceptions.SIMPLTranslationException;
 import simpl.tools.ReflectionTools;
 
-@ScalarSupportFor({Integer.class, int.class})
-public class IntegerType extends ScalarType{
-	
+@ScalarSupportFor({Long.class, long.class})
+public class LongType extends ScalarType{
 	@Override
 	public Object getDefaultValue()
 	{
-		return new Integer(0);
+		return new Long(0);
 	}
 	
 	@Override
 	public String marshal(Object object) throws SIMPLTranslationException {
-		return ((Integer)object).toString();
+		return ((Long)object).toString();
 	}
 
 	@Override
 	public Object unmarshal(String string) throws SIMPLTranslationException {		
-		return new Integer(Integer.parseInt(string));
+		return new Long(Long.parseLong(string));
 	}
 	
 	@Override
 	protected Object getBoxedValue(Field f, Object context) throws SIMPLTranslationException
 	{
-		int unboxedValue = ReflectionTools.getFieldIntValue(f, context);
-		return new Integer(unboxedValue);
+		long unboxedValue = ReflectionTools.getFieldLongValue(f, context);
+		return new Long(unboxedValue);
 	}
 	
 	@Override
 	protected void setToUnboxedValue(Object boxedValue, Field f, Object context) throws SIMPLTranslationException 
 	{
-		int unboxedValue = ((Integer)boxedValue).intValue();
-		ReflectionTools.setFieldIntValue(unboxedValue, f, context);
+		long unboxedValue = ((Long)boxedValue).longValue();
+		ReflectionTools.setFieldLongValue(unboxedValue, f, context);
 	}
 }

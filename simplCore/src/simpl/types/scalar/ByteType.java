@@ -1,4 +1,4 @@
-package simpl.types.newStuff;
+package simpl.types.scalar;
 
 import java.lang.reflect.Field;
 

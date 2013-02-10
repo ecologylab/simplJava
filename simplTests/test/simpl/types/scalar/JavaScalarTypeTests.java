@@ -6,7 +6,6 @@ import java.util.Collection;
 import org.junit.Test;
 
 import simpl.exceptions.SIMPLTranslationException;
-import simpl.types.newStuff.BooleanType;
 import static org.junit.Assert.*;
 
 import ecologylab.fundamental.simplescalar.SimpleBoolean;

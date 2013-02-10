@@ -1,4 +1,4 @@
-package simpl.types.newStuff;
+package simpl.types.scalar;
 
 import java.lang.reflect.Field;
 
@@ -6,36 +6,37 @@ import simpl.annotations.ScalarSupportFor;
 import simpl.exceptions.SIMPLTranslationException;
 import simpl.tools.ReflectionTools;
 
-@ScalarSupportFor({Short.class, short.class})
-public class ShortType extends ScalarType {
+@ScalarSupportFor({Character.class, char.class})
+public class CharType extends ScalarType{
 
 	@Override
 	public Object getDefaultValue()
 	{
-		return new Short((short)0);
+		return ' ';
 	}
 	
 	@Override
-	public String marshal(Object object) throws SIMPLTranslationException {
-		return ((Short)object).toString();
+	public String marshal(Object object) throws SIMPLTranslationException 
+	{
+		return ((Character)object).toString();
 	}
 
 	@Override
 	public Object unmarshal(String string) throws SIMPLTranslationException {		
-		return Short.parseShort(string);
+		return new Character(string.charAt(0));
 	}
 	
 	@Override
 	protected Object getBoxedValue(Field f, Object context) throws SIMPLTranslationException
 	{
-		short unboxedValue = ReflectionTools.getFieldShortValue(f,context);
-		return new Short(unboxedValue);
+		char unboxedValue = ReflectionTools.getFieldCharValue(f, context);
+		return new Character(unboxedValue);
 	}
 	
 	@Override
 	protected void setToUnboxedValue(Object boxedValue, Field f, Object context) throws SIMPLTranslationException 
 	{
-		short unboxedValue = ((Short)boxedValue).shortValue();
-		ReflectionTools.setFieldShortValue(unboxedValue, f, context);
+		char unboxedValue = ((Character)boxedValue).charValue();
+		ReflectionTools.setFieldCharValue(unboxedValue, f, context);
 	}
 }
