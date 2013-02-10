@@ -202,35 +202,12 @@ public class EnumerationDescriptor extends DescriptorBase implements ISimplStrin
 		return new ArrayList<String>();
 	}
 
-	@Override
 	public String getJavaTypeName() {
 		// TODO Auto-generated method stub
 		return enumerationName;
 	}
 
-	@Override
-	public String getCSharpTypeName() {
-		// TODO Auto-generated method stub
-		return enumerationName;
-    }
 
-	@Override
-	public String getCSharpNamespace() {
-		// TODO Auto-generated method stub
-		return packageName;
-	}
-
-	@Override
-	public String getObjectiveCTypeName() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public String getDbTypeName() {
-		// TODO Auto-generated method stub
-		return null ;
-	}
 	
 	/**
 	 * Determines if this enumeration contains an entry with the given entry name

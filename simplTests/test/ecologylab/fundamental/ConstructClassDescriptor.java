@@ -56,7 +56,7 @@ public class ConstructClassDescriptor {
 		assertEquals(lass.getSimpleName().toLowerCase(), fd.getName());
 		assertEquals(FieldType.SCALAR, fd.getType());
 		// TODO: BUG. //assertEquals(1, fd.getMetaInformation().size());
-		assertEquals(expectedType, fd.getScalarType().getClass());
+		assertEquals(expectedType, fd.getJavaType());
 		
 		// TODO: Roundtrip the class descriptor. 
 		
@@ -66,17 +66,17 @@ public class ConstructClassDescriptor {
 	
 	@Test
 	public void forSimpleBoolean() {
-		testSimpleScalar(SimpleBoolean.class, ReferenceBooleanType.class);
+		testSimpleScalar(SimpleBoolean.class, BooleanType.class);
 	}
 
 	@Test
 	public void forSimpleByte() {
-		testSimpleScalar(SimpleByte.class, ReferenceByteType.class);
+		testSimpleScalar(SimpleByte.class, ByteType.class);
 	}
 	
 	@Test
 	public void forSimpleChar(){
-		testSimpleScalar(SimpleChar.class, ReferenceCharType.class);
+		testSimpleScalar(SimpleChar.class, CharType.class);
 	}
 	
 	@Test
@@ -86,18 +86,18 @@ public class ConstructClassDescriptor {
 	
 	@Test
 	public void forSimpleDouble(){
-		testSimpleScalar(SimpleDouble.class, ReferenceDoubleType.class);
+		testSimpleScalar(SimpleDouble.class, DoubleType.class);
 	}
 	
 	@Test
 	public void forSimpleFloat(){
-		testSimpleScalar(SimpleFloat.class, ReferenceFloatType.class);
+		testSimpleScalar(SimpleFloat.class, FloatType.class);
 	}
 	
 	@Test
 	public void forSimpleInteger() throws SIMPLTranslationException
 	{
-		testSimpleScalar(SimpleInteger.class, ReferenceIntegerType.class);
+		testSimpleScalar(SimpleInteger.class, IntegerType.class);
 		
 		for(int i=-5; i<5;i++)
 		{
@@ -132,7 +132,7 @@ public class ConstructClassDescriptor {
 	
 	@Test
 	public void forSimpleLong(){
-		testSimpleScalar(SimpleLong.class, ReferenceLongType.class);
+		testSimpleScalar(SimpleLong.class, LongType.class);
 	}
 	
 	@Test
@@ -180,7 +180,7 @@ public class ConstructClassDescriptor {
 	@Test
 	public void forSimplePrimInt()
 	{
-		testSimpleScalar(Simpleprimint.class, IntType.class);
+		testSimpleScalar(Simpleprimint.class, IntegerType.class);
 	}
 	
 	@Test
@@ -199,7 +199,7 @@ public class ConstructClassDescriptor {
 	@Test
 	public void forSimpleShort()
 	{
-		testSimpleScalar(SimpleShort.class, ReferenceShortType.class);
+		testSimpleScalar(SimpleShort.class, ShortType.class);
 	}
 	
 	@Test

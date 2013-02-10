@@ -5,6 +5,7 @@ import java.lang.reflect.Field;
 import simpl.annotations.ScalarSupportFor;
 import simpl.exceptions.SIMPLTranslationException;
 import simpl.tools.ReflectionTools;
+import simpl.types.ScalarType;
 
 @ScalarSupportFor({Short.class, short.class})
 public class ShortType extends ScalarType {

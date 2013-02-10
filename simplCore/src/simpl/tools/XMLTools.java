@@ -7,7 +7,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
-import java.io.StringBufferInputStream;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
@@ -47,7 +46,6 @@ import simpl.annotations.dbal.simpl_tag;
 import simpl.core.ElementState;
 import simpl.core.SpecialCharacterEntities;
 import simpl.exceptions.SIMPLTranslationException;
-import simpl.types.CrossLanguageTypeConstants;
 import simpl.types.ScalarType;
 
 import ecologylab.collections.Scope;
@@ -1447,22 +1445,7 @@ public class XMLTools extends Debug implements SpecialCharacterEntities
 		}
 	}
 
-	/**
-	 * Generate a DOM tree from a given String in the XML form.
-	 * <p/>
-	 * Uses the deprecated StringBufferInputStream class.
-	 * 
-	 * @param contents
-	 *          the string for which the DOM needs to be constructed.
-	 * @return the DOM tree representing the XML string.
-	 * 
-	 * @deprecated
-	 */
-	@Deprecated
-	public static Document getDocument(String contents)
-	{
-		return XMLTools.buildDOM(new StringBufferInputStream(contents));
-	}
+
 
 	public static DocumentBuilder getDocumentBuilder() throws ParserConfigurationException
 	{
@@ -1775,99 +1758,9 @@ public class XMLTools extends Debug implements SpecialCharacterEntities
 	 */
 	public static String inferCSharpType(Class<?> fieldType)
 	{
-		// TODO: OH LAWD. THIS IS TERRIBLE. TERRIBLE. 
-		String result = null;
-
-		if (int.class == fieldType)
-		{
-			result = CrossLanguageTypeConstants.DOTNET_INTEGER;
-		}
-		else if (float.class == fieldType)
-		{
-			result = CrossLanguageTypeConstants.DOTNET_FLOAT;
-		}
-		else if (double.class == fieldType)
-		{
-			result = CrossLanguageTypeConstants.DOTNET_DOUBLE;
-		}
-		else if (byte.class == fieldType)
-		{
-			result = CrossLanguageTypeConstants.DOTNET_BYTE;
-		}
-		else if (char.class == fieldType)
-		{
-			result = CrossLanguageTypeConstants.DOTNET_CHAR;
-		}
-		else if (boolean.class == fieldType)
-		{
-			result = CrossLanguageTypeConstants.DOTNET_BOOLEAN;
-		}
-		else if (long.class == fieldType)
-		{
-			result = CrossLanguageTypeConstants.DOTNET_LONG;
-		}
-		else if (short.class == fieldType)
-		{
-			result = CrossLanguageTypeConstants.DOTNET_SHORT;
-		}
-		else if (String.class == fieldType)
-		{
-			result = CrossLanguageTypeConstants.DOTNET_STRING;
-		}
-		else if (StringBuilder.class == fieldType)
-		{
-			result = CrossLanguageTypeConstants.DOTNET_STRING_BUILDER;
-		}
-		else if (URL.class == fieldType)
-		{
-			result = CrossLanguageTypeConstants.DOTNET_URL;
-		}
-		else if (ParsedURL.class == fieldType)
-		{
-			result = CrossLanguageTypeConstants.DOTNET_PARSED_URL;
-		}
-		else if (ScalarType.class == fieldType)
-		{
-			result = CrossLanguageTypeConstants.DOTNET_SCALAR_TYPE;
-		}
-		else if (Date.class == fieldType)
-		{
-			result = CrossLanguageTypeConstants.DOTNET_DATE;
-		}
-		else if (ArrayList.class == fieldType)
-		{
-			result = CrossLanguageTypeConstants.DOTNET_ARRAYLIST;
-		}
-		else if (HashMap.class == fieldType)
-		{
-			result = CrossLanguageTypeConstants.DOTNET_HASHMAP;
-		}
-		else if (HashMapArrayList.class == fieldType)
-		{
-			result = CrossLanguageTypeConstants.DOTNET_HASHMAPARRAYLIST;
-		}
-		else if (Scope.class == fieldType)
-		{
-			result = CrossLanguageTypeConstants.DOTNET_SCOPE;
-		}
-		else if (Class.class == fieldType)
-		{
-			result = CrossLanguageTypeConstants.DOTNET_CLASS;
-		}
-		else if (Field.class == fieldType)
-		{
-			result = CrossLanguageTypeConstants.DOTNET_FIELD;
-		}
-		else if (ByteBuffer.class == fieldType)
-		{
-			result = CrossLanguageTypeConstants.DOTNET_BINARY_DATA;
-		}
-		else
-		{
-			// Assume the field is custom object
-			result = fieldType.getSimpleName();
-		}
-		return result;
+		
+		// TODO: FIX. 
+		return null;
 	}
 
 	/**
@@ -2171,99 +2064,8 @@ public class XMLTools extends Debug implements SpecialCharacterEntities
 	 */
 	public static String inferJavaType(Class<?> fieldType)
 	{
-		// TODO: OH LAWD. THIS IS A TERRIBLE. TERRIBLE THING. 
-		String result = null;
-		
-		if (int.class == fieldType)
-		{
-			result = CrossLanguageTypeConstants.JAVA_INTEGER;
-		}
-		else if (float.class == fieldType)
-		{
-			result = CrossLanguageTypeConstants.JAVA_FLOAT;
-		}
-		else if (double.class == fieldType)
-		{
-			result = CrossLanguageTypeConstants.JAVA_DOUBLE;
-		}
-		else if (byte.class == fieldType)
-		{
-			result = CrossLanguageTypeConstants.JAVA_BYTE;
-		}
-		else if (char.class == fieldType)
-		{
-			result = CrossLanguageTypeConstants.JAVA_CHAR;
-		}
-		else if (boolean.class == fieldType)
-		{
-			result = CrossLanguageTypeConstants.JAVA_BOOLEAN;
-		}
-		else if (long.class == fieldType)
-		{
-			result = CrossLanguageTypeConstants.JAVA_LONG;
-		}
-		else if (short.class == fieldType)
-		{
-			result = CrossLanguageTypeConstants.JAVA_SHORT;
-		}
-		else if (String.class == fieldType)
-		{
-			result = CrossLanguageTypeConstants.JAVA_STRING;
-		}
-		else if (StringBuilder.class == fieldType)
-		{
-			result = CrossLanguageTypeConstants.JAVA_STRING_BUILDER;
-		}
-		else if (URL.class == fieldType)
-		{
-			result = CrossLanguageTypeConstants.JAVA_URL;
-		}
-		else if (ParsedURL.class == fieldType)
-		{
-			result = CrossLanguageTypeConstants.JAVA_PARSED_URL;
-		}
-		else if (ScalarType.class == fieldType)
-		{
-			result = CrossLanguageTypeConstants.JAVA_SCALAR_TYPE;
-		}
-		else if (Date.class == fieldType)
-		{
-			result = CrossLanguageTypeConstants.JAVA_DATE;
-		}
-		else if (ArrayList.class == fieldType)
-		{
-			result = CrossLanguageTypeConstants.JAVA_ARRAYLIST;
-		}
-		else if (HashMap.class == fieldType)
-		{
-			result = CrossLanguageTypeConstants.JAVA_HASHMAP;
-		}
-		else if (HashMapArrayList.class == fieldType)
-		{
-			result = CrossLanguageTypeConstants.JAVA_HASHMAPARRAYLIST;
-		}
-		else if (Scope.class == fieldType)
-		{
-			result = CrossLanguageTypeConstants.JAVA_SCOPE;
-		}
-		else if (Class.class == fieldType)
-		{
-			result = CrossLanguageTypeConstants.JAVA_CLASS;
-		}
-		else if (Field.class == fieldType)
-		{
-			result = CrossLanguageTypeConstants.JAVA_FIELD;
-		}
-		else if (ByteBuffer.class == fieldType)
-		{
-			result = CrossLanguageTypeConstants.JAVA_BINARY_DATA;
-		}
-		else
-		{
-			// Assume the field is custom object
-			result = fieldType.getSimpleName();
-		}
-		return result;
+		// TODO: FIXME
+		return "";
 	}
 	
 	/**

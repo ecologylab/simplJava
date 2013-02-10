@@ -31,11 +31,11 @@ import simpl.annotations.dbal.simpl_use_equals_equals;
 import simpl.core.SimplTypesScope;
 import simpl.core.TranslationContext;
 import simpl.descriptions.indexers.FieldDescriptorIndexer;
+import simpl.deserialization.ISimplDeserializationHooks;
 import simpl.exceptions.SIMPLTranslationException;
 import simpl.formats.enums.StringFormat;
 import simpl.platformspecifics.SimplPlatformSpecifics;
 import simpl.tools.XMLTools;
-import simpl.types.CollectionType;
 import simpl.types.ScalarType;
 import simpl.types.TypeRegistry;
 import simpl.types.element.IMappable;
@@ -55,7 +55,7 @@ import ecologylab.generic.ReflectionTools;
  */
 @simpl_inherit
 public class ClassDescriptor<FD extends FieldDescriptor> extends DescriptorBase
-		implements IMappable<String>, Iterable<FD> {
+		implements IMappable<String>, Iterable<FD>, ISimplDeserializationHooks {
 
 	public static interface FieldDescriptorsDerivedEventListener {
 		void fieldDescriptorsDerived(Object... eventArgs);
@@ -490,24 +490,7 @@ public class ClassDescriptor<FD extends FieldDescriptor> extends DescriptorBase
 		return elementFieldDescriptors;
 	}
 
-	public FD getFieldDescriptorByTag(String tag, SimplTypesScope tScope,
-			Object context) {
-		if (unresolvedScopeAnnotationFDs != null)
-			resolveUnresolvedScopeAnnotationFDs();
 
-		if (unresolvedClassesAnnotationFDs != null)
-			resolveUnresolvedClassesAnnotationFDs();
-
-		return allFieldDescriptorsByTagNames.get(tag);
-	}
-
-	public FD getFieldDescriptorByTag(String tag, SimplTypesScope tScope) {
-		return getFieldDescriptorByTag(tag, tScope, null);
-	}
-	
-	public FD getFieldDescriptorByFieldName(String fieldName) {
-		return fieldDescriptorsByFieldName.get(fieldName);
-	}
 
 	@Override
 	public Iterator<FD> iterator() {
@@ -536,7 +519,6 @@ public class ClassDescriptor<FD extends FieldDescriptor> extends DescriptorBase
 			referFieldDescriptorsFrom(superClassDescriptor);
 		}
 
-		debug(classWithFields.toString());
 		Field[] fields = classWithFields.getDeclaredFields();
 
 		FieldCategorizer fc = new FieldCategorizer();
@@ -589,11 +571,6 @@ public class ClassDescriptor<FD extends FieldDescriptor> extends DescriptorBase
 			if (classWithFields == describedClass) {
 				declaredFieldDescriptorsByFieldName.put(thatField.getName(),
 						fieldDescriptor);
-			}
-
-			if (fieldDescriptor.isMarshallOnly()) {
-				continue; // not translated from XML, so don't add those
-							// mappings
 			}
 
 			// create mappings for translateFromXML() -->
@@ -728,7 +705,7 @@ public class ClassDescriptor<FD extends FieldDescriptor> extends DescriptorBase
 		FDT result = fd;
 		Type genericType = fd.field.getGenericType();
 		if (isTypeUsingGenericNames(genericType, declaredGenericTypeVarNames)) {
-			result = (FDT) fd.clone();
+			result = (FDT) new FieldDescriptor();
 			result.setGenericTypeVars(null);
 			result.genericTypeVarsContextCD = this;
 		}
@@ -845,9 +822,9 @@ public class ClassDescriptor<FD extends FieldDescriptor> extends DescriptorBase
 					fdToMap);
 		
 			if (previousMapping != null && previousMapping != fdToMap) {
-				warning(" tag <" + tagName + ">:\tfield[" + fdToMap.getName()
-						+ "] overrides field[" + previousMapping.getName()
-						+ "]");
+			//	warning(" tag <" + tagName + ">:\tfield[" + fdToMap.getName()
+				//		+ "] overrides field[" + previousMapping.getName()
+					//	+ "]");
 			}
 		}
 	}
@@ -877,7 +854,7 @@ public class ClassDescriptor<FD extends FieldDescriptor> extends DescriptorBase
 
 	@Override
 	public String toString() {
-		return getClassSimpleName() + "[" + this.name + "]";
+		return this.name;//getClassSimpleName() + "[" + this.name + "]";
 	}
 
 	public Class<?> getDescribedClass() {
@@ -914,39 +891,10 @@ public class ClassDescriptor<FD extends FieldDescriptor> extends DescriptorBase
 	/**
 	 * @return The full, qualified name of the class that this describes.
 	 */
-	@Override
 	public String getJavaTypeName() {
 		return getDescribedClassName();
 	}
-
-	@Override
-	public String getCSharpTypeName() {
-		return getDescribedClassName();
-	}
-
-	@Override
-	public String getCSharpNamespace() {
-		String csTypeName = this.getCSharpTypeName();
-		if (csTypeName != null) {
-			int pos = csTypeName.lastIndexOf('.');
-			return pos > 0 ? csTypeName.substring(0, pos)
-					: CSHARP_PRIMITIVE_NAMESPACE;
-		} else {
-			return null;
-		}
-	}
-
-	@Override
-	public String getObjectiveCTypeName() {
-		return explictObjectiveCTypeName != null ? explictObjectiveCTypeName
-				: this.getDescribedClassSimpleName();
-	}
-
-	@Override
-	public String getDbTypeName() {
-		return null;
-	}
-
+	
 	// TODO: Make it default all scalar values. 
 	public Object getInstance() throws SIMPLTranslationException {
 		Object ourObject = XMLTools.getInstance(describedClass);
@@ -1105,78 +1053,12 @@ public class ClassDescriptor<FD extends FieldDescriptor> extends DescriptorBase
 		return this.strictObjectGraphRequired;
 	}
 
-	/**
-	 * Find all the Collection fields in this. Assemble a Set of them, in order
-	 * to generate import statements.
-	 * 
-	 * @return
-	 */
-	public Set<CollectionType> deriveCollectionDependencies() {
-		HashSet<CollectionType> result = new HashSet<CollectionType>();
-		for (FieldDescriptor fd : declaredFieldDescriptorsByFieldName) {
-			if (fd.isCollection())
-				result.add(fd.getCollectionType());
-		}
-		return result;
-	}
 
-	/**
-	 * Find all the Composite fields in this. Assemble a Set of them, in order
-	 * to generate import statements.
-	 * 
-	 * @return
-	 */
-	public Set<ClassDescriptor> deriveCompositeDependencies() {
-		HashSet<ClassDescriptor> result = new HashSet<ClassDescriptor>();
-		for (FieldDescriptor fd : declaredFieldDescriptorsByFieldName) {
-			if (fd.isNested() || (fd.isCollection())) {
-				ClassDescriptor elementClassDescriptor = fd
-						.getElementClassDescriptor();
-				if (elementClassDescriptor != null
-						&& TypeRegistry
-								.getScalarTypeByName(elementClassDescriptor
-										.getDescribedClassName()) == null)
-					result.add(elementClassDescriptor);
 
-				Collection<ClassDescriptor> polyClassDescriptors = fd
-						.getPolymorphicClassDescriptors();
-				if (polyClassDescriptors != null)
-					for (ClassDescriptor polyCd : polyClassDescriptors)
-						result.add(polyCd);
-			}
-		}
-		if (superClass != null) {
-			result.add(superClass);
-		}
-		return result;
-	}
-
-	/**
-	 * Find all the Scalar fields in this. Assemble a Set of them, in order to
-	 * generate import statements.
-	 * 
-	 * @return
-	 */
-	public Set<ScalarType> deriveScalarDependencies() {
-		HashSet<ScalarType> result = new HashSet<ScalarType>();
-		for (FieldDescriptor fd : declaredFieldDescriptorsByFieldName) {
-			if (fd.isScalar()) {
-				ScalarType<?> scalarType = fd.getScalarType();
-				if (!scalarType.isPrimitive()) {
-					result.add(scalarType);
-					ScalarType<?> operativeScalarType = scalarType
-							.operativeScalarType();
-					if (!scalarType.equals(operativeScalarType))
-						result.add(operativeScalarType);
-				}
-			}
-		}
-		/*
-		 * for (String genericTypeName: genericTypeVariables) { ScalarType
-		 * scalarType = TypeRegistry.getType(genericTypeName); if (scalarType !=
-		 * null) result.add(scalarType); }
-		 */
-		return result;
+	
+	public ScalarType getScalarType()
+	{
+		return null;
 	}
 
 	@Override
@@ -1185,8 +1067,9 @@ public class ClassDescriptor<FD extends FieldDescriptor> extends DescriptorBase
 			String name = this.getName();
 			if (name != null) {
 				if (globalClassDescriptorsMap.containsKey(name))
-					error("Already a ClassDescriptor for " + name);
-				else {
+				{
+					//error("Already a ClassDescriptor for " + name);
+			}else {
 					globalClassDescriptorsMap.put(name, this);
 				}
 			}
@@ -1229,6 +1112,19 @@ public class ClassDescriptor<FD extends FieldDescriptor> extends DescriptorBase
 
 	public void setDescribedClassPackageName(String describedClassPackageName) {
 		this.describedClassPackageName = describedClassPackageName;
+	}
+
+	@Override
+	public void deserializationInHook(TranslationContext translationContext) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void deserializationPostHook(TranslationContext translationContext,
+			Object object) {
+		// TODO Auto-generated method stub
+		
 	}
 
 

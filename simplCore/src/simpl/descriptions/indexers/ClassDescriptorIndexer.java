@@ -95,7 +95,8 @@ public class ClassDescriptorIndexer extends MultiIndexer<ClassDescriptor<?>> {
 
 		public String ObtainIndex(ClassDescriptor<?> item) {
 			// TODO Auto-generated method stub
-			return item.getClassSimpleName();
+			//return item.getClassSimpleName();
+			return ""; //TODO FIXME
 		}
 	}
 	
@@ -108,7 +109,8 @@ public class ClassDescriptorIndexer extends MultiIndexer<ClassDescriptor<?>> {
 
 		public String ObtainIndex(ClassDescriptor<?> item) {
 			// TODO Autofgenerated method stub
-			return item.getObjectiveCTypeName();
+			//return item.getObjectiveCTypeName();
+			return ""; //TODO FIXME
 		}
 	}
 	

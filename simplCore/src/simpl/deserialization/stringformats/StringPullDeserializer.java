@@ -45,7 +45,7 @@ public abstract class StringPullDeserializer extends PullDeserializer
 		{
 			if(fd.isScalar())
 			{
-				fd.setFieldToScalarDefault(context, scalarContext);
+				//fd.setFieldToScalarDefault(context, scalarContext);
 			}
 		}
 	}

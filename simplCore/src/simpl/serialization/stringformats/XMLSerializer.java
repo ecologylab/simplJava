@@ -303,12 +303,12 @@ public class XMLSerializer extends StringSerializer
 	private void writeValueAsLeaf(Object object, FieldDescriptor fd, Appendable appendable,
 			TranslationContext translationContext) throws SIMPLTranslationException, IOException
 	{
-		if (!fd.isDefaultValueFromContext(object))
+	/*	if (!fd.isDefaultValueFromContext(object))
 		{
 			appendable.append('<').append(fd.elementStart()).append('>');
 			fd.appendValue(appendable, object, translationContext, Format.XML);
 			appendable.append('<').append('/').append(fd.elementStart()).append('>');
-		}
+		}*/
 	}
 
 	/**
@@ -324,7 +324,7 @@ public class XMLSerializer extends StringSerializer
 			TranslationContext translationContext) throws SIMPLTranslationException, IOException
 	{
 		appendable.append('<').append(fd.elementStart()).append('>');
-		fd.appendCollectionScalarValue(appendable, object, translationContext, Format.XML);
+		//fd.appendCollectionScalarValue(appendable, object, translationContext, Format.XML);
 		appendable.append('<').append('/').append(fd.elementStart()).append('>');
 	}
 
@@ -339,6 +339,7 @@ public class XMLSerializer extends StringSerializer
 	private void writeValueAsText(Object object, FieldDescriptor fd, Appendable appendable)
 			throws SIMPLTranslationException, IOException
 	{
+		/*
 		if (!fd.isDefaultValueFromContext(object))
 		{
 			if (fd.isCDATA())
@@ -346,7 +347,7 @@ public class XMLSerializer extends StringSerializer
 			fd.appendValue(appendable, object, null, Format.XML);
 			if (fd.isCDATA())
 				appendable.append(END_CDATA);
-		}
+		}*/
 	}
 
 	/**
@@ -373,17 +374,18 @@ public class XMLSerializer extends StringSerializer
 	{
 		if (object != null)
 		{
-			if (!fd.isDefaultValueFromContext(object))
+		/*	if (!fd.isDefaultValueFromContext(object))
 			{
 				appendable.append(' ');
 				appendable.append(fd.getTagName());
 				appendable.append('=');
 				appendable.append('"');
 
-				fd.appendValue(appendable, object, translationContext, Format.XML);
+			//	fd.appendValue(appendable, object, translationContext, Format.XML);
 
 				appendable.append('"');
 			}
+			*/
 		}
 	}
 

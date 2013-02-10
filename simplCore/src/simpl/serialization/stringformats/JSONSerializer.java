@@ -174,8 +174,8 @@ public class JSONSerializer extends StringSerializer
 		switch (childFd.getType())
 		{
 		case SCALAR:
-			if (childFd.isDefaultValueFromContext(object))
-				return false;
+		//	if (childFd.isDefaultValueFromContext(object))
+			//	return false;
 			break;
 		case COMPOSITE_ELEMENT:
 		case COLLECTION_ELEMENT:
@@ -338,7 +338,7 @@ public class JSONSerializer extends StringSerializer
 		appendable.append('"');
 		appendable.append(':');
 		appendable.append('"');
-		fd.appendValue(appendable, object, translationContext, Format.JSON);
+		//fd.appendValue(appendable, object, translationContext, Format.JSON);
 		appendable.append('"');
 	}
 
@@ -413,7 +413,7 @@ public class JSONSerializer extends StringSerializer
 			TranslationContext translationContext) throws IOException, SIMPLTranslationException
 	{
 		appendable.append('"');
-		fd.appendCollectionScalarValue(appendable, object, translationContext, Format.JSON);
+		//fd.appendCollectionScalarValue(appendable, object, translationContext, Format.JSON);
 		appendable.append('"');
 	}
 

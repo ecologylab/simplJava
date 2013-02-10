@@ -158,7 +158,7 @@ public class JSONPullDeserializer extends StringPullDeserializer
 		{
 			if(fd.isScalar() && (fd.isEnum() == false))
 			{
-				fd.setFieldToScalarDefault(root, translationContext);
+				//fd.setFieldToScalarDefault(root, translationContext);
 			}
 		}
 
@@ -236,7 +236,7 @@ public class JSONPullDeserializer extends StringPullDeserializer
 				  {
 				    path = 3;
 				    fieldTag = jp.getText();
-				    currentFieldDescriptor = rootClassDescriptor.getFieldDescriptorByTag(fieldTag, translationScope, null);
+				 //   currentFieldDescriptor = rootClassDescriptor.getFieldDescriptorByTag(fieldTag, translationScope, null);
 				  }
 				}
 				
@@ -280,8 +280,8 @@ public class JSONPullDeserializer extends StringPullDeserializer
 							jp.nextToken();
 
 							subRoot = getSubRoot(currentFieldDescriptor, jp.getCurrentName());
-							Collection collection = (Collection) currentFieldDescriptor
-									.automaticLazyGetCollectionOrMap(root);
+							Collection collection =null;// (Collection) currentFieldDescriptor
+								//	.automaticLazyGetCollectionOrMap(root);
 							collection.add(subRoot);
 
 							jp.nextToken();
@@ -293,8 +293,8 @@ public class JSONPullDeserializer extends StringPullDeserializer
 							while (jp.nextToken() != JsonToken.END_ARRAY)
 							{
 								subRoot = getSubRoot(currentFieldDescriptor, jp.getCurrentName());
-								Collection collection = (Collection) currentFieldDescriptor
-										.automaticLazyGetCollectionOrMap(root);
+								Collection collection =null;// (Collection) currentFieldDescriptor
+										//.automaticLazyGetCollectionOrMap(root);
 								collection.add(subRoot);
 							}
 					}
@@ -317,7 +317,7 @@ public class JSONPullDeserializer extends StringPullDeserializer
 							if (subRoot instanceof IMappable)
 							{
 								final Object key = ((IMappable) subRoot).key();
-								Map map = (Map) currentFieldDescriptor.automaticLazyGetCollectionOrMap(root);
+								Map map = null;//(Map) currentFieldDescriptor.automaticLazyGetCollectionOrMap(root);
 								map.put(key, subRoot);
 							}
 
@@ -334,7 +334,7 @@ public class JSONPullDeserializer extends StringPullDeserializer
 							if (subRoot instanceof IMappable)
 							{
 								final Object key = ((IMappable) subRoot).key();
-								Map map = (Map) currentFieldDescriptor.automaticLazyGetCollectionOrMap(root);
+								Map map =null;// (Map) currentFieldDescriptor.automaticLazyGetCollectionOrMap(root);
 								map.put(key, subRoot);
 							}
 						}
@@ -345,7 +345,7 @@ public class JSONPullDeserializer extends StringPullDeserializer
 
 					while (jp.nextToken() != JsonToken.END_ARRAY)
 					{
-						currentFieldDescriptor.addLeafNodeToCollection(root, jp.getText(), translationContext);
+					//	currentFieldDescriptor.addLeafNodeToCollection(root, jp.getText(), translationContext);
 					}
 					break;
 				case WRAPPER:
@@ -421,7 +421,7 @@ public class JSONPullDeserializer extends StringPullDeserializer
 				{
 					if(fd.isScalar() && (fd.isEnum() == false))
 					{
-						fd.setFieldToScalarDefault(subRoot, translationContext);
+						//fd.setFieldToScalarDefault(subRoot, translationContext);
 					}
 				}
 

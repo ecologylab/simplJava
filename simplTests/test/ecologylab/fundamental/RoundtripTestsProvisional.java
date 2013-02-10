@@ -82,13 +82,8 @@ public class RoundtripTestsProvisional {
 	public void nullStringValue() throws SIMPLTranslationException, IllegalArgumentException, IllegalAccessException, NoSuchFieldException, SecurityException 
 	{
 	    TrickyString ts = new TrickyString();
-	    ts.trickyString = null;
-	    
-	    ScalarType<?> stringType = TypeRegistry.getScalarType(String.class);
-	    
-	    assertTrue("Null is the new default string value - via value check", stringType.isDefaultValue(ts.trickyString));
-	    assertTrue("Null is the new default string value - via field check", stringType.isDefaultValue(ts.getClass().getField("trickyString"), ts));
-	    
+	    ts.trickyString = null;	    
+	  
 	    String xml = SimplTypesScope.serialize(ts, StringFormat.XML).toString();
 	    System.out.println(xml);
 	    

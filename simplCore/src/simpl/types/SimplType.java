@@ -16,7 +16,6 @@ import ecologylab.generic.ReflectionTools;
  */
 @simpl_inherit
 public abstract class SimplType<T> extends SimplBaseType
-implements CrossLanguageTypeConstants
 {
 	private Class<? extends T>	javaClass;
 	
@@ -90,7 +89,6 @@ implements CrossLanguageTypeConstants
 		
 		this.dbTypeName					= dbTypeName;
 
-		TypeRegistry.registerSimplType(this);
 		//System.out.println("simpl type registered: "  + this);
 	}
 	
@@ -98,7 +96,6 @@ implements CrossLanguageTypeConstants
 	 * The full, qualified name of the class that this describes
 	 * @return
 	 */
-	@Override
 	public String getJavaTypeName()
 	{
 		return javaTypeName;
@@ -123,7 +120,6 @@ implements CrossLanguageTypeConstants
 	 * 
 	 * @return	cSharpTypeName, if one was passed in explicitly. otherwise, null.
 	 */
-	@Override
 	public String getCSharpTypeName()
 	{
 		return cSharpTypeName != null ? cSharpTypeName : javaTypeName;
@@ -134,7 +130,6 @@ implements CrossLanguageTypeConstants
 	/**
 	 * The namespace to use in C# cross-compilation.
 	 */
-	@Override
 	public String getCSharpNamespace()
 	{
 		if (cSharpNamespace == null)
@@ -155,7 +150,6 @@ implements CrossLanguageTypeConstants
 	 * 
 	 * @return	objectiveCTypeName, if one was passed in explicitly. otherwise, null.
 	 */
-	@Override
 	public String getObjectiveCTypeName()
 	{
 		return objectiveCTypeName;
@@ -165,7 +159,6 @@ implements CrossLanguageTypeConstants
 	 * 
 	 * @return	Name of this type for database columns.
 	 */
-	@Override
 	public String getDbTypeName()
 	{
 		return dbTypeName;
@@ -198,8 +191,11 @@ implements CrossLanguageTypeConstants
 	static String deriveCrossPlatformName(Class javaClass, boolean isScalar)
 	{
 		String javaClassName 	= javaClass.getName();
-		return javaClassName.startsWith("java") ? 
+	/*	return javaClassName.startsWith("java") ? 
 				(isScalar ? SIMPL_SCALAR_TYPES_PREFIX : SIMPL_COLLECTION_TYPES_PREFIX) + javaClass.getSimpleName() : javaClassName;
+				*/
+		return "";
+		// TODO: FIX/
 	}
 
 	@Override

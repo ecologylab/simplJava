@@ -146,9 +146,9 @@ public class BibtexSerializer extends StringSerializer
 	private void writeScalarBibtexAttribute(Object object, FieldDescriptor fd, Appendable appendable,
 			TranslationContext translationContext) throws SIMPLTranslationException
 	{
-		if (!fd.isDefaultValueFromContext(object))
+//		if (!fd.isDefaultValueFromContext(object))
 		{
-			fd.appendValue(appendable, object, translationContext, Format.BIBTEX);
+			//fd.appendValue(appendable, object, translationContext, Format.BIBTEX);
 		}
 	}
 
@@ -160,15 +160,15 @@ public class BibtexSerializer extends StringSerializer
 	 * @param translationContext
 	 * @throws SIMPLTranslationException
 	 * @throws IOException
-	 */
+	/ */
 	private void writeBibtexAttribute(Object object, FieldDescriptor fd, Appendable appendable,
 			TranslationContext translationContext) throws SIMPLTranslationException, IOException
 	{
-		if (!fd.isDefaultValueFromContext(object))
-		{
-		}
+	//	if (!fd.isDefaultValueFromContext(object))
+		//{
+		//}
 
-		fd.appendValue(appendable, object, translationContext, Format.BIBTEX);
+		//fd.appendValue(appendable, object, translationContext, Format.BIBTEX);
 
 	}
 
@@ -283,7 +283,7 @@ public class BibtexSerializer extends StringSerializer
 			Appendable appendable, TranslationContext translationContext)
 			throws SIMPLTranslationException
 	{
-		fd.appendCollectionScalarValue(appendable, collectionObject, translationContext, Format.BIBTEX);
+	//	fd.appendCollectionScalarValue(appendable, collectionObject, translationContext, Format.BIBTEX);
 	}
 
 	/**

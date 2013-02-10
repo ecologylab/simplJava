@@ -7,6 +7,7 @@ import simpl.annotations.ScalarSupportFor;
 import simpl.core.SimplIssue;
 import simpl.exceptions.SIMPLTranslationException;
 import simpl.tools.ReflectionTools;
+import simpl.types.ScalarType;
 
 
 @ScalarSupportFor({Boolean.class, boolean.class})

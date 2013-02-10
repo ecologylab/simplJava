@@ -14,7 +14,7 @@ import simpl.core.ElementState;
  * @author andruid
  */
 @simpl_inherit
-abstract public class SimplBaseType extends ElementState
+abstract public class SimplBaseType
 {
 
 	public static final String	JAVA_PRIMITIVE_PACKAGE_NAME	= "java.lang";
@@ -48,15 +48,5 @@ abstract public class SimplBaseType extends ElementState
 	{
 		return name;
 	}
-
-	public abstract String getJavaTypeName();
-
-	public abstract String getCSharpTypeName();
-	
-	public abstract String getCSharpNamespace();
-
-	public abstract String getObjectiveCTypeName();
-
-	public abstract String getDbTypeName();
 	
 }

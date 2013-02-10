@@ -1,4 +1,4 @@
-package simpl.types.scalar;
+package simpl.types;
 
 import java.lang.reflect.Field;
 import java.util.Arrays;
@@ -8,7 +8,6 @@ import simpl.annotations.ScalarSupportFor;
 import simpl.core.ISimplStringMarshaller;
 import simpl.exceptions.SIMPLTranslationException;
 import simpl.tools.ReflectionTools;
-import simpl.types.TypeRegistry;
 
 /**
  * An abstract class to represent a scalar type mapping in simpl.
@@ -23,8 +22,7 @@ public abstract class ScalarType implements ISimplStringMarshaller{
 
 	public ScalarType()
 	{
-		// TODO: Refactor type registry. :) 
-		//TypeRegistry.registerSimplType(null);
+		TypeRegistry.register(this);
 	}
 	
 	private boolean fieldIsPrimitive(Field f)

@@ -17,7 +17,7 @@ public class SimplUnderstander {
 		
 		for(FieldDescriptor fd : cd.fieldDescriptors.Scalars)
 		{
-			fd.setFieldToScalarDefault(ourObject, null);
+			//fd.setFieldToScalarDefault(ourObject, null);
 		}
 		
 		HashMap<String, String> fieldNameToValues = new HashMap<String,String>();
@@ -30,7 +30,7 @@ public class SimplUnderstander {
 		for(FieldDescriptor fd: cd.fieldDescriptors.Scalars)
 		{
 			String value = fieldNameToValues.get(fd.getField().getName());
-			fd.getScalarType().setField(ourObject, fd.getField(), value);
+			//fd.getScalarType().setFieldValue(value, fd.getField(), ourObject);
 		}
 		
 		return ourObject;

@@ -13,6 +13,7 @@ import simpl.annotations.dbal.simpl_scalar;
 import simpl.annotations.dbal.simpl_tag;
 import simpl.core.ElementState;
 import simpl.core.TranslationContext;
+import simpl.exceptions.SIMPLTranslationException;
 import simpl.types.ScalarType;
 
 import ecologylab.collections.Scope;
@@ -78,7 +79,7 @@ public abstract class MetaPref<T> extends ElementState implements WidgetTypes
 	{ ChoiceBoolean.class, ChoiceFloat.class, ChoiceInt.class })
 	ArrayList<Choice<T>>											choices;
 
-	ScalarType<T>															scalarType;
+	ScalarType															scalarType;
 
 	/**
 	 * LinkedHashMap to make locating exact choices easier
@@ -401,7 +402,12 @@ public abstract class MetaPref<T> extends ElementState implements WidgetTypes
 	 */
 	public T getInstance(String string)
 	{
-		return scalarType.getInstance(string);
+		try {
+			return (T) scalarType.unmarshal(string);
+		} catch (SIMPLTranslationException e) {
+			// TODO Auto-generated catch block
+			throw new RuntimeException(e.getMessage());
+		}
 	}
 
 	public T getInstance(T value)

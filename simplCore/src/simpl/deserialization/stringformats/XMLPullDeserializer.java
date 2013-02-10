@@ -211,7 +211,7 @@ public class XMLPullDeserializer extends StringPullDeserializer
 		{
 			if(fd.isScalar() && (fd.isEnum() == false))
 			{
-				fd.setFieldToScalarDefault(root, translationContext);
+				//fd.setFieldToScalarDefault(root, translationContext);
 			}
 		}
 
@@ -283,7 +283,7 @@ public class XMLPullDeserializer extends StringPullDeserializer
 
 				currentFieldDescriptor = currentFieldDescriptor != null &&currentFieldDescriptor.getType() == FieldType.WRAPPER
 						? currentFieldDescriptor.getWrappedFD()
-						: rootClassDescriptor.getFieldDescriptorByTag(tag, translationScope, null);
+						:null;// rootClassDescriptor.getFieldDescriptorByTag(tag, translationScope, null);
 
 				if (currentFieldDescriptor == null)
 				{
@@ -393,7 +393,7 @@ public class XMLPullDeserializer extends StringPullDeserializer
 					}
 
 					String value = text.toString();
-					fd.addLeafNodeToCollection(root, value, translationContext);
+					//fd.addLeafNodeToCollection(root, value, translationContext);
 				}
 
 				event 	= xmlParser.nextTag();
@@ -451,7 +451,7 @@ public class XMLPullDeserializer extends StringPullDeserializer
 			final Object key = (subRoot instanceof IMappable<?>) ? ((IMappable<?>) subRoot).key() : fd.getMapKeyFieldValue(subRoot); 
 			if (key != null)
 			{
-				Map map = (Map) fd.automaticLazyGetCollectionOrMap(root);
+				Map map = null;// (Map) fd.automaticLazyGetCollectionOrMap(root);
 				map.put(key, subRoot);
 			}
 
@@ -493,7 +493,7 @@ public class XMLPullDeserializer extends StringPullDeserializer
 				subRoot = getSubRoot(fd, tagName, root);
 				
 				
-				Collection collection = (Collection) fd.automaticLazyGetCollectionOrMap(root);
+				Collection collection =null;// (Collection) fd.automaticLazyGetCollectionOrMap(root);
 				collection.add(subRoot);
 
 				event 	= xmlParser.nextTag();
@@ -584,7 +584,7 @@ public class XMLPullDeserializer extends StringPullDeserializer
 			{
 				if(fd.isScalar() && (fd.isEnum() == false))
 				{
-					fd.setFieldToScalarDefault(subRoot, translationContext);
+					//fd.setFieldToScalarDefault(subRoot, translationContext);
 				}
 			}
 
@@ -671,8 +671,8 @@ public class XMLPullDeserializer extends StringPullDeserializer
 			}
 			else
 			{
-				FieldDescriptor attributeFieldDescriptor = rootClassDescriptor.getFieldDescriptorByTag(tag,
-						translationScope);
+				FieldDescriptor attributeFieldDescriptor = null;//rootClassDescriptor.getFieldDescriptorByTag(tag,
+						//translationScope);
 
 				if (attributeFieldDescriptor != null)
 				{

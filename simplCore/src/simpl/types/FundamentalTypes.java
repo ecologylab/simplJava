@@ -17,8 +17,8 @@ import ecologylab.generic.HashMapArrayList;
 import ecologylab.net.ParsedURL;
 
 public class FundamentalTypes
-implements CrossLanguageTypeConstants
 {
+	/*
 	public static final CollectionType<ArrayList> ARRAYLIST_TYPE				= 
 		new CollectionType<ArrayList>(ArrayList.class, DOTNET_ARRAYLIST, OBJC_ARRAYLIST);
 
@@ -27,7 +27,7 @@ implements CrossLanguageTypeConstants
 
 	public static final CollectionType<HashMapArrayList> HASHMAPARRAYLIST_TYPE	= 
 		new CollectionType<HashMapArrayList>( HashMapArrayList.class, DOTNET_HASHMAPARRAYLIST, OBJC_HASHMAPARRAYLIST);
-
+s
 	public static final CollectionType<Scope> SCOPE_TYPE						= 
 		new CollectionType<Scope>(Scope.class, DOTNET_SCOPE, OBJC_SCOPE);
 	
@@ -36,6 +36,8 @@ implements CrossLanguageTypeConstants
 		TypeRegistry.setDefaultCollectionType(ARRAYLIST_TYPE);
 		TypeRegistry.setDefaultMapType(HASHMAP_TYPE);
 	}
+	
+	*/
 	
 	/*
 	public static final ScalarType<String> STRING_TYPE 					= new StringType();

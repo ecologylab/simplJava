@@ -5,6 +5,7 @@ import java.lang.reflect.Field;
 import simpl.annotations.ScalarSupportFor;
 import simpl.exceptions.SIMPLTranslationException;
 import simpl.tools.ReflectionTools;
+import simpl.types.ScalarType;
 
 @ScalarSupportFor({Double.class, double.class})
 public class DoubleType extends ScalarType {

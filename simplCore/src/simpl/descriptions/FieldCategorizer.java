@@ -86,7 +86,7 @@ public class FieldCategorizer {
 	 */
 	public static boolean isScalarValue(Field field)
 	{
-		return TypeRegistry.containsScalarType(field.getType());
+		return TypeRegistry.containsScalarTypeFor(field.getType());
 	}
 
 	public static boolean representAsCollection(Field field)

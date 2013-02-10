@@ -250,9 +250,11 @@ public final class SimplTypesScope extends Debug implements ISimplDeserializatio
 	 * @param thatClass
 	 * @return Type associated with thatClass
 	 */
-	<U> ScalarType<U> getType(Class<U> thatClass)
+	ScalarType getType(Class<?> thatClass)
 	{
-		return TypeRegistry.getScalarType(thatClass);
+		// todo fix ;)
+		return null; 
+
 	}
 
 	/**

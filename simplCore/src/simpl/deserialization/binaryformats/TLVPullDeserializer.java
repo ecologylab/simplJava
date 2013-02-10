@@ -285,7 +285,7 @@ public class TLVPullDeserializer extends BinaryPullDeserializer
 		if (subRoot instanceof IMappable<?>)
 		{
 			final Object key = ((IMappable<?>) subRoot).key();
-			Map map = (Map) fd.automaticLazyGetCollectionOrMap(root);
+			Map map = null;//(Map) fd.automaticLazyGetCollectionOrMap(root);
 			map.put(key, subRoot);
 		}
 
@@ -307,7 +307,7 @@ public class TLVPullDeserializer extends BinaryPullDeserializer
 		int length = length();
 
 		subRoot = getSubRoot(fd, root);
-		Collection collection = (Collection) fd.automaticLazyGetCollectionOrMap(root);
+		Collection collection =null;// (Collection) fd.automaticLazyGetCollectionOrMap(root);
 		collection.add(subRoot);
 		return length;
 	}
@@ -341,8 +341,8 @@ public class TLVPullDeserializer extends BinaryPullDeserializer
 			throws SIMPLTranslationException, IOException
 	{
 		Object subRoot = null;
-		ClassDescriptor<? extends FieldDescriptor> subRootClassDescriptor = currentFieldDescriptor
-				.getChildClassDescriptor(type());
+		ClassDescriptor<? extends FieldDescriptor> subRootClassDescriptor = null;//currentFieldDescriptor
+				//.getChildClassDescriptor(type());
 
 		subRoot = subRootClassDescriptor.getInstance();
 		deserializationPreHook(subRoot, translationContext);
@@ -383,7 +383,7 @@ public class TLVPullDeserializer extends BinaryPullDeserializer
 		byte[] value = new byte[length()];
 		inputStream.read(value);
 		String stringValue = new String(value);
-		fd.addLeafNodeToCollection(root, stringValue, translationContext);
+		//fd.addLeafNodeToCollection(root, stringValue, translationContext);
 		return length();
 	}
 

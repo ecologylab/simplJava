@@ -91,8 +91,10 @@ public class TLVSerializer extends BinarySerializer
 		ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
 		DataOutputStream outputBuffer = new DataOutputStream(byteArrayOutputStream);
 
-		int id = rootObjectFieldDescriptor.getTLVId();
+		//int id = rootObjectFieldDescriptor.getTLVId();
 
+		int id = -1;
+		
 		serializeFields(object, outputBuffer, translationContext, rootObjectClassDescriptor);
 
 		writeHeader(dataOutputStream, byteArrayOutputStream, id);
@@ -231,7 +233,7 @@ public class TLVSerializer extends BinarySerializer
 		{
 			if (fd.isWrapped())
 			{
-				outputBuffer.writeInt(fd.getWrappedTLVId());
+			//	outputBuffer.writeInt(fd.getWrappedTLVId());
 				outputBuffer.writeInt(collectionBuffy.size());
 				collectionBuffy.writeTo(outputBuffer);
 			}
@@ -256,38 +258,6 @@ public class TLVSerializer extends BinarySerializer
 			DataOutputStream outputBuffer, TranslationContext translationContext)
 			throws SIMPLTranslationException
 	{
-		try
-		{
-			if (!fd.isDefaultValue(object))
-			{
-				outputBuffer.writeInt(fd.getTLVId());
-
-				// TODO appendValue in scalar types should be able to append bytes to DataOutputStream.
-				final StringBuilder buffy = new StringBuilder();
-				OutputStream outputStream = new OutputStream()
-				{
-					@Override
-					public void write(int b) throws IOException
-					{
-						buffy.append((char) b);
-					}
-				};
-
-				fd.appendCollectionScalarValue(new PrintStream(outputStream), object, translationContext,
-						Format.TLV);
-
-				ByteArrayOutputStream temp = new ByteArrayOutputStream();
-				DataOutputStream tempStream = new DataOutputStream(temp);
-				tempStream.writeBytes(buffy.toString());
-
-				outputBuffer.writeInt(tempStream.size());
-				temp.writeTo(outputBuffer);
-			}
-		}
-		catch (IOException e)
-		{
-			throw new SIMPLTranslationException("IOException", e);
-		}
 	}
 
 	/**
@@ -301,37 +271,7 @@ public class TLVSerializer extends BinarySerializer
 	private void writeValue(Object object, FieldDescriptor fd, DataOutputStream outputBuffer,
 			TranslationContext translationContext) throws SIMPLTranslationException
 	{
-		try
-		{
-			if (!fd.isDefaultValueFromContext(object))
-			{
-				outputBuffer.writeInt(fd.getTLVId());
-
-				// TODO appendValue in scalar types should be able to append bytes to DataOutputStream.
-				final StringBuilder buffy = new StringBuilder();
-				OutputStream outputStream = new OutputStream()
-				{
-					@Override
-					public void write(int b) throws IOException
-					{
-						buffy.append((char) b);
-					}
-				};
-
-				fd.appendValue(new PrintStream(outputStream), object, translationContext, Format.TLV);
-
-				ByteArrayOutputStream temp = new ByteArrayOutputStream();
-				DataOutputStream tempStream = new DataOutputStream(temp);
-				tempStream.writeBytes(buffy.toString());
-
-				outputBuffer.writeInt(tempStream.size());
-				temp.writeTo(outputBuffer);
-			}
-		}
-		catch (IOException e)
-		{
-			throw new SIMPLTranslationException("IOException", e);
-		}
+		
 	}
 
 	/**
@@ -351,6 +291,6 @@ public class TLVSerializer extends BinarySerializer
 		outputBuffer.writeInt(4);
 		outputBuffer.writeInt(object.hashCode());
 
-		writeHeader(outputStream, simplRefData, fd.getTLVId());
+		//writeHeader(outputStream, simplRefData, fd.getTLVId());
 	}
 }
