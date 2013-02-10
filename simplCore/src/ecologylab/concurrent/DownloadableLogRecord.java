@@ -2,12 +2,12 @@ package ecologylab.concurrent;
 
 import java.util.ArrayList;
 
-import ecologylab.serialization.annotations.simpl_composite;
+import ecologylab.serialization.annotations.simpl_collection;
 import ecologylab.serialization.annotations.simpl_scalar;
 
 public class DownloadableLogRecord
 {
-	@simpl_composite
+	@simpl_collection("peek_interval")
 	ArrayList<Long> queuePeekIntervals = new ArrayList<Long>();
 	
 	private long enQueueTimestamp;
