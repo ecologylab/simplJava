@@ -1,7 +1,15 @@
+# OS
 .DS_Store
+
+# Editors
 *~
 
-*/bin/*
+# Eclipse
+.metadata/
+.settings/
+bin/
+target/
 
+# Java
 .class
-.orig
+
