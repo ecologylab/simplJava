@@ -109,7 +109,6 @@ public class ConstructClassDescriptor {
 		{
 			testSimpleInt(i, StringFormat.JSON);
 		}
-	
 	}
 	
 	private void testSimpleInt(int i , StringFormat format) throws SIMPLTranslationException
@@ -136,8 +135,8 @@ public class ConstructClassDescriptor {
 	public void forSimpleLong(){
 		testSimpleScalar(SimpleLong.class, LongType.class);
 	}
-	/*
 	
+	/*
 	@Test
 	public void forSimpleParsedURL()
 	{
@@ -199,20 +198,20 @@ public class ConstructClassDescriptor {
 		testSimpleScalar(Simpleprimshort.class, ShortType.class);
 	}
 	
-	// TODO.
 	@Test
 	public void forSimpleShort()
 	{
 		testSimpleScalar(SimpleShort.class, ShortType.class);
 	}
 	
-	/*
+	
 	@Test
 	public void forSimpleString()
 	{
 		testSimpleScalar(SimpleString.class, StringType.class);
 	}
 	
+	/*
 	@Test
 	public void forSimpleStringBuilder()
 	{

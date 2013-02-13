@@ -1,5 +1,7 @@
 package simpl.core;
 
+import java.util.Collection;
+
 import simpl.descriptions.ClassDescriptor;
 import simpl.descriptions.EnumerationDescriptor;
 
@@ -38,7 +40,6 @@ public interface ISimplTypesScope {
 	 */
 	void removeTranslation(Class<?> classObj);
 	
-	
 	void overrideWithMockTranslation(Class<?> classObj);
 	
 	/**
@@ -61,6 +62,10 @@ public interface ISimplTypesScope {
 	 * @return
 	 */
 	EnumerationDescriptor getEnumerationDescriptorByTag(String tag);
+	
+	Collection<ClassDescriptor<?>> getAllClassDescriptors();
+	
+	Collection<EnumerationDescriptor> getAllEnumerationDescriptors();
 	
 	/**
 	 * Inherit all of the translations from the parent "sts" into this Simpl Types Scope.

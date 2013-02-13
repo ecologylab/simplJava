@@ -39,8 +39,6 @@ public class ClassDescriptorIndexer extends MultiIndexer<ClassDescriptor<?>> {
 		 */
 		public Collection<String> ObtainIndexes(ClassDescriptor<?> item) {
 			Collection<String> ourIndexes = new LinkedList<String>();
-			
-			
 			return ourIndexes;
 		}
 	}

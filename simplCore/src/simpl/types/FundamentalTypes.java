@@ -10,11 +10,12 @@ import java.util.HashMap;
 import java.util.UUID;
 import java.util.regex.Pattern;
 
-import simpl.types.scalar.*;
+
 
 import ecologylab.collections.Scope;
 import ecologylab.generic.HashMapArrayList;
 import ecologylab.net.ParsedURL;
+import simpl.types.scalar.*;
 
 public class FundamentalTypes
 {
@@ -39,24 +40,31 @@ s
 	
 	*/
 	
+	public static final ScalarType INT_TYPE = new IntegerType();
+	
+	public static final ScalarType LONG_TYPE = new LongType();
+	
+	public static final ScalarType BOOLEAN_TYPE = new BooleanType();
+	
+	public static final ScalarType FLOAT_TYPE = new FloatType();
+	
+	public static final ScalarType BYTE_TYPE = new ByteType();
+	
+	public static final ScalarType SHORT_TYPE = new ShortType();
+	
+	public static final ScalarType DOUBLE_TYPE = new DoubleType();
+	
+	public static final ScalarType CHAR_TYPE = new CharType();
+	
 	/*
 	public static final ScalarType<String> STRING_TYPE 					= new StringType();
 	
 	public static final ScalarType<StringBuilder> STRING_BUILDER_TYPE	= new StringBuilderType();
+
 	
-	public static final ScalarType<Integer> INT_TYPE 						= new IntType();
-	
-	public static final ScalarType<Integer> REFERENCE_INTEGER_TYPE 	= new ReferenceIntegerType();
-	
-	public static final ScalarType<Long> LONG_TYPE 						= new LongType();
-	
-	public static final ScalarType<Long> REFERENCE_LONG_TYPE 	= new ReferenceLongType();
-	
-	public static final ScalarType<Boolean> BOOLEAN_TYPE 				= new BooleanType();
 	
 	public static final ScalarType<Boolean> REFERENCE_BOOLEAN_TYPE 	= new ReferenceBooleanType();
 	
-	public static final ScalarType<Float> FLOAT_TYPE 					= new FloatType();
 	
 	public static final ScalarType<Float> REFERENCE_FLOAT_TYPE = new ReferenceFloatType();
 	

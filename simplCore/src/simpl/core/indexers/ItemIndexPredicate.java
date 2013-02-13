@@ -3,6 +3,8 @@ package simpl.core.indexers;
 import java.util.Collection;
 import java.util.LinkedList;
 
+import ecologylab.generic.Debug;
+
 /**
  * A predicate to describe indexing items for a multiindexer. 
  * @author tom
@@ -29,10 +31,14 @@ public abstract class ItemIndexPredicate<IndexedItem>{
 	public Collection<String> ObtainIndexes(IndexedItem item)
 	{
 		Collection<String> ourCollection = new LinkedList<String>();
-		String index = ObtainIndex(item);
-		if(index != null || !index.isEmpty())
+		
+		if(item != null)
 		{
-			ourCollection.add(index);
+			String index = ObtainIndex(item);
+			if(index != null && !index.isEmpty())
+			{
+				ourCollection.add(index);
+			}
 		}
 		return ourCollection;
 	}

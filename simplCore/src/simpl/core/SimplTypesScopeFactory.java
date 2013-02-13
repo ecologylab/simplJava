@@ -110,15 +110,16 @@ public class SimplTypesScopeFactory {
 		public STSTranslationsCompleted(STSFactoryData ourData,
 				Class<?>[] translationClasses) {
 			this.ourData = ourData;
-
-			if(translationClasses.length < 1)
-			{
-				throw new RuntimeException("Must have at least one class to translate!");
-			}
 			
-			for(Class<?> c : translationClasses)
+			// Maybe we should have an invariant for empty STS.
+			// TODO: THink about it. 
+			
+			if(translationClasses != null)
 			{
-				ourData.translations.add(c);
+				for(Class<?> c : translationClasses)
+				{
+					ourData.translations.add(c);
+				}
 			}
 		}
 

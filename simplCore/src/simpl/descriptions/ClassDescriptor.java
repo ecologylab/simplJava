@@ -441,12 +441,6 @@ public class ClassDescriptor<FD extends FieldDescriptor> extends DescriptorBase
 
 				}
 			}
-			
-			for(FieldDescriptor fd : result.allFieldDescriptors())
-			{
-				result.fieldDescriptors.Insert(fd);
-			}
-			
 		}
 		return result;
 	}
@@ -987,7 +981,7 @@ public class ClassDescriptor<FD extends FieldDescriptor> extends DescriptorBase
 		}
 	}
 
-	/**
+	/**	
 	 * Late evaluation of @serial_scope, if it failed the first time around.
 	 */
 	public void resolveUnresolvedClassesAnnotationFDs() {

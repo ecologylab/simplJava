@@ -151,6 +151,8 @@ public final class SimplTypesScope extends Debug implements ISimplDeserializatio
 	 */
 	public SimplTypesScope()
 	{
+		this.classDescriptors = new ClassDescriptorIndexer();
+		this.enumerationDescriptors = new EnumerationDescriptorIndexer();
 	}
 
 	/**
@@ -183,7 +185,7 @@ public final class SimplTypesScope extends Debug implements ISimplDeserializatio
 		else
 		{
 			// Add a class!
-			ClassDescriptor entry = ClassDescriptor.getClassDescriptor(classObj);
+			ClassDescriptor<?> entry = ClassDescriptor.getClassDescriptor(classObj);
 			this.classDescriptors.Insert(entry);
 		}
 	}
@@ -439,6 +441,12 @@ public final class SimplTypesScope extends Debug implements ISimplDeserializatio
 	}
 
 	public Class<?> getClassByTag(String string) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Collection<EnumerationDescriptor> getAllEnumerationDescriptors() {
 		// TODO Auto-generated method stub
 		return null;
 	}

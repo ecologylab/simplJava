@@ -96,7 +96,10 @@ public abstract class MultiIndexer<IndexedObject> implements Iterable<IndexedObj
 			// We can index something by multiple values; consider "other tags"
 			for(String indexValue : indexValues)
 			{
-				this.allmaps.get(indexID).put(indexValue, object);
+				if(!indexValue.isEmpty())
+				{
+					this.allmaps.get(indexID).put(indexValue, object);
+				}
 			}
 		}
 	}
@@ -117,7 +120,10 @@ public abstract class MultiIndexer<IndexedObject> implements Iterable<IndexedObj
 			
 			for(String indexValue : indexValues)
 			{
-				this.allmaps.get(indexID).remove(indexValue);
+				if(!indexValue.isEmpty())
+				{
+					this.allmaps.get(indexID).remove(indexValue);
+				}
 			}
 		}
 	}

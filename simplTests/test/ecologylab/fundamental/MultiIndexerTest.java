@@ -14,21 +14,23 @@ public class MultiIndexerTest {
 	@Test
 	public void testInsert() {
 
+		// A class that we'll obtain a class descriptor for, and then index.
 		final class myClass{
 		}
-		
+		// Get the class descriptor. 
+		ClassDescriptor<?> relevant = ClassDescriptor.getClassDescriptor(myClass.class);
+
+		// Create a multi indexer
 		MultiIndexer<ClassDescriptor<?>> sut = new ClassDescriptorIndexer();
 		
-		ClassDescriptor<?> relevant = ClassDescriptor.getClassDescriptor(myClass.class);
-		
 		sut.Insert(relevant);
+	
+		assertTrue("Our multi indexer should have a single item in it!", 1==sut.size());
 		
-		ClassDescriptor<?> result =null;// sut.by("simplname").get(relevant.getClassSimpleName());
-			
-		assertEquals(relevant, result);
-		assertTrue(1==sut.size());
+		// Attempt to fetch a value from the multi-indexer
+		ClassDescriptor<?> result = sut.by("tagname").get(relevant.getTagName());
 		
-		
+		assertEquals("We expect to retrieve the class descriptor... Retrieval failed!", relevant, result);
 	}
 	
 	@Test
