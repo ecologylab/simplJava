@@ -16,12 +16,12 @@ public class SimplTypesScopeFactory {
 	{
 		public String stsName;
 		public List<Class<?>> translations;
-		public List<SimplTypesScope> scopesInherited;
+		public List<ISimplTypesScope> scopesInherited;
 		
 		public STSFactoryData()
 		{
 			this.translations = new LinkedList<Class<?>>();
-			this.scopesInherited = new LinkedList<SimplTypesScope>();
+			this.scopesInherited = new LinkedList<ISimplTypesScope>();
 		}
 	}
 
@@ -44,9 +44,25 @@ public class SimplTypesScopeFactory {
 			this.ourData.stsName = name;
 		}
 		
-		public STSInheritsCompleted inherits(SimplTypesScope... scopesInherited)
+		public STSInheritsCompleted inherits(ISimplTypesScope... ists)
 		{
-			return factory.new STSInheritsCompleted(this.ourData, scopesInherited);
+			return factory.new STSInheritsCompleted(this.ourData, ists);
+		}
+		
+		public STSInheritsCompleted inherits(String... simplTypesScopeNames)
+		{
+			List<ISimplTypesScope> scopes = new LinkedList<ISimplTypesScope>();
+			
+			for(String stsName : simplTypesScopeNames)
+			{
+				ISimplTypesScope val = SimplTypesScope.get(stsName);
+				if(val != null)
+				{
+					scopes.add(val);
+				}
+			}
+			
+			return factory.new STSInheritsCompleted(this.ourData, scopes);
 		}
 		
 		public STSTranslationsCompleted translations(Class<?> ... translationClasses)
@@ -59,24 +75,34 @@ public class SimplTypesScopeFactory {
 	{
 		private STSFactoryData ourData;
 	
-		public STSInheritsCompleted(STSFactoryData data, SimplTypesScope... scopesInherited)
+		public STSInheritsCompleted(STSFactoryData data, List<ISimplTypesScope> scopesInherited)
 		{
 			this.ourData = data;
 			
-			List<SimplTypesScope> stses = new LinkedList<SimplTypesScope>();
+			this.ourData.scopesInherited = scopesInherited;
+
+		}
+		
+		public STSInheritsCompleted(STSFactoryData data, ISimplTypesScope... scopesInherited)
+		{
+			this.ourData = data;
+
+			List<ISimplTypesScope> stses = new LinkedList<ISimplTypesScope>();
 			
 			if(scopesInherited.length < 1)
 			{
 				throw new RuntimeException("Must have at least one inherited scope!");
 			}
 			
-			for(SimplTypesScope sts : scopesInherited)
+			for(ISimplTypesScope sts : scopesInherited)
 			{
 				stses.add(sts);
 			}
 			
 			this.ourData.scopesInherited = stses;
+
 		}
+		
 		
 		public STSTranslationsCompleted translations(Class<?>... translationClasses)
 		{
@@ -123,12 +149,12 @@ public class SimplTypesScopeFactory {
 			}
 		}
 
-		public SimplTypesScope create()
+		public ISimplTypesScope create()
 		{
-			SimplTypesScope sts = new SimplTypesScope();
+			ISimplTypesScope sts = new SimplTypesScope();
 			sts.setName(this.ourData.stsName);
 			
-			for(SimplTypesScope parentSTS: this.ourData.scopesInherited)
+			for(ISimplTypesScope parentSTS: this.ourData.scopesInherited)
 			{
 				sts.inheritFrom(parentSTS);
 			}

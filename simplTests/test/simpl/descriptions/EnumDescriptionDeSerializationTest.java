@@ -1,4 +1,4 @@
-package ecologylab.fundamental;
+package simpl.descriptions;
 
 import static org.junit.Assert.*;
 
@@ -59,7 +59,7 @@ public class EnumDescriptionDeSerializationTest {
 	{
 		EnumerationDescriptor primaryScenario = EnumerationDescriptor.get(forEnumClass);
 		
-		SimplTypesScope sts = SimplTypesScopeFactory.name("enumDescTest" + theFormat.toString()).translations(EnumerationDescriptor.class).create();
+		SimplTypesScope sts = (SimplTypesScope)SimplTypesScopeFactory.name("enumDescTest" + theFormat.toString()).translations(EnumerationDescriptor.class).create();
 	    
 		Class <?> tag = sts.getClassByTag("enumeration_descriptor");
 		assertNotNull("Class not in STS!", tag);

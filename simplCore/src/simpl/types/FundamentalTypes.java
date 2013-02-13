@@ -56,6 +56,8 @@ s
 	
 	public static final ScalarType CHAR_TYPE = new CharType();
 	
+	public static final ScalarType STRING_TYPE = new StringType();
+	
 	/*
 	public static final ScalarType<String> STRING_TYPE 					= new StringType();
 	

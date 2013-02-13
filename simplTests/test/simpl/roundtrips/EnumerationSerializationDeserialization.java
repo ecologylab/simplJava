@@ -1,4 +1,4 @@
-package ecologylab.fundamental;
+package simpl.roundtrips;
 
 import static org.junit.Assert.*;
 
@@ -17,6 +17,9 @@ import simpl.descriptions.FieldType;
 import simpl.exceptions.SIMPLTranslationException;
 import simpl.formats.enums.StringFormat;
 
+import ecologylab.fundamental.basicEnumerationList;
+import ecologylab.fundamental.basicEnumerationScalar;
+import ecologylab.fundamental.customValuedEnumerationScalar;
 import ecologylab.serialization.primaryScenarioEnum;
 import ecologylab.serialization.secondaryScenarioEnum;
 
@@ -63,8 +66,8 @@ public class EnumerationSerializationDeserialization {
 		//{"custom_valued_enumeration_scalar":{"our_enum":"secondValue"}}
 	}
 	
-	private static SimplTypesScope ourSTS = SimplTypesScopeFactory.name("enumTestsDeSerialize").translations(primaryScenarioEnum.class, secondaryScenarioEnum.class,
-			customValuedEnumerationScalar.class, basicEnumerationScalar.class, basicEnumerationList.class).create();
+	private static SimplTypesScope ourSTS = (SimplTypesScope)SimplTypesScopeFactory.name("enumTestsDeSerialize").translations(primaryScenarioEnum.class, secondaryScenarioEnum.class,
+			customValuedEnumerationScalar.class, basicEnumerationList.class, basicEnumerationList.class).create();
 
 	
 	private void validateDeserialization(String representation, StringFormat format, Object expected) throws SIMPLTranslationException, IllegalArgumentException, IllegalAccessException, NoSuchFieldException, SecurityException

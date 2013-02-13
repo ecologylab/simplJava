@@ -1,9 +1,10 @@
-package ecologylab.fundamental;
+package simpl.descriptions;
 
 import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
 
+import simpl.core.ISimplTypesScope;
 import simpl.core.SimplTypesScope;
 import simpl.core.SimplTypesScopeFactory;
 import simpl.descriptions.ClassDescriptor;
@@ -116,7 +117,7 @@ public class ConstructClassDescriptor {
 		SimpleInteger si = new SimpleInteger();
 		si.setSimpleInteger(0);
 			
-		SimplTypesScope sts = SimplTypesScopeFactory.name("inttest").translations(SimpleInteger.class).create();
+		SimplTypesScope sts = (SimplTypesScope)SimplTypesScopeFactory.name("inttest").translations(SimpleInteger.class).create();
 		
 		StringBuilder sb = sts.serialize(si, format);
 		SimpleInteger result = (SimpleInteger)sts.deserialize(sb.toString(), format);

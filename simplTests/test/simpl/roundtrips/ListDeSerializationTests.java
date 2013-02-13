@@ -1,4 +1,4 @@
-package ecologylab.fundamental;
+package simpl.roundtrips;
 
 import static org.junit.Assert.*;
 import static org.junit.Assert.assertEquals;
@@ -17,13 +17,19 @@ import simpl.descriptions.FieldDescriptor;
 import simpl.exceptions.SIMPLTranslationException;
 import simpl.formats.enums.StringFormat;
 
+import ecologylab.fundamental.basicComposite;
+import ecologylab.fundamental.basicCompositeList;
+import ecologylab.fundamental.basicEnumerationList;
+import ecologylab.fundamental.basicEnumerationScalar;
+import ecologylab.fundamental.basicScalarList;
+import ecologylab.fundamental.customValuedEnumerationScalar;
 import ecologylab.serialization.primaryScenarioEnum;
 import ecologylab.serialization.secondaryScenarioEnum;
 
 public class ListDeSerializationTests {
 
 	
-	private static SimplTypesScope ourSTS = SimplTypesScopeFactory.name("enumTestsDeSerialize").translations(primaryScenarioEnum.class, secondaryScenarioEnum.class,
+	private static SimplTypesScope ourSTS = (SimplTypesScope) SimplTypesScopeFactory.name("enumTestsDeSerialize").translations(primaryScenarioEnum.class, secondaryScenarioEnum.class,
 			customValuedEnumerationScalar.class, basicEnumerationScalar.class, basicEnumerationList.class, basicScalarList.class, basicComposite.class, basicCompositeList.class).create(); 
 	@Test
 	public void EnumerationListsSerialize()

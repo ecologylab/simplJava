@@ -1,4 +1,4 @@
-package ecologylab.fundamental;
+package simpl.descriptions;
 
 import org.junit.Test;
 

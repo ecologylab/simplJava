@@ -31,6 +31,6 @@ public class AssetsTranslations extends Debug
 	 */
 	public static SimplTypesScope get()
 	{
-		return SimplTypesScopeFactory.name(PACKAGE_NAME).translations(TRANSLATIONS).create();
+		return (SimplTypesScope)SimplTypesScopeFactory.name(PACKAGE_NAME).translations(TRANSLATIONS).create();
 	}
 }

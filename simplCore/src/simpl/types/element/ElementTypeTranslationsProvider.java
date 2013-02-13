@@ -3,6 +3,7 @@
  */
 package simpl.types.element;
 
+import simpl.core.ISimplTypesScope;
 import simpl.core.SimplTypesScope;
 import simpl.core.SimplTypesScopeFactory;
 import ecologylab.generic.Debug;
@@ -41,7 +42,7 @@ public class ElementTypeTranslationsProvider extends Debug
     /**
      * Get the translation space
      */
-	public static SimplTypesScope get()
+	public static ISimplTypesScope get()
 	{
 		return SimplTypesScopeFactory.name(PACKAGE_NAME).translations(TRANSLATIONS).create();
 	}

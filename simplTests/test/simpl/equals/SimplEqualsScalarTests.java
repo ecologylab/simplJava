@@ -107,7 +107,6 @@ public class SimplEqualsScalarTests {
 		}
 	}
 	
-	
 	private void validateReflexive(Object x)
 	{
 		assertTrue("Reflexivity implies x==x!", Simpl.equals(x, x));		

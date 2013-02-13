@@ -6,10 +6,11 @@ import java.util.List;
 import simpl.core.TranslationContext;
 import simpl.descriptions.ClassDescriptor;
 import simpl.descriptions.FieldDescriptor;
+import simpl.exceptions.SIMPLTranslationException;
 
 /**
  * Implementation class to contain the implementation of Simpl.Equals.
- * IDeally, someone should call through simpl.equals. You could call through this too, if you wanted. 
+ * Ideally, someone should call through simpl.equals. You could call through this too, if you wanted. 
  */
 public class SimplEquals {
 	
@@ -140,7 +141,12 @@ public class SimplEquals {
 	
 	private static String getValueString(FieldDescriptor fd, Object o)
 	{
-		return "";
+		try {
+			return fd.getScalarType().getFieldString(fd.getField(), o);
+		} catch (SIMPLTranslationException e) {
+			// TODO Auto-generated catch block
+			return null;
+		}
 	}
 
 	private static boolean sameClass(Object lhs, Object rhs)

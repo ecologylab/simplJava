@@ -41,6 +41,7 @@ public class InterpretationPrototypeTest {
 		// some magic happens that converts XML/JSON/ETC into interpretations... 
 		
 		SimplUnderstander su = new SimplUnderstander();
+		// todo: Fix field indexing in FieldDescriptor. :) 
 		myScalars result = (myScalars)su.understandInterpretation(interps, ClassDescriptor.getClassDescriptor(ms.getClass()));
 		assertEquals(result.aField, ms.aField);
 	}

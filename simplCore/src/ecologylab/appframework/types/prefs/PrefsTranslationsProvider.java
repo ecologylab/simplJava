@@ -42,7 +42,7 @@ public class PrefsTranslationsProvider extends Debug
 	 */
 	public static SimplTypesScope get()
 	{
-		return SimplTypesScopeFactory.name(PREFS_TRANSLATIONS_NAME).inherits(ElementTypeTranslationsProvider.get()).translations(
+		return (SimplTypesScope)SimplTypesScopeFactory.name(PREFS_TRANSLATIONS_NAME).inherits(ElementTypeTranslationsProvider.get()).translations(
 				translations, PrefSetBaseClassProvider.STATIC_INSTANCE.provideClasses()).create();
 	}
 }

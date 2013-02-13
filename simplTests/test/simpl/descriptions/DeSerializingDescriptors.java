@@ -1,4 +1,4 @@
-package ecologylab.fundamental;
+package simpl.descriptions;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -31,7 +31,7 @@ public class DeSerializingDescriptors extends Assert
 
   public void deSerializeDescriptorsJSON() throws SIMPLTranslationException, IOException
   {
-    SimplTypesScope tscope = SimplTypesScopeFactory.name("test-de/serialize descriptors in json").translations(
+    SimplTypesScope tscope =(SimplTypesScope) SimplTypesScopeFactory.name("test-de/serialize descriptors in json").translations(
                                                  FieldDescriptor.class,
                                                  ClassDescriptor.class,
                                                  SimplTypesScope.class).create();

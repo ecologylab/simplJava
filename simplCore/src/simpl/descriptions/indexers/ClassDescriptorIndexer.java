@@ -10,12 +10,9 @@ import simpl.core.indexers.ItemIndexPredicate;
 import simpl.core.indexers.MultiIndexer;
 import simpl.descriptions.ClassDescriptor;
 
-
-// TODO: Refactor to index enumeration descriptios. 
 public class ClassDescriptorIndexer extends MultiIndexer<ClassDescriptor<?>> {
 
 	// Here are the different indexers we intend to index "by" 
-	
 	final class byClassSimpleName extends ItemIndexPredicate<ClassDescriptor<?>>
 	{
 		public String GetIndexIdentifier() {
@@ -27,7 +24,6 @@ public class ClassDescriptorIndexer extends MultiIndexer<ClassDescriptor<?>> {
 			// TODO Auto-generated method stub
 			return item.getDescribedClassSimpleName();
 		}
-		
 	}
 	
 	final class byClassName extends ItemIndexPredicate<ClassDescriptor<?>>
@@ -38,23 +34,9 @@ public class ClassDescriptorIndexer extends MultiIndexer<ClassDescriptor<?>> {
 		}
 
 		public String ObtainIndex(ClassDescriptor<?> item) {
-			// TODO Auto-generated method stub
-			return null;
+			return item.getJavaTypeName();
 		}
 		
-	}
-	
-	final class byTLVId extends ItemIndexPredicate<ClassDescriptor<?>>
-	{
-		public String GetIndexIdentifier() {
-			// TODO Auto-generated method stub
-			return "tlvid";
-		}
-
-		public String ObtainIndex(ClassDescriptor<?> item) {
-			// TODO Auto-generated method stub
-			return Integer.toString(item.getTagName().hashCode());
-		}
 	}
 	
 	final class byTagName extends ItemIndexPredicate<ClassDescriptor<?>>
@@ -85,6 +67,8 @@ public class ClassDescriptorIndexer extends MultiIndexer<ClassDescriptor<?>> {
 		 */
 		public Collection<String> ObtainIndexes(ClassDescriptor<?> item) {
 			Collection<String> ourIndexes = new LinkedList<String>();
+			ourIndexes.add(item.getTagName());
+			ourIndexes.addAll(item.otherTags());
 			return ourIndexes;
 		}
 	}

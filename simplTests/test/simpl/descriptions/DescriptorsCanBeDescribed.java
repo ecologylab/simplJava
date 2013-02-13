@@ -1,4 +1,4 @@
-package ecologylab.fundamental;
+package simpl.descriptions;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -34,7 +34,7 @@ public class DescriptorsCanBeDescribed{
 	@Test
 	public void YinsCase()
 	{
-		SimplTypesScope tscope = SimplTypesScopeFactory.name("test-de/serialize descriptors in json")
+		SimplTypesScope tscope = (SimplTypesScope)SimplTypesScopeFactory.name("test-de/serialize descriptors in json")
                 .translations(FieldDescriptor.class,
                 ClassDescriptor.class,
                 SimplTypesScope.class).create();

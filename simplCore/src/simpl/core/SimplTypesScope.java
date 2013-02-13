@@ -46,7 +46,7 @@ public final class SimplTypesScope extends Debug implements ISimplDeserializatio
 
 	public static GRAPH_SWITCH graphSwitch = GRAPH_SWITCH.ON;
 
-	private static HashMap<String, SimplTypesScope> allTypesScopes = new HashMap<String, SimplTypesScope>();
+	private static HashMap<String, ISimplTypesScope> allTypesScopes = new HashMap<String, ISimplTypesScope>();
 
 	/**
 	 * SimplTypesScope has some global static "AllTypesScopes" scopes which can
@@ -56,7 +56,7 @@ public final class SimplTypesScope extends Debug implements ISimplDeserializatio
 	public static void ResetAllTypesScopes()
 	{
 		System.out.println("----------- RESETTING -----------");
-		SimplTypesScope.allTypesScopes = new HashMap<String, SimplTypesScope>();
+		SimplTypesScope.allTypesScopes = new HashMap<String, ISimplTypesScope>();
 	}
 	
 	static
@@ -70,12 +70,12 @@ public final class SimplTypesScope extends Debug implements ISimplDeserializatio
 	 * @param name
 	 * @return
 	 */
-	public static SimplTypesScope lookup(String name)
+	public static ISimplTypesScope lookup(String name)
 	{
 		return allTypesScopes.get(name);
 	}
 	
-	public static void registerSimplTypesScope(String name, SimplTypesScope sts)
+	public static void registerSimplTypesScope(String name, ISimplTypesScope sts)
 	{
 		synchronized(allTypesScopes)
 		{
@@ -230,11 +230,6 @@ public final class SimplTypesScope extends Debug implements ISimplDeserializatio
 	{
 		ClassDescriptor<?> entry = ClassDescriptor.getClassDescriptor(classObj);
 		
-		for (SimplTypesScope simplTypesScope : allTypesScopes.values())
-		{
-			simplTypesScope.removeTranslation(classObj);
-		}
-		
 		this.classDescriptors.Remove(ClassDescriptor.getClassDescriptor(classObj));
 	}
 	
@@ -339,19 +334,9 @@ public final class SimplTypesScope extends Debug implements ISimplDeserializatio
 	 * 
 	 * @return
 	 */
-	public ArrayList<ClassDescriptor<? extends FieldDescriptor>> getAllClassDescriptors()
+	public Collection<ClassDescriptor<?>> getAllClassDescriptors()
 	{
-		ArrayList<ClassDescriptor<? extends FieldDescriptor>> classes = new ArrayList<ClassDescriptor<? extends FieldDescriptor>>();
-
-		for (SimplTypesScope simplTypesScope : allTypesScopes.values())
-		{
-			for (ClassDescriptor<? extends FieldDescriptor> classDescriptor : simplTypesScope.entriesByTag
-					.values())
-			{
-				classes.add(classDescriptor);
-			}
-		}
-		return classes;
+		return this.classDescriptors.getAllItems();
 	}
 
 	
@@ -404,9 +389,9 @@ public final class SimplTypesScope extends Debug implements ISimplDeserializatio
 				this.getEnumerationDescriptorByTag(tag) != null);
 	}
 
-	public static SimplTypesScope get(String scopeName) {
+	public static ISimplTypesScope get(String scopeName) {
 		// TODO Auto-generated method stub
-		return null;
+		return allTypesScopes.get(scopeName);
 	}
 
 	public static void serialize(PrefSet prfs, PrintStream out, StringFormat xml) {
@@ -448,6 +433,26 @@ public final class SimplTypesScope extends Debug implements ISimplDeserializatio
 	@Override
 	public Collection<EnumerationDescriptor> getAllEnumerationDescriptors() {
 		// TODO Auto-generated method stub
-		return null;
+		return this.enumerationDescriptors.getAllItems();
+	}
+
+	@Override
+	public void inheritFrom(ISimplTypesScope sts) {
+
+		// Insert all values from STS into here. :) 
+		// Should probably leverage mergeInto; will refactor late.r 
+		for(ClassDescriptor<?> cd :sts.getAllClassDescriptors())
+		{
+			this.classDescriptors.Insert(cd);
+		}
+		
+		for(EnumerationDescriptor ed: sts.getAllEnumerationDescriptors())
+		{
+			this.enumerationDescriptors.Insert(ed);
+		}
+		
+		
+		assert(true);
+
 	}
 }

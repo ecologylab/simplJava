@@ -30,7 +30,7 @@ public class PrefOpTranslations extends Debug
 	
 	public static SimplTypesScope get(SimplTypesScope inheritedScope)
 	{
-		return SimplTypesScopeFactory.name(SCOPE_NAME).inherits(inheritedScope).translations(TRANSLATIONS, SimplPlatformSpecifics.get().addtionalPrefOpTranslations()).create();
+		return (SimplTypesScope)SimplTypesScopeFactory.name(SCOPE_NAME).inherits(inheritedScope).translations(TRANSLATIONS, SimplPlatformSpecifics.get().addtionalPrefOpTranslations()).create();
 	}
 
 }

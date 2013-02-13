@@ -1,4 +1,4 @@
-package ecologylab.fundamental;
+package simpl.core;
 
 import java.util.ArrayList;
 

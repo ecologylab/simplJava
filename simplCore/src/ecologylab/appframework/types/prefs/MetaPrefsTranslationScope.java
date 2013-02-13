@@ -14,7 +14,7 @@ public class MetaPrefsTranslationScope
 	public static final String NAME = "meta_prefs_translations";
 	public static SimplTypesScope get()
 	{
-		return SimplTypesScopeFactory.name(NAME).translations(MetaPref.class, MetaPrefSet.class,  MetaPrefBoolean.class, MetaPrefFloat.class,
+		return (SimplTypesScope) SimplTypesScopeFactory.name(NAME).translations(MetaPref.class, MetaPrefSet.class,  MetaPrefBoolean.class, MetaPrefFloat.class,
 				MetaPrefInt.class, MetaPrefString.class).create();
 	}
 

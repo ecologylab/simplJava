@@ -71,5 +71,5 @@ public interface ISimplTypesScope {
 	 * Inherit all of the translations from the parent "sts" into this Simpl Types Scope.
 	 * @param sts
 	 */
-	void inheritFrom(SimplTypesScope sts);
+	void inheritFrom(ISimplTypesScope sts);
 }

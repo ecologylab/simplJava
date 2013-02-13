@@ -247,7 +247,7 @@ public class ApplicationEnvironment extends Debug implements Environment,
 		if (customPrefs == null)
 			customPrefs = PrefSetBaseClassProvider.STATIC_INSTANCE.provideClasses();
 
-		return SimplTypesScopeFactory.name(PrefSet.PREFS_TRANSLATION_SCOPE).translations(customPrefs).create();
+		return (SimplTypesScope) SimplTypesScopeFactory.name(PrefSet.PREFS_TRANSLATION_SCOPE).translations(customPrefs).create();
 	}
 
 	/**
@@ -506,7 +506,7 @@ public class ApplicationEnvironment extends Debug implements Environment,
 		SimplTypesScope prefTranslations;
 		if (customPrefsTranslationScope != null)
 		{
-			prefTranslations = SimplTypesScopeFactory
+			prefTranslations = (SimplTypesScope)SimplTypesScopeFactory
 					.name(PrefSet.PREFS_TRANSLATION_SCOPE)
 					.inherits(customPrefsTranslationScope)
 					.translations(PrefSetBaseClassProvider.STATIC_INSTANCE.provideClasses())
@@ -519,7 +519,7 @@ public class ApplicationEnvironment extends Debug implements Environment,
 		{
 			Class[] customPrefs = PrefSetBaseClassProvider.STATIC_INSTANCE.provideClasses();
 
-			prefTranslations = SimplTypesScopeFactory
+			prefTranslations = (SimplTypesScope)SimplTypesScopeFactory
 					.name(PrefSet.PREFS_TRANSLATION_SCOPE)
 					.translations(customPrefs).create();
 		}
