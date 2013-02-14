@@ -1,6 +1,7 @@
 package simpl.descriptions.beiber;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -8,9 +9,16 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+import simpl.annotations.dbal.simpl_inherit;
+
 public class ClassDescriptors {
 
-	
+	/**
+	 * This class holds a collection of callbacks to update class descriptor references.
+	 * Allows us to avoid recursing beyond a single level...
+	 * Makes things a bit more verbose at spots, but also cleans up a lot of danging logic from the past. 
+	 *
+	 */
 	private class UpdateMap
 	{		
 		Map<Class<?>, Collection<UpdateClassDescriptorCallback>> ourMap;
@@ -23,6 +31,11 @@ public class ClassDescriptors {
 		public void insertUCDs(Collection<UpdateClassDescriptorCallback> collection)
 		{
 			this._insertUCDs(ourMap, collection);
+		}
+		
+		public void insertUDC(UpdateClassDescriptorCallback callback)
+		{
+			this._insertUCD(ourMap, callback);
 		}
 		
 		public boolean isEmpty()
@@ -64,6 +77,9 @@ public class ClassDescriptors {
 		
 	}
 	
+	/**
+	 * A cache of all field descriptors. 
+	 */
 	public static Map<String, IClassDescriptor> descriptors = new HashMap<String, IClassDescriptor>(); 
 	
 	/**
@@ -88,18 +104,28 @@ public class ClassDescriptors {
 		
 		UpdateMap ourMap = new ClassDescriptors().new UpdateMap();
 		
-		IClassDescriptor icd = get(aClass, ourMap);
+		IClassDescriptor icd = get(aClass, ourMap); // get the CD for the first class.
 		
+		// As long as we need to obtain more class descriptors, keep going
 		while(!ourMap.isEmpty())
 		{
+			// Pick the first class descriptor. 
 			Class<?> toUpdate = ourMap.getClassesPendingUpdate().iterator().next();
+			// Get it...
 			IClassDescriptor innerCD = get(toUpdate, ourMap);
-			ourMap.resolveUpdates(toUpdate, innerCD);
+			// Resolve all of the update callbacks for classes that needed this class descriptor.
+			ourMap.resolveUpdates(toUpdate, innerCD); //OurMap is smaller after this call.
 		}
 			
+		// Return the class descriptor completely constructed. 
 		return icd;
 	}
 	
+	private static boolean classShouldInheritSuperclassCD(Class<?> aClass)
+	{
+		return aClass.isAnnotationPresent(simpl_inherit.class);
+	}
+		
 	private static IClassDescriptor get(Class<?> aClass, UpdateMap updates)
 	{
 		if(containsCD(aClass))
@@ -108,7 +134,9 @@ public class ClassDescriptors {
 		} // we're going to double hti this until I restructure
 		// for now, fine. :) 
 		
-		NewClassDescriptor ncd = new NewClassDescriptor();
+		//Create our class descriptor. 
+		// Must be final for callbacks to work. 
+		final NewClassDescriptor ncd = new NewClassDescriptor();
 		
 		ncd.setJavaClass(aClass);
 		ncd.setName(aClass.getSimpleName());
@@ -117,7 +145,33 @@ public class ClassDescriptors {
 		
 		// Handle other class specifics: 
 		
-				
+		//Inheritance w/ superclasses and such. 
+		if(classShouldInheritSuperclassCD(aClass))
+		{
+			// Reference the superclass, must be final for callbacks.
+			final Class<?> superClass = aClass.getSuperclass();
+			
+			if(ClassDescriptors.containsCD(superClass))
+			{
+				ncd.setSuperClassDescriptor(ClassDescriptors.get(superClass));
+			}else{
+				// We'll use a callback to update the CD for the superclass whenever we have it. 
+				updates.insertUDC(new UpdateClassDescriptorCallback() {
+					@Override
+					public Class<?> getClassToUpdate() {
+						return superClass;
+					}
+					
+					@Override
+					public void updateWithCD(IClassDescriptor icd) {
+						ncd.setSuperClassDescriptor(icd);
+					}
+				});
+			}
+		}
+
+		
+		
 		
 		
 		
@@ -147,14 +201,23 @@ public class ClassDescriptors {
 	// exclude some fields yo
 		private static boolean fieldExcluded(Field f)
 		{
+			// Exclude "this" instances on inner classes
 			if(f.getName().equals("this$0"))
 			{
 				return true;
 			}
-
-			//TODO: 
-			/// FUCK CONTEXT SWITCHING :
-				/// MAKE THIS LOGIC. 
+			
+			// exclude synthetic fields.
+			if(f.isSynthetic())
+			{
+				return true;
+			}
+			
+			// Exclude static fields. 
+			if(Modifier.isStatic(f.getModifiers()))
+			{
+				return true;
+			}
 			
 			return false;
 			

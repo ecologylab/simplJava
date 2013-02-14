@@ -5,6 +5,7 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
+import simpl.annotations.dbal.simpl_classes;
 import simpl.descriptions.FieldCategorizer;
 import simpl.descriptions.FieldType;
 import simpl.types.TypeRegistry;
@@ -35,23 +36,21 @@ public class FieldDescriptors {
 		Class<?> declaringClass = toDescribe.getDeclaringClass();
 		nfd.setDeclaringClass(declaringClass);
 		
-		assert(ClassDescriptors.containsCD(declaringClass));
+		assert(ClassDescriptors.containsCD(declaringClass)); //If declaringClass isn't there, we've got a problem. 
 		nfd.setDeclaringClassDescriptor(ClassDescriptors.get(declaringClass));
-		
 		
 		FieldType fd = new FieldCategorizer().categorizeField(toDescribe);
 		
 		nfd.setFieldType(fd);
-		
+				
+		// Handle scalar type / or composite types
 		if(classIsScalar(toDescribe.getType()))
 		{
-			// set up scalar type
+			// handle this. :) 
 		}else{
 			// check to see if simpl type. ;) 
 			// if we already have it...
 			// if not, updaayyyte. ;D
-			
-			
 			
 			final Class<?> classToUpdate = toDescribe.getType();
 			
@@ -71,14 +70,48 @@ public class FieldDescriptors {
 					
 					@Override
 					public void updateWithCD(IClassDescriptor icd) {
-						// TODO Auto-generated method stub
-						// THIS IS WRONG. :) 
-						// TODO FIX: 
 						nfd.setFieldClassDescriptor(icd);
 					}
 				});
 			}
 		}
+		
+		// handle polymorphing w/ simpl_classes
+		if(toDescribe.isAnnotationPresent(simpl_classes.class))
+		{
+			final simpl_classes classesAnnotationObj = toDescribe.getAnnotation(simpl_classes.class);
+			
+			final Class<?>[] classesAnnotation = classesAnnotationObj.value();
+			
+			if ((classesAnnotation != null) && (classesAnnotation.length > 0))
+			{
+				for(Class<?> polymorph : classesAnnotation)
+				{
+					if(ClassDescriptors.containsCD(polymorph))
+					{
+						nfd.addPolymoprhicFieldDescriptor(ClassDescriptors.get(polymorph));
+					}else{
+						final Class<?> polymorphToUpdate = polymorph;
+						classAccumulator.add(new UpdateClassDescriptorCallback() {
+							
+							@Override
+							public void updateWithCD(IClassDescriptor icd) {
+								nfd.addPolymoprhicFieldDescriptor(icd);
+							}
+							
+							@Override
+							public Class<?> getClassToUpdate() {
+								return polymorphToUpdate;
+							}
+						});
+					}
+				}
+			}
+		}
+		
+		
+		
+		
 		
 		return nfd;
 	}

@@ -11,6 +11,7 @@ import java.util.Set;
 
 import org.junit.Test;
 
+import simpl.annotations.dbal.simpl_classes;
 import simpl.annotations.dbal.simpl_composite;
 import simpl.annotations.dbal.simpl_scalar;
 import simpl.descriptions.FieldType;
@@ -82,6 +83,14 @@ public class fieldDescriptorConstruction {
 	    List<T> copy = new ArrayList<T>();
 	    while (iter.hasNext())
 	        copy.add(iter.next());
+	    return copy;
+	}
+
+	
+	private static List<Class<?>> mapClassUpdate(Iterator<UpdateClassDescriptorCallback> iter) {
+	    List<Class<?>> copy = new ArrayList<Class<?>>();
+	    while (iter.hasNext())
+	        copy.add(iter.next().getClassToUpdate());
 	    return copy;
 	}
 

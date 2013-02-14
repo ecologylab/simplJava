@@ -1,9 +1,19 @@
 package simpl.descriptions.beiber;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.LinkedList;
+
 import simpl.annotations.dbal.simpl_scalar;
 import simpl.descriptions.FieldType;
 
 public class NewFieldDescriptor implements IFieldDescriptor {
+	
+	
+	public NewFieldDescriptor()
+	{
+		this.polymorphicFields = new ArrayList<IClassDescriptor>();
+	}
 	
 	Class<?> declaringClass;
 
@@ -16,6 +26,21 @@ public class NewFieldDescriptor implements IFieldDescriptor {
 	IClassDescriptor declaringClassDescriptor;
 	
 	IClassDescriptor fieldClassDescriptor; 
+	
+	Collection<IClassDescriptor> polymorphicFields; 
+	
+	public Collection<IClassDescriptor> getPolymoprhicFieldDescriptors()
+	{
+		return polymorphicFields;
+	}
+	
+	public void addPolymoprhicFieldDescriptor(IClassDescriptor icd)
+	{
+		this.polymorphicFields.add(icd);
+	}
+	
+	
+	
 	
 	public IClassDescriptor getFieldClassDescriptor() {
 		return fieldClassDescriptor;

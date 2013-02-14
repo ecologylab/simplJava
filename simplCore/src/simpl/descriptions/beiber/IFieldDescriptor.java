@@ -1,5 +1,7 @@
 package simpl.descriptions.beiber;
 
+import java.util.Collection;
+
 import simpl.descriptions.FieldType;
 
 public interface IFieldDescriptor {
@@ -7,5 +9,6 @@ public interface IFieldDescriptor {
 	IClassDescriptor getDeclaringClassDescriptor();
 	FieldType getFieldType();
 	IClassDescriptor getFieldClassDescriptor();
+	Collection<IClassDescriptor> getPolymoprhicFieldDescriptors();
 	String getName();
 }

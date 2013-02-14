@@ -6,4 +6,5 @@ public interface IClassDescriptor {
 	Class<?> getJavaClass();
 	String getName();
 	List<IFieldDescriptor> getFields();
+	IClassDescriptor getSuperClassDescriptor();
 }

@@ -29,7 +29,16 @@ public class NewClassDescriptor implements IClassDescriptor {
 	private Class<?> javaClass;
 	private String name;
 	private List<IFieldDescriptor> fields;
+	private IClassDescriptor superClassDescriptor; 
 	
+	public IClassDescriptor getSuperClassDescriptor() {
+		return superClassDescriptor;
+	}
+
+	public void setSuperClassDescriptor(IClassDescriptor superClassDescriptor) {
+		this.superClassDescriptor = superClassDescriptor;
+	}
+
 	public List<IFieldDescriptor> getFields() {
 		return fields;
 	}
