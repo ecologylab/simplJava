@@ -11,6 +11,7 @@ import simpl.annotations.dbal.simpl_map;
 import simpl.annotations.dbal.simpl_nowrap;
 import simpl.annotations.dbal.simpl_scalar;
 import simpl.descriptions.ClassDescriptor;
+import simpl.descriptions.ClassDescriptors;
 import simpl.descriptions.EnumerationDescriptor;
 import simpl.descriptions.FieldDescriptor;
 import simpl.descriptions.indexers.ClassDescriptorIndexer;
@@ -185,7 +186,7 @@ public final class SimplTypesScope extends Debug implements ISimplDeserializatio
 		else
 		{
 			// Add a class!
-			ClassDescriptor<?> entry = ClassDescriptor.getClassDescriptor(classObj);
+			ClassDescriptor<?> entry = ClassDescriptors.getClassDescriptor(classObj);
 			this.classDescriptors.Insert(entry);
 		}
 	}
@@ -214,7 +215,7 @@ public final class SimplTypesScope extends Debug implements ISimplDeserializatio
 
 	private Class<?> correspondingClassFor(Class<?> dummyObj)
 	{
-		ClassDescriptor<?> entry = ClassDescriptor.getClassDescriptor(dummyObj);
+		ClassDescriptor<?> entry = ClassDescriptors.getClassDescriptor(dummyObj);
 		String tagName = entry.getTagName();
 		
 		ClassDescriptor<?> corresp = entriesByTag.get(tagName);
@@ -228,9 +229,9 @@ public final class SimplTypesScope extends Debug implements ISimplDeserializatio
 	 */
 	public void removeTranslation(Class<?> classObj)
 	{
-		ClassDescriptor<?> entry = ClassDescriptor.getClassDescriptor(classObj);
+		ClassDescriptor<?> entry = ClassDescriptors.getClassDescriptor(classObj);
 		
-		this.classDescriptors.Remove(ClassDescriptor.getClassDescriptor(classObj));
+		this.classDescriptors.Remove(ClassDescriptors.getClassDescriptor(classObj));
 	}
 	
 	@Override
@@ -278,7 +279,7 @@ public final class SimplTypesScope extends Debug implements ISimplDeserializatio
 					augmentedClasses);
 		}
 
-		ClassDescriptor<? extends FieldDescriptor> thatClassDescriptor = ClassDescriptor
+		ClassDescriptor<? extends FieldDescriptor> thatClassDescriptor = ClassDescriptors
 				.getClassDescriptor(thatClass);
 
 		HashMapArrayList<String, ? extends FieldDescriptor> fieldDescriptors = thatClassDescriptor

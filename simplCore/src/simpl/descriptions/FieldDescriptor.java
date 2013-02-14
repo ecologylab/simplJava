@@ -453,7 +453,7 @@ public class FieldDescriptor extends DescriptorBase implements IMappable<String>
 		initPolymorphClassDescriptorsArrayList(classesAnnotation.length);
 		for (Class thatClass : classesAnnotation)
 		{
-			ClassDescriptor classDescriptor = ClassDescriptor.getClassDescriptor(thatClass);
+			ClassDescriptor classDescriptor = ClassDescriptors.getClassDescriptor(thatClass);
 			registerPolymorphicDescriptor(classDescriptor);
 			polymorphClasses.put(classDescriptor.getTagName(), classDescriptor.getDescribedClass());
 		}
@@ -681,7 +681,7 @@ public class FieldDescriptor extends DescriptorBase implements IMappable<String>
 						//	+ " because it is declared polymorphic.");
 				}
 
-				elementClassDescriptor = ClassDescriptor.getClassDescriptor(fieldClass);
+				elementClassDescriptor = ClassDescriptors.getClassDescriptor(fieldClass);
 				elementClass = elementClassDescriptor.getDescribedClass();
 				compositeTag = XMLTools.getXmlTagName(field);
 			}
@@ -724,7 +724,7 @@ public class FieldDescriptor extends DescriptorBase implements IMappable<String>
 				}
 				if (!TypeRegistry.containsScalarTypeFor(collectionElementClass))
 				{
-					elementClassDescriptor = ClassDescriptor.getClassDescriptor(collectionElementClass);
+					elementClassDescriptor = ClassDescriptors.getClassDescriptor(collectionElementClass);
 					elementClass = elementClassDescriptor.getDescribedClass();
 				}
 				else
@@ -779,7 +779,7 @@ public class FieldDescriptor extends DescriptorBase implements IMappable<String>
 					return FieldType.IGNORED_ELEMENT;
 				}
 
-				elementClassDescriptor = ClassDescriptor.getClassDescriptor(mapElementClass);
+				elementClassDescriptor = ClassDescriptors.getClassDescriptor(mapElementClass);
 				elementClass = elementClassDescriptor.getDescribedClass();
 				// }
 				// else
@@ -1352,7 +1352,7 @@ public class FieldDescriptor extends DescriptorBase implements IMappable<String>
 	{
 		if (this.mapKeyFieldName != null)
 		{
-			ClassDescriptor cd = ClassDescriptor.getClassDescriptor(mapElement);
+			ClassDescriptor cd = ClassDescriptors.getClassDescriptor(mapElement);
 			if (cd != null)
 			{
 				// TODO FIXME

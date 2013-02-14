@@ -6,6 +6,7 @@ import org.junit.Test;
 
 import simpl.annotations.dbal.simpl_scalar;
 import simpl.descriptions.ClassDescriptor;
+import simpl.descriptions.ClassDescriptors;
 
 public class SimplTypesScopeTests {
 
@@ -34,7 +35,7 @@ public class SimplTypesScopeTests {
 		ists.setName("New name");
 		assertEquals("New name", ists.getName());
 		
-		ClassDescriptor<?> myDescriptor = ClassDescriptor.getClassDescriptor(myClass.class);
+		ClassDescriptor<?> myDescriptor = ClassDescriptors.getClassDescriptor(myClass.class);
 		
 		assertEquals("my_class", myDescriptor.getTagName());
 		assertEquals(1,myDescriptor.allFieldDescriptors().size()); 

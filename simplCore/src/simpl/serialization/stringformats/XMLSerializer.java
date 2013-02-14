@@ -9,6 +9,7 @@ import simpl.core.SimplTypesScope;
 import simpl.core.TranslationContext;
 import simpl.core.SimplTypesScope.GRAPH_SWITCH;
 import simpl.descriptions.ClassDescriptor;
+import simpl.descriptions.ClassDescriptors;
 import simpl.descriptions.FieldDescriptor;
 import simpl.exceptions.SIMPLTranslationException;
 import simpl.formats.enums.Format;
@@ -39,7 +40,7 @@ public class XMLSerializer extends StringSerializer
 	{
 		translationContext.resolveGraph(object);
 
-		ClassDescriptor<? extends FieldDescriptor> rootObjectClassDescriptor = ClassDescriptor
+		ClassDescriptor<? extends FieldDescriptor> rootObjectClassDescriptor = ClassDescriptors
 				.getClassDescriptor(object.getClass());
 
 		try

@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.Stack;
 
 import simpl.descriptions.ClassDescriptor;
+import simpl.descriptions.ClassDescriptors;
 import simpl.deserialization.ISimplDeserializationHooks;
 import simpl.exceptions.SIMPLTranslationException;
 import simpl.serialization.ISimplSerializationPost;
@@ -181,7 +182,7 @@ public class ElementState<PES extends ElementState> extends Debug implements XML
 		ClassDescriptor result = classDescriptor;
 		if (result == null)
 		{
-			result = ClassDescriptor.getClassDescriptor(this);
+			result = ClassDescriptors.getClassDescriptor(this);
 			this.classDescriptor = result;
 		}
 		return result;

@@ -5,6 +5,7 @@ import java.util.List;
 
 import simpl.core.TranslationContext;
 import simpl.descriptions.ClassDescriptor;
+import simpl.descriptions.ClassDescriptors;
 import simpl.descriptions.FieldDescriptor;
 import simpl.exceptions.SIMPLTranslationException;
 
@@ -64,7 +65,7 @@ public class SimplEquals {
 		{
 			if(sameClass(lhs, rhs))
 			{
-				ClassDescriptor<?> cd = ClassDescriptor.getClassDescriptor(lhs);
+				ClassDescriptor<?> cd = ClassDescriptors.getClassDescriptor(lhs);
 				
 				if(hasFields(cd))
 				{

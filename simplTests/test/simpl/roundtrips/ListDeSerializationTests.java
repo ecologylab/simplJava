@@ -13,6 +13,7 @@ import simpl.core.SimplTypesScope;
 import simpl.core.SimplTypesScopeFactory;
 import simpl.core.TranslationContext;
 import simpl.descriptions.ClassDescriptor;
+import simpl.descriptions.ClassDescriptors;
 import simpl.descriptions.FieldDescriptor;
 import simpl.exceptions.SIMPLTranslationException;
 import simpl.formats.enums.StringFormat;
@@ -134,7 +135,7 @@ public class ListDeSerializationTests {
 		assertNull(bc.a);
 		TranslationContext tc = new TranslationContext();
 		
-		ClassDescriptor<?> cd = ClassDescriptor.getClassDescriptor(bc.getClass());
+		ClassDescriptor<?> cd = ClassDescriptors.getClassDescriptor(bc.getClass());
 		for(FieldDescriptor fd : cd.allFieldDescriptors())
 		{
 			//fd.setFieldToScalarDefault(bc, tc);

@@ -12,6 +12,7 @@ import simpl.annotations.dbal.simpl_collection;
 import simpl.core.SimplTypesScope;
 import simpl.core.SimplTypesScopeFactory;
 import simpl.descriptions.ClassDescriptor;
+import simpl.descriptions.ClassDescriptors;
 import simpl.descriptions.FieldDescriptor;
 import simpl.descriptions.FieldType;
 import simpl.exceptions.SIMPLTranslationException;
@@ -106,7 +107,7 @@ public class EnumerationSerializationDeserialization {
 	@Test
 	public void EnumerationListsCanBeDescribed()
 	{
-		ClassDescriptor cd = ClassDescriptor.getClassDescriptor(basicEnumerationList.class);
+		ClassDescriptor cd = ClassDescriptors.getClassDescriptor(basicEnumerationList.class);
 		assertEquals(1,cd.allFieldDescriptors().size());
 		
 		FieldDescriptor fd = (FieldDescriptor) cd.allFieldDescriptors().get(0);

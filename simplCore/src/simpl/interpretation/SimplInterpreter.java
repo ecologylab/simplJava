@@ -4,6 +4,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import simpl.descriptions.ClassDescriptor;
+import simpl.descriptions.ClassDescriptors;
 import simpl.descriptions.FieldDescriptor;
 
 public class SimplInterpreter {
@@ -11,7 +12,7 @@ public class SimplInterpreter {
 	public List<ScalarInterpretation> interpretInstance(Object obj)
 	{
 		
-		ClassDescriptor<?> cd = ClassDescriptor.getClassDescriptor(obj.getClass());
+		ClassDescriptor<?> cd = ClassDescriptors.getClassDescriptor(obj.getClass());
 		
 		for(FieldDescriptor fd : cd.allFieldDescriptors())
 		{

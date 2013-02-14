@@ -222,7 +222,7 @@ public class GenericTypeVar extends Debug
 		if (type instanceof Class<?>)
 		{
 			Class<?> typeClass = (Class<?>) type;
-			g.classDescriptor = ClassDescriptor.getClassDescriptor(typeClass);
+			g.classDescriptor = ClassDescriptors.getClassDescriptor(typeClass);
 			return g;
 		}
 
@@ -271,7 +271,7 @@ public class GenericTypeVar extends Debug
 		{
 			Class<?> boundClass = (Class<?>) bound;
 			if (Object.class != boundClass)
-				g.constraintClassDescriptor = ClassDescriptor.getClassDescriptor(boundClass);
+				g.constraintClassDescriptor = ClassDescriptors.getClassDescriptor(boundClass);
 		}
 
 		// case 2: constraint is another generic type var
@@ -314,7 +314,7 @@ public class GenericTypeVar extends Debug
 		{
 			Class<?> boundClass = (Class<?>) bound;
 			if (Object.class != boundClass)
-				g.classDescriptor = ClassDescriptor.getClassDescriptor(boundClass);
+				g.classDescriptor = ClassDescriptors.getClassDescriptor(boundClass);
 		}
 
 		// case 2: constraint is another generic type var

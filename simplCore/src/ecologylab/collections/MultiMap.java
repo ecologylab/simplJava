@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 import simpl.descriptions.ClassDescriptor;
+import simpl.descriptions.ClassDescriptors;
 import simpl.descriptions.FieldDescriptor;
 
 
@@ -101,7 +102,7 @@ public class MultiMap<T, S extends Object>
 	 */
 	private int containsValue(ArrayList<S> collection, S value)
 	{
-		ClassDescriptor<? extends FieldDescriptor> classDescriptor = ClassDescriptor
+		ClassDescriptor<? extends FieldDescriptor> classDescriptor = ClassDescriptors
 				.getClassDescriptor(value.getClass());
 
 		int index = 0;

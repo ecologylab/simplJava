@@ -8,6 +8,7 @@ import simpl.core.SimplTypesScope;
 import simpl.core.SimplTypesScopeFactory;
 import simpl.core.TranslationContext;
 import simpl.descriptions.ClassDescriptor;
+import simpl.descriptions.ClassDescriptors;
 import simpl.descriptions.FieldDescriptor;
 import simpl.exceptions.SIMPLTranslationException;
 import simpl.formats.enums.StringFormat;
@@ -68,7 +69,7 @@ public class RoundtripTestsProvisional {
 		TrickyString ts = new TrickyString();
 		ts.trickyString = "totallyNotDefault";
 		
-		ClassDescriptor<?> cd = ClassDescriptor.getClassDescriptor(TrickyString.class);
+		ClassDescriptor<?> cd = ClassDescriptors.getClassDescriptor(TrickyString.class);
 		
 		FieldDescriptor fd = cd.allFieldDescriptors().get(0);
 		TranslationContext tc = null;

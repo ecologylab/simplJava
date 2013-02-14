@@ -21,7 +21,7 @@ public class FieldDescriptionTest {
 			private primaryScenarioEnum myEnum;
 		}
 		
-		ClassDescriptor cd = ClassDescriptor.getClassDescriptor(anEnumField.class);
+		ClassDescriptor cd = ClassDescriptors.getClassDescriptor(anEnumField.class);
 		assertEquals(1,cd.allFieldDescriptors().size());
 		
 		FieldDescriptor fd = (FieldDescriptor)cd.allFieldDescriptors().get(0);

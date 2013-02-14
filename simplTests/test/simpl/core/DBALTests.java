@@ -8,6 +8,7 @@ import simpl.annotations.dbal.FieldUsage;
 import simpl.annotations.dbal.simpl_collection;
 import simpl.annotations.dbal.simpl_scalar;
 import simpl.descriptions.ClassDescriptor;
+import simpl.descriptions.ClassDescriptors;
 import simpl.descriptions.FieldDescriptor;
 import simpl.tools.XMLTools;
 import static org.junit.Assert.*;
@@ -30,7 +31,7 @@ public class DBALTests {
 		assertNotNull(tagName);
 		System.out.println(tagName);
 		
-		ClassDescriptor cd = ClassDescriptor.getClassDescriptor(myCollectionClass.class);
+		ClassDescriptor cd = ClassDescriptors.getClassDescriptor(myCollectionClass.class);
 		FieldDescriptor fd = (FieldDescriptor)cd.allFieldDescriptors().get(0);
 		assertNotNull(fd.getTagName());
 	}
@@ -50,7 +51,7 @@ public class DBALTests {
 			private ArrayList<someCompositeClass> excludedUsages;	
 		}
 		
-		ClassDescriptor cd = ClassDescriptor.getClassDescriptor(myCollectionClass.class);
+		ClassDescriptor cd = ClassDescriptors.getClassDescriptor(myCollectionClass.class);
 		FieldDescriptor fd = (FieldDescriptor)cd.allFieldDescriptors().get(0);
 		assertNotNull(fd.getTagName());
 	}
@@ -64,7 +65,7 @@ public class DBALTests {
 			private ArrayList<Integer> excludedUsages;	
 		}
 		
-		ClassDescriptor cd = ClassDescriptor.getClassDescriptor(myCollectionClass.class);
+		ClassDescriptor cd = ClassDescriptors.getClassDescriptor(myCollectionClass.class);
 		FieldDescriptor fd = (FieldDescriptor)cd.allFieldDescriptors().get(0);
 		assertNotNull(fd.getTagName());
 	}
@@ -78,7 +79,7 @@ public class DBALTests {
 			private ArrayList<ArrayList<Integer>> excludedUsages;	
 		}
 		
-		ClassDescriptor cd = ClassDescriptor.getClassDescriptor(myCollectionClass.class);
+		ClassDescriptor cd = ClassDescriptors.getClassDescriptor(myCollectionClass.class);
 		FieldDescriptor fd = (FieldDescriptor)cd.allFieldDescriptors().get(0);
 		assertNotNull(fd.getTagName());	
 	}

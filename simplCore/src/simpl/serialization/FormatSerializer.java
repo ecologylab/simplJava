@@ -8,6 +8,7 @@ import simpl.core.SimplTypesScope;
 import simpl.core.TranslationContext;
 import simpl.core.SimplTypesScope.GRAPH_SWITCH;
 import simpl.descriptions.ClassDescriptor;
+import simpl.descriptions.ClassDescriptors;
 import simpl.descriptions.FieldDescriptor;
 import simpl.exceptions.SIMPLTranslationException;
 import simpl.formats.enums.BinaryFormat;
@@ -70,7 +71,7 @@ public abstract class FormatSerializer
 	 */
 	protected ClassDescriptor<? extends FieldDescriptor> getClassDescriptor(Object object)
 	{
-		return ClassDescriptor.getClassDescriptor(object.getClass());
+		return ClassDescriptors.getClassDescriptor(object.getClass());
 	}
 
 	/**

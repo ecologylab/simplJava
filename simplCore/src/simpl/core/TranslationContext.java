@@ -7,7 +7,7 @@ import java.util.Collection;
 import java.util.HashMap;
 
 import simpl.core.SimplTypesScope.GRAPH_SWITCH;
-import simpl.descriptions.ClassDescriptor;
+import simpl.descriptions.ClassDescriptors;
 import simpl.descriptions.FieldDescriptor;
 import simpl.descriptions.FieldType;
 import simpl.tools.XMLTools;
@@ -132,9 +132,9 @@ public class TranslationContext extends Debug implements ScalarUnmarshallingCont
 			// this.visitedElements.put(System.identityHashCode(elementState), elementState);
 			this.visitedElements.put(elementState.hashCode(), elementState);
 
-			ClassDescriptor.getClassDescriptor(elementState);
+			ClassDescriptors.getClassDescriptor(elementState);
 
-			ArrayList<? extends FieldDescriptor> elementFieldDescriptors = ClassDescriptor
+			ArrayList<? extends FieldDescriptor> elementFieldDescriptors = ClassDescriptors
 					.getClassDescriptor(elementState).elementFieldDescriptors();
 
 			for (FieldDescriptor elementFieldDescriptor : elementFieldDescriptors)

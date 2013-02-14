@@ -21,14 +21,14 @@ public class EnumDescriptionDeSerializationTest {
 	@Test
 	public void letsTrySomethingTricksy()
 	{
-		ClassDescriptor cd = ClassDescriptor.getClassDescriptor(primaryScenarioEnum.class);
+		ClassDescriptor cd = ClassDescriptors.getClassDescriptor(primaryScenarioEnum.class);
 		cd.toString();
 	}
 
 	@Test
 	public void EnumDescriptorCanBeDescribed()
 	{
-		ClassDescriptor cd = ClassDescriptor.getClassDescriptor(EnumerationDescriptor.class);
+		ClassDescriptor cd = ClassDescriptors.getClassDescriptor(EnumerationDescriptor.class);
 	}
 	
 	@Test

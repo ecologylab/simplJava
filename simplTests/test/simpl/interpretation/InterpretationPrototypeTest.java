@@ -6,7 +6,7 @@ import java.util.List;
 
 import org.junit.Test;
 
-import simpl.descriptions.ClassDescriptor;
+import simpl.descriptions.ClassDescriptors;
 import simpl.exceptions.SIMPLTranslationException;
 import simpl.interpretation.serializerProtos.JsonSerializer;
 import simpl.interpretation.serializerProtos.XmlSerializer;
@@ -42,7 +42,7 @@ public class InterpretationPrototypeTest {
 		
 		SimplUnderstander su = new SimplUnderstander();
 		// todo: Fix field indexing in FieldDescriptor. :) 
-		myScalars result = (myScalars)su.understandInterpretation(interps, ClassDescriptor.getClassDescriptor(ms.getClass()));
+		myScalars result = (myScalars)su.understandInterpretation(interps, ClassDescriptors.getClassDescriptor(ms.getClass()));
 		assertEquals(result.aField, ms.aField);
 	}
 

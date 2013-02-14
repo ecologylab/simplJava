@@ -41,7 +41,7 @@ public class ClassDescriptionConstruction {
 	@Test
 	public void testCompositesGetDescribed()
 	{
-		ClassDescriptor<?> myClass = ClassDescriptor.getClassDescriptor(myClass.class);
+		ClassDescriptor<?> myClass = ClassDescriptors.getClassDescriptor(myClass.class);
 		
 		assertEquals(2, myClass.allFieldDescriptors().size());
 		
@@ -62,7 +62,7 @@ public class ClassDescriptionConstruction {
 	@Test
 	public void testCompositeAsScalarGetsDescribed()
 	{
-		ClassDescriptor<?> myClass = ClassDescriptor.getClassDescriptor(myCompositeStringClass.class);
+		ClassDescriptor<?> myClass = ClassDescriptors.getClassDescriptor(myCompositeStringClass.class);
 		
 		assertEquals("Not all fields were described!", 2, myClass.allFieldDescriptors().size());
 		

@@ -55,17 +55,12 @@ import ecologylab.generic.ReflectionTools;
  */
 @simpl_inherit
 public class ClassDescriptor<FD extends FieldDescriptor> extends DescriptorBase
-		implements IMappable<String>, Iterable<FD>, ISimplDeserializationHooks {
+		implements IMappable<String>, Iterable<FD>, ISimplDeserializationHooks, IClassDescriptor {
 
 	public static interface FieldDescriptorsDerivedEventListener {
 		void fieldDescriptorsDerived(Object... eventArgs);
 	}
 	
-	/**
-	 * Global map of all ClassDescriptors. Key is the full, qualified name of
-	 * the class == describedClassName.
-	 */
-	private static final HashMap<String, ClassDescriptor<? extends FieldDescriptor>> globalClassDescriptorsMap = new HashMap<String, ClassDescriptor<? extends FieldDescriptor>>();
 
 
 	private static final String PACKAGE_CLASS_SEP = ".";
@@ -109,7 +104,7 @@ public class ClassDescriptor<FD extends FieldDescriptor> extends DescriptorBase
 	/**
 	 * This flag prevents loops when creating descriptors for type graphs.
 	 */
-	private boolean isGetAndOrganizeComplete;
+	boolean isGetAndOrganizeComplete;
 
 	/**
 	 * Map of FieldToXMLOptimizations, with field names as keys.
@@ -205,7 +200,7 @@ public class ClassDescriptor<FD extends FieldDescriptor> extends DescriptorBase
 		}
 
 		if (thatClass.isAnnotationPresent(simpl_inherit.class))
-			this.superClass = getClassDescriptor(thatClass.getSuperclass());
+			this.superClass = ClassDescriptors.getClassDescriptor(thatClass.getSuperclass());
 
 		addGenericTypeVariables();
 		if (javaParser != null) {
@@ -352,111 +347,18 @@ public class ClassDescriptor<FD extends FieldDescriptor> extends DescriptorBase
 		return tagName;
 	}
 
-	/**
-	 * Obtain Optimizations object in the global scope of root Optimizations.
-	 * Uses just-in-time / lazy evaluation. The first time this is called for a
-	 * given ElementState class, it constructs a new Optimizations saves it in
-	 * our rootOptimizationsMap, and returns it.
-	 * <p/>
-	 * Subsequent calls merely pass back the already created object from the
-	 * rootOptimizationsMap.
-	 * 
-	 * @param elementState
-	 *            An ElementState object that we're looking up Optimizations
-	 *            for.
-	 * @return
-	 */
-	public static ClassDescriptor<? extends FieldDescriptor> getClassDescriptor(
-			Object object) {
-		Class<? extends Object> thatClass = object.getClass();
-
-		return getClassDescriptor(thatClass);
-	}
-
-	static final Class<?>[] CONSTRUCTOR_ARGS = { Class.class };
-
-	/**
-	 * Obtain Optimizations object in the global scope of root Optimizations.
-	 * Uses just-in-time / lazy evaluation. The first time this is called for a
-	 * given ElementState class, it constructs a new Optimizations saves it in
-	 * our rootOptimizationsMap, and returns it.
-	 * <p/>
-	 * Subsequent calls merely pass back the already created object from the
-	 * rootOptimizationsMap.
-	 * 
-	 * @param thatClass
-	 * @return
-	 */
-	public static ClassDescriptor<? extends FieldDescriptor> getClassDescriptor(
-			final Class<?> thatClass) {
-		String className = thatClass.getName();
-		// stay out of the synchronized block most of the time
-		ClassDescriptor<? extends FieldDescriptor> result = globalClassDescriptorsMap
-				.get(className);
-		if (result == null || !result.isGetAndOrganizeComplete) {
-			// but still be thread safe!
-			synchronized (globalClassDescriptorsMap) {
-				result = globalClassDescriptorsMap.get(className);
-				if (result == null) {
-					final simpl_descriptor_classes descriptorsClassesAnnotation = thatClass
-							.getAnnotation(simpl_descriptor_classes.class);
-					if (descriptorsClassesAnnotation == null)
-						result = new ClassDescriptor<FieldDescriptor>(thatClass);
-					else {
-						Class<?> aClass = descriptorsClassesAnnotation.value()[0];
-						Object[] args = new Object[1];
-						args[0] = thatClass;
-
-						result = (ClassDescriptor<? extends FieldDescriptor>) ReflectionTools
-								.getInstance(aClass, CONSTRUCTOR_ARGS, args);
-					}
-					globalClassDescriptorsMap.put(className, result);
-
-					ClassDescriptor<? extends FieldDescriptor> superCD = result
-							.getSuperClass();
-					if (superCD == null || superCD.isGetAndOrganizeComplete) {
-						// NB: this call was moved out of the constructor to
-						// avoid recursion problems
-						result.deriveAndOrganizeFieldsRecursive(thatClass);
-						result.isGetAndOrganizeComplete = true;
-						result.handleFieldDescriptorsDerivedEvent();
-					} else {
-						final ClassDescriptor resultFinalCopy = result;
-						FieldDescriptorsDerivedEventListener listener = new FieldDescriptorsDerivedEventListener() {
-							@Override
-							public void fieldDescriptorsDerived(
-									Object... eventArgs) {
-								resultFinalCopy
-										.deriveAndOrganizeFieldsRecursive(thatClass);
-								resultFinalCopy.isGetAndOrganizeComplete = true;
-								resultFinalCopy
-										.handleFieldDescriptorsDerivedEvent();
-							}
-						};
-						superCD.addFieldDescriptorDerivedEventListener(listener);
-					}
-
-					// result.deriveAndOrganizeFieldsRecursive(thatClass);
-					// result.isGetAndOrganizeComplete = true;
-
-				}
-			}
-		}
-		return result;
-	}
-
 	private List<FieldDescriptorsDerivedEventListener> fieldDescriptorsDerivedEventListeners() {
 		if (fieldDescriptorsDerivedEventListeners == null)
 			this.fieldDescriptorsDerivedEventListeners = new ArrayList<FieldDescriptorsDerivedEventListener>();
 		return fieldDescriptorsDerivedEventListeners;
 	}
 
-	private void addFieldDescriptorDerivedEventListener(
+	void addFieldDescriptorDerivedEventListener(
 			FieldDescriptorsDerivedEventListener listener) {
 		fieldDescriptorsDerivedEventListeners().add(listener);
 	}
 
-	private void handleFieldDescriptorsDerivedEvent() {
+	void handleFieldDescriptorsDerivedEvent() {
 		if (fieldDescriptorsDerivedEventListeners != null) {
 			for (FieldDescriptorsDerivedEventListener listener : fieldDescriptorsDerivedEventListeners) {
 				listener.fieldDescriptorsDerived();
@@ -484,8 +386,6 @@ public class ClassDescriptor<FD extends FieldDescriptor> extends DescriptorBase
 		return elementFieldDescriptors;
 	}
 
-
-
 	@Override
 	public Iterator<FD> iterator() {
 		return fieldDescriptorsByFieldName.iterator();
@@ -502,12 +402,12 @@ public class ClassDescriptor<FD extends FieldDescriptor> extends DescriptorBase
 	 * @param fdc
 	 * @return
 	 */
-	private synchronized void deriveAndOrganizeFieldsRecursive(
+	synchronized void deriveAndOrganizeFieldsRecursive(
 			Class<? extends Object> classWithFields) {
 		if (classWithFields.isAnnotationPresent(simpl_inherit.class))
 
 		{
-			ClassDescriptor<FD> superClassDescriptor = (ClassDescriptor<FD>) ClassDescriptor
+			ClassDescriptor<FD> superClassDescriptor = (ClassDescriptor<FD>) ClassDescriptors
 					.getClassDescriptor(classWithFields.getSuperclass());
 
 			referFieldDescriptorsFrom(superClassDescriptor);
@@ -520,8 +420,6 @@ public class ClassDescriptor<FD extends FieldDescriptor> extends DescriptorBase
 		for (int i = 0; i < fields.length; i++) {
 			Field thatField = fields[i];
 
-			
-			
 			FieldType fieldType = fc.categorizeField(thatField);
 			
 			if (fieldType == FieldType.UNSET_TYPE)
@@ -530,18 +428,17 @@ public class ClassDescriptor<FD extends FieldDescriptor> extends DescriptorBase
 			FD fieldDescriptor = newFieldDescriptor(thatField, fieldType,
 					(Class<FD>) fieldDescriptorClass);
 			
-			if (fieldDescriptor != null) {
+			if (fieldDescriptor != null) 
+			{
 				fieldDescriptor.genericTypeVarsContextCD = this;
-			} else {
-				int isfdl = 1+3;
-				isfdl ++;
 			}
+			
 			// create indexes for serialize
 			if (fieldDescriptor.getType() == FieldType.SCALAR) {
 				Hint xmlHint = fieldDescriptor.getXmlHint();
 				switch (xmlHint) {
 				case XML_ATTRIBUTE:
-					attributeFieldDescriptors.add(fieldDescriptor);
+					attributeFieldDescriptors.add(fieldDescriptor); // todo: reference this all via an indexer. :) 
 					break;
 				case XML_TEXT:
 				case XML_TEXT_CDATA:
@@ -1057,14 +954,14 @@ public class ClassDescriptor<FD extends FieldDescriptor> extends DescriptorBase
 
 	@Override
 	public void deserializationPreHook(TranslationContext translationContext) {
-		synchronized (globalClassDescriptorsMap) {
+		synchronized (ClassDescriptors.getGlobalDescriptorMap()) {
 			String name = this.getName();
 			if (name != null) {
-				if (globalClassDescriptorsMap.containsKey(name))
+				if (ClassDescriptors.getGlobalDescriptorMap().containsKey(name))
 				{
 					//error("Already a ClassDescriptor for " + name);
 			}else {
-					globalClassDescriptorsMap.put(name, this);
+				ClassDescriptors.getGlobalDescriptorMap().put(name, this);
 				}
 			}
 		}

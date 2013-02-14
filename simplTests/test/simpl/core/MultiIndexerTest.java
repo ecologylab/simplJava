@@ -6,6 +6,7 @@ import org.junit.Test;
 
 import simpl.core.indexers.MultiIndexer;
 import simpl.descriptions.ClassDescriptor;
+import simpl.descriptions.ClassDescriptors;
 import simpl.descriptions.indexers.ClassDescriptorIndexer;
 
 
@@ -18,7 +19,7 @@ public class MultiIndexerTest {
 		final class myClass{
 		}
 		// Get the class descriptor. 
-		ClassDescriptor<?> relevant = ClassDescriptor.getClassDescriptor(myClass.class);
+		ClassDescriptor<?> relevant = ClassDescriptors.getClassDescriptor(myClass.class);
 
 		// Create a multi indexer
 		MultiIndexer<ClassDescriptor<?>> sut = new ClassDescriptorIndexer();
@@ -40,7 +41,7 @@ public class MultiIndexerTest {
 		
 		MultiIndexer<ClassDescriptor<?>> sut = new ClassDescriptorIndexer();
 		
-		ClassDescriptor<?> relevant = ClassDescriptor.getClassDescriptor(myClass.class);
+		ClassDescriptor<?> relevant = ClassDescriptors.getClassDescriptor(myClass.class);
 		
 		sut.Insert(relevant);
 		

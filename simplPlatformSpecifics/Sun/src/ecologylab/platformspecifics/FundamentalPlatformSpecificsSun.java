@@ -16,6 +16,7 @@ import javax.swing.JOptionPane;
 import javax.xml.stream.XMLInputFactory;
 
 import simpl.descriptions.ClassDescriptor;
+import simpl.descriptions.ClassDescriptors;
 import simpl.descriptions.FieldDescriptor;
 import simpl.descriptions.GenericTypeVar;
 import simpl.deserialization.stringformats.XMLParser;
@@ -156,7 +157,7 @@ public class FundamentalPlatformSpecificsSun implements ISimplPlatformSpecifics
 		{
 			ParameterizedType parmeterizedType = (ParameterizedType) bound;
 			Class rawType = (Class) parmeterizedType.getRawType();
-			g.setConstraintClassDescriptor(ClassDescriptor.getClassDescriptor(rawType));
+			g.setConstraintClassDescriptor(ClassDescriptors.getClassDescriptor(rawType));
 
 			Type[] types = parmeterizedType.getActualTypeArguments();
 
@@ -182,7 +183,7 @@ public class FundamentalPlatformSpecificsSun implements ISimplPlatformSpecifics
 		if (type instanceof ParameterizedType)
 		{
 			ParameterizedType parameterizedType = (ParameterizedType) type;
-			g.setClassDescriptor(ClassDescriptor.getClassDescriptor((Class) parameterizedType.getRawType()));
+			g.setClassDescriptor(ClassDescriptors.getClassDescriptor((Class) parameterizedType.getRawType()));
 
 			Type[] types = parameterizedType.getActualTypeArguments();
 

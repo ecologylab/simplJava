@@ -21,13 +21,13 @@ public class DescriptorsCanBeDescribed{
 	@Test
 	public void FieldDescriptorCanBeDescribed()
 	{
-		ClassDescriptor cd = ClassDescriptor.getClassDescriptor(FieldDescriptor.class);
+		ClassDescriptor cd = ClassDescriptors.getClassDescriptor(FieldDescriptor.class);
 	}
 
 	@Test
 	public void ClassDescriptorCanBeDescribed()
 	{
-		ClassDescriptor cd = ClassDescriptor.getClassDescriptor(ClassDescriptor.class);
+		ClassDescriptor cd = ClassDescriptors.getClassDescriptor(ClassDescriptor.class);
 	}
 
 	

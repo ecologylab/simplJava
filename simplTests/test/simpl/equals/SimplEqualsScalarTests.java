@@ -8,6 +8,7 @@ import ecologylab.fundamental.simplescalar.SimpleBoolean;
 
 import simpl.Simpl;
 import simpl.descriptions.ClassDescriptor;
+import simpl.descriptions.ClassDescriptors;
 import simpl.descriptions.FieldDescriptor;
 import simpl.exceptions.SIMPLTranslationException;
 
@@ -42,7 +43,7 @@ public class SimplEqualsScalarTests {
 	 */
 	private void testBasicScalarEquality(Class<?> simplClass, Object correctValue, Object incorrectValue) throws SIMPLTranslationException
 	{	
-		ClassDescriptor cd = ClassDescriptor.getClassDescriptor(simplClass);
+		ClassDescriptor cd = ClassDescriptors.getClassDescriptor(simplClass);
 		
 		assertTrue("Expecting this class to have only one field; this test case is targeted for specific coverage," +
 				" use a different test class / method please.",
