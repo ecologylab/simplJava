@@ -26,7 +26,7 @@ import ecologylab.generic.Debug;
 public class NetTools extends Debug
 {
 	final static String										SUPPORTED_CHARSETS[]	=
-																															{ "us-ascii", "windows-1250",
+																															{ "latin1", "us-ascii", "windows-1250",
 			"windows-1251", "windows-1252", "windows-1253", "windows-1254", "windows-1257", "iso-8859-1",
 			"iso-8859-2", "iso-8859-4", "iso-8859-5", "iso-8859-7", "iso-8859-9", "iso-8859-13",
 			"iso-8859-15", "ISO-8859-1", "ISO_8859-1", "ISO-8859-2", "ISO-8859-4", "ISO-8859-5",
