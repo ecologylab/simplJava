@@ -19,7 +19,7 @@ public class MetaInformation implements IMetaInformation {
 		// TODO Auto-generated method stub
 		return this.Name;
 	}
-
+	
 	@Override
 	public Collection<IParameterDescriptor> getParameters() {
 		// TODO Auto-generated method stub
@@ -35,7 +35,7 @@ public class MetaInformation implements IMetaInformation {
 	@Override
 	public Object getValueFor(String parameterName) {
 		// TODO Auto-generated method stub
-		return this.parameters.get(parameterName);
+		return this.parameters.get(parameterName).getValue();
 	}
 
 	@Override

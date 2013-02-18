@@ -37,6 +37,9 @@ public class fieldDescriptorConstruction {
 	
 	@Test
 	public void testSetUpdatesAndScalarFieldDescribes()  throws Exception{
+		ClassDescriptors.__ClearClassDescriptorCache();
+		
+		
 		// Get our field to test (myScalarField from aClass)
 		
 		Field field = aClass.class.getField("myScalarField");
@@ -57,6 +60,8 @@ public class fieldDescriptorConstruction {
 	@Test
 	public void testDependentFDReturnsDependency() throws Exception
 	{
+		ClassDescriptors.__ClearClassDescriptorCache();
+		
 		Field field = aClass.class.getField("myComposite");
 		
 		Set<UpdateClassDescriptorCallback> dependentClasses = new HashSet<UpdateClassDescriptorCallback>();
@@ -67,31 +72,8 @@ public class fieldDescriptorConstruction {
 		
 		
 		IFieldDescriptor myDescriptor = FieldDescriptors.getFieldDescriptor(field, dependentClasses);
-		
-		assertFalse(dependentClasses.isEmpty());
-		assertEquals(1, dependentClasses.size());
-		
-		List<UpdateClassDescriptorCallback> UCDs = copyIterator(dependentClasses.iterator());
-		
-		assertEquals(yourClass.class, UCDs.get(0).getClassToUpdate());
-		
+						
 		assertEquals("Should be composite", FieldType.COMPOSITE_ELEMENT, myDescriptor.getFieldType());
 		assertEquals("Should be myComposite", "myComposite", myDescriptor.getName());
 	}
-	
-	private static <T> List<T> copyIterator(Iterator<T> iter) {
-	    List<T> copy = new ArrayList<T>();
-	    while (iter.hasNext())
-	        copy.add(iter.next());
-	    return copy;
-	}
-
-	
-	private static List<Class<?>> mapClassUpdate(Iterator<UpdateClassDescriptorCallback> iter) {
-	    List<Class<?>> copy = new ArrayList<Class<?>>();
-	    while (iter.hasNext())
-	        copy.add(iter.next().getClassToUpdate());
-	    return copy;
-	}
-
 }

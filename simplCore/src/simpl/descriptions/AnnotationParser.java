@@ -1,33 +1,105 @@
-package ecologylab.simpl.descriptors.utilities;
+package simpl.descriptions;
 
 import java.lang.annotation.Annotation;
+import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
-import com.google.common.base.Throwables;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
+import simpl.descriptions.beiber.MetaInformation;
+import simpl.descriptions.beiber.IMetaInformation;
+import simpl.descriptions.beiber.IParameterDescriptor;
+import simpl.descriptions.beiber.ParameterDescriptor;
 
-import ecologylab.simpl.descriptors.ParameterDescriptor;
-
+/**
+ * A class that parses annotations in java and creates the according IMetaInformation classes
+ * @author tom
+ *
+ */
 public class AnnotationParser
 {
+	
+	
+	/**
+	 * Returns all metainformation correlated to a given class
+	 * @param fromAClass A class that has meta information
+	 * @return The collection of meta information associated with the CLASS
+	 */
+	public Collection<IMetaInformation> getAllMetaInformation(Class<?> fromAClass)
+	{
+		
+		return getAllMetaInfo(fromAClass.getDeclaredAnnotations());
+	}
+
+	/**
+	 * Returns all metainformation correlated to a given Field
+	 * @param fromAField The Field to obtain meta information for
+	 * @return The collection of meta information associated with the FIELD
+	 */
+	public Collection<IMetaInformation> getAllMetaInformation(Field fromAField)
+	{
+		
+		return getAllMetaInfo(fromAField.getDeclaredAnnotations());
+	}
+	
+	/**
+	 * Returns all metainformation associated with a given method
+	 * @param fromAMethod the method to obtain meta information from
+	 * @return Thhe collection of meta information associated with the METHOD
+	 */
+	public Collection<IMetaInformation> getAllMetaInformation(Method fromAMethod)
+	{			
+		return getAllMetaInfo(fromAMethod.getDeclaredAnnotations());
+	}
+	
+	private Collection<IMetaInformation> getAllMetaInfo(Annotation[] annotations)
+	{
+		List<IMetaInformation> ourMetaInfo = new LinkedList<IMetaInformation>();
+		
+		for(Annotation a: annotations)
+		{
+			ourMetaInfo.add(getMetaInformationFromAnnotation(a));
+		}
+		
+		return ourMetaInfo;
+	}
+	
+	
+	
 	/**
 	 * Gets ParameterDescriptors that describe the parameters used for this particular annotation.
 	 * Used primarily for getting the information for code generation
 	 * @param a The Annotation Class to parse
 	 * @return ParameterDescriptors for all entries
 	 */
-	public <T extends Annotation> List<ParameterDescriptor> getParametersFromAnnotation(T a) 
+	public <T extends Annotation> IMetaInformation getMetaInformationFromAnnotation(T a)
 	{
-		List<ParameterDescriptor> ourList = Lists.newArrayList();
+		Class<? extends Annotation> annotationClass = a.getClass();
+		
+		//We get the first interface of the annotation class b/c it's the only interface it should have. 
+		// This class instance will be a Proxy; so that class name won't give us the name we want! 
+		MetaInformation ourMetaInfo = new MetaInformation(annotationClass.getInterfaces()[0].getSimpleName());
+		
+		for(IParameterDescriptor param : getParametersFromAnnotation(a))
+		{
+			ourMetaInfo.addParameter(param);
+		}
+		
+		return ourMetaInfo;
+	}
+	
+	public <T extends Annotation> List<IParameterDescriptor> getParametersFromAnnotation(T a) 
+	{
+		List<IParameterDescriptor> ourList = new LinkedList<IParameterDescriptor>();
 						
 		Class<? extends Annotation> annotClass = a.getClass();
 		
 		Method[] methods = annotClass.getDeclaredMethods();
 		
-		List<String> ourMethods = Lists.newArrayList();
+		List<String> ourMethods = new LinkedList<String>();
 		
 		for(Method m : methods)
 		{
@@ -35,13 +107,13 @@ public class AnnotationParser
 				ourMethods.add(m.getName());
 		}
 	
-
+		Set<String> ourMethodSet = new HashSet<String>();
+		ourMethodSet.addAll(ourMethods);
 		
-		Set<String> ourMethodSet = 	Sets.newHashSet(ourMethods);		
 		Set<String> defaultMethodSet = getDefaultAnnotationProxyMethods();
 
 		// Get the difference. What isn't in the default method set will be a value in the attribute
-		Set<String> result = Sets.symmetricDifference(ourMethodSet, defaultMethodSet);
+		Set<String> result = symmetricDifference(ourMethodSet, defaultMethodSet);
 		
 		for(String s: result)
 		{
@@ -65,15 +137,30 @@ public class AnnotationParser
 			
 				ourList.add(new ParameterDescriptor(name,paramType,value));
 			}
-			catch(Throwable t)
+			catch(Exception t)
 			{
-				Throwables.propagate(t);
+				throw new RuntimeException(t);
 			}
 		}
 		
 		return ourList;
 	}
 	
+	public Set<String> symmetricDifference(Set<String> ourMethodSet,
+			Set<String> defaultMethodSet) {
+		Set<String> toReturn= new HashSet<String>();
+		toReturn.addAll(ourMethodSet);
+		
+		boolean changed = toReturn.removeAll(defaultMethodSet);
+		
+		if(!changed)
+		{
+			throw new RuntimeException("The set should have changed! Something is amiss!");
+		}		
+		
+		return toReturn;
+	}
+
 	private boolean MethodMayBeAnnotationName(Method m)
 	{
 		return m.getParameterTypes().length== 0;
@@ -112,25 +199,29 @@ public class AnnotationParser
 			
 			try 
 			{
+				// We get the annotation on the field b/c it'll be a proxy object we can use
 				hackAttack = HackTacular.class.getField("SoWrong").getDeclaredAnnotations()[0];
 			} 
-			catch (Throwable t)
+			catch (Exception t)
 			{
-				Throwables.propagate(t);
+				throw new RuntimeException(t);
 			}
 			
-			List<String> defaultMethods = Lists.newArrayList();
+			List<String> defaultMethods = new LinkedList<String>();
 			
 			for(Method m : hackAttack.getClass().getDeclaredMethods())
 			{
 				if(MethodMayBeAnnotationName(m))
+				{
+					// Add everything that can be a method
 					defaultMethods.add(m.getName());
+				}
 			}
 			
-			cacheSet = Sets.newHashSet(defaultMethods);
+			// Add it to our cache
+			cacheSet = new HashSet<String>();
+			cacheSet.addAll(defaultMethods);
 		}
 		return cacheSet;
 	}
-
-	
 }

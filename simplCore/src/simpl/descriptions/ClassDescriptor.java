@@ -1017,7 +1017,4 @@ public class ClassDescriptor<FD extends FieldDescriptor> extends DescriptorBase
 		// TODO Auto-generated method stub
 		
 	}
-
-
-
 }

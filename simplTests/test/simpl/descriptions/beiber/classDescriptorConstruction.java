@@ -5,20 +5,24 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.junit.Before;
 import org.junit.Test;
 
 import simpl.annotations.dbal.simpl_classes;
 import simpl.annotations.dbal.simpl_composite;
 import simpl.annotations.dbal.simpl_inherit;
 import simpl.annotations.dbal.simpl_scalar;
-import simpl.descriptions.beiber.fieldDescriptorConstruction.classes;
-import simpl.descriptions.beiber.fieldDescriptorConstruction.polymorph;
-import simpl.descriptions.beiber.fieldDescriptorConstruction.polymorphA;
-import simpl.descriptions.beiber.fieldDescriptorConstruction.polymorphB;
 
 import static org.junit.Assert.*;
 
 public class classDescriptorConstruction {
+	
+	
+	@Before
+	public void clearClassDescriptorCacheFirst()
+	{
+		ClassDescriptors.__ClearClassDescriptorCache();	
+	}
 	
 	public class aClass{
 		@simpl_scalar
@@ -153,8 +157,22 @@ public class classDescriptorConstruction {
 	@Test
 	public void TestPolymorphicFieldsHandlesCycles() throws Exception
 	{
+		ClassDescriptors.__ClearClassDescriptorCache();
 		
+		IClassDescriptor icd = ClassDescriptors.get(cyclePolymorph.class);
+		
+		IFieldDescriptor polyField = icd.getFields().get(0);
+		assertNotNull("Should have a field!", polyField);
+		
+		assertTrue(polyField.getPolymoprhicFieldDescriptors().contains(ClassDescriptors.get(polymorphA.class)));
+		assertTrue(polyField.getPolymoprhicFieldDescriptors().contains(ClassDescriptors.get(cyclePolymorph.class)));
+		assertFalse("Base field should not be included.", polyField.getPolymoprhicFieldDescriptors().contains(ClassDescriptors.get(classes.class)));
+		
+		assertFalse("Shouldn't have touched polymorph C at all", ClassDescriptors.containsCD(polymorphC.class));
 	}
+	
+	
+	
 	
 	
 }

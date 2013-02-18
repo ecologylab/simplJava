@@ -1,5 +1,4 @@
-package ecologylab.simpl.descriptors.utilities;
-
+package simpl.descriptions;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
@@ -14,7 +13,7 @@ import java.lang.annotation.RetentionPolicy;
  * 
  * This is a dirty dirty thing, but it works. 
  * @author twhite
- *
+ *	
  */
 @Retention(RetentionPolicy.RUNTIME)
 public @interface EmptyAnnotationHack {
