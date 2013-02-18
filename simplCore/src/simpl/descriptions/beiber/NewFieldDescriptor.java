@@ -39,9 +39,6 @@ public class NewFieldDescriptor implements IFieldDescriptor {
 		this.polymorphicFields.add(icd);
 	}
 	
-	
-	
-	
 	public IClassDescriptor getFieldClassDescriptor() {
 		return fieldClassDescriptor;
 	}
@@ -74,6 +71,12 @@ public class NewFieldDescriptor implements IFieldDescriptor {
 	}
 	public void setName(String name) {
 		this.name = name;
+	}
+
+	@Override
+	public Collection<String> getMetaInformation() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 	
 

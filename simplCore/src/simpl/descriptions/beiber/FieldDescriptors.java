@@ -57,7 +57,7 @@ public class FieldDescriptors {
 			if(ClassDescriptors.containsCD(classToUpdate))
 			{
 				// good. GIT IT. :) 
-				nfd.setDeclaringClassDescriptor(ClassDescriptors.get(classToUpdate));
+				nfd.setFieldClassDescriptor(ClassDescriptors.get(classToUpdate));
 			}else{
 				// We need to update it later when we have it. 
 				classAccumulator.add(new UpdateClassDescriptorCallback() {

@@ -10,6 +10,9 @@ import java.util.List;
 import java.util.Map;
 
 import simpl.annotations.dbal.simpl_inherit;
+import simpl.annotations.dbal.simpl_other_tags;
+import simpl.descriptions.FieldCategorizer;
+import simpl.descriptions.FieldType;
 
 public class ClassDescriptors {
 
@@ -95,6 +98,19 @@ public class ClassDescriptors {
 		return descriptors.containsKey(aClass.getName());
 	}
 	
+	public static boolean containsCD(IClassDescriptor icd)
+	{
+		return descriptors.containsKey(icd.getName());
+	}
+	
+	public static void registerClassDescriptor(IClassDescriptor icd)
+	{
+		if(!ClassDescriptors.containsCD(icd))
+		{
+			descriptors.put(icd.getName(), icd);
+		}
+	}
+	
 	public static IClassDescriptor get(Class<?> aClass)
 	{
 		if(containsCD(aClass))
@@ -139,11 +155,24 @@ public class ClassDescriptors {
 		final NewClassDescriptor ncd = new NewClassDescriptor();
 		
 		ncd.setJavaClass(aClass);
-		ncd.setName(aClass.getSimpleName());
+		ncd.setName(aClass.getName());
 		
 		descriptors.put(aClass.getName(), ncd);
 		
 		// Handle other class specifics: 
+		
+		
+		if(aClass.isAnnotationPresent(simpl_other_tags.class))
+		{
+			final simpl_other_tags otherTags = aClass.getAnnotation(simpl_other_tags.class);
+			for(String s: otherTags.value())
+			{
+				ncd.addOtherTag(s);
+			}
+		}
+		
+		
+		
 		
 		//Inheritance w/ superclasses and such. 
 		if(classShouldInheritSuperclassCD(aClass))
@@ -169,14 +198,11 @@ public class ClassDescriptors {
 				});
 			}
 		}
+		
+		
+		
+		
 
-		
-		
-		
-		
-		
-		
-		
 		// Create all fields!
 		for(Field f : aClass.getDeclaredFields())
 		{ 
@@ -215,6 +241,13 @@ public class ClassDescriptors {
 			
 			// Exclude static fields. 
 			if(Modifier.isStatic(f.getModifiers()))
+			{
+				return true;
+			}
+			
+			// Exclude "unset" types
+			FieldType ft = new FieldCategorizer().categorizeField(f);
+			if(ft == FieldType.UNSET_TYPE)
 			{
 				return true;
 			}

@@ -2,12 +2,34 @@ package simpl.descriptions.beiber;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Collection;
 
-public class NewClassDescriptor implements IClassDescriptor {
+import simpl.core.TranslationContext;
+import simpl.deserialization.ISimplDeserializationHookContextual;
+import simpl.deserialization.ISimplDeserializationHooks;
+
+public class NewClassDescriptor implements IClassDescriptor,
+ISimplDeserializationHooks
+
+{
+
+	private ArrayList<String> otherTags;
 
 	public NewClassDescriptor()
 	{
 		this.fields = new ArrayList<IFieldDescriptor>();
+		this.otherTags = new ArrayList<String>();
+	
+	}
+	
+	public Collection<String> getOtherTags()
+	{
+		return this.otherTags;
+	}
+	
+	public void addOtherTag(String tag)
+	{
+		this.otherTags.add(tag);
 	}
 	
 	public Class<?> getJavaClass() {
@@ -31,6 +53,10 @@ public class NewClassDescriptor implements IClassDescriptor {
 	private List<IFieldDescriptor> fields;
 	private IClassDescriptor superClassDescriptor; 
 	
+	/**
+	 * Gets a class descriptor representing the superclass for this class; 
+	 * Can be null if @simpl_inherit is not used in the class declaration
+	 */
 	public IClassDescriptor getSuperClassDescriptor() {
 		return superClassDescriptor;
 	}
@@ -39,17 +65,37 @@ public class NewClassDescriptor implements IClassDescriptor {
 		this.superClassDescriptor = superClassDescriptor;
 	}
 
+	/**
+	 * Gets a list of the FieldDescriptors that comprise the described class. 
+	 */
 	public List<IFieldDescriptor> getFields() {
 		return fields;
 	}
-
-	public void setFields(List<IFieldDescriptor> fields) {
-		this.fields = fields;
-	}
 	
-	
+	/**
+	 * Adds a field to this class descriptor
+	 * @param ifd Field to add
+	 */
 	public void addField(IFieldDescriptor ifd)
 	{
 		this.fields.add(ifd);
+	}
+
+	@Override
+	public void deserializationInHook(TranslationContext translationContext) {
+		// this is empty for this class... 
+	}
+
+	@Override
+	public void deserializationPostHook(TranslationContext translationContext,
+			Object object) {
+		// this is empty for this class... 
+	}
+
+	@Override
+	public void deserializationPreHook(TranslationContext translationContext) {
+		// We need to register this class descriptor, if it hasn't already been
+		// so that all of our cycle code works nicely. 
+		ClassDescriptors.registerClassDescriptor(this);
 	}
 }
