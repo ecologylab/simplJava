@@ -7,7 +7,9 @@ import java.util.Collection;
 
 import org.junit.Test;
 
+import simpl.annotations.dbal.Hint;
 import simpl.annotations.dbal.bibtex_tag;
+import simpl.annotations.dbal.simpl_hints;
 import simpl.annotations.dbal.simpl_inherit;
 import simpl.annotations.dbal.simpl_scalar;
 import simpl.descriptions.AnnotationParser;
@@ -19,7 +21,6 @@ public class annotationParserTests {
 		public void myMethod(){}
 	}
 	
-	
 	class myClass{
 		@simpl_scalar
 		public Integer myScalar;
@@ -30,6 +31,10 @@ public class annotationParserTests {
 		public Integer myValueAnnotation;
 	}
 	
+	class myDefaultValueAnnotationClass{
+		@simpl_hints
+		public Integer myScalar;
+	}
 	
 	@Test
 	public void testThatAnnotationParserCorrectlyIdentifiesNoAnnotations() throws NoSuchFieldException, SecurityException, NoSuchMethodException {
@@ -75,9 +80,28 @@ public class annotationParserTests {
 	}
 
 	@Test
-	public void testAnnotationParserGracefullyHandlesDefaultValues(){
-		
-		
-	}
+	public void testAnnotationParserGracefullyHandlesDefaultValues() throws Exception
+	{
+		Field defaultValueAnnotated = myDefaultValueAnnotationClass.class.getFields()[0];
 	
+		AnnotationParser ap = new AnnotationParser();
+		
+		Collection<IMetaInformation> metaInfos = ap.getAllMetaInformation(defaultValueAnnotated);
+		assertEquals("Should have only one annotation: bibtex_tag", 1, metaInfos.size());
+		IMetaInformation first = metaInfos.iterator().next();
+		
+		assertEquals("Should be simpl_hints", "simpl_hints", first.getAnnotationName());
+		assertEquals("Should have 1 parameter",1, first.getParameters().size());
+		
+		IParameterDescriptor param = first.getParameters().iterator().next();
+		assertEquals("Should be named \"value\"", "value", param.getName());
+		
+		Object value =  first.getValueFor("value");
+		Hint[] myHints = (Hint[])value;
+		assertEquals("Shoul dhave a single hint", 1, myHints.length);
+		
+		Hint firstHint = myHints[0];
+		assertEquals("Value should be correct when getting value via IMetaInformation", Hint.XML_ATTRIBUTE, firstHint);
+		// this is probably a bad example b/c it's an array, ho hum. 
+	}
 }
