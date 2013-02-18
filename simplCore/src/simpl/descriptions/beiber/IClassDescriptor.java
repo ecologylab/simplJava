@@ -6,7 +6,7 @@ import java.util.List;
 /**
  * Interface for all classdescriptors
  */
-public interface IClassDescriptor {
+public interface IClassDescriptor extends IMetaInformationProvider {
 	/**
 	 * Gets the java class that represents the class descriptor
 	 * @return
@@ -38,11 +38,5 @@ public interface IClassDescriptor {
 	 * @return
 	 */
 	Collection<String> getOtherTags();
-	
-	/**
-	 * Gets a collection of metainformation that this class has
-	 * @return
-	 */
-	Collection<IMetaInformation> getMetaInformation();
 	
 }

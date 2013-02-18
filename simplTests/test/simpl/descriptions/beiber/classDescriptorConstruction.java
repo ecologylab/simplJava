@@ -133,6 +133,7 @@ public class classDescriptorConstruction {
 	class cyclePolymorph extends classes
 	{
 		@simpl_classes({polymorphA.class, cyclePolymorph.class })
+		@simpl_composite
 		public classes myPolymorphicField;
 	}
 	

@@ -14,23 +14,23 @@ ISimplDeserializationHooks
 {
 
 	private ArrayList<String> otherTags;
-	private ArrayList<IMetaInformation> metainfo;
-
+	private IMetaInformationProvider metainfo;
+	
 	public NewClassDescriptor()
 	{
 		this.fields = new ArrayList<IFieldDescriptor>();
 		this.otherTags = new ArrayList<String>();
-		this.metainfo = new ArrayList<IMetaInformation>();
+		this.metainfo = new MetaInformationCollection();
 	}
 	
 	public Collection<IMetaInformation> getMetaInformation()
 	{
-		return this.metainfo;
+		return this.metainfo.getMetaInformation();
 	}
 	
 	public void addMetaInformation(IMetaInformation imo)
 	{
-		this.metainfo.add(imo);
+		this.metainfo.addMetaInformation(imo);
 	}
 	
 	public Collection<String> getOtherTags()
@@ -108,5 +108,17 @@ ISimplDeserializationHooks
 		// We need to register this class descriptor, if it hasn't already been
 		// so that all of our cycle code works nicely. 
 		ClassDescriptors.registerClassDescriptor(this);
+	}
+
+	@Override
+	public boolean containsMetaInformation(String name) {
+		// TODO Auto-generated method stub
+		return this.metainfo.containsMetaInformation(name);
+	}
+
+	@Override
+	public IMetaInformation getMetaInformation(String name) {
+		// TODO Auto-generated method stub
+		return this.metainfo.getMetaInformation(name);
 	}
 }

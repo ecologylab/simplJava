@@ -10,11 +10,15 @@ import simpl.descriptions.FieldType;
 public class NewFieldDescriptor implements IFieldDescriptor {
 	
 	
+	private IMetaInformationProvider metainfo;
+	
 	public NewFieldDescriptor()
 	{
 		this.polymorphicFields = new ArrayList<IClassDescriptor>();
 		this.othertags = new ArrayList<String>();
-		this.metainfo = new ArrayList<IMetaInformation>();
+		this.metainfo = new MetaInformationCollection();
+		
+		
 	}
 	
 	Class<?> declaringClass;
@@ -31,8 +35,6 @@ public class NewFieldDescriptor implements IFieldDescriptor {
 	
 	Collection<IClassDescriptor> polymorphicFields;
 
-	private Collection<IMetaInformation> metainfo; 
-	
 	public Collection<IClassDescriptor> getPolymoprhicFieldDescriptors()
 	{
 		return polymorphicFields;
@@ -80,12 +82,12 @@ public class NewFieldDescriptor implements IFieldDescriptor {
 	@Override
 	public Collection<IMetaInformation> getMetaInformation() {
 		// TODO Auto-generated method stub
-		return this.metainfo;
+		return this.metainfo.getMetaInformation();
 	}
 	
 	public void addMetaInformation(IMetaInformation imo)
 	{
-		this.metainfo.add(imo);
+		this.metainfo.addMetaInformation(imo);
 	}
 
 	private Collection<String> othertags;
@@ -99,6 +101,18 @@ public class NewFieldDescriptor implements IFieldDescriptor {
 	public Collection<String> getOtherTags() {
 		// TODO Auto-generated method stub
 		return this.othertags;
+	}
+
+	@Override
+	public boolean containsMetaInformation(String name) {
+		// TODO Auto-generated method stub
+		return this.metainfo.containsMetaInformation(name);
+	}
+
+	@Override
+	public IMetaInformation getMetaInformation(String name) {
+		// TODO Auto-generated method stub
+		return this.metainfo.getMetaInformation(name);
 	}
 	
 	

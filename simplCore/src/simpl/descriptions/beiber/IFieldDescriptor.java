@@ -7,7 +7,7 @@ import simpl.descriptions.FieldType;
 /**
  * An interface representing a described simpl field
  */
-public interface IFieldDescriptor {
+public interface IFieldDescriptor extends IMetaInformationProvider {
 	/**
 	 * Gets the class that this field was declared in
 	 * @return
@@ -43,12 +43,6 @@ public interface IFieldDescriptor {
 	 * @return
 	 */
 	String getName();
-	
-	/**
-	 * Gets a collection of all metaifnormation (Annotations) added to this class
-	 * @return
-	 */
-	Collection<IMetaInformation> getMetaInformation();
 	
 	/**
 	 * Gets a collection of all othertags that this field ma be referenced by.

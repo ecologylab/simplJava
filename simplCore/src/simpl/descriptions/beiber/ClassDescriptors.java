@@ -233,7 +233,7 @@ public class ClassDescriptors {
 		return ncd;
 	}
 		
-	// exclude some fields yo
+	// exclude some fields
 		private static boolean fieldExcluded(Field f)
 		{
 			// Exclude "this" instances on inner classes
