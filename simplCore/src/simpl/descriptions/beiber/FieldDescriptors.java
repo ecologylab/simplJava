@@ -6,6 +6,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import simpl.annotations.dbal.simpl_classes;
+import simpl.annotations.dbal.simpl_other_tags;
 import simpl.descriptions.FieldCategorizer;
 import simpl.descriptions.FieldType;
 import simpl.types.TypeRegistry;
@@ -43,6 +44,17 @@ public class FieldDescriptors {
 		
 		nfd.setFieldType(fd);
 				
+		
+		if(toDescribe.isAnnotationPresent(simpl_other_tags.class))
+		{
+			final simpl_other_tags otherTags = toDescribe.getAnnotation(simpl_other_tags.class);
+			for(String s: otherTags.value())
+			{
+				nfd.addOtherTags(s);
+			}
+		}
+		
+		
 		// Handle scalar type / or composite types
 		if(classIsScalar(toDescribe.getType()))
 		{

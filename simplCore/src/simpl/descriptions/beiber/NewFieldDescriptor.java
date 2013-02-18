@@ -13,6 +13,7 @@ public class NewFieldDescriptor implements IFieldDescriptor {
 	public NewFieldDescriptor()
 	{
 		this.polymorphicFields = new ArrayList<IClassDescriptor>();
+		this.othertags = new ArrayList<String>();
 	}
 	
 	Class<?> declaringClass;
@@ -78,6 +79,22 @@ public class NewFieldDescriptor implements IFieldDescriptor {
 		// TODO Auto-generated method stub
 		return null;
 	}
+
+	private Collection<String> othertags;
+	
+	public void addOtherTags(String s)
+	{
+		othertags.add(s);
+	}
+	
+	@Override
+	public Collection<String> getOtherTags() {
+		// TODO Auto-generated method stub
+		return this.othertags;
+	}
+	
+	
+	
 	
 
 }

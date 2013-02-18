@@ -12,4 +12,6 @@ public interface IFieldDescriptor {
 	Collection<IClassDescriptor> getPolymoprhicFieldDescriptors();
 	String getName();
 	Collection<String> getMetaInformation();
+	Collection<String> getOtherTags();
+	
 }
