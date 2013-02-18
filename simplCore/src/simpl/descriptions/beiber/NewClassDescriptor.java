@@ -14,12 +14,23 @@ ISimplDeserializationHooks
 {
 
 	private ArrayList<String> otherTags;
+	private ArrayList<IMetaInformation> metainfo;
 
 	public NewClassDescriptor()
 	{
 		this.fields = new ArrayList<IFieldDescriptor>();
 		this.otherTags = new ArrayList<String>();
+		this.metainfo = new ArrayList<IMetaInformation>();
+	}
 	
+	public Collection<IMetaInformation> getMetaInformation()
+	{
+		return this.metainfo;
+	}
+	
+	public void addMetaInformation(IMetaInformation imo)
+	{
+		this.metainfo.add(imo);
 	}
 	
 	public Collection<String> getOtherTags()

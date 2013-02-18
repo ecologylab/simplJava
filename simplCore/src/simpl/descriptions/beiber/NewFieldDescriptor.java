@@ -14,6 +14,7 @@ public class NewFieldDescriptor implements IFieldDescriptor {
 	{
 		this.polymorphicFields = new ArrayList<IClassDescriptor>();
 		this.othertags = new ArrayList<String>();
+		this.metainfo = new ArrayList<IMetaInformation>();
 	}
 	
 	Class<?> declaringClass;
@@ -28,7 +29,9 @@ public class NewFieldDescriptor implements IFieldDescriptor {
 	
 	IClassDescriptor fieldClassDescriptor; 
 	
-	Collection<IClassDescriptor> polymorphicFields; 
+	Collection<IClassDescriptor> polymorphicFields;
+
+	private Collection<IMetaInformation> metainfo; 
 	
 	public Collection<IClassDescriptor> getPolymoprhicFieldDescriptors()
 	{
@@ -75,9 +78,14 @@ public class NewFieldDescriptor implements IFieldDescriptor {
 	}
 
 	@Override
-	public Collection<String> getMetaInformation() {
+	public Collection<IMetaInformation> getMetaInformation() {
 		// TODO Auto-generated method stub
-		return null;
+		return this.metainfo;
+	}
+	
+	public void addMetaInformation(IMetaInformation imo)
+	{
+		this.metainfo.add(imo);
 	}
 
 	private Collection<String> othertags;

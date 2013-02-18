@@ -11,6 +11,7 @@ import java.util.Map;
 
 import simpl.annotations.dbal.simpl_inherit;
 import simpl.annotations.dbal.simpl_other_tags;
+import simpl.descriptions.AnnotationParser;
 import simpl.descriptions.FieldCategorizer;
 import simpl.descriptions.FieldType;
 
@@ -200,7 +201,15 @@ public class ClassDescriptors {
 		}
 		
 		
+		// Add all meta information:
+		AnnotationParser ap = new AnnotationParser();
+		Collection<IMetaInformation> metaInfo = ap.getAllMetaInformation(aClass);
 		
+		for(IMetaInformation imo : metaInfo)
+		{
+			ncd.addMetaInformation(imo);
+			// TODO: Add requisite callbacks to update any class descriptors in imo.
+		}
 		
 
 		// Create all fields!

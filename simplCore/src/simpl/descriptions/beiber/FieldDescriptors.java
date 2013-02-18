@@ -7,6 +7,7 @@ import java.util.Set;
 
 import simpl.annotations.dbal.simpl_classes;
 import simpl.annotations.dbal.simpl_other_tags;
+import simpl.descriptions.AnnotationParser;
 import simpl.descriptions.FieldCategorizer;
 import simpl.descriptions.FieldType;
 import simpl.types.TypeRegistry;
@@ -86,6 +87,18 @@ public class FieldDescriptors {
 					}
 				});
 			}
+			
+			
+		}
+		
+		
+		AnnotationParser ap = new AnnotationParser();
+		Collection<IMetaInformation> metaInfo = ap.getAllMetaInformation(toDescribe);
+		
+		for(IMetaInformation imo : metaInfo)
+		{
+			nfd.addMetaInformation(imo);
+			// TODO: Add requisite callbacks to update any class descriptors in imo.
 		}
 		
 		// handle polymorphing w/ simpl_classes
