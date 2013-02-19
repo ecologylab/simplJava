@@ -6,6 +6,8 @@ import org.junit.Test;
 
 import simpl.annotations.dbal.simpl_composite;
 import simpl.annotations.dbal.simpl_scope;
+import simpl.descriptions.ClassDescriptor;
+import simpl.descriptions.ClassDescriptors;
 import simpl.exceptions.SIMPLDescriptionException;
 
 /**
@@ -39,7 +41,7 @@ public class classAndTypeScopeInteractions {
 	@Test(expected=RuntimeException.class)
 	public void testNonExistentScopesShouldThrowAnException()
 	{
-		IClassDescriptor CD = ClassDescriptors.get(B_360NoScopeMaster.class);
+		ClassDescriptor CD = ClassDescriptors.get(B_360NoScopeMaster.class);
 	}
 
 }

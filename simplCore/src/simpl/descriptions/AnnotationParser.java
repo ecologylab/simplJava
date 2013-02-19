@@ -9,10 +9,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
-import simpl.descriptions.beiber.MetaInformation;
-import simpl.descriptions.beiber.IMetaInformation;
-import simpl.descriptions.beiber.IParameterDescriptor;
-import simpl.descriptions.beiber.ParameterDescriptor;
 
 /**
  * A class that parses annotations in java and creates the according IMetaInformation classes
@@ -28,7 +24,7 @@ public class AnnotationParser
 	 * @param fromAClass A class that has meta information
 	 * @return The collection of meta information associated with the CLASS
 	 */
-	public Collection<IMetaInformation> getAllMetaInformation(Class<?> fromAClass)
+	public Collection<MetaInformation> getAllMetaInformation(Class<?> fromAClass)
 	{
 		
 		return getAllMetaInfo(fromAClass.getDeclaredAnnotations());
@@ -39,7 +35,7 @@ public class AnnotationParser
 	 * @param fromAField The Field to obtain meta information for
 	 * @return The collection of meta information associated with the FIELD
 	 */
-	public Collection<IMetaInformation> getAllMetaInformation(Field fromAField)
+	public Collection<MetaInformation> getAllMetaInformation(Field fromAField)
 	{
 		
 		return getAllMetaInfo(fromAField.getDeclaredAnnotations());
@@ -50,14 +46,14 @@ public class AnnotationParser
 	 * @param fromAMethod the method to obtain meta information from
 	 * @return Thhe collection of meta information associated with the METHOD
 	 */
-	public Collection<IMetaInformation> getAllMetaInformation(Method fromAMethod)
+	public Collection<MetaInformation> getAllMetaInformation(Method fromAMethod)
 	{			
 		return getAllMetaInfo(fromAMethod.getDeclaredAnnotations());
 	}
 	
-	private Collection<IMetaInformation> getAllMetaInfo(Annotation[] annotations)
+	private Collection<MetaInformation> getAllMetaInfo(Annotation[] annotations)
 	{
-		List<IMetaInformation> ourMetaInfo = new LinkedList<IMetaInformation>();
+		List<MetaInformation> ourMetaInfo = new LinkedList<MetaInformation>();
 		
 		for(Annotation a: annotations)
 		{
@@ -75,15 +71,15 @@ public class AnnotationParser
 	 * @param a The Annotation Class to parse
 	 * @return ParameterDescriptors for all entries
 	 */
-	public <T extends Annotation> IMetaInformation getMetaInformationFromAnnotation(T a)
+	public <T extends Annotation> MetaInformation getMetaInformationFromAnnotation(T a)
 	{
 		Class<? extends Annotation> annotationClass = a.getClass();
 		
 		//We get the first interface of the annotation class b/c it's the only interface it should have. 
 		// This class instance will be a Proxy; so that class name won't give us the name we want! 
-		MetaInformation ourMetaInfo = new MetaInformation(annotationClass.getInterfaces()[0].getSimpleName());
+		MetaInformationImpl ourMetaInfo = new MetaInformationImpl(annotationClass.getInterfaces()[0].getSimpleName());
 		
-		for(IParameterDescriptor param : getParametersFromAnnotation(a))
+		for(ParameterDescriptor param : getParametersFromAnnotation(a))
 		{
 			ourMetaInfo.addParameter(param);
 		}
@@ -91,9 +87,9 @@ public class AnnotationParser
 		return ourMetaInfo;
 	}
 	
-	public <T extends Annotation> List<IParameterDescriptor> getParametersFromAnnotation(T a) 
+	public <T extends Annotation> List<ParameterDescriptor> getParametersFromAnnotation(T a) 
 	{
-		List<IParameterDescriptor> ourList = new LinkedList<IParameterDescriptor>();
+		List<ParameterDescriptor> ourList = new LinkedList<ParameterDescriptor>();
 						
 		Class<? extends Annotation> annotClass = a.getClass();
 		
@@ -135,7 +131,7 @@ public class AnnotationParser
 				// Get the return type
 				Class<?> paramType = m.getReturnType();
 			
-				ourList.add(new ParameterDescriptor(name,paramType,value));
+				ourList.add(new ParameterDescriptorImpl(name,paramType,value));
 			}
 			catch(Exception t)
 			{

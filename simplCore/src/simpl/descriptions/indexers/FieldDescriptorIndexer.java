@@ -6,22 +6,21 @@ import simpl.core.indexers.ItemIndexPredicate;
 import simpl.core.indexers.MultiIndexer;
 import simpl.descriptions.FieldDescriptor;
 import simpl.descriptions.FieldType;
-import simpl.descriptions.beiber.IFieldDescriptor;
 
 import java.util.List;
 import java.util.LinkedList;;
 
-public class FieldDescriptorIndexer extends MultiIndexer<IFieldDescriptor>
+public class FieldDescriptorIndexer extends MultiIndexer<FieldDescriptor>
 {
-	public InnerIndexer<IFieldDescriptor> Scalars;
-	public InnerIndexer<IFieldDescriptor> ScalarCollections;
-	public InnerIndexer<IFieldDescriptor> ScalarMaps;
-	public InnerIndexer<IFieldDescriptor> Composites;
-	public InnerIndexer<IFieldDescriptor> CompositeCollections;
-	public InnerIndexer<IFieldDescriptor> CompositeMaps;
+	public InnerIndexer<FieldDescriptor> Scalars;
+	public InnerIndexer<FieldDescriptor> ScalarCollections;
+	public InnerIndexer<FieldDescriptor> ScalarMaps;
+	public InnerIndexer<FieldDescriptor> Composites;
+	public InnerIndexer<FieldDescriptor> CompositeCollections;
+	public InnerIndexer<FieldDescriptor> CompositeMaps;
 // TODO???	public InnerIndexer<FieldDescriptor> CompositesAsScalars;  //
-	public InnerIndexer<IFieldDescriptor> IgnoredElements;
-	public InnerIndexer<IFieldDescriptor> IgnoredAttributes;
+	public InnerIndexer<FieldDescriptor> IgnoredElements;
+	public InnerIndexer<FieldDescriptor> IgnoredAttributes;
 	
 	final class byScalars extends FieldTypeItemPredicate{
 		@Override
@@ -97,38 +96,6 @@ public class FieldDescriptorIndexer extends MultiIndexer<IFieldDescriptor>
 	// -- here are the other indexers, by tag name, etc. 
 	
 	
-	final class byFieldName extends ItemIndexPredicate<FieldDescriptor>
-	{
-
-		@Override
-		public String GetIndexIdentifier() {
-			// TODO Auto-generated method stub
-			return "fieldName";
-		}
-
-		@Override
-		public String ObtainIndex(FieldDescriptor item) {
-			// TODO Auto-generated method stub
-			return item.getField().getName();
-		}
-	}
-	
-	final class byTagName extends ItemIndexPredicate<FieldDescriptor>
-	{
-
-		@Override
-		public String GetIndexIdentifier() {
-			// TODO Auto-generated method stub
-			return null;
-		}
-
-		@Override
-		public String ObtainIndex(FieldDescriptor item) {
-			// TODO Auto-generated method stub
-			return null;
-		}
-		
-	}
 	
 	
 	
@@ -147,9 +114,9 @@ public class FieldDescriptorIndexer extends MultiIndexer<IFieldDescriptor>
 	}
 	
 	@Override
-	public List<ItemIndexPredicate<IFieldDescriptor>> getIndexPredicates() {
+	public List<ItemIndexPredicate<FieldDescriptor>> getIndexPredicates() {
 		// TODO Auto-generated method stub
-		List<ItemIndexPredicate<IFieldDescriptor>> ourList = new LinkedList<ItemIndexPredicate<IFieldDescriptor>>();
+		List<ItemIndexPredicate<FieldDescriptor>> ourList = new LinkedList<ItemIndexPredicate<FieldDescriptor>>();
 		ourList.add(new byScalars());
 		ourList.add(new byScalarCollections());
 		ourList.add(new byScalarMaps());

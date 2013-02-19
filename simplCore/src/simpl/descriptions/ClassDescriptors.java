@@ -1,4 +1,4 @@
-package simpl.descriptions.beiber;
+package simpl.descriptions;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
@@ -11,9 +11,6 @@ import java.util.Map;
 
 import simpl.annotations.dbal.simpl_inherit;
 import simpl.annotations.dbal.simpl_other_tags;
-import simpl.descriptions.AnnotationParser;
-import simpl.descriptions.FieldCategorizer;
-import simpl.descriptions.FieldType;
 
 public class ClassDescriptors {
 
@@ -47,7 +44,7 @@ public class ClassDescriptors {
 			return ourMap.keySet().isEmpty();
 		}
 		
-		public void resolveUpdates(Class<?> someClass, IClassDescriptor descriptor)
+		public void resolveUpdates(Class<?> someClass, ClassDescriptor descriptor)
 		{
 			for(UpdateClassDescriptorCallback ucd : ourMap.get(someClass))
 			{
@@ -84,7 +81,7 @@ public class ClassDescriptors {
 	/**
 	 * A cache of all field descriptors. 
 	 */
-	public static Map<String, IClassDescriptor> descriptors = new HashMap<String, IClassDescriptor>(); 
+	public static Map<String, ClassDescriptor> descriptors = new HashMap<String, ClassDescriptor>(); 
 	
 	/**
 	 * Method to clear the CD cache. Important / used only for esting. (thus the __)
@@ -99,12 +96,12 @@ public class ClassDescriptors {
 		return descriptors.containsKey(aClass.getName());
 	}
 	
-	public static boolean containsCD(IClassDescriptor icd)
+	public static boolean containsCD(ClassDescriptor icd)
 	{
 		return descriptors.containsKey(icd.getName());
 	}
 	
-	public static void registerClassDescriptor(IClassDescriptor icd)
+	public static void registerClassDescriptor(ClassDescriptor icd)
 	{
 		if(!ClassDescriptors.containsCD(icd))
 		{
@@ -112,7 +109,7 @@ public class ClassDescriptors {
 		}
 	}
 	
-	public static IClassDescriptor get(Class<?> aClass)
+	public static ClassDescriptor get(Class<?> aClass)
 	{
 		if(containsCD(aClass))
 		{
@@ -121,7 +118,7 @@ public class ClassDescriptors {
 		
 		UpdateMap ourMap = new ClassDescriptors().new UpdateMap();
 		
-		IClassDescriptor icd = get(aClass, ourMap); // get the CD for the first class.
+		ClassDescriptor icd = get(aClass, ourMap); // get the CD for the first class.
 		
 		// As long as we need to obtain more class descriptors, keep going
 		while(!ourMap.isEmpty())
@@ -129,7 +126,7 @@ public class ClassDescriptors {
 			// Pick the first class descriptor. 
 			Class<?> toUpdate = ourMap.getClassesPendingUpdate().iterator().next();
 			// Get it...
-			IClassDescriptor innerCD = get(toUpdate, ourMap);
+			ClassDescriptor innerCD = get(toUpdate, ourMap);
 			// Resolve all of the update callbacks for classes that needed this class descriptor.
 			ourMap.resolveUpdates(toUpdate, innerCD); //OurMap is smaller after this call.
 		}
@@ -143,7 +140,7 @@ public class ClassDescriptors {
 		return aClass.isAnnotationPresent(simpl_inherit.class);
 	}
 		
-	private static IClassDescriptor get(Class<?> aClass, UpdateMap updates)
+	private static ClassDescriptor get(Class<?> aClass, UpdateMap updates)
 	{
 		if(containsCD(aClass))
 		{
@@ -153,7 +150,7 @@ public class ClassDescriptors {
 		
 		//Create our class descriptor. 
 		// Must be final for callbacks to work. 
-		final NewClassDescriptor ncd = new NewClassDescriptor();
+		final ClassDescriptorImpl ncd = new ClassDescriptorImpl();
 		
 		ncd.setJavaClass(aClass);
 		ncd.setName(aClass.getName());
@@ -195,7 +192,7 @@ public class ClassDescriptors {
 					}
 					
 					@Override
-					public void updateWithCD(IClassDescriptor icd) {
+					public void updateWithCD(ClassDescriptor icd) {
 						ncd.setSuperClassDescriptor(icd);
 					}
 				});
@@ -205,9 +202,9 @@ public class ClassDescriptors {
 		
 		// Add all meta information:
 		AnnotationParser ap = new AnnotationParser();
-		Collection<IMetaInformation> metaInfo = ap.getAllMetaInformation(aClass);
+		Collection<MetaInformation> metaInfo = ap.getAllMetaInformation(aClass);
 		
-		for(IMetaInformation imo : metaInfo)
+		for(MetaInformation imo : metaInfo)
 		{
 			ncd.addMetaInformation(imo);
 			// TODO: Add requisite callbacks to update any class descriptors in imo.
@@ -221,7 +218,7 @@ public class ClassDescriptors {
 			{
 				Collection<UpdateClassDescriptorCallback> ucds = new ArrayList<UpdateClassDescriptorCallback>();					
 				
-				IFieldDescriptor ifd = FieldDescriptors.getFieldDescriptor(f, ucds);	
+				FieldDescriptor ifd = FieldDescriptors.getFieldDescriptor(f, ucds);	
 				
 				if(!ucds.isEmpty())
 				{

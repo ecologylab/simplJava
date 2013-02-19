@@ -1,4 +1,4 @@
-package simpl.descriptions.beiber;
+package simpl.descriptions;
 
 import simpl.descriptions.indexers.FieldDescriptorIndexer;
 

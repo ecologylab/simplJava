@@ -12,6 +12,9 @@ import simpl.annotations.dbal.simpl_classes;
 import simpl.annotations.dbal.simpl_composite;
 import simpl.annotations.dbal.simpl_inherit;
 import simpl.annotations.dbal.simpl_scalar;
+import simpl.descriptions.ClassDescriptor;
+import simpl.descriptions.ClassDescriptors;
+import simpl.descriptions.FieldDescriptor;
 
 import static org.junit.Assert.*;
 
@@ -63,7 +66,7 @@ public class classDescriptorConstruction {
 	{
 		ClassDescriptors.__ClearClassDescriptorCache();
 		
-		IClassDescriptor icd = ClassDescriptors.get(aClass.class);
+		ClassDescriptor icd = ClassDescriptors.get(aClass.class);
 		assertEquals(icd.getName(), "aClass");
 		assertEquals(icd.getFields().size(), 2);
 		
@@ -77,7 +80,7 @@ public class classDescriptorConstruction {
 	{
 		ClassDescriptors.__ClearClassDescriptorCache();
 		
-		IClassDescriptor icd = ClassDescriptors.get(bothCycles.class);
+		ClassDescriptor icd = ClassDescriptors.get(bothCycles.class);
 		assertEquals(icd.getName(), "bothCycles");
 		assertEquals(icd.getFields().size(), 4);
 		
@@ -103,19 +106,19 @@ public class classDescriptorConstruction {
 	{
 		ClassDescriptors.__ClearClassDescriptorCache();
 		
-		IClassDescriptor class2 = ClassDescriptors.get(class2.class);
+		ClassDescriptor class2 = ClassDescriptors.get(class2.class);
 		assertNull("Should have no superclass, no simpl inherit.", class2.getSuperClassDescriptor());
 		assertFalse(ClassDescriptors.containsCD(class3.class));
 		assertFalse(ClassDescriptors.containsCD(class1.class));
 		
-		IClassDescriptor class3 = ClassDescriptors.get(class3.class);
+		ClassDescriptor class3 = ClassDescriptors.get(class3.class);
 		assertNotNull("Should have superclass!", class3.getSuperClassDescriptor());
 		assertEquals("Should be superclassed from class2", class2.getName(), class3.getSuperClassDescriptor().getName());
 		assertFalse(ClassDescriptors.containsCD(class4.class));
 		
 		// Now create the chain to be sure that the middle links will get filled in.
 		
-		IClassDescriptor class5 = ClassDescriptors.get(class5.class);
+		ClassDescriptor class5 = ClassDescriptors.get(class5.class);
 		assertTrue("Class 4 should have been constructed to construct CD for class5!", ClassDescriptors.containsCD(class4.class));
 	}
 
@@ -142,9 +145,9 @@ public class classDescriptorConstruction {
 	{
 		ClassDescriptors.__ClearClassDescriptorCache();
 				
-		IClassDescriptor icd = ClassDescriptors.get(polymorph.class);
+		ClassDescriptor icd = ClassDescriptors.get(polymorph.class);
 		
-		IFieldDescriptor polyField = icd.getFields().get(0);
+		FieldDescriptor polyField = icd.getFields().get(0);
 		assertNotNull("Should have a field!", polyField);
 		
 		assertTrue(polyField.getPolymoprhicFieldDescriptors().contains(ClassDescriptors.get(polymorphA.class)));
@@ -160,9 +163,9 @@ public class classDescriptorConstruction {
 	{
 		ClassDescriptors.__ClearClassDescriptorCache();
 		
-		IClassDescriptor icd = ClassDescriptors.get(cyclePolymorph.class);
+		ClassDescriptor icd = ClassDescriptors.get(cyclePolymorph.class);
 		
-		IFieldDescriptor polyField = icd.getFields().get(0);
+		FieldDescriptor polyField = icd.getFields().get(0);
 		assertNotNull("Should have a field!", polyField);
 		
 		assertTrue(polyField.getPolymoprhicFieldDescriptors().contains(ClassDescriptors.get(polymorphA.class)));

@@ -8,7 +8,6 @@ import simpl.core.TranslationContext;
 import simpl.descriptions.ClassDescriptor;
 import simpl.descriptions.ClassDescriptors;
 import simpl.descriptions.FieldDescriptor;
-import simpl.descriptions.beiber.IFieldDescriptor;
 import simpl.exceptions.SIMPLTranslationException;
 
 /**

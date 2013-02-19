@@ -1,4 +1,4 @@
-package simpl.descriptions.beiber;
+package simpl.descriptions;
 
 import java.lang.reflect.Field;
 import java.util.Collection;
@@ -10,10 +10,6 @@ import simpl.annotations.dbal.simpl_other_tags;
 import simpl.annotations.dbal.simpl_scope;
 import simpl.core.ISimplTypesScope;
 import simpl.core.SimplTypesScope;
-import simpl.descriptions.AnnotationParser;
-import simpl.descriptions.EnumerationDescriptor;
-import simpl.descriptions.FieldCategorizer;
-import simpl.descriptions.FieldType;
 import simpl.exceptions.SIMPLDescriptionException;
 import simpl.types.TypeRegistry;
 
@@ -36,11 +32,11 @@ public class FieldDescriptors {
 		return TypeRegistry.containsScalarTypeFor(aClass);
 	}
 	
-	public static IFieldDescriptor getFieldDescriptor(Field toDescribe, Collection<UpdateClassDescriptorCallback> classAccumulator){
+	public static FieldDescriptor getFieldDescriptor(Field toDescribe, Collection<UpdateClassDescriptorCallback> classAccumulator){
 		
 		classAccumulator.clear();
 		
-		final NewFieldDescriptor nfd = new NewFieldDescriptor();
+		final FieldDescriptorImpl nfd = new FieldDescriptorImpl();
 		 
 		nfd.setName(toDescribe.getName());
 		
@@ -101,7 +97,7 @@ public class FieldDescriptors {
 					}
 					
 					@Override
-					public void updateWithCD(IClassDescriptor icd) {
+					public void updateWithCD(ClassDescriptor icd) {
 						nfd.setFieldClassDescriptor(icd);
 					}
 				});
@@ -112,9 +108,9 @@ public class FieldDescriptors {
 		
 		
 		AnnotationParser ap = new AnnotationParser();
-		Collection<IMetaInformation> metaInfo = ap.getAllMetaInformation(toDescribe);
+		Collection<MetaInformation> metaInfo = ap.getAllMetaInformation(toDescribe);
 		
-		for(IMetaInformation imo : metaInfo)
+		for(MetaInformation imo : metaInfo)
 		{
 			nfd.addMetaInformation(imo);
 			// TODO: Add requisite callbacks to update any class descriptors in imo.
@@ -139,7 +135,7 @@ public class FieldDescriptors {
 						classAccumulator.add(new UpdateClassDescriptorCallback() {
 							
 							@Override
-							public void updateWithCD(IClassDescriptor icd) {
+							public void updateWithCD(ClassDescriptor icd) {
 								nfd.addPolymoprhicFieldDescriptor(icd);
 							}
 							

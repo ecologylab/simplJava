@@ -1,4 +1,4 @@
-package simpl.descriptions.beiber;
+package simpl.descriptions;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -6,20 +6,20 @@ import java.util.Map;
 
 public class MetaInformationCollection implements IMetaInformationProvider {
 
-	private Map<String, IMetaInformation> metaInfoMap;
+	private Map<String, MetaInformation> metaInfoMap;
 	
 	public MetaInformationCollection()
 	{
-		this.metaInfoMap = new HashMap<String, IMetaInformation>();
+		this.metaInfoMap = new HashMap<String, MetaInformation>();
 	}
 	
 	@Override
-	public void addMetaInformation(IMetaInformation imo) {
+	public void addMetaInformation(MetaInformation imo) {
 		this.metaInfoMap.put(imo.getAnnotationName(), imo);
 	}
 
 	@Override
-	public Collection<IMetaInformation> getMetaInformation() {
+	public Collection<MetaInformation> getMetaInformation() {
 		// TODO Auto-generated method stub
 		return this.metaInfoMap.values();
 	}
@@ -31,7 +31,7 @@ public class MetaInformationCollection implements IMetaInformationProvider {
 	}
 
 	@Override
-	public IMetaInformation getMetaInformation(String name) {
+	public MetaInformation getMetaInformation(String name) {
 		// TODO Auto-generated method stub
 		return this.metaInfoMap.get(name);
 	}

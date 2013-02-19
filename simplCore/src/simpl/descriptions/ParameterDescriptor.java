@@ -1,6 +1,6 @@
-package simpl.descriptions.beiber;
+package simpl.descriptions;
 
-public interface IParameterDescriptor {
+public interface ParameterDescriptor {
 	/**
 	 * Gets the name of this parameter.
 	 * @return

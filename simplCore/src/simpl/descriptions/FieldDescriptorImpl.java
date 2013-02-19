@@ -1,21 +1,19 @@
-package simpl.descriptions.beiber;
+package simpl.descriptions;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedList;
 
 import simpl.annotations.dbal.simpl_scalar;
-import simpl.descriptions.EnumerationDescriptor;
-import simpl.descriptions.FieldType;
 
-public class NewFieldDescriptor implements IFieldDescriptor {
+public class FieldDescriptorImpl implements FieldDescriptor {
 	
 	
 	private IMetaInformationProvider metainfo;
 	
-	public NewFieldDescriptor()
+	public FieldDescriptorImpl()
 	{
-		this.polymorphicFields = new ArrayList<IClassDescriptor>();
+		this.polymorphicFields = new ArrayList<ClassDescriptor>();
 		this.othertags = new ArrayList<String>();
 		this.metainfo = new MetaInformationCollection();
 		
@@ -30,33 +28,33 @@ public class NewFieldDescriptor implements IFieldDescriptor {
 	@simpl_scalar
 	String name;
 	
-	IClassDescriptor declaringClassDescriptor;
+	ClassDescriptor declaringClassDescriptor;
 	
-	IClassDescriptor fieldClassDescriptor; 
+	ClassDescriptor fieldClassDescriptor; 
 	
-	Collection<IClassDescriptor> polymorphicFields;
+	Collection<ClassDescriptor> polymorphicFields;
 
-	public Collection<IClassDescriptor> getPolymoprhicFieldDescriptors()
+	public Collection<ClassDescriptor> getPolymoprhicFieldDescriptors()
 	{
 		return polymorphicFields;
 	}
 	
-	public void addPolymoprhicFieldDescriptor(IClassDescriptor icd)
+	public void addPolymoprhicFieldDescriptor(ClassDescriptor icd)
 	{
 		this.polymorphicFields.add(icd);
 	}
 	
-	public IClassDescriptor getFieldClassDescriptor() {
+	public ClassDescriptor getFieldClassDescriptor() {
 		return fieldClassDescriptor;
 	}
-	public void setFieldClassDescriptor(IClassDescriptor fieldClassDescriptor) {
+	public void setFieldClassDescriptor(ClassDescriptor fieldClassDescriptor) {
 		this.fieldClassDescriptor = fieldClassDescriptor;
 	}
-	public IClassDescriptor getDeclaringClassDescriptor() {
+	public ClassDescriptor getDeclaringClassDescriptor() {
 		return declaringClassDescriptor;
 	}
 	public void setDeclaringClassDescriptor(
-			IClassDescriptor declaringClassDescriptor) {
+			ClassDescriptor declaringClassDescriptor) {
 		this.declaringClassDescriptor = declaringClassDescriptor;
 	}
 	
@@ -81,12 +79,12 @@ public class NewFieldDescriptor implements IFieldDescriptor {
 	}
 
 	@Override
-	public Collection<IMetaInformation> getMetaInformation() {
+	public Collection<MetaInformation> getMetaInformation() {
 		// TODO Auto-generated method stub
 		return this.metainfo.getMetaInformation();
 	}
 	
-	public void addMetaInformation(IMetaInformation imo)
+	public void addMetaInformation(MetaInformation imo)
 	{
 		this.metainfo.addMetaInformation(imo);
 	}
@@ -113,7 +111,7 @@ public class NewFieldDescriptor implements IFieldDescriptor {
 	}
 
 	@Override
-	public IMetaInformation getMetaInformation(String name) {
+	public MetaInformation getMetaInformation(String name) {
 		// TODO Auto-generated method stub
 		return this.metainfo.getMetaInformation(name);
 	}

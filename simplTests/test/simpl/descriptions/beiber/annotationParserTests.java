@@ -13,6 +13,8 @@ import simpl.annotations.dbal.simpl_hints;
 import simpl.annotations.dbal.simpl_inherit;
 import simpl.annotations.dbal.simpl_scalar;
 import simpl.descriptions.AnnotationParser;
+import simpl.descriptions.MetaInformation;
+import simpl.descriptions.ParameterDescriptor;
 
 public class annotationParserTests {
 
@@ -49,9 +51,9 @@ public class annotationParserTests {
 	{
 		AnnotationParser ap = new AnnotationParser();
 		
-		Collection<IMetaInformation> metaInfos = ap.getAllMetaInformation(myClass.class.getField("myScalar"));
+		Collection<MetaInformation> metaInfos = ap.getAllMetaInformation(myClass.class.getField("myScalar"));
 		assertEquals("Should have only one annotation: simpl_scalar", 1, metaInfos.size());
-		IMetaInformation first = metaInfos.iterator().next();
+		MetaInformation first = metaInfos.iterator().next();
 		
 		assertEquals("Should be simpl_scalar", "simpl_scalar", first.getAnnotationName());
 		assertEquals("Should have 0 parameters",0, first.getParameters().size());
@@ -64,14 +66,14 @@ public class annotationParserTests {
 		
 		Field f = myValueAnnotationClass.class.getFields()[0];
 		
-		Collection<IMetaInformation> metaInfos = ap.getAllMetaInformation(f);
+		Collection<MetaInformation> metaInfos = ap.getAllMetaInformation(f);
 		assertEquals("Should have only one annotation: bibtex_tag", 1, metaInfos.size());
-		IMetaInformation first = metaInfos.iterator().next();
+		MetaInformation first = metaInfos.iterator().next();
 		
 		assertEquals("Should be bibtex_tag", "bibtex_tag", first.getAnnotationName());
 		assertEquals("Should have 1 parameter",1, first.getParameters().size());
 		
-		IParameterDescriptor param = first.getParameters().iterator().next();
+		ParameterDescriptor param = first.getParameters().iterator().next();
 		assertEquals("Should be named \"value\"", "value", param.getName());
 		assertEquals("Should have given value...", "my value is here", param.getValue());
 		
@@ -86,14 +88,14 @@ public class annotationParserTests {
 	
 		AnnotationParser ap = new AnnotationParser();
 		
-		Collection<IMetaInformation> metaInfos = ap.getAllMetaInformation(defaultValueAnnotated);
+		Collection<MetaInformation> metaInfos = ap.getAllMetaInformation(defaultValueAnnotated);
 		assertEquals("Should have only one annotation: bibtex_tag", 1, metaInfos.size());
-		IMetaInformation first = metaInfos.iterator().next();
+		MetaInformation first = metaInfos.iterator().next();
 		
 		assertEquals("Should be simpl_hints", "simpl_hints", first.getAnnotationName());
 		assertEquals("Should have 1 parameter",1, first.getParameters().size());
 		
-		IParameterDescriptor param = first.getParameters().iterator().next();
+		ParameterDescriptor param = first.getParameters().iterator().next();
 		assertEquals("Should be named \"value\"", "value", param.getName());
 		
 		Object value =  first.getValueFor("value");

@@ -1,15 +1,15 @@
-package simpl.descriptions.beiber;
+package simpl.descriptions;
 
 import simpl.annotations.dbal.simpl_scalar;
 
-public class ParameterDescriptor implements IParameterDescriptor {	
+public class ParameterDescriptorImpl implements ParameterDescriptor {	
 	@simpl_scalar
 	String name;
 	Class<?> type;
 	@simpl_scalar
 	Object value;
 	
-	public ParameterDescriptor(String paramName,Class<?> paramType, Object value)
+	public ParameterDescriptorImpl(String paramName,Class<?> paramType, Object value)
 	{
 		this.name = paramName;
 		this.type = paramType;

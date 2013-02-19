@@ -6,7 +6,6 @@ import java.util.List;
 
 import simpl.core.indexers.ItemIndexPredicate;
 import simpl.core.indexers.MultiIndexer;
-import simpl.descriptions.ClassDescriptor;
 import simpl.descriptions.EnumerationDescriptor;
 
 public class EnumerationDescriptorIndexer extends MultiIndexer<EnumerationDescriptor> {
@@ -35,7 +34,7 @@ public class EnumerationDescriptorIndexer extends MultiIndexer<EnumerationDescri
 		public Collection<String> ObtainIndexes(EnumerationDescriptor item) {
 			Collection<String> ourIndexes = new LinkedList<String>();
 			
-			ourIndexes.add(item.getTagName());
+//			ourIndexes.add(item.getTagName());
 			for(String s : item.otherTags())
 			{
 				ourIndexes.add(s);
@@ -45,33 +44,14 @@ public class EnumerationDescriptorIndexer extends MultiIndexer<EnumerationDescri
 		}
 	}
 	
-	final class bySimplName extends ItemIndexPredicate<EnumerationDescriptor>
-	{
-
-		@Override
-		public String GetIndexIdentifier() {
-			// TODO Auto-generated method stub
-			return "simplname";
-		}
-
-		@Override
-		public String ObtainIndex(EnumerationDescriptor item) {
-			// TODO Auto-generated method stub
-			return item.getName();
-		}
-		
-	}
-	
 	public final class IndexingShortcut
 	{
 		public IndexingShortcut(EnumerationDescriptorIndexer edi)
 		{
-			this.SimplName = edi.by(new bySimplName());
 			this.TagName = edi.by(new byTagName());
 		}
 		
 		public InnerIndexer<EnumerationDescriptor> TagName;
-		public InnerIndexer<EnumerationDescriptor> SimplName;
 	}
 	
 	public IndexingShortcut by;
@@ -86,7 +66,6 @@ public class EnumerationDescriptorIndexer extends MultiIndexer<EnumerationDescri
 
 		List<ItemIndexPredicate<EnumerationDescriptor>> ourList = new LinkedList<ItemIndexPredicate<EnumerationDescriptor>>();
 		ourList.add(new byTagName());
-		ourList.add(new bySimplName());
 		return ourList;
 	}
 

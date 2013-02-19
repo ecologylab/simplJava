@@ -6,7 +6,6 @@ import java.util.List;
 
 import simpl.core.indexers.ItemIndexPredicate;
 import simpl.core.indexers.MultiIndexer;
-import simpl.descriptions.ClassDescriptor;
 
 public class ScalarTypeIndexer extends MultiIndexer<ScalarType> {
 

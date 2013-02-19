@@ -182,7 +182,7 @@ public class ElementState<PES extends ElementState> extends Debug implements XML
 		ClassDescriptor result = classDescriptor;
 		if (result == null)
 		{
-			result = ClassDescriptors.getClassDescriptor(this);
+			result = ClassDescriptors.get(this);
 			this.classDescriptor = result;
 		}
 		return result;

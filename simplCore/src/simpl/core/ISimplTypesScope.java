@@ -4,7 +4,6 @@ import java.util.Collection;
 
 import simpl.descriptions.ClassDescriptor;
 import simpl.descriptions.EnumerationDescriptor;
-import simpl.descriptions.beiber.IClassDescriptor;
 
 /**
  * A SimplTypesScope represents a set of mappings between "tag names" (viewed
@@ -55,7 +54,7 @@ public interface ISimplTypesScope {
      * @param tag
      * @return
      */
-	IClassDescriptor getClassDescriptorByTag(String tag);
+	ClassDescriptor getClassDescriptorByTag(String tag);
 	
 	/**
 	 * Returns an enumeration descriptor for a tag name, or null if no such descriptor exists.
@@ -64,7 +63,7 @@ public interface ISimplTypesScope {
 	 */
 	EnumerationDescriptor getEnumerationDescriptorByTag(String tag);
 	
-	Collection<IClassDescriptor> getAllClassDescriptors();
+	Collection<ClassDescriptor> getAllClassDescriptors();
 	
 	Collection<EnumerationDescriptor> getAllEnumerationDescriptors();
 	

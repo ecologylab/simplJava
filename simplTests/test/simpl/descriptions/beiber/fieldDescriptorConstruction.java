@@ -15,7 +15,11 @@ import simpl.annotations.dbal.simpl_classes;
 import simpl.annotations.dbal.simpl_composite;
 import simpl.annotations.dbal.simpl_other_tags;
 import simpl.annotations.dbal.simpl_scalar;
+import simpl.descriptions.ClassDescriptors;
+import simpl.descriptions.FieldDescriptor;
+import simpl.descriptions.FieldDescriptors;
 import simpl.descriptions.FieldType;
+import simpl.descriptions.UpdateClassDescriptorCallback;
 
 public class fieldDescriptorConstruction {
 
@@ -50,7 +54,7 @@ public class fieldDescriptorConstruction {
 		Field field = myOtherTags.class.getFields()[0];
 		
 		Set<UpdateClassDescriptorCallback> dependentClasses = new HashSet<UpdateClassDescriptorCallback>();
-		IFieldDescriptor myDescriptor = FieldDescriptors.getFieldDescriptor(field, dependentClasses);
+		FieldDescriptor myDescriptor = FieldDescriptors.getFieldDescriptor(field, dependentClasses);
 		
 		assertEquals("Should have 3 other tags", 3, myDescriptor.getOtherTags().size());
 		
@@ -74,7 +78,7 @@ public class fieldDescriptorConstruction {
 		dependentClasses.add(myUCD);
 		assertFalse(dependentClasses.isEmpty());
 	
-		IFieldDescriptor myDescriptor = FieldDescriptors.getFieldDescriptor(field, dependentClasses);
+		FieldDescriptor myDescriptor = FieldDescriptors.getFieldDescriptor(field, dependentClasses);
 		
 		assertTrue(dependentClasses.isEmpty());
 		assertEquals("Should be scalar", FieldType.SCALAR, myDescriptor.getFieldType());
@@ -95,7 +99,7 @@ public class fieldDescriptorConstruction {
 		assertFalse(dependentClasses.isEmpty());
 		
 		
-		IFieldDescriptor myDescriptor = FieldDescriptors.getFieldDescriptor(field, dependentClasses);
+		FieldDescriptor myDescriptor = FieldDescriptors.getFieldDescriptor(field, dependentClasses);
 						
 		assertEquals("Should be composite", FieldType.COMPOSITE_ELEMENT, myDescriptor.getFieldType());
 		assertEquals("Should be myComposite", "myComposite", myDescriptor.getName());

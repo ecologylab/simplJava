@@ -17,7 +17,7 @@ import simpl.exceptions.SIMPLTranslationException;
 import simpl.tools.XMLTools;
 
 
-public class EnumerationDescriptor extends DescriptorBase implements ISimplStringMarshaller {
+public class EnumerationDescriptor implements ISimplStringMarshaller {
 	
 	/**
 	 * Gets an enumeration description for a given class. 
@@ -81,6 +81,10 @@ public class EnumerationDescriptor extends DescriptorBase implements ISimplStrin
 		
 		return ed;
 	}
+
+	private LinkedList<MetaInformation> metaInfo;
+
+	private ArrayList<String> otherTags;
 	
 	/**
 	 * Initialize the basic data structures in the EnumerationDescription
@@ -88,8 +92,8 @@ public class EnumerationDescriptor extends DescriptorBase implements ISimplStrin
 	private void basicInitialization()
 	{
 		this.enumerationEntries = new LinkedList<>();
-		this.metaInfo = new LinkedList<>();
-		this.otherTags = new ArrayList<>();
+		this.metaInfo = new LinkedList<MetaInformation>();
+		this.otherTags = new ArrayList<String>();
 	}
 	
 	/**
@@ -108,7 +112,6 @@ public class EnumerationDescriptor extends DescriptorBase implements ISimplStrin
 	 */
 	private EnumerationDescriptor(Class<?> describedEnum) throws SIMPLDescriptionException
 	{
-		super(XMLTools.getXmlTagName(describedEnum, null), describedEnum.getSimpleName());
 		basicInitialization();
 		
 		if(describedEnum.isEnum())
@@ -196,7 +199,6 @@ public class EnumerationDescriptor extends DescriptorBase implements ISimplStrin
 		this.enumerationEntries = enumerationEntries;
 	}
 
-	@Override
 	public ArrayList<String> otherTags() {
 		// TODO Auto-generated method stub
 		return new ArrayList<String>();

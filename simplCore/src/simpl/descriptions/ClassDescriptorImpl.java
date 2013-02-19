@@ -1,4 +1,4 @@
-package simpl.descriptions.beiber;
+package simpl.descriptions;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -8,7 +8,7 @@ import simpl.core.TranslationContext;
 import simpl.deserialization.ISimplDeserializationHookContextual;
 import simpl.deserialization.ISimplDeserializationHooks;
 
-public class NewClassDescriptor implements IClassDescriptor,
+public class ClassDescriptorImpl implements ClassDescriptor,
 ISimplDeserializationHooks
 
 {
@@ -16,19 +16,19 @@ ISimplDeserializationHooks
 	private ArrayList<String> otherTags;
 	private IMetaInformationProvider metainfo;
 	
-	public NewClassDescriptor()
+	public ClassDescriptorImpl()
 	{
-		this.fields = new ArrayList<IFieldDescriptor>();
+		this.fields = new ArrayList<FieldDescriptor>();
 		this.otherTags = new ArrayList<String>();
 		this.metainfo = new MetaInformationCollection();
 	}
 	
-	public Collection<IMetaInformation> getMetaInformation()
+	public Collection<MetaInformation> getMetaInformation()
 	{
 		return this.metainfo.getMetaInformation();
 	}
 	
-	public void addMetaInformation(IMetaInformation imo)
+	public void addMetaInformation(MetaInformation imo)
 	{
 		this.metainfo.addMetaInformation(imo);
 	}
@@ -61,8 +61,8 @@ ISimplDeserializationHooks
 	
 	private Class<?> javaClass;
 	private String name;
-	private List<IFieldDescriptor> fields;
-	private IClassDescriptor superClassDescriptor;
+	private List<FieldDescriptor> fields;
+	private ClassDescriptor superClassDescriptor;
 	private String nameSpace;
 	private String simpleName; 
 	
@@ -70,18 +70,18 @@ ISimplDeserializationHooks
 	 * Gets a class descriptor representing the superclass for this class; 
 	 * Can be null if @simpl_inherit is not used in the class declaration
 	 */
-	public IClassDescriptor getSuperClassDescriptor() {
+	public ClassDescriptor getSuperClassDescriptor() {
 		return superClassDescriptor;
 	}
 
-	public void setSuperClassDescriptor(IClassDescriptor superClassDescriptor) {
+	public void setSuperClassDescriptor(ClassDescriptor superClassDescriptor) {
 		this.superClassDescriptor = superClassDescriptor;
 	}
 
 	/**
 	 * Gets a list of the FieldDescriptors that comprise the described class. 
 	 */
-	public List<IFieldDescriptor> getFields() {
+	public List<FieldDescriptor> getFields() {
 		return fields;
 	}
 	
@@ -89,7 +89,7 @@ ISimplDeserializationHooks
 	 * Adds a field to this class descriptor
 	 * @param ifd Field to add
 	 */
-	public void addField(IFieldDescriptor ifd)
+	public void addField(FieldDescriptor ifd)
 	{
 		this.fields.add(ifd);
 	}
@@ -119,13 +119,13 @@ ISimplDeserializationHooks
 	}
 
 	@Override
-	public IMetaInformation getMetaInformation(String name) {
+	public MetaInformation getMetaInformation(String name) {
 		// TODO Auto-generated method stub
 		return this.metainfo.getMetaInformation(name);
 	}
 
 	@Override
-	public boolean isSuperClass(IClassDescriptor icd) {
+	public boolean isSuperClass(ClassDescriptor icd) {
 		// This is a really bad check; will work for now. 
 		if(icd != null)
 		{

@@ -1,4 +1,4 @@
-package simpl.descriptions.beiber;
+package simpl.descriptions;
 import java.util.Collection;
 
 /**
@@ -8,12 +8,12 @@ public interface IMetaInformationProvider {
 	/**
 	 * Adds an entry of metadata to the provider
 	 */
-	public void addMetaInformation(IMetaInformation imo);
+	public void addMetaInformation(MetaInformation imo);
 	/**
 	 * Gets a collection of meta information 
 	 * @return
 	 */
-	public Collection<IMetaInformation> getMetaInformation();
+	public Collection<MetaInformation> getMetaInformation();
 	
 	/**
 	 * Returns true if the meta information is contained in the getMetaInformation collection, marshalled by name
@@ -27,6 +27,6 @@ public interface IMetaInformationProvider {
 	 * @param name
 	 * @return
 	 */
-	public IMetaInformation getMetaInformation(String name);
+	public MetaInformation getMetaInformation(String name);
 }
  

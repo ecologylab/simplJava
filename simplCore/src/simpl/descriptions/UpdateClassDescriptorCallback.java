@@ -1,6 +1,6 @@
-package simpl.descriptions.beiber;
+package simpl.descriptions;
 
 public interface UpdateClassDescriptorCallback {
 	Class<?> getClassToUpdate();
-	void updateWithCD(IClassDescriptor icd);
+	void updateWithCD(ClassDescriptor icd);
 }

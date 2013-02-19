@@ -1,17 +1,17 @@
-package simpl.descriptions.beiber;
+package simpl.descriptions;
 
 import java.util.Collection;
 import java.util.Map;
 import java.util.HashMap;
 
-public class MetaInformation implements IMetaInformation {
+public class MetaInformationImpl implements MetaInformation {
 	String Name;
-	Map<String, IParameterDescriptor> parameters;
+	Map<String, ParameterDescriptor> parameters;
 	
-	public MetaInformation(String name)
+	public MetaInformationImpl(String name)
 	{
 		this.Name = name;
-		this.parameters = new HashMap<String, IParameterDescriptor>();
+		this.parameters = new HashMap<String, ParameterDescriptor>();
 	}
 	
 	@Override
@@ -21,7 +21,7 @@ public class MetaInformation implements IMetaInformation {
 	}
 	
 	@Override
-	public Collection<IParameterDescriptor> getParameters() {
+	public Collection<ParameterDescriptor> getParameters() {
 		// TODO Auto-generated method stub
 		return this.parameters.values();
 	}
@@ -39,7 +39,7 @@ public class MetaInformation implements IMetaInformation {
 	}
 
 	@Override
-	public void addParameter(IParameterDescriptor param) {
+	public void addParameter(ParameterDescriptor param) {
 		if(param != null)
 		{
 			this.parameters.put(param.getName(), param);
