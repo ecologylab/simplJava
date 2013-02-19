@@ -62,7 +62,9 @@ ISimplDeserializationHooks
 	private Class<?> javaClass;
 	private String name;
 	private List<IFieldDescriptor> fields;
-	private IClassDescriptor superClassDescriptor; 
+	private IClassDescriptor superClassDescriptor;
+	private String nameSpace;
+	private String simpleName; 
 	
 	/**
 	 * Gets a class descriptor representing the superclass for this class; 
@@ -134,5 +136,24 @@ ISimplDeserializationHooks
 		}else{
 			return false;
 		}
+	}
+
+	@Override
+	public String getNamespace() {
+		return this.nameSpace;
+	}
+	
+	public void setNamespace(String namespace){
+		this.nameSpace = namespace;
+	}
+
+	@Override
+	public String getSimpleName() {
+		return this.simpleName;
+	}
+	
+	public void setSimpleName(String simpleName)
+	{
+		this.simpleName = simpleName;
 	}
 }

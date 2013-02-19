@@ -157,6 +157,8 @@ public class ClassDescriptors {
 		
 		ncd.setJavaClass(aClass);
 		ncd.setName(aClass.getName());
+		ncd.setSimpleName(aClass.getSimpleName());
+		ncd.setNamespace(aClass.getPackage().toString());
 		
 		descriptors.put(aClass.getName(), ncd);
 		

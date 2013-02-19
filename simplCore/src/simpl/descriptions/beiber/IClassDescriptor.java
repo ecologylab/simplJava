@@ -14,10 +14,23 @@ public interface IClassDescriptor extends IMetaInformationProvider {
 	Class<?> getJavaClass();
 	
 	/**
-	 * Gets the name of this class
+	 * Gets the fully qualified java/simpl name of this class
 	 * @return
 	 */
 	String getName();
+	
+	/**
+	 * Gets the namespace / package of this class
+	 * @return
+	 */
+	String getNamespace();
+	
+	/**
+	 * Gets the simple name of this class. 
+	 * @return
+	 */
+	String getSimpleName();
+	
 	
 	/**
 	 * Gets a list of the described Fields within this given class
