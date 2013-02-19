@@ -136,7 +136,7 @@ public class JSONSerializer extends StringSerializer
 				if (numOfFields++ > 0)
 					appendable.append(',');
 
-				switch (childFd.getType())
+				switch (childFd.getFieldType())
 				{
 				case SCALAR:
 					serializeScalar(object, childFd, appendable, translationContext);
@@ -172,7 +172,7 @@ public class JSONSerializer extends StringSerializer
 	private boolean isSerializable(FieldDescriptor childFd, Object object)
 			throws SIMPLTranslationException
 	{
-		switch (childFd.getType())
+		switch (childFd.getFieldType())
 		{
 		case SCALAR:
 		//	if (childFd.isDefaultValueFromContext(object))

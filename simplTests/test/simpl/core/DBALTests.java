@@ -31,8 +31,8 @@ public class DBALTests {
 		assertNotNull(tagName);
 		System.out.println(tagName);
 		
-		ClassDescriptor cd = ClassDescriptors.getClassDescriptor(myCollectionClass.class);
-		FieldDescriptor fd = (FieldDescriptor)cd.allFieldDescriptors().get(0);
+		ClassDescriptor cd = ClassDescriptors.get(myCollectionClass.class);
+		FieldDescriptor fd = (FieldDescriptor)cd.getFields().get(0);
 		assertNotNull(fd.getTagName());
 	}
 	

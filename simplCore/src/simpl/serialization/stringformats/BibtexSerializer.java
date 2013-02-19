@@ -31,8 +31,8 @@ public class BibtexSerializer extends StringSerializer
 	{
 		translationContext.resolveGraph(object);
 
-		ClassDescriptor<? extends FieldDescriptor> rootObjectClassDescriptor = ClassDescriptors
-				.getClassDescriptor(object.getClass());
+		ClassDescriptor rootObjectClassDescriptor = ClassDescriptors
+				.get(object.getClass());
 
 		try
 		{
