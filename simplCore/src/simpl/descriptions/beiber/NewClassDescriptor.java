@@ -121,4 +121,18 @@ ISimplDeserializationHooks
 		// TODO Auto-generated method stub
 		return this.metainfo.getMetaInformation(name);
 	}
+
+	@Override
+	public boolean isSuperClass(IClassDescriptor icd) {
+		// This is a really bad check; will work for now. 
+		if(icd != null)
+		{
+			String thisName = this.getName();
+			String otherName = icd.getName();
+			return thisName.equals(otherName);
+					
+		}else{
+			return false;
+		}
+	}
 }

@@ -4,6 +4,7 @@ import static org.junit.Assert.*;
 
 import org.junit.Test;
 
+import simpl.annotations.dbal.simpl_composite;
 import simpl.annotations.dbal.simpl_scope;
 import simpl.exceptions.SIMPLDescriptionException;
 
@@ -15,14 +16,13 @@ import simpl.exceptions.SIMPLDescriptionException;
  */
 public class classAndTypeScopeInteractions {
 
-	
-	
 	class A{}
 	class AChild extends A{}
 	class AnotherChild extends A{}
 	class B
 	{
 		@simpl_scope("A_Test")
+		@simpl_composite
 		public A myPolymorph;
 	}
 	
@@ -31,6 +31,7 @@ public class classAndTypeScopeInteractions {
 	class B_360NoScopeMaster
 	{
 		@simpl_scope("DOES NOT EXIST AT ALL")
+		@simpl_composite
 		public A myPolymorph;
 	}
 	

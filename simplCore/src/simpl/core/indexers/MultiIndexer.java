@@ -105,6 +105,18 @@ public abstract class MultiIndexer<IndexedObject> implements Iterable<IndexedObj
 	}
 	
 	/**
+	 * Inserts a set of items into the multiindexer
+	 * @param objects to insert
+	 */
+	public void InsertAll(Iterable<IndexedObject> objects)
+	{
+		for(IndexedObject io : objects)
+		{
+			this.Insert(io);
+		}
+	}
+	
+	/**
 	 * Removes a given item from the Multiindexer
 	 * @param object
 	 */

@@ -1,12 +1,14 @@
 package simpl;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import simpl.core.TranslationContext;
 import simpl.descriptions.ClassDescriptor;
 import simpl.descriptions.ClassDescriptors;
 import simpl.descriptions.FieldDescriptor;
+import simpl.descriptions.beiber.IFieldDescriptor;
 import simpl.exceptions.SIMPLTranslationException;
 
 /**
@@ -61,6 +63,7 @@ public class SimplEquals {
 	
 	private static boolean innerEquals(Object lhs, Object rhs, CycleContext context)
 	{
+		/*
 		if(!context.visited(lhs))
 		{
 			if(sameClass(lhs, rhs))
@@ -69,7 +72,8 @@ public class SimplEquals {
 				
 				if(hasFields(cd))
 				{
-					for(FieldDescriptor fd : cd.fieldDescriptors.Scalars)
+					Collection<IFieldDescriptor> fds; 
+					for(IFieldDescriptor fd : fds)
 					{
 						Object lhsVal = fd.getValue(lhs);
 						Object rhsVal = fd.getValue(rhs);
@@ -137,6 +141,7 @@ public class SimplEquals {
 				return false;
 			}
 		}
+		*/
 		return true;
 	}
 	

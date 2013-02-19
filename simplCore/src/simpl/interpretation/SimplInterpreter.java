@@ -12,8 +12,8 @@ public class SimplInterpreter {
 	public List<ScalarInterpretation> interpretInstance(Object obj)
 	{
 		
-		ClassDescriptor<?> cd = ClassDescriptors.getClassDescriptor(obj.getClass());
-		
+		//ClassDescriptor<?> cd = ClassDescriptors.getClassDescriptor(obj.getClass());
+		/*
 		for(FieldDescriptor fd : cd.allFieldDescriptors())
 		{
 			cd.fieldDescriptors.Insert(fd);
@@ -29,6 +29,8 @@ public class SimplInterpreter {
 			interps.add(si);
 		}
 		
-		return interps;	
+		return interps;	*/
+		return null;
+		
 	}
 }

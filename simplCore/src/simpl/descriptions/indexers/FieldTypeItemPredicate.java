@@ -3,8 +3,9 @@ package simpl.descriptions.indexers;
 import simpl.core.indexers.ItemIndexPredicate;
 import simpl.descriptions.FieldDescriptor;
 import simpl.descriptions.FieldType;
+import simpl.descriptions.beiber.IFieldDescriptor;
 
-public abstract class FieldTypeItemPredicate<FD extends FieldDescriptor> extends ItemIndexPredicate<FD> {
+public abstract class FieldTypeItemPredicate extends ItemIndexPredicate<IFieldDescriptor> {
 
 	public abstract FieldType getFieldType();
 	
@@ -15,8 +16,8 @@ public abstract class FieldTypeItemPredicate<FD extends FieldDescriptor> extends
 	}
 
 	@Override
-	public String ObtainIndex(FD item) {
-		if(item.getType().equals(getFieldType()))
+	public String ObtainIndex(IFieldDescriptor item) {
+		if(item.getFieldType().equals(getFieldType()))
 		{
 			return item.getName();
 		}else{

@@ -84,11 +84,6 @@ public class ClassDescriptor<FD extends FieldDescriptor> extends DescriptorBase
 	@simpl_composite
 	private ClassDescriptor<? extends FieldDescriptor> superClass;
 
-	@simpl_collection("interface")
-	@simpl_other_tags("inerface")
-	// handle spelling error that was here
-	private ArrayList<String> interfaces;
-
 	/**
 	 * Class object that we are describing.
 	 */
@@ -230,7 +225,6 @@ public class ClassDescriptor<FD extends FieldDescriptor> extends DescriptorBase
 		this.describedClassPackageName = describedClassPackageName;
 		this.describedClassSimpleName = describedClassSimpleName;
 		this.superClass = superClass;
-		this.interfaces = interfaces;
 	}
 
 	/**
@@ -254,14 +248,6 @@ public class ClassDescriptor<FD extends FieldDescriptor> extends DescriptorBase
 	 */
 	public boolean hasScalarFD() {
 		return scalarTextFD != null;
-	}
-
-	/**
-	 * Returns a list of interfaces that this class implements
-	 * @return
-	 */
-	public ArrayList<String> getInterfaceList() {
-		return interfaces;
 	}
 
 	private void addGenericTypeVariables() {

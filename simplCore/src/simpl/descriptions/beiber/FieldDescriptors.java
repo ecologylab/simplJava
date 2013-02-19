@@ -7,6 +7,9 @@ import java.util.Set;
 
 import simpl.annotations.dbal.simpl_classes;
 import simpl.annotations.dbal.simpl_other_tags;
+import simpl.annotations.dbal.simpl_scope;
+import simpl.core.ISimplTypesScope;
+import simpl.core.SimplTypesScope;
 import simpl.descriptions.AnnotationParser;
 import simpl.descriptions.FieldCategorizer;
 import simpl.descriptions.FieldType;
@@ -130,6 +133,50 @@ public class FieldDescriptors {
 							}
 						});
 					}
+				}
+			}
+		}
+		
+		if(toDescribe.isAnnotationPresent(simpl_scope.class))
+		{
+			final simpl_scope scopeAnnotationObj = toDescribe.getAnnotation(simpl_scope.class);
+			String scopeToResolve = scopeAnnotationObj.value();
+			ISimplTypesScope s = SimplTypesScope.get(scopeToResolve);
+			
+			if(s == null)
+			{
+				throw new RuntimeException("Simpl Types Scope named ["
+							+scopeToResolve == null ? "NULL" : scopeToResolve +
+						"] is not created. Please make sure scope has been created " +
+						"and that static initialization happens in the proper order.");
+			}
+			else
+			{
+				if(toDescribe.getType().isEnum())
+				{
+					throw new RuntimeException("Polymorphic enumerations do not exist!");
+				}
+				else
+				{
+					// We have a valid type to polymorph! Let's do it:
+					// TODO: Put in when simpl types scope returns IClassDescriptor
+					// Commented code like this is a cardinal sin: Doing this because I need to make the IClassDescriptor refactor on STS which will be gnarly. 
+/*					int added = 0;
+ * 					for(IClassDescriptor icd : s.getAllClassDescriptors())
+					{
+						if(ncd.isSuperClass(icd))
+						{
+							ncd.addPolymorphicFieldDescriptor(icd);
+							added = added + 1;
+						}
+					}
+					
+					if(added == 0)
+					{
+						throw new RuntimeException("No simplClasses added to polymorphic field descriptor; did you mean to reference a sts with types that were a supertype of the declared class? Check your code and STS and try again.");
+					}
+					
+					*/
 				}
 			}
 		}

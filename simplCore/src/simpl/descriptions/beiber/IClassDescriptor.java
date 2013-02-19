@@ -34,6 +34,12 @@ public interface IClassDescriptor extends IMetaInformationProvider {
 	IClassDescriptor getSuperClassDescriptor();
 	
 	/**
+	 * Returns true if THIS is a superclass of the icd
+	 */
+	boolean isSuperClass(IClassDescriptor icd);
+	
+	
+	/**
 	 * Gets a collection containing other tag names that can refer to this descriptor
 	 * @return
 	 */

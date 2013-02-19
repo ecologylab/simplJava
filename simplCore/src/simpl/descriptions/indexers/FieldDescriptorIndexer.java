@@ -6,22 +6,24 @@ import simpl.core.indexers.ItemIndexPredicate;
 import simpl.core.indexers.MultiIndexer;
 import simpl.descriptions.FieldDescriptor;
 import simpl.descriptions.FieldType;
+import simpl.descriptions.beiber.IFieldDescriptor;
+
 import java.util.List;
 import java.util.LinkedList;;
 
-public class FieldDescriptorIndexer extends MultiIndexer<FieldDescriptor>
+public class FieldDescriptorIndexer extends MultiIndexer<IFieldDescriptor>
 {
-	public InnerIndexer<FieldDescriptor> Scalars;
-	public InnerIndexer<FieldDescriptor> ScalarCollections;
-	public InnerIndexer<FieldDescriptor> ScalarMaps;
-	public InnerIndexer<FieldDescriptor> Composites;
-	public InnerIndexer<FieldDescriptor> CompositeCollections;
-	public InnerIndexer<FieldDescriptor> CompositeMaps;
+	public InnerIndexer<IFieldDescriptor> Scalars;
+	public InnerIndexer<IFieldDescriptor> ScalarCollections;
+	public InnerIndexer<IFieldDescriptor> ScalarMaps;
+	public InnerIndexer<IFieldDescriptor> Composites;
+	public InnerIndexer<IFieldDescriptor> CompositeCollections;
+	public InnerIndexer<IFieldDescriptor> CompositeMaps;
 // TODO???	public InnerIndexer<FieldDescriptor> CompositesAsScalars;  //
-	public InnerIndexer<FieldDescriptor> IgnoredElements;
-	public InnerIndexer<FieldDescriptor> IgnoredAttributes;
+	public InnerIndexer<IFieldDescriptor> IgnoredElements;
+	public InnerIndexer<IFieldDescriptor> IgnoredAttributes;
 	
-	final class byScalars extends FieldTypeItemPredicate<FieldDescriptor>{
+	final class byScalars extends FieldTypeItemPredicate{
 		@Override
 		public FieldType getFieldType() {
 			// TODO Auto-generated method stub
@@ -29,7 +31,7 @@ public class FieldDescriptorIndexer extends MultiIndexer<FieldDescriptor>
 		}
 	}
 	
-	final class byScalarCollections extends FieldTypeItemPredicate<FieldDescriptor>{
+	final class byScalarCollections extends FieldTypeItemPredicate{
 
 		@Override
 		public FieldType getFieldType() {
@@ -38,7 +40,7 @@ public class FieldDescriptorIndexer extends MultiIndexer<FieldDescriptor>
 		}
 	}
 	
-	final class byScalarMaps extends FieldTypeItemPredicate<FieldDescriptor>{
+	final class byScalarMaps extends FieldTypeItemPredicate{
 
 		@Override
 		public FieldType getFieldType() {
@@ -48,7 +50,7 @@ public class FieldDescriptorIndexer extends MultiIndexer<FieldDescriptor>
 		
 	}
 	
-	final class byComposites extends FieldTypeItemPredicate<FieldDescriptor>{
+	final class byComposites extends FieldTypeItemPredicate{
 
 		@Override
 		public FieldType getFieldType() {
@@ -58,7 +60,7 @@ public class FieldDescriptorIndexer extends MultiIndexer<FieldDescriptor>
 		
 	}
 	
-	final class byCompositeCollections extends FieldTypeItemPredicate<FieldDescriptor>{
+	final class byCompositeCollections extends FieldTypeItemPredicate{
 
 		@Override
 		public FieldType getFieldType() {
@@ -68,7 +70,7 @@ public class FieldDescriptorIndexer extends MultiIndexer<FieldDescriptor>
 		
 	}
 	
-	final class byCompositeMaps extends FieldTypeItemPredicate<FieldDescriptor>{
+	final class byCompositeMaps extends FieldTypeItemPredicate{
 
 		@Override
 		public FieldType getFieldType() {
@@ -78,14 +80,14 @@ public class FieldDescriptorIndexer extends MultiIndexer<FieldDescriptor>
 		
 	}
 	
-	final class byIgnoredAttribute extends FieldTypeItemPredicate<FieldDescriptor>{
+	final class byIgnoredAttribute extends FieldTypeItemPredicate{
 		@Override
 		public FieldType getFieldType(){
 			return FieldType.IGNORED_ATTRIBUTE;
 		}
 	}
 	
-	final class byIgnoredElement extends FieldTypeItemPredicate<FieldDescriptor>{
+	final class byIgnoredElement extends FieldTypeItemPredicate{
 		@Override
 		public FieldType getFieldType(){
 			return FieldType.IGNORED_ELEMENT;
@@ -145,9 +147,9 @@ public class FieldDescriptorIndexer extends MultiIndexer<FieldDescriptor>
 	}
 	
 	@Override
-	public List<ItemIndexPredicate<FieldDescriptor>> getIndexPredicates() {
+	public List<ItemIndexPredicate<IFieldDescriptor>> getIndexPredicates() {
 		// TODO Auto-generated method stub
-		List<ItemIndexPredicate<FieldDescriptor>> ourList = new LinkedList<ItemIndexPredicate<FieldDescriptor>>();
+		List<ItemIndexPredicate<IFieldDescriptor>> ourList = new LinkedList<ItemIndexPredicate<IFieldDescriptor>>();
 		ourList.add(new byScalars());
 		ourList.add(new byScalarCollections());
 		ourList.add(new byScalarMaps());
