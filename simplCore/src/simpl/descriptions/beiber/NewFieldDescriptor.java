@@ -5,6 +5,7 @@ import java.util.Collection;
 import java.util.LinkedList;
 
 import simpl.annotations.dbal.simpl_scalar;
+import simpl.descriptions.EnumerationDescriptor;
 import simpl.descriptions.FieldType;
 
 public class NewFieldDescriptor implements IFieldDescriptor {
@@ -91,6 +92,8 @@ public class NewFieldDescriptor implements IFieldDescriptor {
 	}
 
 	private Collection<String> othertags;
+
+	private EnumerationDescriptor enumerationDescriptor;
 	
 	public void addOtherTags(String s)
 	{
@@ -114,8 +117,17 @@ public class NewFieldDescriptor implements IFieldDescriptor {
 		// TODO Auto-generated method stub
 		return this.metainfo.getMetaInformation(name);
 	}
+
+	@Override
+	public EnumerationDescriptor getEnumerationDescriptor() {
+		// TODO Auto-generated method stub
+		return this.enumerationDescriptor;
+	}
 	
-	
+	public void setEnumerationDescriptor(EnumerationDescriptor ed)
+	{
+		this.enumerationDescriptor = ed;
+	}
 	
 	
 

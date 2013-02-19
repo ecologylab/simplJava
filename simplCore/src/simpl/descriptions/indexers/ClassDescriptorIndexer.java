@@ -9,11 +9,12 @@ import javax.swing.event.ListSelectionEvent;
 import simpl.core.indexers.ItemIndexPredicate;
 import simpl.core.indexers.MultiIndexer;
 import simpl.descriptions.ClassDescriptor;
+import simpl.descriptions.beiber.IClassDescriptor;
 
-public class ClassDescriptorIndexer extends MultiIndexer<ClassDescriptor<?>> {
+public class ClassDescriptorIndexer extends MultiIndexer<IClassDescriptor> {
 
 	// Here are the different indexers we intend to index "by" 
-	final class byClassSimpleName extends ItemIndexPredicate<ClassDescriptor<?>>
+	final class byClassSimpleName extends ItemIndexPredicate<IClassDescriptor>
 	{
 		public String GetIndexIdentifier() {
 			// TODO Auto-generated method stub
@@ -22,7 +23,7 @@ public class ClassDescriptorIndexer extends MultiIndexer<ClassDescriptor<?>> {
 
 		public String ObtainIndex(ClassDescriptor<?> item) {
 			// TODO Auto-generated method stub
-			return item.getDescribedClassSimpleName();
+			return "";
 		}
 	}
 	
@@ -105,18 +106,10 @@ public class ClassDescriptorIndexer extends MultiIndexer<ClassDescriptor<?>> {
 	{
 		public IndexingShortcut(ClassDescriptorIndexer cdi)
 		{
-			this.ObjectiveCName = cdi.by(new byObjectiveCName());
-			this.SimplName = cdi.by(new bySimplName());
-			this.ClassName = cdi.by(new byClassName());
-			this.ClassSimpleName = cdi.by(new byClassSimpleName());
-			this.TagName = cdi.by(new byTagName());
+
+
 		}
 		
-		public InnerIndexer<ClassDescriptor<?>> ObjectiveCName;
-		public InnerIndexer<ClassDescriptor<?>> SimplName;
-		public InnerIndexer<ClassDescriptor<?>> ClassName;
-		public InnerIndexer<ClassDescriptor<?>> ClassSimpleName;
-		public InnerIndexer<ClassDescriptor<?>> TagName;
 	}
 	
 	public IndexingShortcut by;
@@ -127,7 +120,7 @@ public class ClassDescriptorIndexer extends MultiIndexer<ClassDescriptor<?>> {
 		this.by = new IndexingShortcut(this);
 	}
 	
-	public List<ItemIndexPredicate<ClassDescriptor<?>>> getIndexPredicates() {
+	public List<ItemIndexPredicate<IClassDescriptor>> getIndexPredicates() {
 		List<ItemIndexPredicate<ClassDescriptor<?>>> ourList = new LinkedList<ItemIndexPredicate<ClassDescriptor<?>>>();
 		
 		ourList.add(new byObjectiveCName());

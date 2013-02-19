@@ -2,6 +2,7 @@ package simpl.descriptions.beiber;
 
 import java.util.Collection;
 
+import simpl.descriptions.EnumerationDescriptor;
 import simpl.descriptions.FieldType;
 
 /**
@@ -38,6 +39,12 @@ public interface IFieldDescriptor extends IMetaInformationProvider {
 	 * @return
 	 */
 	Collection<IClassDescriptor> getPolymoprhicFieldDescriptors();
+	
+	/** 
+	 * Gets the enum descriptor for the delcared class of this field
+	 */
+	EnumerationDescriptor getEnumerationDescriptor();
+	
 	/**
 	 * Gets the name of this field
 	 * @return

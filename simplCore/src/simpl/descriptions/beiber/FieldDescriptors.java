@@ -11,8 +11,10 @@ import simpl.annotations.dbal.simpl_scope;
 import simpl.core.ISimplTypesScope;
 import simpl.core.SimplTypesScope;
 import simpl.descriptions.AnnotationParser;
+import simpl.descriptions.EnumerationDescriptor;
 import simpl.descriptions.FieldCategorizer;
 import simpl.descriptions.FieldType;
+import simpl.exceptions.SIMPLDescriptionException;
 import simpl.types.TypeRegistry;
 
 public class FieldDescriptors {
@@ -25,6 +27,10 @@ public class FieldDescriptors {
 		ourClass = parentClass;
 	}
 	
+	private static boolean classIsEnum(Class<?> aClass)
+	{
+		return aClass.isEnum();
+	}
 	private static boolean classIsScalar(Class<?> aClass)
 	{
 		return TypeRegistry.containsScalarTypeFor(aClass);
@@ -60,10 +66,20 @@ public class FieldDescriptors {
 		
 		
 		// Handle scalar type / or composite types
-		if(classIsScalar(toDescribe.getType()))
+		if(classIsEnum(toDescribe.getType()))
+		{
+			try {
+				nfd.setEnumerationDescriptor(EnumerationDescriptor.get(toDescribe.getType()));
+			} catch (SIMPLDescriptionException e) {
+				throw new RuntimeException(e);
+			}
+		}
+		else if(classIsScalar(toDescribe.getType()))
 		{
 			// handle this. :) 
-		}else{
+		}
+		else
+		{
 			// check to see if simpl type. ;) 
 			// if we already have it...
 			// if not, updaayyyte. ;D
