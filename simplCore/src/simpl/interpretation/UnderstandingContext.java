@@ -1,8 +1,15 @@
 package simpl.interpretation;
 
+import java.util.HashMap;
 import java.util.Map;
 
 public class UnderstandingContext {
+	
+	
+	public UnderstandingContext()
+	{
+		graphObjects = new HashMap<String, Object>();
+	}
 	
 	Map<String, Object> graphObjects;
 	

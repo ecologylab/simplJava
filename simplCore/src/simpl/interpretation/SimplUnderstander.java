@@ -21,7 +21,19 @@ public class SimplUnderstander {
 		for(SimplInterpretation interp : interps)
 		{
 			interp.resolve(ourObject, callbackMap, understandingContext);
-			
+		}
+		
+			for(String ref : callbackMap.getRefsPendingUpdate())
+			{
+				if(understandingContext.isIDRegistered(ref))
+				{
+					callbackMap.resolveUpdates(ref, understandingContext.getRegisteredObject(ref));
+				}
+			}
+		
+		if(!callbackMap.isEmpty())
+		{
+			throw new RuntimeException("Missed a simpl ref!");
 		}
 		
 		return ourObject;
