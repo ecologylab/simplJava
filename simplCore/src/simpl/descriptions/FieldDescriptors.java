@@ -72,7 +72,7 @@ public class FieldDescriptors {
 		}
 		else if(classIsScalar(toDescribe.getType()))
 		{
-			// handle this. :) 
+			nfd.setScalarType(TypeRegistry.getScalarType(toDescribe.getType()));
 		}
 		else
 		{

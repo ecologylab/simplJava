@@ -21,11 +21,4 @@ public class UnderstandingContext {
 		return this.graphObjects.get(ID);
 	}
 	
-	private Integer currentID = 1;
-	
-	public String fetchSimplID()
-	{	
-		currentID = currentID + 1;
-		return currentID.toString();
-	}
 }

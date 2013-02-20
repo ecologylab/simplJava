@@ -15,9 +15,13 @@ public class SimplUnderstander {
 	{
 		Object ourObject = cd.getInstance();
 		
+		UnderstandingContext understandingContext = new UnderstandingContext();
+		SimplRefCallbackMap callbackMap = new SimplRefCallbackMap();
+		
 		for(SimplInterpretation interp : interps)
 		{
-		//	interp.resolve(ourObject);
+			interp.resolve(ourObject, callbackMap, understandingContext);
+			
 		}
 		
 		return ourObject;

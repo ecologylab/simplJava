@@ -16,7 +16,7 @@ public abstract class FieldTypeItemPredicate extends ItemIndexPredicate<FieldDes
 
 	@Override
 	public String ObtainIndex(FieldDescriptor item) {
-		if(item.getType().equals(getFieldType()))
+		if(item != null && item.getType() != null && item.getType().equals(getFieldType()))
 		{
 			return item.getName();
 		}else{

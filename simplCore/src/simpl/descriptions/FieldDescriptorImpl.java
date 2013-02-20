@@ -135,7 +135,7 @@ public class FieldDescriptorImpl implements FieldDescriptor {
 	@Override
 	public FieldType getType() {
 		// TODO Auto-generated method stub
-		return null;
+		return this.fieldType;
 	}
 
 	@Override

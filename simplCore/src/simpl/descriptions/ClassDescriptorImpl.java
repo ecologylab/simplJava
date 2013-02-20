@@ -1,5 +1,6 @@
 package simpl.descriptions;
 
+import java.lang.reflect.Constructor;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Collection;
@@ -164,7 +165,22 @@ ISimplDeserializationHooks
 	@Override
 	public Object getInstance() {
 		// TODO Auto-generated method stub
-		return new Object();
+		try{
+		return this.getJavaClass().newInstance();
+		}
+		catch(Exception e)
+		{
+			try{
+			Constructor C = this.getJavaClass().getConstructor(null);
+			C.setAccessible(true);
+			return C.newInstance(null);
+			}
+			catch(Exception eek)
+			{
+				throw new RuntimeException(eek);
+			}
+			
+		}
 	}
 
 	@Override

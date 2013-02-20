@@ -96,8 +96,22 @@ public class FieldDescriptorIndexer extends MultiIndexer<FieldDescriptor>
 	// -- here are the other indexers, by tag name, etc. 
 	
 	
-	
-	
+	final class byName extends ItemIndexPredicate<FieldDescriptor>
+	{
+
+		@Override
+		public String GetIndexIdentifier() {
+			// TODO Auto-generated method stub
+			return "name";
+		}
+
+		@Override
+		public String ObtainIndex(FieldDescriptor item) {
+			// TODO Auto-generated method stub
+			return item.getName();
+		}
+		
+	}
 	
 	public FieldDescriptorIndexer()
 	{
@@ -125,6 +139,7 @@ public class FieldDescriptorIndexer extends MultiIndexer<FieldDescriptor>
 		ourList.add(new byCompositeMaps());
 		ourList.add(new byIgnoredAttribute());
 		ourList.add(new byIgnoredElement());
+		ourList.add(new byName());
 		return ourList;
 	}
 }

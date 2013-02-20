@@ -25,5 +25,7 @@ public class ScalarInterpretation implements SimplInterpretation{
 		ClassDescriptor cd = ClassDescriptors.getClassDescriptor(context.getClass());
 		FieldDescriptor fd = cd.fields().by("name").get(this.fieldName);
 		fd.getScalarType().setFieldValue(this.fieldValue, fd.getField(), context);
+		
+		
 	}
 }
