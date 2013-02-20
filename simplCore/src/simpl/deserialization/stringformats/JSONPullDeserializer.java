@@ -148,7 +148,7 @@ public class JSONPullDeserializer extends StringPullDeserializer
 		Object root = null;
 
 		// find the classdescriptor for the root element.
-		ClassDescriptor<?> rootClassDescriptor = translationScope.getClassDescriptorByTag(jp
+		ClassDescriptor rootClassDescriptor = translationScope.getClassDescriptorByTag(jp
 				.getCurrentName());
 
 		root = rootClassDescriptor.getInstance();
@@ -411,7 +411,7 @@ public class JSONPullDeserializer extends StringPullDeserializer
 			}
 			else
 			{
-				ClassDescriptor<?> subRootClassDescriptor = currentFieldDescriptor
+				ClassDescriptor subRootClassDescriptor = currentFieldDescriptor
 						.getChildClassDescriptor(tagName);
 
 				subRoot = subRootClassDescriptor.getInstance();

@@ -39,7 +39,7 @@ public abstract class StringPullDeserializer extends PullDeserializer
 	public abstract Object parse(CharSequence charSequence) throws SIMPLTranslationException;
 	
 	
-	protected void SetAllScalarFieldsToDefault(Object context, ClassDescriptor<?> cd, ScalarUnmarshallingContext scalarContext)
+	protected void SetAllScalarFieldsToDefault(Object context, ClassDescriptor cd, ScalarUnmarshallingContext scalarContext)
 	{	
 		for(FieldDescriptor fd: cd.allFieldDescriptors())
 		{

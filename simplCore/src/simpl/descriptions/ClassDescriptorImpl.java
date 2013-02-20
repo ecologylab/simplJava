@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Collection;
 
 import simpl.core.TranslationContext;
+import simpl.descriptions.indexers.FieldDescriptorIndexer;
 import simpl.deserialization.ISimplDeserializationHookContextual;
 import simpl.deserialization.ISimplDeserializationHooks;
 
@@ -15,12 +16,14 @@ ISimplDeserializationHooks
 
 	private ArrayList<String> otherTags;
 	private IMetaInformationProvider metainfo;
+	private FieldDescriptorIndexer indexer;
 	
 	public ClassDescriptorImpl()
 	{
 		this.fields = new ArrayList<FieldDescriptor>();
 		this.otherTags = new ArrayList<String>();
 		this.metainfo = new MetaInformationCollection();
+		this.indexer = new FieldDescriptorIndexer();
 	}
 	
 	public Collection<MetaInformation> getMetaInformation()
@@ -81,8 +84,9 @@ ISimplDeserializationHooks
 	/**
 	 * Gets a list of the FieldDescriptors that comprise the described class. 
 	 */
-	public List<FieldDescriptor> getFields() {
-		return fields;
+	@Override
+	public List<FieldDescriptor> allFieldDescriptors() {
+		return this.indexer.getAllItems();
 	}
 	
 	/**
@@ -91,7 +95,7 @@ ISimplDeserializationHooks
 	 */
 	public void addField(FieldDescriptor ifd)
 	{
-		this.fields.add(ifd);
+		this.indexer.Insert(ifd);
 	}
 
 	@Override
@@ -156,4 +160,37 @@ ISimplDeserializationHooks
 	{
 		this.simpleName = simpleName;
 	}
+
+	@Override
+	public Object getInstance() {
+		// TODO Auto-generated method stub
+		return new Object();
+	}
+
+	@Override
+	public String getTagName() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public FieldDescriptorIndexer fields() {
+		// TODO Auto-generated method stub
+		return this.indexer;
+	}
+
+	boolean strictGraph = false;
+	
+	@Override
+	public boolean getStrictObjectGraphRequired() {
+		// TODO Auto-generated method stub
+		return this.strictGraph;
+	}
+	
+	public void setStrictObjectGraphRequired(boolean value)
+	{
+		this.strictGraph = value;
+	}
+
+
 }

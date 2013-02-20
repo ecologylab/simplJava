@@ -132,10 +132,10 @@ public class TranslationContext extends Debug implements ScalarUnmarshallingCont
 			// this.visitedElements.put(System.identityHashCode(elementState), elementState);
 			this.visitedElements.put(elementState.hashCode(), elementState);
 
-			ClassDescriptors.getClassDescriptor(elementState);
+			ClassDescriptors.getClassDescriptor(elementState.getClass());
 
-			ArrayList<? extends FieldDescriptor> elementFieldDescriptors = ClassDescriptors
-					.getClassDescriptor(elementState).elementFieldDescriptors();
+			// TODO
+			ArrayList<? extends FieldDescriptor> elementFieldDescriptors;// = ClassDescriptors.getClassDescriptor(elementState);
 
 			for (FieldDescriptor elementFieldDescriptor : elementFieldDescriptors)
 			{

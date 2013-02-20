@@ -42,14 +42,14 @@ public class ConstructClassDescriptor {
 
 	
 	// Todo: Stealthily swap this with a factory method.
-	private ClassDescriptor<?> ConstructClassDescriptor(Class<?> lass)
+	private ClassDescriptor ConstructClassDescriptor(Class<?> lass)
 	{
 		return ClassDescriptors.getClassDescriptor(lass);
 	}
 	
 	private void testSimpleScalar(Class<?> lass, Class<?> expectedType)
 	{
-		ClassDescriptor<?> cd = ConstructClassDescriptor(lass);
+		ClassDescriptor cd = ConstructClassDescriptor(lass);
 		
 		// Get the one field that is in 	the simple scalar class
 		assertEquals(1, cd.allFieldDescriptors().size());	

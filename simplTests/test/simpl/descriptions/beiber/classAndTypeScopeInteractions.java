@@ -41,7 +41,7 @@ public class classAndTypeScopeInteractions {
 	@Test(expected=RuntimeException.class)
 	public void testNonExistentScopesShouldThrowAnException()
 	{
-		ClassDescriptor CD = ClassDescriptors.get(B_360NoScopeMaster.class);
+		ClassDescriptor CD = ClassDescriptors.getClassDescriptor(B_360NoScopeMaster.class);
 	}
 
 }

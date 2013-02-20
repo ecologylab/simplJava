@@ -11,6 +11,7 @@ import java.util.Map;
 
 import simpl.annotations.dbal.simpl_inherit;
 import simpl.annotations.dbal.simpl_other_tags;
+import simpl.annotations.dbal.simpl_use_equals_equals;
 
 public class ClassDescriptors {
 
@@ -109,7 +110,13 @@ public class ClassDescriptors {
 		}
 	}
 	
-	public static ClassDescriptor get(Class<?> aClass)
+	
+	public static ClassDescriptor getClassDescriptor(Object object)
+	{
+		return getClassDescriptor(object.getClass());
+	}
+	
+	public static ClassDescriptor getClassDescriptor(Class<?> aClass)
 	{
 		if(containsCD(aClass))
 		{
@@ -161,6 +168,11 @@ public class ClassDescriptors {
 		
 		// Handle other class specifics: 
 		
+		if(aClass.isAnnotationPresent(simpl_use_equals_equals.class))
+		{
+			ncd.setStrictObjectGraphRequired(true);
+		}
+		
 		
 		if(aClass.isAnnotationPresent(simpl_other_tags.class))
 		{
@@ -182,7 +194,7 @@ public class ClassDescriptors {
 			
 			if(ClassDescriptors.containsCD(superClass))
 			{
-				ncd.setSuperClassDescriptor(ClassDescriptors.get(superClass));
+				ncd.setSuperClassDescriptor(ClassDescriptors.getClassDescriptor(superClass));
 			}else{
 				// We'll use a callback to update the CD for the superclass whenever we have it. 
 				updates.insertUDC(new UpdateClassDescriptorCallback() {

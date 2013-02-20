@@ -5,15 +5,13 @@ import java.util.Stack;
 
 import simpl.descriptions.ClassDescriptor;
 import simpl.descriptions.ClassDescriptors;
-import simpl.deserialization.ISimplDeserializationHooks;
 import simpl.exceptions.SIMPLTranslationException;
-import simpl.serialization.ISimplSerializationPost;
-import simpl.serialization.ISimplSerializationPre;
 
 import ecologylab.generic.Debug;
 
-public class ElementState<PES extends ElementState> extends Debug implements XMLTranslationExceptionTypes, ISimplSerializationPre, ISimplSerializationPost,ISimplDeserializationHooks{
-
+public class ElementState<PES extends ElementState> extends Debug implements XMLTranslationExceptionTypes
+{
+	
 	private boolean													isRoot										= false;
 
 	/**
@@ -182,45 +180,10 @@ public class ElementState<PES extends ElementState> extends Debug implements XML
 		ClassDescriptor result = classDescriptor;
 		if (result == null)
 		{
-			result = ClassDescriptors.get(this);
+			result = ClassDescriptors.getClassDescriptor(this.getClass());
 			this.classDescriptor = result;
 		}
 		return result;
-	}
-
-	@Override
-	public void serializationPostHook(TranslationContext translationContext)
-	{
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void serializationPreHook(TranslationContext translationContext)
-	{
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void deserializationPreHook(TranslationContext translationContext)
-	{
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void deserializationPostHook(TranslationContext translationContext, Object object)
-	{
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void deserializationInHook(TranslationContext translationContext)
-	{
-		// TODO Auto-generated method stub
-		
 	}
 	
 }

@@ -1,6 +1,11 @@
 package simpl.interpretation;
 
-public class ScalarInterpretation {
+import simpl.descriptions.ClassDescriptor;
+import simpl.descriptions.ClassDescriptors;
+import simpl.descriptions.FieldDescriptor;
+import simpl.exceptions.SIMPLTranslationException;
+
+public class ScalarInterpretation implements SimplInterpretation{
 	public String fieldName;
 	public String fieldValue;
 	
@@ -13,5 +18,12 @@ public class ScalarInterpretation {
 	public String toString()
 	{
 		return fieldName + "=["+ fieldValue + "]";
+	}
+	
+	public void resolve(Object context) throws SIMPLTranslationException
+	{
+		ClassDescriptor cd = ClassDescriptors.getClassDescriptor(context.getClass());
+		FieldDescriptor fd = cd.fields().by("name").get(this.fieldName);
+		fd.getScalarType().setFieldValue(this.fieldValue, fd.getField(), context);
 	}
 }

@@ -38,7 +38,7 @@ public class JSONSerializer extends StringSerializer
 	{
 		translationContext.resolveGraph(object);
 
-		ClassDescriptor<? extends FieldDescriptor> rootObjectClassDescriptor = ClassDescriptors
+		ClassDescriptor rootObjectClassDescriptor = ClassDescriptors
 				.getClassDescriptor(object.getClass());
 
 		try
@@ -84,7 +84,7 @@ public class JSONSerializer extends StringSerializer
 
 		//numOfFields = 0;
 		
-		ClassDescriptor<? extends FieldDescriptor> classDescriptor = getClassDescriptor(object);
+		ClassDescriptor classDescriptor = getClassDescriptor(object);
 		
 		serializeFields(object, appendable, translationContext, classDescriptor);
 
@@ -104,7 +104,7 @@ public class JSONSerializer extends StringSerializer
 	 */
 	private void serializeFields(Object object, Appendable appendable,
 			TranslationContext translationContext,
-			ClassDescriptor<? extends FieldDescriptor> classDescriptor) throws SIMPLTranslationException,
+			ClassDescriptor classDescriptor) throws SIMPLTranslationException,
 			IOException
 	{
 		ArrayList<? extends FieldDescriptor> allFieldDescriptors = classDescriptor.allFieldDescriptors();
@@ -136,7 +136,7 @@ public class JSONSerializer extends StringSerializer
 				if (numOfFields++ > 0)
 					appendable.append(',');
 
-				switch (childFd.getFieldType())
+				switch (childFd.getType())
 				{
 				case SCALAR:
 					serializeScalar(object, childFd, appendable, translationContext);
@@ -172,7 +172,7 @@ public class JSONSerializer extends StringSerializer
 	private boolean isSerializable(FieldDescriptor childFd, Object object)
 			throws SIMPLTranslationException
 	{
-		switch (childFd.getFieldType())
+		switch (childFd.getType())
 		{
 		case SCALAR:
 		//	if (childFd.isDefaultValueFromContext(object))

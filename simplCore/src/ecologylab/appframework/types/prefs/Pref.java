@@ -11,6 +11,8 @@ import simpl.annotations.dbal.simpl_inherit;
 import simpl.annotations.dbal.simpl_scalar;
 import simpl.core.ElementState;
 import simpl.core.TranslationContext;
+import simpl.deserialization.ISimplDeserializationHookContextual;
+import simpl.deserialization.ISimplDeserializationHooks;
 import simpl.platformspecifics.SimplPlatformSpecifics;
 import simpl.types.element.IMappable;
 
@@ -24,7 +26,7 @@ import ecologylab.collections.Scope;
  */
 
 @simpl_inherit
-public abstract class Pref<T> extends ElementState implements IMappable<String>, Cloneable
+public abstract class Pref<T> extends ElementState implements IMappable<String>, Cloneable, ISimplDeserializationHooks
 {
 	/** The global registry of Pref objects. Used for providing lookup services. */
 	static final Scope<Pref<?>>										allPrefsMap	= new Scope<Pref<?>>();
@@ -672,4 +674,17 @@ public abstract class Pref<T> extends ElementState implements IMappable<String>,
 			pref.register();
 		}
 	}
+	
+	@Override
+	public void deserializationInHook(TranslationContext translationContext) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void deserializationPreHook(TranslationContext translationContext) {
+		// TODO Auto-generated method stub
+		
+	}
+	
 }

@@ -1,6 +1,9 @@
 package simpl.descriptions;
 
+import java.lang.reflect.Field;
 import java.util.Collection;
+
+import simpl.types.ScalarType;
 
 
 /**
@@ -23,7 +26,7 @@ public interface FieldDescriptor extends IMetaInformationProvider {
 	 * Gets the field type of this field, such as SCALAR or COMPOSITE
 	 * @return
 	 */
-	FieldType getFieldType();
+	FieldType getType();
 
 	/**
 	 * Gets the class descriptor for the declared class of this field.
@@ -43,6 +46,9 @@ public interface FieldDescriptor extends IMetaInformationProvider {
 	 */
 	EnumerationDescriptor getEnumerationDescriptor();
 	
+	
+	ScalarType getScalarType();
+	
 	/**
 	 * Gets the name of this field
 	 * @return
@@ -54,5 +60,22 @@ public interface FieldDescriptor extends IMetaInformationProvider {
 	 * @return
 	 */
 	Collection<String> getOtherTags();
+
+	
+	boolean isEnum();
+	
+	boolean isPolymorphic();
+	
+	boolean isScalar();
+	
+	boolean isCollection();
+
+	String getTagName();
+
+	Field getField();
+
+	Object getWrappedFD();
+
+	boolean isCollectionTag(String tagName);
 	
 }

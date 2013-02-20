@@ -6,7 +6,7 @@ import java.util.List;
 /**
  * Interface for all classdescriptors
  */
-public interface ClassDescriptor extends IMetaInformationProvider {
+public interface ClassDescriptor extends IMetaInformationProvider, IFieldIndexer {
 	/**
 	 * Gets the java class that represents the class descriptor
 	 * @return
@@ -36,7 +36,7 @@ public interface ClassDescriptor extends IMetaInformationProvider {
 	 * Gets a list of the described Fields within this given class
 	 * @return
 	 */
-	List<FieldDescriptor> getFields();
+	List<FieldDescriptor> allFieldDescriptors();
 	
 	/**
 	 * Gets the class decsriptor for this class's superclass, 
@@ -57,5 +57,15 @@ public interface ClassDescriptor extends IMetaInformationProvider {
 	 * @return
 	 */
 	Collection<String> getOtherTags();
+
+	Object getInstance();
+
+	String getTagName();
+
+	boolean getStrictObjectGraphRequired();
+
+	Object getScalarTextFD();
+
+	boolean hasScalarFD();
 	
 }

@@ -135,7 +135,7 @@ public class ListDeSerializationTests {
 		assertNull(bc.a);
 		TranslationContext tc = new TranslationContext();
 		
-		ClassDescriptor<?> cd = ClassDescriptors.getClassDescriptor(bc.getClass());
+		ClassDescriptor cd = ClassDescriptors.getClassDescriptor(bc.getClass());
 		for(FieldDescriptor fd : cd.allFieldDescriptors())
 		{
 			//fd.setFieldToScalarDefault(bc, tc);

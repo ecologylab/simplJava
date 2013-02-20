@@ -44,7 +44,7 @@ public class FieldDescriptors {
 		nfd.setDeclaringClass(declaringClass);
 		
 		assert(ClassDescriptors.containsCD(declaringClass)); //If declaringClass isn't there, we've got a problem. 
-		nfd.setDeclaringClassDescriptor(ClassDescriptors.get(declaringClass));
+		nfd.setDeclaringClassDescriptor(ClassDescriptors.getClassDescriptor(declaringClass));
 		
 		FieldType fd = new FieldCategorizer().categorizeField(toDescribe);
 		
@@ -85,7 +85,7 @@ public class FieldDescriptors {
 			if(ClassDescriptors.containsCD(classToUpdate))
 			{
 				// good. GIT IT. :) 
-				nfd.setFieldClassDescriptor(ClassDescriptors.get(classToUpdate));
+				nfd.setFieldClassDescriptor(ClassDescriptors.getClassDescriptor(classToUpdate));
 			}else{
 				// We need to update it later when we have it. 
 				classAccumulator.add(new UpdateClassDescriptorCallback() {
@@ -129,7 +129,7 @@ public class FieldDescriptors {
 				{
 					if(ClassDescriptors.containsCD(polymorph))
 					{
-						nfd.addPolymoprhicFieldDescriptor(ClassDescriptors.get(polymorph));
+						nfd.addPolymoprhicFieldDescriptor(ClassDescriptors.getClassDescriptor(polymorph));
 					}else{
 						final Class<?> polymorphToUpdate = polymorph;
 						classAccumulator.add(new UpdateClassDescriptorCallback() {

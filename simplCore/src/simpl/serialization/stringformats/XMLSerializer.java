@@ -40,7 +40,7 @@ public class XMLSerializer extends StringSerializer
 	{
 		translationContext.resolveGraph(object);
 
-		ClassDescriptor<? extends FieldDescriptor> rootObjectClassDescriptor = ClassDescriptors
+		ClassDescriptor rootObjectClassDescriptor = ClassDescriptors
 				.getClassDescriptor(object.getClass());
 
 		try
@@ -81,7 +81,7 @@ public class XMLSerializer extends StringSerializer
 
 		serializationPreHook(object, translationContext);
 
-		ClassDescriptor<? extends FieldDescriptor> rootObjectClassDescriptor = getClassDescriptor(object);
+		ClassDescriptor rootObjectClassDescriptor = getClassDescriptor(object);
 
 		writeObjectStart(rootObjectFieldDescriptor, appendable);
 
@@ -126,7 +126,7 @@ public class XMLSerializer extends StringSerializer
 	 */
 	private void serializeAttributes(Object object, Appendable appendable,
 			TranslationContext translationContext,
-			ClassDescriptor<? extends FieldDescriptor> rootObjectClassDescriptor)
+			ClassDescriptor rootObjectClassDescriptor)
 			throws SIMPLTranslationException, IOException
 	{
 		ArrayList<? extends FieldDescriptor> attributeFieldDescriptors = rootObjectClassDescriptor

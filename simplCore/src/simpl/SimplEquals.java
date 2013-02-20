@@ -159,7 +159,7 @@ public class SimplEquals {
 		return lhs.getClass().equals(rhs.getClass());
 	}
 	
-	private static boolean hasFields(ClassDescriptor<?> cd)
+	private static boolean hasFields(ClassDescriptor cd)
 	{
 		return !cd.allFieldDescriptors().isEmpty();
 	}

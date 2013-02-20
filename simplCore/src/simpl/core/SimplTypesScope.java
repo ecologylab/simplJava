@@ -136,7 +136,7 @@ public final class SimplTypesScope extends Debug implements ISimplDeserializatio
 	// TODO: Wrap this w/ the indexer to make it serialize right
 	@simpl_nowrap
 	@simpl_map("class_descriptor")
-	private Scope<ClassDescriptor<? extends FieldDescriptor>> entriesByTag = new Scope<ClassDescriptor<? extends FieldDescriptor>>();
+	private Scope<ClassDescriptor> entriesByTag = new Scope<ClassDescriptor>();
 
 	/**
 	 * Scope containing all enumerations by their tag name
@@ -186,7 +186,7 @@ public final class SimplTypesScope extends Debug implements ISimplDeserializatio
 		else
 		{
 			// Add a class!
-			ClassDescriptor<?> entry = ClassDescriptors.getClassDescriptor(classObj);
+			IClassDescriptor entry = ClassDescriptors.getClassDescriptor(classObj);
 			this.classDescriptors.Insert(entry);
 		}
 	}
@@ -215,10 +215,10 @@ public final class SimplTypesScope extends Debug implements ISimplDeserializatio
 
 	private Class<?> correspondingClassFor(Class<?> dummyObj)
 	{
-		ClassDescriptor<?> entry = ClassDescriptors.getClassDescriptor(dummyObj);
+		ClassDescriptor entry = ClassDescriptors.getClassDescriptor(dummyObj);
 		String tagName = entry.getTagName();
 		
-		ClassDescriptor<?> corresp = entriesByTag.get(tagName);
+		ClassDescriptor corresp = entriesByTag.get(tagName);
 		
 		return corresp != null? corresp.getDescribedClass() : dummyObj;
 	}
@@ -229,7 +229,7 @@ public final class SimplTypesScope extends Debug implements ISimplDeserializatio
 	 */
 	public void removeTranslation(Class<?> classObj)
 	{
-		ClassDescriptor<?> entry = ClassDescriptors.getClassDescriptor(classObj);
+		ClassDescriptor entry = ClassDescriptors.getClassDescriptor(classObj);
 		
 		this.classDescriptors.Remove(ClassDescriptors.getClassDescriptor(classObj));
 	}
@@ -266,7 +266,7 @@ public final class SimplTypesScope extends Debug implements ISimplDeserializatio
 
 	
 	
-	
+	/*
 	private static void augmentSimplTypesScope(Class<?> thatClass,
 			HashMap<String, Class<?>> augmentedClasses)
 	{
@@ -279,7 +279,7 @@ public final class SimplTypesScope extends Debug implements ISimplDeserializatio
 					augmentedClasses);
 		}
 
-		ClassDescriptor<? extends FieldDescriptor> thatClassDescriptor = ClassDescriptors
+		ClassDescriptor thatClassDescriptor = ClassDescriptors
 				.getClassDescriptor(thatClass);
 
 		HashMapArrayList<String, ? extends FieldDescriptor> fieldDescriptors = thatClassDescriptor
@@ -293,7 +293,7 @@ public final class SimplTypesScope extends Debug implements ISimplDeserializatio
 			{
 				if (fieldDescriptor.isNested())
 				{
-					augmentSimplTypesScope(fieldDescriptor.getFieldType().asSubclass(ElementState.class),
+					augmentSimplTypesScope(fieldDescriptor.getType().asSubclass(ElementState.class),
 							augmentedClasses);
 				}
 				else
@@ -319,7 +319,7 @@ public final class SimplTypesScope extends Debug implements ISimplDeserializatio
 
 						if (polymorphDescriptors != null)
 						{
-							for (ClassDescriptor<? extends FieldDescriptor> classDescriptor : polymorphDescriptors)
+							for (ClassDescriptor classDescriptor : polymorphDescriptors)
 							{
 								augmentSimplTypesScope(classDescriptor.getDescribedClass(), augmentedClasses);
 							}
@@ -329,13 +329,14 @@ public final class SimplTypesScope extends Debug implements ISimplDeserializatio
 			}
 		}
 	}
+	*/
 
 	/**
 	 * Method returning all the class descriptors corresponds to all the translation Scopes
 	 * 
 	 * @return
 	 */
-	public Collection<ClassDescriptor<?>> getAllClassDescriptors()
+	public Collection<ClassDescriptor> getAllClassDescriptors()
 	{
 		return this.classDescriptors.getAllItems();
 	}
@@ -373,7 +374,7 @@ public final class SimplTypesScope extends Debug implements ISimplDeserializatio
 	}
 
 	@Override
-	public ClassDescriptor<?> getClassDescriptorByTag(String tag) {
+	public ClassDescriptor getClassDescriptorByTag(String tag) {
 		return this.classDescriptors.by.TagName.get(tag);
 	}
 
@@ -442,7 +443,7 @@ public final class SimplTypesScope extends Debug implements ISimplDeserializatio
 
 		// Insert all values from STS into here. :) 
 		// Should probably leverage mergeInto; will refactor late.r 
-		for(ClassDescriptor<?> cd :sts.getAllClassDescriptors())
+		for(ClassDescriptor cd :sts.getAllClassDescriptors())
 		{
 			this.classDescriptors.Insert(cd);
 		}

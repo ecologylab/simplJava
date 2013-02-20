@@ -23,18 +23,6 @@ class BasicOp extends ElementState
 		super();
 	}
 
-	/**
-	 * Sets the session time immediately before translating to XML. The session time is based from the
-	 * time the log started recording.
-	 * 
-	 * @see simpl.core.ElementState#serializationPreHook()
-	 */
-	@Override
-	public void serializationPreHook(TranslationContext translationContext)
-	{
-		// this.sessionTime = System.currentTimeMillis() - Logging.sessionStartTime();
-	}
-
 	/** @return the sessionTime */
 	public long getSessionTime()
 	{

@@ -26,7 +26,7 @@ public class FieldDescriptionTest {
 		
 		FieldDescriptor fd = (FieldDescriptor)cd.allFieldDescriptors().get(0);
 		assertEquals(FieldType.SCALAR, fd.getType());
-		assertEquals(primaryScenarioEnum.class, fd.getFieldType());
+		assertEquals(primaryScenarioEnum.class, fd.getType());
 		assertEquals(true, fd.isEnum());
 		assertNotNull(fd.getEnumerationDescriptor());
 		assertEquals("firstValue", fd.getEnumerationDescriptor().marshal(primaryScenarioEnum.firstValue));

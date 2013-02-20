@@ -41,14 +41,14 @@ public class ClassDescriptionConstruction {
 	@Test
 	public void testCompositesGetDescribed()
 	{
-		ClassDescriptor<?> myClass = ClassDescriptors.getClassDescriptor(myClass.class);
+		ClassDescriptor myClass = ClassDescriptors.getClassDescriptor(myClass.class);
 		
 		assertEquals(2, myClass.allFieldDescriptors().size());
 		
 		FieldDescriptor myInt = myClass.allFieldDescriptors().get(0);
 		assertEquals("myInt is a scalar!", FieldType.SCALAR, myInt.getType());
 		assertEquals("myInt", myInt.getName());
-		assertEquals(int.class, myInt.getFieldType());
+		assertEquals(int.class, myInt.getType());
 		assertEquals(IntegerType.class, myInt.getScalarType().getClass());
 		
 		
@@ -56,26 +56,26 @@ public class ClassDescriptionConstruction {
 		
 		assertEquals("myComposite is a composite!", FieldType.COMPOSITE_ELEMENT,myInnerComposite.getType());
 		assertEquals("myComposite", myInnerComposite.getName());
-		assertEquals(innerClass.class, myInnerComposite.getFieldType());
+		assertEquals(innerClass.class, myInnerComposite.getType());
 	}
 	
 	@Test
 	public void testCompositeAsScalarGetsDescribed()
 	{
-		ClassDescriptor<?> myClass = ClassDescriptors.getClassDescriptor(myCompositeStringClass.class);
+		ClassDescriptor myClass = ClassDescriptors.getClassDescriptor(myCompositeStringClass.class);
 		
 		assertEquals("Not all fields were described!", 2, myClass.allFieldDescriptors().size());
 		
 		FieldDescriptor myString = myClass.allFieldDescriptors().get(0);
 		assertEquals("myString is a scalar!", FieldType.SCALAR, myString.getType());
 		assertEquals("myString", myString.getName());
-		assertEquals(String.class, myString.getFieldType());
+		assertEquals(String.class, myString.getType());
 		assertEquals(StringType.class, myString.getScalarType().getClass());
 		
 		FieldDescriptor myInnerComposite = myClass.allFieldDescriptors().get(1);
 		
 		assertEquals("myComposite is a composite!", FieldType.COMPOSITE_ELEMENT,myInnerComposite.getType());
 		assertEquals("myComposite", myInnerComposite.getName());
-		assertEquals(innerClass.class, myInnerComposite.getFieldType());
+		assertEquals(innerClass.class, myInnerComposite.getType());
 	}
 }

@@ -69,7 +69,7 @@ public class RoundtripTestsProvisional {
 		TrickyString ts = new TrickyString();
 		ts.trickyString = "totallyNotDefault";
 		
-		ClassDescriptor<?> cd = ClassDescriptors.getClassDescriptor(TrickyString.class);
+		ClassDescriptor cd = ClassDescriptors.getClassDescriptor(TrickyString.class);
 		
 		FieldDescriptor fd = cd.allFieldDescriptors().get(0);
 		TranslationContext tc = null;

@@ -35,7 +35,7 @@ public class SimplTypesScopeTests {
 		ists.setName("New name");
 		assertEquals("New name", ists.getName());
 		
-		ClassDescriptor<?> myDescriptor = ClassDescriptors.getClassDescriptor(myClass.class);
+		ClassDescriptor myDescriptor = ClassDescriptors.getClassDescriptor(myClass.class);
 		
 		assertEquals("my_class", myDescriptor.getTagName());
 		assertEquals(1,myDescriptor.allFieldDescriptors().size()); 

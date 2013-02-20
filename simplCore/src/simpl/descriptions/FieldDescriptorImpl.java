@@ -1,13 +1,17 @@
 package simpl.descriptions;
 
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedList;
 
 import simpl.annotations.dbal.simpl_scalar;
+import simpl.types.ScalarType;
 
 public class FieldDescriptorImpl implements FieldDescriptor {
 	
+	boolean isEnum;
+	boolean isScalar;
 	
 	private IMetaInformationProvider metainfo;
 	
@@ -17,13 +21,14 @@ public class FieldDescriptorImpl implements FieldDescriptor {
 		this.othertags = new ArrayList<String>();
 		this.metainfo = new MetaInformationCollection();
 		
-		
 	}
 	
 	Class<?> declaringClass;
 
 	@simpl_scalar
 	FieldType fieldType;
+	
+	ScalarType scalarType;
 	
 	@simpl_scalar
 	String name;
@@ -126,7 +131,63 @@ public class FieldDescriptorImpl implements FieldDescriptor {
 	{
 		this.enumerationDescriptor = ed;
 	}
+
+	@Override
+	public FieldType getType() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public boolean isEnum() {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public boolean isPolymorphic() {
+		// TODO Auto-generated method stub
+		return !this.getPolymoprhicFieldDescriptors().isEmpty();
+	}
+
+	@Override
+	public boolean isScalar() {
+		// TODO Auto-generated method stub
+		return this.getScalarType() != null;//todo
+	}
 	
+	public String getTagName()
+	{
+		return this.name;
+	}
+
+	@Override
+	public ScalarType getScalarType() {
+		// TODO Auto-generated method stub
+		return this.scalarType;
+	}
 	
+	public void setScalarType(ScalarType st)
+	{
+		this.scalarType = st;
+	}
+
+	@Override
+	public Field getField() {
+		// TODO Auto-generated method stub
+		try{
+			return this.getDeclaringClass().getField(this.getName());
+		}
+		catch(Exception e)
+		{
+			throw new RuntimeException(e);
+		}
+	}
+
+	@Override
+	public boolean isCollection() {
+		// TODO Auto-generated method stub
+		return false;//TODO IMPL
+	}
 
 }

@@ -195,7 +195,7 @@ public class XMLPullDeserializer extends StringPullDeserializer
 
 		String rootTag = getTagName();
 
-		ClassDescriptor<? extends FieldDescriptor> rootClassDescriptor = translationScope
+		ClassDescriptor rootClassDescriptor = translationScope
 				.getClassDescriptorByTag(rootTag);
 
 		if (rootClassDescriptor == null)
@@ -250,7 +250,7 @@ public class XMLPullDeserializer extends StringPullDeserializer
 	 * @throws XMLStreamException
 	 */
 	private void createObjectModel(Object root,
-			ClassDescriptor<? extends FieldDescriptor> rootClassDescriptor, String rootTag)
+			ClassDescriptor rootClassDescriptor, String rootTag)
 			throws IOException, SIMPLTranslationException
 	{
 			int event = 0;
@@ -565,7 +565,7 @@ public class XMLPullDeserializer extends StringPullDeserializer
 			throws SIMPLTranslationException, IOException
 	{
 		Object subRoot = null;
-		ClassDescriptor<? extends FieldDescriptor> subRootClassDescriptor = currentFieldDescriptor
+		ClassDescriptor subRootClassDescriptor = currentFieldDescriptor
 				.getChildClassDescriptor(tagName);
 
 		String simplReference = null;
@@ -652,7 +652,7 @@ public class XMLPullDeserializer extends StringPullDeserializer
 	 * @return
 	 */
 	private boolean deserializeAttributes(Object root,
-			ClassDescriptor<? extends FieldDescriptor> rootClassDescriptor)
+			ClassDescriptor rootClassDescriptor)
 	{
 		for (int i = 0; i < xmlParser.getAttributeCount(); i++)
 		{

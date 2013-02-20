@@ -458,4 +458,9 @@ public class EnumerationDescriptor implements ISimplStringMarshaller {
 		}
 
 	}
+
+	public Object getSimpleName() {
+		// TODO Auto-generated method stub
+		return this.getEnumerationClass().getSimpleName();
+	}
 }

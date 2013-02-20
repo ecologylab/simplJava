@@ -173,7 +173,7 @@ public abstract class MultiIndexer<IndexedObject> implements Iterable<IndexedObj
 		return this.allitems.iterator();
 	}
 	
-	public Collection<IndexedObject> getAllItems()
+	public List<IndexedObject> getAllItems()
 	{
 		return this.allitems;
 	}

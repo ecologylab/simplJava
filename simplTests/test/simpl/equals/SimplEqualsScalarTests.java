@@ -75,7 +75,7 @@ public class SimplEqualsScalarTests {
 		
 		validateTransistivity(x,y,z);
 		
-		boolean fieldIsPrim = fd.getFieldType().isPrimitive();
+		boolean fieldIsPrim = fd.getType().isPrimitive();
 		
 		if(!fieldIsPrim)
 		{

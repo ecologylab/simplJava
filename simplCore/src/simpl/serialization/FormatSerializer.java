@@ -69,7 +69,7 @@ public abstract class FormatSerializer
 	 * @param object
 	 * @return
 	 */
-	protected ClassDescriptor<? extends FieldDescriptor> getClassDescriptor(Object object)
+	protected ClassDescriptor getClassDescriptor(Object object)
 	{
 		return ClassDescriptors.getClassDescriptor(object.getClass());
 	}

@@ -48,7 +48,7 @@ public class TLVSerializer extends BinarySerializer
 	{
 		translationContext.resolveGraph(object);
 
-		ClassDescriptor<? extends FieldDescriptor> rootObjectClassDescriptor = ClassDescriptors
+		ClassDescriptor rootObjectClassDescriptor = ClassDescriptors
 				.getClassDescriptor(object.getClass());
 
 		try
@@ -87,7 +87,7 @@ public class TLVSerializer extends BinarySerializer
 
 		serializationPreHook(object, translationContext);
 
-		ClassDescriptor<? extends FieldDescriptor> rootObjectClassDescriptor = getClassDescriptor(object);
+		ClassDescriptor rootObjectClassDescriptor = getClassDescriptor(object);
 
 		ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
 		DataOutputStream outputBuffer = new DataOutputStream(byteArrayOutputStream);
@@ -139,7 +139,7 @@ public class TLVSerializer extends BinarySerializer
 	 */
 	private void serializeFields(Object object, DataOutputStream outputBuffer,
 			TranslationContext translationContext,
-			ClassDescriptor<? extends FieldDescriptor> classDescriptor) throws SIMPLTranslationException,
+			ClassDescriptor classDescriptor) throws SIMPLTranslationException,
 			IOException
 	{
 		if (SimplTypesScope.graphSwitch == GRAPH_SWITCH.ON)

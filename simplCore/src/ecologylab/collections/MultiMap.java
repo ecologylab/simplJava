@@ -102,8 +102,7 @@ public class MultiMap<T, S extends Object>
 	 */
 	private int containsValue(ArrayList<S> collection, S value)
 	{
-		ClassDescriptor<? extends FieldDescriptor> classDescriptor = ClassDescriptors
-				.getClassDescriptor(value.getClass());
+		ClassDescriptor classDescriptor = ClassDescriptors.getClassDescriptor(value.getClass());
 
 		int index = 0;
 		if (classDescriptor.getStrictObjectGraphRequired())

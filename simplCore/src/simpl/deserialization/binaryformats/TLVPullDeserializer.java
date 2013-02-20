@@ -83,7 +83,7 @@ public class TLVPullDeserializer extends BinaryPullDeserializer
 
 		nextHeader();
 
-		ClassDescriptor<? extends FieldDescriptor> rootClassDescriptor = null;
+		ClassDescriptor rootClassDescriptor = null;
 
 		if (rootClassDescriptor == null)
 		{
@@ -111,7 +111,7 @@ public class TLVPullDeserializer extends BinaryPullDeserializer
 	 * @throws SIMPLTranslationException
 	 */
 	private Object createObjectModel(Object root,
-			ClassDescriptor<? extends FieldDescriptor> rootClassDescriptor, int type, int length)
+			ClassDescriptor rootClassDescriptor, int type, int length)
 			throws IOException, SIMPLTranslationException
 	{
 
@@ -341,7 +341,7 @@ public class TLVPullDeserializer extends BinaryPullDeserializer
 			throws SIMPLTranslationException, IOException
 	{
 		Object subRoot = null;
-		ClassDescriptor<? extends FieldDescriptor> subRootClassDescriptor = null;//currentFieldDescriptor
+		ClassDescriptor subRootClassDescriptor = null;//currentFieldDescriptor
 				//.getChildClassDescriptor(type());
 
 		subRoot = subRootClassDescriptor.getInstance();

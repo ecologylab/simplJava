@@ -46,9 +46,9 @@ public class DeSerializingDescriptors extends Assert
      SimplTypesScope newTscope = (SimplTypesScope) tscope.deserialize(json, StringFormat.JSON);
 //    SimplTypesScope newTscope = (SimplTypesScope) tscope.deserialize(testScopeFile, Format.JSON);
     assertNotNull(newTscope);
-    assertNotNull(newTscope.classDescriptors.by.SimplName.get("FieldDescriptor"));
-    assertNotNull(newTscope.classDescriptors.by.SimplName.get("ClassDescriptor"));
-    assertNotNull(newTscope.classDescriptors.by.SimplName.get("SimplTypesScope"));
+    assertNotNull(newTscope.classDescriptors.by("simplename").get("FieldDescriptor"));
+    assertNotNull(newTscope.classDescriptors.by("simplename").get("ClassDescriptor"));
+    assertNotNull(newTscope.classDescriptors.by("simplename").get("SimplTypesScope"));
   }
 
 

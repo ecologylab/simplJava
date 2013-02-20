@@ -23,6 +23,25 @@ public class ClassDescriptorIndexer extends MultiIndexer<ClassDescriptor> {
 		
 	}
 	
+	class bySimpleName extends ItemIndexPredicate<ClassDescriptor>
+	{
+
+		@Override
+		public String GetIndexIdentifier() {
+			// TODO Auto-generated method stub
+			return "simplename";
+		}
+
+		@Override
+		public String ObtainIndex(ClassDescriptor item) {
+			// TODO Auto-generated method stub
+			return item.getSimpleName();
+		}
+		
+	}
+	
+	
+	
 	public IndexingShortcut by;
 	
 	public ClassDescriptorIndexer()
@@ -30,6 +49,8 @@ public class ClassDescriptorIndexer extends MultiIndexer<ClassDescriptor> {
 		super();
 		this.by = new IndexingShortcut(this);
 	}
+	
+	
 	
 	public List<ItemIndexPredicate<ClassDescriptor>> getIndexPredicates() {
 		List<ItemIndexPredicate<ClassDescriptor>> ourList = new LinkedList<ItemIndexPredicate<ClassDescriptor>>();

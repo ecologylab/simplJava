@@ -81,7 +81,7 @@ public class fieldDescriptorConstruction {
 		FieldDescriptor myDescriptor = FieldDescriptors.getFieldDescriptor(field, dependentClasses);
 		
 		assertTrue(dependentClasses.isEmpty());
-		assertEquals("Should be scalar", FieldType.SCALAR, myDescriptor.getFieldType());
+		assertEquals("Should be scalar", FieldType.SCALAR, myDescriptor.getType());
 		assertEquals("Should be myScalarField", "myScalarField", myDescriptor.getName());
 	}
 	
@@ -101,7 +101,7 @@ public class fieldDescriptorConstruction {
 		
 		FieldDescriptor myDescriptor = FieldDescriptors.getFieldDescriptor(field, dependentClasses);
 						
-		assertEquals("Should be composite", FieldType.COMPOSITE_ELEMENT, myDescriptor.getFieldType());
+		assertEquals("Should be composite", FieldType.COMPOSITE_ELEMENT, myDescriptor.getType());
 		assertEquals("Should be myComposite", "myComposite", myDescriptor.getName());
 	}
 }

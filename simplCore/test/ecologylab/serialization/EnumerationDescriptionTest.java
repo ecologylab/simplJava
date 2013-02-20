@@ -23,13 +23,13 @@ public class EnumerationDescriptionTest {
 	public void descriptionForBasicEnumerationsWorks() throws SIMPLDescriptionException {
 		EnumerationDescriptor ed = EnumerationDescriptor.get(primaryScenarioEnum.class);
 	   
-		assertTrue("There is no information about this enum", ed.metaInfo.isEmpty());
-		assertTrue("There are no other tags for this enum", ed.otherTags.isEmpty());
+		assertTrue("There is no information about this enum", ed.metainfo.isEmpty());
+		assertTrue("There are no other tags for this enum", ed.otherTags().isEmpty());
 		
 		// TODO FIXME
 		//assertEquals("The packageName must be correct" , primaryScenarioEnum.class.getPackage().getName(), ed.getPackageName());
 		assertEquals("The javaName must be correct", primaryScenarioEnum.class.getName(), ed.getJavaTypeName());
-		assertEquals("The Simpl name must be correct", "primaryScenarioEnum", ed.getName());
+		assertEquals("The Simpl name must be correct", "primaryScenarioEnum", ed.getSimpleName());
 		
 		assertEquals("There should be three entries for this enum", 3, ed.getEnumerationEntries().size());
 		
@@ -58,7 +58,7 @@ public class EnumerationDescriptionTest {
 		// TODO: FIX ME 
 		//assertEquals("The packageName must be correct" , enumClass.getPackage().getName(), ed.getPackageName());
 		assertEquals("The javaName must be correct", enumClass.getName(), ed.getJavaTypeName());
-		assertEquals("The Simpl name must be correct", enumClass.getSimpleName(), ed.getName());
+		assertEquals("The Simpl name must be correct", enumClass.getSimpleName(), ed.getSimpleName());
 		
 		assertEquals("There should be three entries for this enum", 3, ed.getEnumerationEntries().size());
 		

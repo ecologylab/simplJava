@@ -13,6 +13,7 @@ import simpl.annotations.dbal.simpl_scalar;
 import simpl.annotations.dbal.simpl_tag;
 import simpl.core.ElementState;
 import simpl.core.TranslationContext;
+import simpl.deserialization.ISimplDeserializationHooks;
 import simpl.exceptions.SIMPLTranslationException;
 import simpl.types.ScalarType;
 
@@ -26,7 +27,7 @@ import ecologylab.collections.Scope;
  */
 
 @simpl_inherit
-public abstract class MetaPref<T> extends ElementState implements WidgetTypes
+public abstract class MetaPref<T> extends ElementState implements WidgetTypes, ISimplDeserializationHooks
 {
 	/** The global registry of Pref objects. Used for providing lookup services. */
 	static final Scope<MetaPref>							allMetaPrefsMap	= new Scope<MetaPref>();
@@ -514,10 +515,17 @@ public abstract class MetaPref<T> extends ElementState implements WidgetTypes
 			weird("parent of metaPref should be MetaPrefSet.");
 		}
 	}
+	
+	@Override
+	public void deserializationInHook(TranslationContext translationContext) {
+		// TODO Auto-generated method stub
+		
+	}
 
-	/*
-	 * public boolean isWithinRange(T newValue) { return (range == null) ? true :
-	 * range.isWithinRange(newValue); }
-	 */
-
+	@Override
+	public void deserializationPreHook(TranslationContext translationContext) {
+		// TODO Auto-generated method stub
+		
+	}
+	
 }
