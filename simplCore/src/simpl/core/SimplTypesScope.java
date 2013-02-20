@@ -186,7 +186,7 @@ public final class SimplTypesScope extends Debug implements ISimplDeserializatio
 		else
 		{
 			// Add a class!
-			IClassDescriptor entry = ClassDescriptors.getClassDescriptor(classObj);
+			ClassDescriptor entry = ClassDescriptors.getClassDescriptor(classObj);
 			this.classDescriptors.Insert(entry);
 		}
 	}
@@ -220,7 +220,7 @@ public final class SimplTypesScope extends Debug implements ISimplDeserializatio
 		
 		ClassDescriptor corresp = entriesByTag.get(tagName);
 		
-		return corresp != null? corresp.getDescribedClass() : dummyObj;
+		return corresp != null? corresp.getJavaClass() : dummyObj;
 	}
 	
 	/**
@@ -375,7 +375,7 @@ public final class SimplTypesScope extends Debug implements ISimplDeserializatio
 
 	@Override
 	public ClassDescriptor getClassDescriptorByTag(String tag) {
-		return this.classDescriptors.by.TagName.get(tag);
+		return this.classDescriptors.by("tagname").get(tag);
 	}
 
 	@Override

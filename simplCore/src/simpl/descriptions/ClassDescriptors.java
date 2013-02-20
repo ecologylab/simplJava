@@ -5,7 +5,6 @@ import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -15,70 +14,6 @@ import simpl.annotations.dbal.simpl_use_equals_equals;
 
 public class ClassDescriptors {
 
-	/**
-	 * This class holds a collection of callbacks to update class descriptor references.
-	 * Allows us to avoid recursing beyond a single level...
-	 * Makes things a bit more verbose at spots, but also cleans up a lot of danging logic from the past. 
-	 *
-	 */
-	private class UpdateMap
-	{		
-		Map<Class<?>, Collection<UpdateClassDescriptorCallback>> ourMap;
-		
-		public UpdateMap()
-		{
-			ourMap = new HashMap<Class<?>, Collection<UpdateClassDescriptorCallback>>();
-		}
-		
-		public void insertUCDs(Collection<UpdateClassDescriptorCallback> collection)
-		{
-			this._insertUCDs(ourMap, collection);
-		}
-		
-		public void insertUDC(UpdateClassDescriptorCallback callback)
-		{
-			this._insertUCD(ourMap, callback);
-		}
-		
-		public boolean isEmpty()
-		{
-			return ourMap.keySet().isEmpty();
-		}
-		
-		public void resolveUpdates(Class<?> someClass, ClassDescriptor descriptor)
-		{
-			for(UpdateClassDescriptorCallback ucd : ourMap.get(someClass))
-			{
-				ucd.updateWithCD(descriptor);
-			}
-			
-			ourMap.remove(someClass);
-		}
-		
-		public Collection<Class<?>> getClassesPendingUpdate()
-		{
-			return ourMap.keySet();
-		}
-		
-		private void _insertUCDs(Map<Class<?>, Collection<UpdateClassDescriptorCallback>> ourMap, Collection<UpdateClassDescriptorCallback> ucds)
-		{
-			for(UpdateClassDescriptorCallback ucd : ucds)
-			{
-				_insertUCD(ourMap, ucd);
-			}
-		}
-		
-		private void _insertUCD(Map<Class<?>, Collection<UpdateClassDescriptorCallback>> ourMap, UpdateClassDescriptorCallback ucd)
-		{
-			if(!ourMap.containsKey(ucd.getClassToUpdate()))
-			{
-				ourMap.put(ucd.getClassToUpdate(), new LinkedList<UpdateClassDescriptorCallback>());
-			}
-			ourMap.get(ucd.getClassToUpdate()).add(ucd);
-		}
-		
-	}
-	
 	/**
 	 * A cache of all field descriptors. 
 	 */
@@ -123,7 +58,7 @@ public class ClassDescriptors {
 			return descriptors.get(aClass.getName());
 		}
 		
-		UpdateMap ourMap = new ClassDescriptors().new UpdateMap();
+		ClassDescriptorCallbackMap ourMap = new ClassDescriptorCallbackMap();
 		
 		ClassDescriptor icd = get(aClass, ourMap); // get the CD for the first class.
 		
@@ -147,7 +82,7 @@ public class ClassDescriptors {
 		return aClass.isAnnotationPresent(simpl_inherit.class);
 	}
 		
-	private static ClassDescriptor get(Class<?> aClass, UpdateMap updates)
+	private static ClassDescriptor get(Class<?> aClass, ClassDescriptorCallbackMap updates)
 	{
 		if(containsCD(aClass))
 		{

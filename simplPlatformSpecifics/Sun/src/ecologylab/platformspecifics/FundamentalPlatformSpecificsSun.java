@@ -48,7 +48,7 @@ public class FundamentalPlatformSpecificsSun implements ISimplPlatformSpecifics
 	// in ecologylab.serialization.ClassDescriptor;
 	public void deriveSuperClassGenericTypeVars(ClassDescriptor classDescriptor)
 	{
-		Class<?> describedClass = classDescriptor.getDescribedClass();
+		Class<?> describedClass = null;// = classDescriptor.getDescribedClass();
 		// ArrayList<GenericTypeVar> superClassGenericTypeVars =
 		// classDescriptor.getSuperClassGenericTypeVars();
 
@@ -60,7 +60,7 @@ public class FundamentalPlatformSpecificsSun implements ISimplPlatformSpecifics
 		if (superClassType instanceof ParameterizedType)
 		{
 			ParameterizedType superClassParameterizedType = (ParameterizedType) superClassType;
-			classDescriptor.setSuperClassGenericTypeVars(getGenericTypeVars(superClassParameterizedType, classDescriptor.getGenericTypeVars()));
+		//	classDescriptor.setSuperClassGenericTypeVars(getGenericTypeVars(superClassParameterizedType, classDescriptor.getGenericTypeVars()));
 		}
 	}
 
@@ -74,7 +74,7 @@ public class FundamentalPlatformSpecificsSun implements ISimplPlatformSpecifics
 		if (genericType instanceof TypeVariable)
 		{
 			TypeVariable tv = (TypeVariable) genericType;
-			GenericTypeVar g = GenericTypeVar.getGenericTypeVarRef(tv, fieldDescriptor.getGenericTypeVarsContext());
+			GenericTypeVar g = GenericTypeVar.getGenericTypeVarRef(tv,null);//fieldDescriptor.getGenericTypeVarsContext());
 			derivedGenericTypeVars.add(g);
 		}
 		else if (genericType instanceof ParameterizedType)
@@ -88,12 +88,12 @@ public class FundamentalPlatformSpecificsSun implements ISimplPlatformSpecifics
 
 			for (Type t : types)
 			{
-				GenericTypeVar g = GenericTypeVar.getGenericTypeVarRef(t, fieldDescriptor.getGenericTypeVarsContext());
-				derivedGenericTypeVars.add(g);
+				//GenericTypeVar g = GenericTypeVar.getGenericTypeVarRef(t, fieldDescriptor.getGenericTypeVarsContext());
+				//derivedGenericTypeVars.add(g);
 			}
 		}
 		
-		fieldDescriptor.setGenericTypeVars(derivedGenericTypeVars);
+	//	fieldDescriptor.setGenericTypeVars(derivedGenericTypeVars);
 	};
 
 	public Class<?> getTypeArgClass(Field field, int i, FieldDescriptor fiedlDescriptor)

@@ -8,7 +8,7 @@ import simpl.interpretation.SimplInterpreter;
 public class XmlSerializer {
 
 	public String testInterps(Object obj)
-	{
+	{/*
 		SimplInterpreter si = new SimplInterpreter();
 		
 		StringBuilder sb = new StringBuilder();
@@ -36,5 +36,7 @@ public class XmlSerializer {
 		}
 		sb.append(" />");
 		return sb.toString();
+		*/
+		return "";
 	}
 }

@@ -135,8 +135,9 @@ public class TranslationContext extends Debug implements ScalarUnmarshallingCont
 			ClassDescriptors.getClassDescriptor(elementState.getClass());
 
 			// TODO
-			ArrayList<? extends FieldDescriptor> elementFieldDescriptors;// = ClassDescriptors.getClassDescriptor(elementState);
+			ArrayList<? extends FieldDescriptor> elementFieldDescriptors = new ArrayList<FieldDescriptor>();// = ClassDescriptors.getClassDescriptor(elementState);
 
+			
 			for (FieldDescriptor elementFieldDescriptor : elementFieldDescriptors)
 			{
 				Object thatReferenceObject = null;

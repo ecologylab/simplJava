@@ -90,7 +90,7 @@ public class EnumDescriptionDeSerializationTest {
 		
 	//	assertEquals("The packageName must be correct" , enumClass.getPackage().getName(), ed.getPackageName());
 		assertEquals("The javaName must be correct", enumClass.getName(), ed.getJavaTypeName());
-		assertEquals("The Simpl name must be correct", enumClass.getSimpleName(), ed.getName());
+		assertEquals("The Simpl name must be correct", enumClass.getSimpleName(), ed.getSimpleName());
 		
 		assertEquals("There should be three entries for this enum", 3, ed.getEnumerationEntries().size());
 		

@@ -20,7 +20,7 @@ public class ScalarInterpretation implements SimplInterpretation{
 		return fieldName + "=["+ fieldValue + "]";
 	}
 	
-	public void resolve(Object context) throws SIMPLTranslationException
+	public void resolve(Object context, SimplRefCallbackMap updateMap, UnderstandingContext understandingContext) throws SIMPLTranslationException
 	{
 		ClassDescriptor cd = ClassDescriptors.getClassDescriptor(context.getClass());
 		FieldDescriptor fd = cd.fields().by("name").get(this.fieldName);

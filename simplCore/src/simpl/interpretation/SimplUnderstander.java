@@ -17,7 +17,7 @@ public class SimplUnderstander {
 		
 		for(SimplInterpretation interp : interps)
 		{
-			interp.resolve(ourObject);
+		//	interp.resolve(ourObject);
 		}
 		
 		return ourObject;

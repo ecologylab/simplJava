@@ -192,5 +192,17 @@ ISimplDeserializationHooks
 		this.strictGraph = value;
 	}
 
+	@Override
+	public Object getScalarTextFD() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public boolean hasScalarFD() {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
 
 }

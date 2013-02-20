@@ -8,6 +8,7 @@ import simpl.interpretation.SimplInterpreter;
 public class JsonSerializer {
 	public String testInterps(Object obj)
 	{
+		/*
 		SimplInterpreter si = new SimplInterpreter();
 		
 		StringBuilder sb = new StringBuilder();
@@ -31,6 +32,7 @@ public class JsonSerializer {
 			num++;
 		}
 		sb.append("}");
-		return sb.toString();
+		return sb.toString();*/
+		return ""; 
 	}
 }

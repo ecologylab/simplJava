@@ -9,10 +9,12 @@ import simpl.descriptions.FieldDescriptor;
 
 public class SimplInterpreter {
 
-	public List<ScalarInterpretation> interpretInstance(Object obj)
+	public List<SimplInterpretation> interpretInstance(Object obj)
 	{
+		/*
+	}
 		
-		//ClassDescriptor<?> cd = ClassDescriptors.getClassDescriptor(obj.getClass());
+		ClassDescriptor cd = ClassDescriptors.getClassDescriptor(obj.getClass());
 		/*
 		for(FieldDescriptor fd : cd.allFieldDescriptors())
 		{
@@ -21,15 +23,27 @@ public class SimplInterpreter {
 		
 		System.out.println(cd.fieldDescriptors.Scalars.size());
 		
-		List<ScalarInterpretation> interps = new LinkedList<ScalarInterpretation>();
-
+	
 		for(FieldDescriptor fd : cd.fieldDescriptors.Scalars)
+		{
+		}
+		
+		return interps;	
+	
+		List<SimplInterpretation> interps = new LinkedList<SimplInterpretation>();
+		
+		
+		for(FieldDescriptor fd : cd.fields().Scalars)
 		{
 			ScalarInterpretation si = new ScalarInterpretation(fd.getName(), fd.getValue(obj).toString());
 			interps.add(si);
 		}
 		
-		return interps;	*/
+		for(FieldDescriptor fd : cd.fields().Composites)
+		{
+			CompositeInterpretation cd = new CompositeInterpretation()
+		}
+*/		
 		return null;
 		
 	}

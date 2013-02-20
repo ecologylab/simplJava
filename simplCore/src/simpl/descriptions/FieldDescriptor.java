@@ -78,4 +78,7 @@ public interface FieldDescriptor extends IMetaInformationProvider {
 
 	boolean isCollectionTag(String tagName);
 	
+	void setValue(Object context, Object value);
+	
+	
 }

@@ -190,4 +190,22 @@ public class FieldDescriptorImpl implements FieldDescriptor {
 		return false;//TODO IMPL
 	}
 
+	@Override
+	public Object getWrappedFD() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public boolean isCollectionTag(String tagName) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public void setValue(Object context, Object value) {
+		// TODO Auto-generated method stub
+		
+	}
+	
 }
