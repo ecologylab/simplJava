@@ -14,11 +14,6 @@ import simpl.exceptions.SIMPLTranslationException;
 import simpl.formats.enums.BinaryFormat;
 import simpl.formats.enums.Format;
 import simpl.formats.enums.StringFormat;
-import simpl.serialization.binaryformats.TLVSerializer;
-import simpl.serialization.stringformats.BibtexSerializer;
-import simpl.serialization.stringformats.JSONSerializer;
-import simpl.serialization.stringformats.StringSerializer;
-import simpl.serialization.stringformats.XMLSerializer;
 
 
 /**
@@ -123,14 +118,7 @@ public abstract class FormatSerializer
 	{
 		switch (format)
 		{
-		case XML:
-			return new XMLSerializer();
-		case JSON:
-			return new JSONSerializer();
-		case TLV:
-			return new TLVSerializer();
-		case BIBTEX:
-			return new BibtexSerializer();
+		
 		default:
 			throw new SIMPLTranslationException(format + " format not supported");
 		}
@@ -143,17 +131,12 @@ public abstract class FormatSerializer
 	 * @return FormatSerializer
 	 * @throws SIMPLTranslationException
 	 */
-	public static StringSerializer getStringSerializer(StringFormat format)
+	public static Object getStringSerializer(StringFormat format)
 			throws SIMPLTranslationException
 	{
 		switch (format)
 		{
-		case XML:
-			return new XMLSerializer();
-		case JSON:
-			return new JSONSerializer();
-		case BIBTEX:
-			return new BibtexSerializer();
+
 		default:
 			throw new SIMPLTranslationException(format + " format not supported");
 		}
@@ -166,13 +149,11 @@ public abstract class FormatSerializer
 	 * @return FormatSerializer
 	 * @throws SIMPLTranslationException
 	 */
-	public static FormatSerializer getBinarySerializer(BinaryFormat format)
+	public static Object getBinarySerializer(BinaryFormat format)
 			throws SIMPLTranslationException
 	{
 		switch (format)
 		{
-		case TLV:
-			return new TLVSerializer();
 		default:
 			throw new SIMPLTranslationException(format + " format not supported");
 		}
