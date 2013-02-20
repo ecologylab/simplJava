@@ -18,6 +18,11 @@ public class UnderstandingContext {
 		this.graphObjects.put(ID, obj);
 	}
 	
+	public void updateID(String ID, Object obj)
+	{
+		this.graphObjects.put(ID, obj);
+	}
+	
 	public boolean isIDRegistered(String ID)
 	{
 		return this.graphObjects.containsKey(ID);

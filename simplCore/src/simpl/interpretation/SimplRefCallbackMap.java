@@ -31,6 +31,7 @@ public class SimplRefCallbackMap {
 		{
 			ourMap.put(callback.getID(), new LinkedList<UpdateSimplRefCallback>());
 		}
+		size++;
 		ourMap.get(callback.getID()).add(callback);
 	}
 	
@@ -44,8 +45,9 @@ public class SimplRefCallbackMap {
 		for(UpdateSimplRefCallback ucd : ourMap.get(someRef))
 		{
 			ucd.resolveUpdate(composite);
+			size--;
 		}
-		
+
 		ourMap.remove(someRef);
 	}
 	
@@ -54,17 +56,10 @@ public class SimplRefCallbackMap {
 		return ourMap.keySet();
 	}
 	
-	private void _insertUCDs(Map<Class<?>, Collection<UpdateClassDescriptorCallback>> ourMap, Collection<UpdateClassDescriptorCallback> ucds)
-	{
-		for(UpdateClassDescriptorCallback ucd : ucds)
-		{
-			_insertUCD(ourMap, ucd);
-		}
-	}
-	
-	private void _insertUCD(Map<Class<?>, Collection<UpdateClassDescriptorCallback>> ourMap, UpdateClassDescriptorCallback ucd)
-	{
+	int size = 0;
 
+	public int size()
+	{
+		return size;
 	}
-	
 }
