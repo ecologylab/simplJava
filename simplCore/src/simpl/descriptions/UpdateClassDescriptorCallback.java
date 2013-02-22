@@ -1,6 +1,6 @@
 package simpl.descriptions;
 
-public interface UpdateClassDescriptorCallback {
-	Class<?> getClassToUpdate();
-	void updateWithCD(ClassDescriptor icd);
+import simpl.interpretation.IUpdateCallback;
+
+public interface UpdateClassDescriptorCallback extends IUpdateCallback<Class<?>, ClassDescriptor>{
 }

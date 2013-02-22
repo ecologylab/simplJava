@@ -6,6 +6,7 @@ import java.util.Collection;
 import java.util.LinkedList;
 
 import simpl.annotations.dbal.simpl_scalar;
+import simpl.types.ListType;
 import simpl.types.ScalarType;
 
 public class FieldDescriptorImpl implements FieldDescriptor {
@@ -206,6 +207,19 @@ public class FieldDescriptorImpl implements FieldDescriptor {
 	public void setValue(Object context, Object value) {
 		// TODO Auto-generated method stub
 		
+	}
+	
+	ListType ourListType;
+
+	public void setListType(ListType listType)
+	{
+		this.ourListType = listType;
+	}
+	
+	@Override
+	public ListType getListType() {
+		// TODO Auto-generated method stub
+		return this.ourListType;
 	}
 	
 }

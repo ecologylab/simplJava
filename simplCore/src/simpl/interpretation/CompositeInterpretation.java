@@ -125,7 +125,7 @@ public class CompositeInterpretation implements SimplInterpretation{
 				callbackMap.insertCallback(new UpdateSimplRefCallback() {
 
 					@Override
-					public void resolveUpdate(Object referencedComposite) {
+					public void runUpdateCallback(Object referencedComposite) {
 						set(finalobject,referencedComposite);
 					}
 
@@ -135,7 +135,7 @@ public class CompositeInterpretation implements SimplInterpretation{
 					}
 
 					@Override
-					public String getID() {
+					public String getUpdateKey() {
 						// TODO Auto-generated method stub
 						return refID;
 					}
@@ -148,12 +148,12 @@ public class CompositeInterpretation implements SimplInterpretation{
 					callbackMap.insertCallback(new UpdateSimplRefCallback() {
 						
 						@Override
-						public void resolveUpdate(Object referencedComposite) {
+						public void runUpdateCallback(Object referencedComposite) {
 							updateObject(finalContext, referencedComposite);
 						}
 						
 						@Override
-						public String getID() {
+						public String getUpdateKey() {
 							// TODO Auto-generated method stub
 							return refID;
 						}

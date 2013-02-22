@@ -91,13 +91,13 @@ public class FieldDescriptors {
 				classAccumulator.add(new UpdateClassDescriptorCallback() {
 					
 					@Override
-					public Class<?> getClassToUpdate() {
+					public Class<?> getUpdateKey() {
 						// TODO Auto-generated method stub
 						return classToUpdate;
 					}
 					
 					@Override
-					public void updateWithCD(ClassDescriptor icd) {
+					public void runUpdateCallback(ClassDescriptor icd) {
 						nfd.setFieldClassDescriptor(icd);
 					}
 				});
@@ -135,12 +135,12 @@ public class FieldDescriptors {
 						classAccumulator.add(new UpdateClassDescriptorCallback() {
 							
 							@Override
-							public void updateWithCD(ClassDescriptor icd) {
+							public void runUpdateCallback(ClassDescriptor icd) {
 								nfd.addPolymoprhicFieldDescriptor(icd);
 							}
 							
 							@Override
-							public Class<?> getClassToUpdate() {
+							public Class<?> getUpdateKey() {
 								return polymorphToUpdate;
 							}
 						});

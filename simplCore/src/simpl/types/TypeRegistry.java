@@ -20,27 +20,10 @@ import ecologylab.generic.Debug;
  * declarations do not know about these Types, only about the underlying Java types.
  */
 public class TypeRegistry
-{	
-	/*
-	/**
-	 * These are by Java full name.
-	 *//*
-	private final 	HashMap<String, ST>	typesByJavaName 			= new HashMap<String, ST>();
-	
-	private final 	HashMap<String, ST>	typesByCrossPlatformName 			= new HashMap<String, ST>();
-	
-	private final		HashMap<String, ST>	typesBySimpleName			= new HashMap<String, ST>();
-	
-	private final 	HashMap<String, ST>	typesByCSharpName 		= new HashMap<String, ST>();
-	
-	private final		HashMap<String, ST>	typesByObjectiveCName	= new HashMap<String, ST>();
-	
-	private final		HashMap<String, ST>	typesByDbName					= new HashMap<String, ST>();
-	
-	*/
+{
 	
 	public ScalarTypeIndexer scalarTypes;
-	
+		
 	public TypeRegistry()
 	{
 		this.scalarTypes = new ScalarTypeIndexer();
@@ -90,7 +73,6 @@ public class TypeRegistry
 	{
 		return staticRegistry.scalarTypes.get(thatClass);
 	}
-
 
 	public static boolean containsScalarTypeFor(Class<?> collectionElementClass) {
 		// TODO Auto-generated method stub

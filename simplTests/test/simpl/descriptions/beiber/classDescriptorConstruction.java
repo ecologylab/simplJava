@@ -176,6 +176,27 @@ public class classDescriptorConstruction {
 	}
 	
 	
+	class myListClass
+	{
+		
+	}
+	
+	class myCompositeListClass
+	{
+		
+	}
+	
+	class myEnumerationListClass
+	{
+		
+	}
+	
+	@Test
+	public void TestListDescribesWithListType() throws Exception
+	{
+		ClassDescriptors.__ClearClassDescriptorCache();
+		
+	}
 	
 	
 	

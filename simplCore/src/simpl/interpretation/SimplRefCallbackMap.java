@@ -8,58 +8,14 @@ import java.util.Map;
 import simpl.descriptions.ClassDescriptor;
 import simpl.descriptions.UpdateClassDescriptorCallback;
 
-public class SimplRefCallbackMap {
+/**
+ * A collection of callbacks used to handle updating of values in object resolution.
+ * An UpdateSimplRefCallback is called to set the value of a given object reference to some other value.
+ * Sorted by the corresponding ref / ID
+ * @author tom
+ *
+ */
+public class SimplRefCallbackMap extends UpdateCallbackMap<String, UpdateSimplRefCallback, Object>{
 	
-	Map<String, Collection<UpdateSimplRefCallback>> ourMap;
 	
-	public SimplRefCallbackMap()
-	{
-		ourMap = new HashMap<String, Collection<UpdateSimplRefCallback>>();
-	}
-	
-	public void insertCallbacks(Collection<UpdateSimplRefCallback> collection)
-	{
-		for(UpdateSimplRefCallback ucd : collection)
-		{
-			this.insertCallback(ucd);
-		}
-	}
-	
-	public void insertCallback(UpdateSimplRefCallback callback)
-	{
-		if(!ourMap.containsKey(callback.getID()))
-		{
-			ourMap.put(callback.getID(), new LinkedList<UpdateSimplRefCallback>());
-		}
-		size++;
-		ourMap.get(callback.getID()).add(callback);
-	}
-	
-	public boolean isEmpty()
-	{
-		return ourMap.keySet().isEmpty();
-	}
-	
-	public void resolveUpdates(String someRef, Object composite)
-	{
-		for(UpdateSimplRefCallback ucd : ourMap.get(someRef))
-		{
-			ucd.resolveUpdate(composite);
-			size--;
-		}
-
-		ourMap.remove(someRef);
-	}
-	
-	public Collection<String> getRefsPendingUpdate()
-	{
-		return ourMap.keySet();
-	}
-	
-	int size = 0;
-
-	public int size()
-	{
-		return size;
-	}
 }

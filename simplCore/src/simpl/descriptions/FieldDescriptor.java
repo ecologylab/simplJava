@@ -3,6 +3,7 @@ package simpl.descriptions;
 import java.lang.reflect.Field;
 import java.util.Collection;
 
+import simpl.types.ListType;
 import simpl.types.ScalarType;
 
 
@@ -48,6 +49,8 @@ public interface FieldDescriptor extends IMetaInformationProvider {
 	
 	
 	ScalarType getScalarType();
+	
+	ListType getListType();
 	
 	/**
 	 * Gets the name of this field

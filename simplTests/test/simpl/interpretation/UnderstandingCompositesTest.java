@@ -7,6 +7,9 @@ import java.util.List;
 
 import org.junit.Test;
 
+import ecologylab.serialization.primaryScenarioEnum;
+import ecologylab.serialization.secondaryScenarioEnum;
+
 import simpl.descriptions.ClassDescriptors;
 import simpl.exceptions.SIMPLTranslationException;
 
@@ -34,6 +37,20 @@ public class UnderstandingCompositesTest {
 		assertEquals(new Double(1.3), r.aDouble);
 		assertEquals(new Integer(13), r.aInteger);
 		assertEquals("string", r.aField);	
+	}
+	
+	@Test
+	public void testUnderstandingOfEnumerations()
+	{
+		myEnumerations orig = new myEnumerations();
+		orig.myString = "string";
+		orig.primaryEnum = primaryScenarioEnum.firstValue;
+		orig.secondaryEnum = secondaryScenarioEnum.secondValue;
+		orig.secondaryEnumInts = secondaryScenarioEnum.thirdValue;
+		
+		List<SimplInterpretation> interps = new LinkedList<SimplInterpretation>();
+
+		fail("Implement this test");		
 	}
 
 	@Test
@@ -141,6 +158,15 @@ public class UnderstandingCompositesTest {
 		assertEquals("string", r.aField);
 	}
 	
+	@Test
+	public void testUnderstandingWorksWithNestedComposites()
+	{
+		
+	}
 	
-
+	@Test
+	public void testUnderstandingWorksWithCycles()
+	{
+		
+	}
 }

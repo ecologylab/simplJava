@@ -23,11 +23,11 @@ public class SimplUnderstander {
 			interp.resolve(ourObject, callbackMap, understandingContext);
 		}
 		
-			for(String ref : callbackMap.getRefsPendingUpdate())
+			for(String ref : callbackMap.getPendingUpdateKeys())
 			{
 				if(understandingContext.isIDRegistered(ref))
 				{
-					callbackMap.resolveUpdates(ref, understandingContext.getRegisteredObject(ref));
+					callbackMap.resolveCallbacks(ref, understandingContext.getRegisteredObject(ref));
 				}
 			}
 		

@@ -66,11 +66,11 @@ public class ClassDescriptors {
 		while(!ourMap.isEmpty())
 		{
 			// Pick the first class descriptor. 
-			Class<?> toUpdate = ourMap.getClassesPendingUpdate().iterator().next();
+			Class<?> toUpdate = ourMap.getPendingUpdateKeys().iterator().next();
 			// Get it...
 			ClassDescriptor innerCD = get(toUpdate, ourMap);
 			// Resolve all of the update callbacks for classes that needed this class descriptor.
-			ourMap.resolveUpdates(toUpdate, innerCD); //OurMap is smaller after this call.
+			ourMap.resolveCallbacks(toUpdate, innerCD); //OurMap is smaller after this call.
 		}
 			
 		// Return the class descriptor completely constructed. 
@@ -132,14 +132,14 @@ public class ClassDescriptors {
 				ncd.setSuperClassDescriptor(ClassDescriptors.getClassDescriptor(superClass));
 			}else{
 				// We'll use a callback to update the CD for the superclass whenever we have it. 
-				updates.insertUDC(new UpdateClassDescriptorCallback() {
+				updates.insertCallback(new UpdateClassDescriptorCallback() {
 					@Override
-					public Class<?> getClassToUpdate() {
+					public Class<?> getUpdateKey() {
 						return superClass;
 					}
 					
 					@Override
-					public void updateWithCD(ClassDescriptor icd) {
+					public void runUpdateCallback(ClassDescriptor icd) {
 						ncd.setSuperClassDescriptor(icd);
 					}
 				});
@@ -169,7 +169,7 @@ public class ClassDescriptors {
 				
 				if(!ucds.isEmpty())
 				{
-					updates.insertUCDs(ucds);
+					updates.insertCallbacks(ucds);
 				}
 				
 				ncd.addField(ifd);
