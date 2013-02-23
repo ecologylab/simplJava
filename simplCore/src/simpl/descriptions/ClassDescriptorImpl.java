@@ -68,7 +68,8 @@ ISimplDeserializationHooks
 	private List<FieldDescriptor> fields;
 	private ClassDescriptor superClassDescriptor;
 	private String nameSpace;
-	private String simpleName; 
+	private String simpleName;
+	private String tagName; 
 	
 	/**
 	 * Gets a class descriptor representing the superclass for this class; 
@@ -186,7 +187,7 @@ ISimplDeserializationHooks
 	@Override
 	public String getTagName() {
 		// TODO Auto-generated method stub
-		return null;
+		return this.tagName;
 	}
 
 	@Override
@@ -218,6 +219,11 @@ ISimplDeserializationHooks
 	public boolean hasScalarFD() {
 		// TODO Auto-generated method stub
 		return false;
+	}
+
+	public void setTagName(String tagName) {
+		// TODO Auto-generated method stub
+		this.tagName = tagName;
 	}
 
 

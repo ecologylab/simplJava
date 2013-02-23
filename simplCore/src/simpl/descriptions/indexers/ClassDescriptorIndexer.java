@@ -23,6 +23,23 @@ public class ClassDescriptorIndexer extends MultiIndexer<ClassDescriptor> {
 		
 	}
 	
+	class byTagName extends ItemIndexPredicate<ClassDescriptor>
+	{
+
+		@Override
+		public String GetIndexIdentifier() {
+			// TODO Auto-generated method stub
+			return "tagname";
+		}
+
+		@Override
+		public String ObtainIndex(ClassDescriptor item) {
+			// TODO Auto-generated method stub
+			return item.getTagName();
+		}
+		
+	}
+	
 	class bySimpleName extends ItemIndexPredicate<ClassDescriptor>
 	{
 
@@ -54,9 +71,8 @@ public class ClassDescriptorIndexer extends MultiIndexer<ClassDescriptor> {
 	
 	public List<ItemIndexPredicate<ClassDescriptor>> getIndexPredicates() {
 		List<ItemIndexPredicate<ClassDescriptor>> ourList = new LinkedList<ItemIndexPredicate<ClassDescriptor>>();
-		
-
-		
+		ourList.add(new bySimpleName());
+		ourList.add(new byTagName());
 		return ourList;
 	}
 

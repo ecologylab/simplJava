@@ -21,8 +21,15 @@ public abstract class MultiIndexer<IndexedObject> implements Iterable<IndexedObj
 	{		
 		Map<String, IndexedObject> ourMap;
 		
-		public InnerIndexer(Map<String, IndexedObject> theMap)
+		public InnerIndexer(MultiIndexer<IndexedObject> parentIndexer, String indexID)
 		{
+			
+				
+			Map<String, IndexedObject> theMap = parentIndexer.allmaps.get(indexID);
+			if(theMap == null)
+			{
+				throw new RuntimeException("Given map for inner indexer indexID {"+indexID+"} is null!");
+			}
 			this.ourMap = theMap;
 		}
 		
@@ -154,7 +161,7 @@ public abstract class MultiIndexer<IndexedObject> implements Iterable<IndexedObj
 	
 	public InnerIndexer<IndexedObject> by(String indexID)
 	{
-		return new InnerIndexer<IndexedObject>(this.allmaps.get(indexID));
+		return new InnerIndexer<IndexedObject>(this,indexID);
 	}
 	
 	protected InnerIndexer<IndexedObject> by(ItemIndexPredicate<IndexedObject> predicate)

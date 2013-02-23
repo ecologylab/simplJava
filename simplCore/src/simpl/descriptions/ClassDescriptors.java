@@ -11,6 +11,7 @@ import java.util.Map;
 import simpl.annotations.dbal.simpl_inherit;
 import simpl.annotations.dbal.simpl_other_tags;
 import simpl.annotations.dbal.simpl_use_equals_equals;
+import simpl.tools.XMLTools;
 
 public class ClassDescriptors {
 
@@ -98,6 +99,9 @@ public class ClassDescriptors {
 		ncd.setName(aClass.getName());
 		ncd.setSimpleName(aClass.getSimpleName());
 		ncd.setNamespace(aClass.getPackage().toString());
+		
+		
+		ncd.setTagName(XMLTools.getXmlTagName(aClass, ""));
 		
 		descriptors.put(aClass.getName(), ncd);
 		
