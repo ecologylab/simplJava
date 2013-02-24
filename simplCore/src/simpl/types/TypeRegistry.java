@@ -7,6 +7,7 @@ import java.util.Map;
 
 import simpl.descriptions.FieldCategorizer;
 import simpl.platformspecifics.SimplPlatformSpecifics;
+import simpl.types.ScalarTypeIndexer.InnerIndexingShortcut;
 
 import ecologylab.generic.Debug;
 
@@ -29,6 +30,9 @@ public class TypeRegistry
 		this.scalarTypes = new ScalarTypeIndexer();
 	}
 	
+	
+	public static InnerIndexingShortcut by;
+	
 	static
 	{
 		init();
@@ -47,7 +51,7 @@ public class TypeRegistry
 		if (!init)
 		{
 			staticRegistry = new TypeRegistry();
-			
+
 			new FundamentalTypes();
 			
 			SimplPlatformSpecifics.get().initializePlatformSpecificTypes();
@@ -77,5 +81,10 @@ public class TypeRegistry
 	public static boolean containsScalarTypeFor(Class<?> collectionElementClass) {
 		// TODO Auto-generated method stub
 		return staticRegistry.scalarTypes.contains(collectionElementClass);
+	}
+	
+	public static ScalarType getScalarType(String tagName)
+	{
+		return staticRegistry.scalarTypes.by.scalarTypeName.get(tagName);
 	}
 }

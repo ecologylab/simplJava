@@ -13,8 +13,18 @@ public class CompositeInterpretation implements SimplInterpretation{
 
 	public String refString; 
 	public String idString;
-	
 	public String fieldName;
+	public String tagName;
+	
+	public String getTagName()
+	{
+		return this.tagName;
+	}
+	
+	public void setTagName(String s)
+	{
+		this.tagName = s;
+	}
 	
 	public String getFieldName()
 	{
@@ -69,13 +79,33 @@ public class CompositeInterpretation implements SimplInterpretation{
 		return getValue(false, context, callbackMap, understandingContext);
 	}
 	
+	private ClassDescriptor getClassDescriptor(UnderstandingContext context) throws SIMPLTranslationException
+	{
+		if(this.tagName == null)
+		{
+			throw new SIMPLTranslationException("Null tag name!");
+		}
+		
+		ClassDescriptor cd =context.getClassDescriptor(this.tagName);
+		if(cd == null)
+		{
+			throw new SIMPLTranslationException("Class descriptor doesn't exist for tag name {" + this.tagName + "}! Did you initialize the type scope correctly? ");
+		}
+		
+		if(cd.getTagName().equals(this.tagName))
+		{
+			return cd;
+		}else{
+			throw new SIMPLTranslationException("Tag name somehow differs! This is a problem!");
+		}
+	}
+	
 	private Object getValue(boolean deferUpdateObject, Object context, SimplRefCallbackMap callbackMap, UnderstandingContext understandingContext) throws SIMPLTranslationException{
 		// TODO Auto-generated method stub
 		if(this.refString == null)
 		{
-			ClassDescriptor cd = ClassDescriptors.getClassDescriptor(context.getClass());
-			FieldDescriptor fd = cd.fields().by("name").get(this.fieldName);
-			ClassDescriptor compositeDescriptor = fd.getFieldClassDescriptor();
+
+			ClassDescriptor compositeDescriptor = getClassDescriptor(understandingContext);
 
 			Object compositeObj = compositeDescriptor.getInstance();
 			if(this.idString != null)

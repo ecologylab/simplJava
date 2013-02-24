@@ -48,7 +48,8 @@ public class ClassDescriptionConstruction {
 		FieldDescriptor myInt = myClass.allFieldDescriptors().get(0);
 		assertEquals("myInt is a scalar!", FieldType.SCALAR, myInt.getType());
 		assertEquals("myInt", myInt.getName());
-		assertEquals(int.class, myInt.getType());
+
+		
 		assertEquals(IntegerType.class, myInt.getScalarType().getClass());
 		
 		

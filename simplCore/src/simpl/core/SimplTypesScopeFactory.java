@@ -5,9 +5,14 @@ import java.util.List;
 
 import simpl.core.SimplTypesScopeFactory.STSTranslationsCompleted;
 import simpl.descriptions.ClassDescriptor;
+import simpl.types.TypeRegistry;
 
 public class SimplTypesScopeFactory {
 	
+	static
+	{
+		TypeRegistry.init();
+	}
 	/**
 	 * Represent the core data behind the factory process... pass it along
 	 * between the different methods so that the data can be used at create();

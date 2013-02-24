@@ -48,19 +48,8 @@ public class ListInterpretation implements SimplInterpretation {
 		
 		for(Object item : items)
 		{
-			reflectivelyAdd(context, item);
+		//	reflectivelyAdd(context, item);
 		}
-	
-	
-	}
-	
-	private void reflectivelyAdd(Object context, Object value)
-	{
-		ClassDescriptor cd = ClassDescriptors.getClassDescriptor(context.getClass());
-		FieldDescriptor fd = cd.fields().by("name").get(this.fieldName);
-		
-		
-	
 	}
 
 	@Override

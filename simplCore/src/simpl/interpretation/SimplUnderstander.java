@@ -3,19 +3,33 @@ package simpl.interpretation;
 import java.util.HashMap;
 import java.util.List;
 
+import simpl.core.ISimplTypesScope;
 import simpl.descriptions.ClassDescriptor;
 import simpl.descriptions.FieldDescriptor;
 import simpl.exceptions.SIMPLTranslationException;
 
 public class SimplUnderstander {
+
 	
+	private ISimplTypesScope scope;
 	
-	
-	public Object understandInterpretation(List<SimplInterpretation> interps, ClassDescriptor cd) throws SIMPLTranslationException
+	public SimplUnderstander(ISimplTypesScope contextScope)
 	{
-		Object ourObject = cd.getInstance();
+		this.scope = contextScope;
+	}
+	
+	public Object understandInterpretation(List<SimplInterpretation> interps, String tagName) throws SIMPLTranslationException
+	{
+		ClassDescriptor ourDescriptor = this.scope.getClassDescriptorByTag(tagName);
 		
-		UnderstandingContext understandingContext = new UnderstandingContext();
+		if(ourDescriptor == null)
+		{
+			throw new SIMPLTranslationException("Tag name {"+tagName+"} is not in the context type scope! Did you initialize your Simpl Types Scope correctly?");
+		}
+		
+		Object ourObject = ourDescriptor.getInstance();
+		
+		UnderstandingContext understandingContext = new UnderstandingContext(this.scope);
 		SimplRefCallbackMap callbackMap = new SimplRefCallbackMap();
 		
 		for(SimplInterpretation interp : interps)
@@ -23,13 +37,14 @@ public class SimplUnderstander {
 			interp.resolve(ourObject, callbackMap, understandingContext);
 		}
 		
-			for(String ref : callbackMap.getPendingUpdateKeys())
+		// TODO: add a dependency graph here, this will optimize the perf of unrolling the callbacks. 
+		for(String ref : callbackMap.getPendingUpdateKeys())
+		{
+			if(understandingContext.isIDRegistered(ref))
 			{
-				if(understandingContext.isIDRegistered(ref))
-				{
-					callbackMap.resolveCallbacks(ref, understandingContext.getRegisteredObject(ref));
-				}
+				callbackMap.resolveCallbacks(ref, understandingContext.getRegisteredObject(ref));
 			}
+		}
 		
 		if(!callbackMap.isEmpty())
 		{
@@ -39,8 +54,4 @@ public class SimplUnderstander {
 		return ourObject;
 	}
 	
-	public void resolveScalarInterpretation(Object object, ScalarInterpretation si)
-	{
-		
-	}
 }

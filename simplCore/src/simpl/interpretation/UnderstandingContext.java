@@ -3,12 +3,19 @@ package simpl.interpretation;
 import java.util.HashMap;
 import java.util.Map;
 
+import simpl.core.ISimplTypesScope;
+import simpl.descriptions.ClassDescriptor;
+import simpl.descriptions.EnumerationDescriptor;
+import simpl.exceptions.SIMPLTranslationException;
+
 public class UnderstandingContext {
 	
+	ISimplTypesScope contextScope; 
 	
-	public UnderstandingContext()
+	public UnderstandingContext(ISimplTypesScope scope)
 	{
-		graphObjects = new HashMap<String, Object>();
+		this.graphObjects = new HashMap<String, Object>();
+		this.contextScope = scope;
 	}
 	
 	Map<String, Object> graphObjects;
@@ -31,6 +38,26 @@ public class UnderstandingContext {
 	public Object getRegisteredObject(String ID)
 	{
 		return this.graphObjects.get(ID);
+	}
+	
+	public ClassDescriptor getClassDescriptor(String tagName) throws SIMPLTranslationException
+	{
+		ClassDescriptor desc = this.contextScope.getClassDescriptorByTag(tagName);
+		if(desc == null)
+		{
+			throw new SIMPLTranslationException("Tag name {"+tagName+"} is not in the context scope! Did you initialize your type scope correctly?");
+		}
+		return desc;
+	}
+	
+	public EnumerationDescriptor getEnumerationDescriptor(String tagName) throws SIMPLTranslationException
+	{
+		EnumerationDescriptor ed = this.contextScope.getEnumerationDescriptorByTag(tagName);
+		if(ed == null)
+		{
+			throw new SIMPLTranslationException("Tag name {"+tagName+"} is not in the context scope! Did you initialize your type scope correctly?");	
+		}
+		return ed;
 	}
 	
 }

@@ -9,6 +9,42 @@ import simpl.core.indexers.MultiIndexer;
 
 public class ScalarTypeIndexer extends MultiIndexer<ScalarType> {
 
+	public ScalarTypeIndexer()
+	{
+		super();
+		this.by = new InnerIndexingShortcut();
+	}
+	
+	final class byScalarTypeName extends ItemIndexPredicate<ScalarType>
+	{
+
+		@Override
+		public String GetIndexIdentifier() {
+			// TODO Auto-generated method stub
+			return "scalartypename";
+		}
+
+		@Override
+		public String ObtainIndex(ScalarType item) {
+			// TODO Auto-generated method stub
+			return item.getClass().getSimpleName();
+		}
+		
+	}
+	
+	public InnerIndexingShortcut by;
+	
+	public class InnerIndexingShortcut
+	{
+		public InnerIndexingShortcut()
+		{
+			this.scalarTypeName = by("scalartypename");
+		}
+		
+		public InnerIndexer<ScalarType> scalarTypeName;
+	}
+	
+	
 	final class byJavaClassName extends ItemIndexPredicate<ScalarType>
 	{
 		@Override
@@ -41,6 +77,7 @@ public class ScalarTypeIndexer extends MultiIndexer<ScalarType> {
 	public List<ItemIndexPredicate<ScalarType>> getIndexPredicates() {
 		List<ItemIndexPredicate<ScalarType>> ourList = new LinkedList<ItemIndexPredicate<ScalarType>>();
 		ourList.add(new byJavaClassName());
+		ourList.add(new byScalarTypeName());
 		return ourList;
 	}
 
