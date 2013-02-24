@@ -1,9 +1,11 @@
 package simpl.interpretation;
 
+import java.util.Set;
+
 import simpl.exceptions.SIMPLTranslationException;
 
 public interface SimplInterpretation {
-	void resolve(Object context, SimplRefCallbackMap callbackMap,
+	void resolve(Object context, Set<String> refSet,
 			UnderstandingContext understandingContext)
 			throws SIMPLTranslationException;
 	
@@ -12,6 +14,6 @@ public interface SimplInterpretation {
 	 * the requisite callbacks set up. This facilitates adding the object to lists / maps / etc. 
 	 * @throws SIMPLTranslationException 
 	 */
-	Object getValue(Object context, SimplRefCallbackMap callbackMap, UnderstandingContext understandingContext) throws SIMPLTranslationException;
+	Object getValue(Object context, Set<String> refSet, UnderstandingContext understandingContext) throws SIMPLTranslationException;
 	
 }

@@ -2,6 +2,7 @@ package simpl.interpretation;
 
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 
 import simpl.descriptions.ClassDescriptor;
 import simpl.descriptions.ClassDescriptors;
@@ -69,116 +70,95 @@ public class CompositeInterpretation implements SimplInterpretation{
 	}
 
 	@Override
-	public void resolve(Object context, SimplRefCallbackMap callbackMap, UnderstandingContext understandingContext) throws SIMPLTranslationException {
-		Object ourObject = getValue(true, context, callbackMap, understandingContext);
+	public void resolve(Object context, Set<String> refSet, UnderstandingContext understandingContext) throws SIMPLTranslationException {
+		Object ourObject = getValue(context, refSet, understandingContext);
+		updateObject(context, ourObject);
 	}
 	
 	@Override 
-	public Object getValue(Object context, SimplRefCallbackMap callbackMap, UnderstandingContext understandingContext) throws SIMPLTranslationException
+	public Object getValue(Object context, Set<String> refSet, UnderstandingContext understandingContext) throws SIMPLTranslationException
 	{
-		return getValue(false, context, callbackMap, understandingContext);
+		return getValuesdf(context, refSet, understandingContext);
 	}
 	
-	private ClassDescriptor getClassDescriptor(UnderstandingContext context) throws SIMPLTranslationException
+	private boolean hasSimplID()
 	{
-		if(this.tagName == null)
-		{
-			throw new SIMPLTranslationException("Null tag name!");
-		}
-		
-		ClassDescriptor cd =context.getClassDescriptor(this.tagName);
-		if(cd == null)
-		{
-			throw new SIMPLTranslationException("Class descriptor doesn't exist for tag name {" + this.tagName + "}! Did you initialize the type scope correctly? ");
-		}
-		
-		if(cd.getTagName().equals(this.tagName))
-		{
-			return cd;
-		}else{
-			throw new SIMPLTranslationException("Tag name somehow differs! This is a problem!");
-		}
+		return !(this.idString == null || this.idString.isEmpty());
 	}
 	
-	private Object getValue(boolean deferUpdateObject, Object context, SimplRefCallbackMap callbackMap, UnderstandingContext understandingContext) throws SIMPLTranslationException{
-		// TODO Auto-generated method stub
-		if(this.refString == null)
+	private boolean hasSimplRef()
+	{
+		return !(this.refString == null || this.refString.isEmpty());
+	}	
+	
+	
+	private Object getInstance(Set<String> refSet, UnderstandingContext understandingContext) throws SIMPLTranslationException
+	{
+		if(this.hasSimplID())
 		{
-
-			ClassDescriptor compositeDescriptor = getClassDescriptor(understandingContext);
-
-			Object compositeObj = compositeDescriptor.getInstance();
-			if(this.idString != null)
+			if(understandingContext.isIDRegistered(this.idString))
 			{
-				if(understandingContext.isIDRegistered(this.idString))
+				// If the ID is registered, remove the reference from the Ref set;
+				// At the end of this resolve call, this refernece will be satisfied. 
+				if(refSet.contains(this.idString))
 				{
-					understandingContext.updateID(this.idString, compositeObj);
-				}else{
-					understandingContext.registerID(this.idString, compositeObj);
+					refSet.remove(this.idString);
 				}
-			}
-
-			for(SimplInterpretation si : interpretations)
-			{
-				si.resolve(compositeObj, callbackMap, understandingContext);
-			}
-
-			if(deferUpdateObject)
-			{
-				updateObject(context, compositeObj);
+				else
+				{
+					throw new SIMPLTranslationException("The idString {"+this.idString+"} was somehow registered as a reference, but is not in the ref set. This is a broken invariant; please investigate and file a bug.");
+				}
+			}else{
+				// If the ID isn't registered, create instance and register it
+				Object compositeObject = understandingContext.getClassDescriptor(this.tagName).getInstance();
+				understandingContext.registerID(this.idString, compositeObject);
 			}
 			
-			return compositeObj;
+			return understandingContext.getRegisteredObject(this.idString);
 		}
-		else
+		
+		if(this.hasSimplRef())
 		{
-			if(understandingContext.isIDRegistered(this.refString))
+			if(!understandingContext.isIDRegistered(this.refString))
 			{
-				
-				Object o = understandingContext.getRegisteredObject(this.refString);
-				
-				// get the object and set it. :) 
-				if(deferUpdateObject)
-				{
-					updateObject(context, o);
-				}
-				
-				return o;
+				// If it isn't registered, be sure to add it to the ref set
+				refSet.add(this.refString); 
+				Object compositeObject = understandingContext.getClassDescriptor(this.tagName).getInstance();
+				understandingContext.registerID(this.refString, compositeObject);
 			}
-			else
-			{	
+			
+			return understandingContext.getRegisteredObject(this.refString);
+		}
+		
+		return understandingContext.getClassDescriptor(this.tagName).getInstance();
+	}
+	
+	
+	private Object getValuesdf(Object context, Set<String> refSet, UnderstandingContext understandingContext) throws SIMPLTranslationException
+	{
 
-				ClassDescriptor compositeDescriptor = getClassDescriptor(understandingContext);
+		if(this.hasSimplID() && this.hasSimplRef())
+		{
+			throw new SIMPLTranslationException("IDString and RefString cannot exist at the same time!");
+		}
+		
+		// Whenever we encounter an object with a simpl ID or a simpl REF
+		// We'll make an instance of that object in the context.
+		// 
+		
+		if(this.hasSimplRef())
+		{
+			return getInstance(refSet, understandingContext);
+		}
 
-				Object value = compositeDescriptor.getInstance();
-
-				understandingContext.registerID(this.refString, value);
-
-				final String refID = this.refString;
-				final Object finalobject = value;
-				
-				if(deferUpdateObject)
-				{
-					final Object finalContext = context; 
-					
-					callbackMap.insertCallback(new UpdateSimplRefCallback() {
-						
-						@Override
-						public void runUpdateCallback(Object referencedComposite) {
-							updateObject(finalContext, referencedComposite);
-						}
-						
-						@Override
-						public String getUpdateKey() {
-							// TODO Auto-generated method stub
-							return refID;
-						}
-					});
-				}
-				
-				return finalobject;
-			}
+		Object compositeObject = getInstance(refSet, understandingContext);
+		
+		for(SimplInterpretation si : interpretations)
+		{
+			si.resolve(compositeObject, refSet, understandingContext);
 		}	
+		
+		return compositeObject;
 	}
 	
 	private void updateObject(Object context, Object value)

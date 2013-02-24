@@ -150,7 +150,6 @@ public class UnderstandingCompositesTest {
 		noCycles.left= orig;
 		noCycles.right = orig;
 		
-		
 		List<SimplInterpretation> simplInterps = new LinkedList<SimplInterpretation>();
 		simplInterps.add(new ScalarInterpretation("myString", "string", "StringType"));
 			

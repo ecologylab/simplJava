@@ -1,7 +1,9 @@
 package simpl.interpretation;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import simpl.core.ISimplTypesScope;
 import simpl.descriptions.ClassDescriptor;
@@ -30,23 +32,16 @@ public class SimplUnderstander {
 		Object ourObject = ourDescriptor.getInstance();
 		
 		UnderstandingContext understandingContext = new UnderstandingContext(this.scope);
-		SimplRefCallbackMap callbackMap = new SimplRefCallbackMap();
+	
+		Set<String> refSet = new HashSet<String>();
 		
 		for(SimplInterpretation interp : interps)
 		{
-			interp.resolve(ourObject, callbackMap, understandingContext);
+			interp.resolve(ourObject, refSet, understandingContext);
 		}
 		
-		// TODO: add a dependency graph here, this will optimize the perf of unrolling the callbacks. 
-		for(String ref : callbackMap.getPendingUpdateKeys())
-		{
-			if(understandingContext.isIDRegistered(ref))
-			{
-				callbackMap.resolveCallbacks(ref, understandingContext.getRegisteredObject(ref));
-			}
-		}
 		
-		if(!callbackMap.isEmpty())
+		if(!refSet.isEmpty())
 		{
 			throw new RuntimeException("Missed a simpl ref!");
 		}

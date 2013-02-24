@@ -1,5 +1,7 @@
 package simpl.interpretation;
 
+import java.util.Set;
+
 import simpl.descriptions.ClassDescriptor;
 import simpl.descriptions.ClassDescriptors;
 import simpl.descriptions.EnumerationDescriptor;
@@ -85,7 +87,7 @@ public class ScalarInterpretation implements SimplInterpretation{
 		}
 	}
 	
-	public void resolve(Object context, SimplRefCallbackMap updateMap, UnderstandingContext understandingContext) throws SIMPLTranslationException
+	public void resolve(Object context, Set<String> refSet, UnderstandingContext understandingContext) throws SIMPLTranslationException
 	{
 
 		if(this.getType(understandingContext))
@@ -109,7 +111,7 @@ public class ScalarInterpretation implements SimplInterpretation{
 			//handle the enum case:
 			try 
 			{
-				Object value = this.getValue(context, updateMap, understandingContext);
+				Object value = this.getValue(context, refSet, understandingContext);
 				ReflectionTools.setFieldValue(value, context.getClass().getField(this.fieldName), context);
 			}
 			catch (NoSuchFieldException e) 
@@ -126,9 +128,10 @@ public class ScalarInterpretation implements SimplInterpretation{
 	
 	
 	@Override
-	public Object getValue(Object context, SimplRefCallbackMap callbackMap,
+	public Object getValue(Object context, Set<String> refSet,
 			UnderstandingContext understandingContext)
-			throws SIMPLTranslationException {
+			throws SIMPLTranslationException 
+	{
 		
 		if(this.getType(understandingContext))
 		{

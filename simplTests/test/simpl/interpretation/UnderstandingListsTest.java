@@ -104,7 +104,6 @@ public class UnderstandingListsTest {
 		
 		interps.add(li);
 		
-		
 		ISimplTypesScope context = SimplTypesScopeFactory.name("compositeListUnderstanding").translations(simplerInnerListComposite.class, listOfComposites.class).create();
 		
 		SimplUnderstander su = new SimplUnderstander(context);
@@ -125,6 +124,18 @@ public class UnderstandingListsTest {
 			
 			assertEquals(i, item.myInt);
 		}
+	}
+	
+	@Test
+	public void testUnderstandingOfListsWithInternalCycles()
+	{
+		fail("Implement this test");
+	}
+	
+	@Test
+	public void testUnderstandingOfListsOfLists()
+	{
+		fail("Implement this test");
 	}
 
 }
