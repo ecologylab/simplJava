@@ -147,30 +147,16 @@ public class CompositeInterpretation implements SimplInterpretation{
 			}
 			else
 			{	
-				Object value = new Object();
+
+				ClassDescriptor compositeDescriptor = getClassDescriptor(understandingContext);
+
+				Object value = compositeDescriptor.getInstance();
+
 				understandingContext.registerID(this.refString, value);
 
 				final String refID = this.refString;
 				final Object finalobject = value;
-				callbackMap.insertCallback(new UpdateSimplRefCallback() {
-
-					@Override
-					public void runUpdateCallback(Object referencedComposite) {
-						set(finalobject,referencedComposite);
-					}
-
-					private void set(Object finalobject,
-							Object referencedComposite) {
-						finalobject = referencedComposite;
-					}
-
-					@Override
-					public String getUpdateKey() {
-						// TODO Auto-generated method stub
-						return refID;
-					}
-				});
-
+				
 				if(deferUpdateObject)
 				{
 					final Object finalContext = context; 

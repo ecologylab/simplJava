@@ -8,10 +8,13 @@ import simpl.descriptions.ClassDescriptor;
 import simpl.descriptions.ClassDescriptors;
 import simpl.descriptions.FieldDescriptor;
 import simpl.exceptions.SIMPLTranslationException;
+import simpl.types.ListType;
 
 public class ListInterpretation implements SimplInterpretation {
 
 	String fieldName; 
+	
+	ListType ourListType; 
 	
 	public String getFieldName()
 	{
@@ -28,6 +31,7 @@ public class ListInterpretation implements SimplInterpretation {
 	public ListInterpretation()
 	{
 		this.interps = new LinkedList<SimplInterpretation>();
+		this.ourListType = new ListType();
 	}
 	
 	public void addItemInterpretation(SimplInterpretation si)
@@ -39,8 +43,7 @@ public class ListInterpretation implements SimplInterpretation {
 	public void resolve(Object context, SimplRefCallbackMap callbackMap,
 			UnderstandingContext understandingContext)
 			throws SIMPLTranslationException {
-		
-		List<Object> items = new ArrayList<Object>();
+		List<Object> items = new ArrayList<Object>(); // default. 
 		for(int i = 0; i < this.interps.size(); i++)
 		{
 			items.add(i, interps.get(i).getValue(context, callbackMap, understandingContext));
@@ -48,16 +51,25 @@ public class ListInterpretation implements SimplInterpretation {
 		
 		for(Object item : items)
 		{
-		//	reflectivelyAdd(context, item);
+			try{
+				this.ourListType.addTo(context, context.getClass().getField(this.fieldName), item);
+			}
+			catch(Exception e)
+			{
+				throw new SIMPLTranslationException(e);
+			}
 		}
 	}
+	
+	
 
 	@Override
 	public Object getValue(Object context, SimplRefCallbackMap callbackMap,
 			UnderstandingContext understandingContext)
 			throws SIMPLTranslationException {
-		// TODO Auto-generated method stub
+		
 		return null;
+		
 	}
 	
 }
