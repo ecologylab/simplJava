@@ -40,16 +40,18 @@ public class ListInterpretation implements SimplInterpretation {
 		this.interps.add(si);
 	}
 	
+	public int size()
+	{
+		return this.interps.size();
+	}
+	
 	@Override
 	public void resolve(Object context, Set<String> refSet,
 			UnderstandingContext understandingContext)
 			throws SIMPLTranslationException {
-		List<Object> items = new ArrayList<Object>(); // default. 
-		for(int i = 0; i < this.interps.size(); i++)
-		{
-			items.add(i, interps.get(i).getValue(context, refSet, understandingContext));
-		}
-		
+
+		List<Object> items = (List<Object>)getValue(context, refSet, understandingContext);
+
 		for(Object item : items)
 		{
 			try{
@@ -69,7 +71,14 @@ public class ListInterpretation implements SimplInterpretation {
 			UnderstandingContext understandingContext)
 			throws SIMPLTranslationException {
 		
-		return null;
+		List<Object> items = new ArrayList<Object>(interps.size()); // default. 
+		
+		for(int i = 0; i < this.interps.size(); i++)
+		{
+			items.add(i, interps.get(i).getValue(context, refSet, understandingContext));
+		}
+		
+		return items;
 		
 	}
 	

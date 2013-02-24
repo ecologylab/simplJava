@@ -133,9 +133,83 @@ public class UnderstandingListsTest {
 	}
 	
 	@Test
-	public void testUnderstandingOfListsOfLists()
+	public void testUnderstandingOfListsOfLists() throws SIMPLTranslationException
 	{
-		fail("Implement this test");
+
+		listOfListsOfScalars example = new listOfListsOfScalars();
+		// todo: populate an example here so that it can be interpreted. :) 
+		
+		ListInterpretation li = new ListInterpretation();
+		li.setFieldName("listOfLists");
+		
+		// Let's make the list [[0,1,2,3],[1,2,3,4]]
+		ListInterpretation li1 = new ListInterpretation();
+		li1.addItemInterpretation(new ScalarInterpretation("", "0", "IntegerType"));
+		li1.addItemInterpretation(new ScalarInterpretation("", "1", "IntegerType"));
+		li1.addItemInterpretation(new ScalarInterpretation("", "2", "IntegerType"));
+		li1.addItemInterpretation(new ScalarInterpretation("", "3", "IntegerType"));
+
+		assertEquals(4, li1.size());
+		Object li1Result = li1.getValue(null, null, null);
+		
+		// we expect the inner interpretation to provide the list [0,1,2,3]
+		
+		List ourList = null;
+		try{
+			ourList = (List)li1Result;
+		}catch(RuntimeException e)
+		{
+			fail(e.getMessage() + " || Error at casting!");
+		}
+		
+		assertNotNull(ourList);
+		assertFalse("Inner list should not be empty!", ourList.isEmpty());
+		assertEquals(4, ourList.size());
+		
+		for(Integer i = 0; i < 4; i++)
+		{
+			assertEquals(new Integer(i), (Integer)ourList.get(i));
+		}
+		
+		ListInterpretation li2 = new ListInterpretation();
+		li2.addItemInterpretation(new ScalarInterpretation("", "1", "IntegerType"));
+		li2.addItemInterpretation(new ScalarInterpretation("", "2", "IntegerType"));
+		li2.addItemInterpretation(new ScalarInterpretation("", "3", "IntegerType"));
+		li2.addItemInterpretation(new ScalarInterpretation("", "4", "IntegerType"));
+
+		Object li2Result = li2.getValue(null, null, null);
+		
+		li.addItemInterpretation(li1);
+		li.addItemInterpretation(li2);
+		
+		List<SimplInterpretation> interps = new LinkedList<SimplInterpretation>();
+		interps.add(new ScalarInterpretation("myString", "string", "StringType"));
+		interps.add(li);
+		
+		ISimplTypesScope context = SimplTypesScopeFactory.name("ListOfListTests").translations(listOfListsOfScalars.class).create();	
+		
+		SimplUnderstander su = new SimplUnderstander(context);
+		
+		Object result = su.understandInterpretation(interps, "list_of_lists_of_scalars");
+		
+		assertNotNull(result);
+		
+		listOfListsOfScalars llResult = (listOfListsOfScalars)result;
+		
+		assertEquals("string", llResult.myString);
+		
+		for(Integer listID = 0; listID < 2; listID++)
+		{
+			assertEquals("Size incorrect on list : " + listID.toString(), 4, llResult.listOfLists.get(listID).size());
+			
+			for(Integer listIndex = 0; listIndex < 4; listIndex++)
+			{
+				// list 0 = 0,1,2,3
+				// list 1 = 1,2,3,4
+				// so asserting id+index gives us a value validation
+				assertEquals(new Integer(listID+listIndex), llResult.listOfLists.get(listID).get(listIndex));
+			}
+		}
 	}
 
 }
