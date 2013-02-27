@@ -5,7 +5,6 @@ import java.util.Map;
 
 public class InterpretationContext {
 
-	
 	Map<Object, String> interpretedObjects;
 	
 	public InterpretationContext()
@@ -13,7 +12,7 @@ public class InterpretationContext {
 		this.interpretedObjects = new HashMap<Object, String>();
 	}
 
-	private Integer currentID = 1;
+	private Integer currentID = 0;
 	
 	public String fetchSimplID()
 	{	

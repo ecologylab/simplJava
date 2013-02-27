@@ -4,9 +4,13 @@ import static org.junit.Assert.*;
 
 import org.junit.Test;
 
+import ecologylab.serialization.primaryScenarioEnum;
+
 import simpl.annotations.dbal.simpl_scalar;
 import simpl.descriptions.ClassDescriptor;
 import simpl.descriptions.ClassDescriptors;
+import simpl.descriptions.EnumerationDescriptor;
+import simpl.exceptions.SIMPLDescriptionException;
 
 public class SimplTypesScopeTests {
 
@@ -79,6 +83,25 @@ public class SimplTypesScopeTests {
 		assertTrue("Should contain all classes in A, missing c_class", b.containsDescriptorForTag("c_class"));
 
 		assertFalse("A should not contain b_class", ists.containsDescriptorForTag("b_class"));
+	}
+	
+	
+	@Test
+	public void testEnumerationsAddedToSTS() throws SIMPLDescriptionException
+	{
+		ISimplTypesScope ist = SimplTypesScopeFactory.name("enumTest").translations(primaryScenarioEnum.class).create();
+		
+		EnumerationDescriptor described = EnumerationDescriptor.get(primaryScenarioEnum.class);
+		assertEquals("primary_scenario_enum", described.getTagName());
+		
+		EnumerationDescriptor tryFetch = ist.getEnumerationDescriptorByTag("primary_scenario_enum");
+		assertNotNull("Fetched a null ED, we expected it to be in the STS! Better check the indexer." , tryFetch);
+		
+		assertTrue("We expect the primaryScenarioEnum to have its tag in the STS!" , ist.containsDescriptorForTag("primary_scenario_enum"));
+		
+		EnumerationDescriptor ed = ist.getEnumerationDescriptorByTag("primary_scenario_enum");
+		assertNotNull(ed);
+		
 	}
 
 }

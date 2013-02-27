@@ -34,7 +34,7 @@ public class EnumerationDescriptorIndexer extends MultiIndexer<EnumerationDescri
 		public Collection<String> ObtainIndexes(EnumerationDescriptor item) {
 			Collection<String> ourIndexes = new LinkedList<String>();
 			
-//			ourIndexes.add(item.getTagName());
+			ourIndexes.add(item.getTagName());
 			for(String s : item.otherTags())
 			{
 				ourIndexes.add(s);

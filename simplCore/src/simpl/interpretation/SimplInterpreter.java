@@ -6,45 +6,40 @@ import java.util.List;
 import simpl.descriptions.ClassDescriptor;
 import simpl.descriptions.ClassDescriptors;
 import simpl.descriptions.FieldDescriptor;
+import simpl.exceptions.SIMPLTranslationException;
+import simpl.types.ScalarType;
 
 public class SimplInterpreter {
 
-	public List<SimplInterpretation> interpretInstance(Object obj)
+	public List<SimplInterpretation> interpretInstance(Object obj) throws SIMPLTranslationException
 	{
-		/*
-	}
+		List<SimplInterpretation> list = new LinkedList<SimplInterpretation>();
 		
-		ClassDescriptor cd = ClassDescriptors.getClassDescriptor(obj.getClass());
-		/*
-		for(FieldDescriptor fd : cd.allFieldDescriptors())
+		ClassDescriptor ourDescriptor =ClassDescriptors.getClassDescriptor(obj);
+		
+		for(FieldDescriptor fd : ourDescriptor.fields().Scalars)
 		{
-			cd.fieldDescriptors.Insert(fd);
+			ScalarType st = fd.getScalarType();
+			if(st == null)
+			{
+				throw new SIMPLTranslationException("Null scalar type for field: " + fd.getName());
+			}
+			
+			// Get the value of the field's scalar; this allows us to marshal primitive types to string.
+			String fieldValue = st.getFieldString(fd.getField(), obj);
+			String typeName = st.getClass().getSimpleName();
+			String fieldName = fd.getName();
+			
+			list.add(new ScalarInterpretation(fieldName, fieldValue, typeName));
 		}
 		
-		System.out.println(cd.fieldDescriptors.Scalars.size());
-		
-	
-		for(FieldDescriptor fd : cd.fieldDescriptors.Scalars)
+		// Can't decide on this dichotomy; if this gets delegated nicely it'll not work this way at all. 
+		for(FieldDescriptor fd : ourDescriptor.fields().ScalarCollections)
 		{
+			
 		}
 		
-		return interps;	
-	
-		List<SimplInterpretation> interps = new LinkedList<SimplInterpretation>();
 		
-		
-		for(FieldDescriptor fd : cd.fields().Scalars)
-		{
-			ScalarInterpretation si = new ScalarInterpretation(fd.getName(), fd.getValue(obj).toString());
-			interps.add(si);
-		}
-		
-		for(FieldDescriptor fd : cd.fields().Composites)
-		{
-			CompositeInterpretation cd = new CompositeInterpretation()
-		}
-*/		
-		return null;
-		
+		return list;
 	}
 }

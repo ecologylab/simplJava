@@ -123,8 +123,7 @@ public class FieldDescriptorIndexer extends MultiIndexer<FieldDescriptor>
 		this.CompositeCollections = this.by(new byCompositeCollections());
 		this.CompositeMaps = this.by(new byCompositeMaps());
 		this.IgnoredAttributes = this.by(new byIgnoredAttribute());
-		this.IgnoredElements = this.by(new byIgnoredElement());
-		
+		this.IgnoredElements = this.by(new byIgnoredElement());	
 	}
 	
 	@Override

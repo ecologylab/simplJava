@@ -82,6 +82,18 @@ public class EnumerationDescriptor implements ISimplStringMarshaller {
 		return ed;
 	}
 
+	private String tagName;
+	
+	public String getTagName()
+	{
+		return this.tagName;
+	}
+	
+	public void setTagName(String tag)
+	{
+		this.tagName = tag;
+	}
+	
 	private LinkedList<MetaInformation> metaInfo;
 
 	private ArrayList<String> otherTags;
@@ -120,6 +132,7 @@ public class EnumerationDescriptor implements ISimplStringMarshaller {
 			this.enumerationName = describedEnum.getName();
 			this.packageName = describedEnum.getPackage().getName();
 			
+			this.tagName = XMLTools.getXmlTagName(describedEnum, "");
 			if(isCustomValuedEnum(describedEnum))
 			{
 				List<Field> enumFields = getEnumerationFields(describedEnum);

@@ -24,6 +24,8 @@ public class InterpretationPrototypeTest {
 		ms.aInteger = 2013;
 		ms.aDouble = 1.337;
 		
+		
+		
 		//List<ScalarInterpretation> interps = si.interpretInstance(ms);
 	/*	assertEquals(3, interps.size());
 		

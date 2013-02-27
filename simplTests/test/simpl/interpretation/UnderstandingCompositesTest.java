@@ -48,7 +48,7 @@ public class UnderstandingCompositesTest {
 	}
 	
 	@Test
-	public void testUnderstandingOfEnumerations()
+	public void testUnderstandingOfEnumerations() throws SIMPLTranslationException
 	{
 		myEnumerations orig = new myEnumerations();
 		orig.myString = "string";
@@ -58,19 +58,27 @@ public class UnderstandingCompositesTest {
 		
 		List<SimplInterpretation> interps = new LinkedList<SimplInterpretation>();
 		interps.add(new ScalarInterpretation("myString", "string", "StringType"));
+		
 		// I think we're going to treat enumerations as a scalar value
 		// This is good b/c we can't really distinguish between an enum interpretation at the serialziation level
-		// unless we happen to have the type information, which we relaly don't. 
+		// unless we happen to have the type information, which we really don't. 
 		// This is better; we just delegate interp of enums to the scalar interpreation, it'll have to marshall via the STS, complicate some of the 
 		// logic, but this will be for the best. 
-		interps.add(new ScalarInterpretation("primaryEnum", "firstValue", "primaryScenarioEnum"));
-		interps.add(new ScalarInterpretation("secondaryEnum", "secondValue", "secondaryScenarioEnum"));
-		interps.add(new ScalarInterpretation("secondaryEnumInts", "7", "secondaryScenarioEnum"));
+		interps.add(new ScalarInterpretation("primaryEnum", "firstValue", "primary_scenario_enum"));
+		interps.add(new ScalarInterpretation("secondaryEnum", "secondValue", "secondary_scenario_enum"));
+		interps.add(new ScalarInterpretation("secondaryEnumInts", "7", "secondary_scenario_enum"));
 	
 		
+		ISimplTypesScope context = SimplTypesScopeFactory.name("enumsEnumsENUMS").translations(myEnumerations.class, primaryScenarioEnum.class, secondaryScenarioEnum.class).create();
 		
+		SimplUnderstander su = new SimplUnderstander(context);
 		
-	
+		myEnumerations result = (myEnumerations)su.understandInterpretation(interps, "my_enumerations");
+		
+		assertEquals(result.myString, orig.myString);
+		assertEquals(result.primaryEnum, orig.primaryEnum);
+		assertEquals(result.secondaryEnum, orig.secondaryEnum);
+		assertEquals(result.secondaryEnumInts, orig.secondaryEnumInts);
 	}
 	
 

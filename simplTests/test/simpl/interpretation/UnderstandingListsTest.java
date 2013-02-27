@@ -133,6 +133,12 @@ public class UnderstandingListsTest {
 	}
 	
 	@Test
+	public void testUnderstandingOfListsOfListsOfCyclicComposites()
+	{
+		fail("implement this test");
+	}
+	
+	@Test
 	public void testUnderstandingOfListsOfLists() throws SIMPLTranslationException
 	{
 
@@ -211,5 +217,16 @@ public class UnderstandingListsTest {
 			}
 		}
 	}
-
+	
+	@Test
+	public void testListOfMapsWorksCorrectly()
+	{
+		fail("Implement this test");
+	}
+	
+	@Test
+	public void testListOfEnumerationsWorksCorrectly()
+	{
+		fail("Implement this test");
+	}
 }
