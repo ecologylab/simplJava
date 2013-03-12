@@ -1,11 +1,15 @@
 package simpl.descriptions;
 
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+
+import ecologylab.generic.ReflectionTools;
 
 
 import simpl.annotations.dbal.simpl_collection;
@@ -17,7 +21,7 @@ import simpl.exceptions.SIMPLTranslationException;
 import simpl.tools.XMLTools;
 
 
-public class EnumerationDescriptor implements ISimplStringMarshaller {
+public class EnumerationDescriptor implements ISimplStringMarshaller, IMetaInformationProvider {
 	
 	/**
 	 * Gets an enumeration description for a given class. 
@@ -33,12 +37,13 @@ public class EnumerationDescriptor implements ISimplStringMarshaller {
 		
 		if(isCustomValuedEnum(enumerationClass))
 		{
+			
 			// Remember: An enum is a collection of static constants of a type...
 			Object[] enumerationConstants = enumerationClass.getEnumConstants();
 							
 			for(Object o : enumerationConstants)
 			{
-				String enumEntryName = ((Enum<?>)o).toString();
+				String enumEntryName = ((Enum<?>)o).name();
 				Integer enumEntryValue;
 				try 
 				{
@@ -63,23 +68,46 @@ public class EnumerationDescriptor implements ISimplStringMarshaller {
 					}
 				}
 				
-				ed.getEnumerationEntries().add(new EnumerationEntry(enumEntryName, enumEntryValue));
+				EnumerationEntry entry = new EnumerationEntry(enumEntryName, enumEntryValue);
+				
+				addAllMetaInformation(entry, enumerationClass);
+				
+				ed.getEnumerationEntries().add(entry);
 			}
 		}
 		else
 		{
+			
+
+			
+			
 			// Remember: An enum is a collection of static constants of a type...
 			Object[] enumerationConstants = enumerationClass.getEnumConstants();
 				
 			for(Object o : enumerationConstants)
 			{
-				String enumEntryName = ((Enum<?>)o).toString();
+				String enumEntryName = ((Enum<?>)o).name(); 
 				
-				ed.getEnumerationEntries().add(new EnumerationEntry(enumEntryName));
+				EnumerationEntry entry = new EnumerationEntry(enumEntryName);
+				
+				addAllMetaInformation(entry, enumerationClass);
+				
+				ed.getEnumerationEntries().add(entry);
 			}
 		}
 		
 		return ed;
+	}
+	
+	private static void addAllMetaInformation(EnumerationEntry entry, Class<?> enumerationClass)
+	{
+		Field entryField = ReflectionTools.getField(enumerationClass, entry.getName());
+		AnnotationParser ap = new AnnotationParser();
+		Collection<MetaInformation> metaInfo = ap.getAllMetaInformation(entryField);
+		for(MetaInformation mi : metaInfo)
+		{
+			entry.addMetaInformation(mi);
+		}
 	}
 
 	private String tagName;
@@ -94,8 +122,9 @@ public class EnumerationDescriptor implements ISimplStringMarshaller {
 		this.tagName = tag;
 	}
 	
-	private LinkedList<MetaInformation> metaInfo;
-
+	private IMetaInformationProvider metainfo;
+	
+	
 	private ArrayList<String> otherTags;
 	
 	/**
@@ -104,7 +133,7 @@ public class EnumerationDescriptor implements ISimplStringMarshaller {
 	private void basicInitialization()
 	{
 		this.enumerationEntries = new LinkedList<>();
-		this.metaInfo = new LinkedList<MetaInformation>();
+		this.metainfo = new MetaInformationCollection();
 		this.otherTags = new ArrayList<String>();
 	}
 	
@@ -131,6 +160,15 @@ public class EnumerationDescriptor implements ISimplStringMarshaller {
 			this.enumerationClass = describedEnum;
 			this.enumerationName = describedEnum.getName();
 			this.packageName = describedEnum.getPackage().getName();
+		
+			// Add all meta information at the enumeration level
+			AnnotationParser ap = new AnnotationParser();
+			Collection<MetaInformation> metaInfo = ap.getAllMetaInformation(enumerationClass);
+			
+			for(MetaInformation imo : metaInfo)
+			{
+				this.addMetaInformation(imo);
+			}
 			
 			this.tagName = XMLTools.getXmlTagName(describedEnum, "");
 			if(isCustomValuedEnum(describedEnum))
@@ -469,11 +507,30 @@ public class EnumerationDescriptor implements ISimplStringMarshaller {
 				throw new SIMPLTranslationException(new SimplIssue("Could not find the string value in the enumeration!", string, null));
 			}
 		}
-
 	}
 
 	public Object getSimpleName() {
 		// TODO Auto-generated method stub
 		return this.getEnumerationClass().getSimpleName();
+	}
+
+	@Override
+	public void addMetaInformation(MetaInformation imo) {
+		this.metainfo.addMetaInformation(imo);	
+	}
+
+	@Override
+	public Collection<MetaInformation> getMetaInformation() {
+		return this.metainfo.getMetaInformation();
+	}
+
+	@Override
+	public boolean containsMetaInformation(String name) {
+		return this.metainfo.containsMetaInformation(name);
+	}
+
+	@Override
+	public MetaInformation getMetaInformation(String name) {
+		return this.metainfo.getMetaInformation(name);
 	}
 }

@@ -48,4 +48,15 @@ public class MetaInformationImpl implements MetaInformation {
 		}
 	}
 
+	@Override
+	/**
+	 * Gest the value of the Value() for a given annotation;
+	 * this is fairly java specific; If there is a single value for an annotation, it'll be value();
+	 * Accross platforms, this should just return the single value in an annotation, or an error if there are multiple values. 
+	 */
+	public Object getValue() {
+		// TODO Auto-generated method stub
+		return this.getValueFor("value");
+	}
+
 }

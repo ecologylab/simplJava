@@ -1,5 +1,7 @@
 package simpl.descriptions;
 
+import java.util.Collection;
+
 import simpl.annotations.dbal.simpl_scalar;
 
 /**
@@ -7,7 +9,7 @@ import simpl.annotations.dbal.simpl_scalar;
  * @author tom
  *
  */
-public class EnumerationEntry {
+public class EnumerationEntry implements IMetaInformationProvider{
 
 	/**
 	 * The name of the entry.
@@ -36,17 +38,40 @@ public class EnumerationEntry {
 	 */
 	@simpl_scalar
 	private Integer value;
+	private MetaInformationCollection metainfo;
 	
 	public EnumerationEntry(){}
 	
 	public EnumerationEntry(String name)
 	{
 		this.name = name;
+		this.metainfo = new MetaInformationCollection();
 	}
 	
 	public EnumerationEntry(String name, Integer value)
 	{
 		this.name = name;
 		this.value = value;
+		this.metainfo = new MetaInformationCollection();
+	}
+
+	@Override
+	public void addMetaInformation(MetaInformation imo) {
+		this.metainfo.addMetaInformation(imo);
+	}
+
+	@Override
+	public Collection<MetaInformation> getMetaInformation() {
+		return this.metainfo.getMetaInformation();
+	}
+
+	@Override
+	public boolean containsMetaInformation(String name) {
+		return this.metainfo.containsMetaInformation(name);
+	}
+
+	@Override
+	public MetaInformation getMetaInformation(String name) {
+		return this.metainfo.getMetaInformation(name);
 	}
 }
