@@ -21,7 +21,7 @@ public class UnderstandingCompositesTest {
 	@Test
 	public void testUnderstandingOfBasicScalars() throws SIMPLTranslationException
 	{
-		// this is just here for refernce to show the type of object we're validating. 
+		// this is just here for reference to show the type of object we're validating. 
 		myScalars orig = new myScalars();
 		orig.aDouble = 1.3;
 		orig.aInteger = 13;
@@ -90,26 +90,27 @@ public class UnderstandingCompositesTest {
 		plainComposite pc = new plainComposite();
 		
 		myScalars orig = new myScalars();
-		orig.aDouble = 1.3;
-		orig.aInteger = 13;
+		orig.aDouble = 1.3; // aDouble , "1.3", DoubleType
+		orig.aInteger = 13; // aInteger, "13",IntegerType.. 
 		orig.aField = "string";
 			
 		pc.myComposite = orig;
 		
-		pc.myString = "string";
+		pc.myString = "string"; // scalar interpretation ->  myString, String, StringType
 			
 		List<SimplInterpretation> simplInterps = new LinkedList<SimplInterpretation>();
 		simplInterps.add(new ScalarInterpretation("myString", "string", "StringType"));
-			
+
+				
+		CompositeInterpretation ci = new CompositeInterpretation();
+		ci.setFieldName("myComposite");
+		ci.setTagName("my_scalars");
+		
 		List<SimplInterpretation> innerCompositeInterps = new LinkedList<SimplInterpretation>();
 		innerCompositeInterps.add(new ScalarInterpretation("aInteger", orig.aInteger.toString(), "IntegerType"));
 		innerCompositeInterps.add(new ScalarInterpretation("aField", orig.aField, "StringType"));
 		innerCompositeInterps.add(new ScalarInterpretation("aDouble", orig.aDouble.toString(), "DoubleType"));
-			
-		CompositeInterpretation ci = new CompositeInterpretation();
-
-		ci.setFieldName("myComposite");
-		ci.setTagName("my_scalars");
+	
 		for(SimplInterpretation si : innerCompositeInterps)
 		{
 			ci.addInterpretation(si);
@@ -148,6 +149,7 @@ public class UnderstandingCompositesTest {
 	@Test
 	public void testUnderstandingOfBasicRefs() throws SIMPLTranslationException
 	{
+		// Example object for this test:
 		nonCycleRef noCycles = new nonCycleRef();
 		
 		myScalars orig = new myScalars();
@@ -158,6 +160,9 @@ public class UnderstandingCompositesTest {
 		noCycles.left= orig;
 		noCycles.right = orig;
 		
+		
+		
+		// Construction of the actual interpretation
 		List<SimplInterpretation> simplInterps = new LinkedList<SimplInterpretation>();
 		simplInterps.add(new ScalarInterpretation("myString", "string", "StringType"));
 			
@@ -185,7 +190,13 @@ public class UnderstandingCompositesTest {
 		
 		simplInterps.add(idInterp);
 		
+		
+		/// Done making our interpretations~!
+		
+		
 		ISimplTypesScope context = SimplTypesScopeFactory.name("compositeWithBasicRefsTest").translations(myScalars.class, nonCycleRef.class).create();
+	
+		
 		SimplUnderstander su = new SimplUnderstander(context);
 		
 		Object result = su.understandInterpretation(simplInterps, ClassDescriptors.getClassDescriptor(nonCycleRef.class).getTagName());
@@ -204,14 +215,64 @@ public class UnderstandingCompositesTest {
 	}
 	
 	@Test
-	public void testUnderstandingWorksWithNestedComposites()
+	public void testUnderstandingWorksWithNestedComposites() throws SIMPLTranslationException
 	{
-		fail("Not implemented yet");
-	}
-	
-	@Test
-	public void testUnderstandingWorksWithCycles()
-	{
-		fail("not implemented yet");
+		//Test 1: Object Person, referencing object child
+		
+		//Building Objects
+		myScalars orig = new myScalars();
+		orig.aField = "string";
+		orig.aInteger = 314;
+		orig.aDouble = 3.14;
+		
+		plainComposite pc = new plainComposite();
+		pc.myComposite = orig;
+		pc.myString = "string";
+		
+		OuterComposite oc = new OuterComposite();
+		oc.ReferencedComp = pc;
+		oc.myString = "string";
+		
+		//Building Interpretations:
+		List<SimplInterpretation> outerInterps = new LinkedList<SimplInterpretation>();
+		outerInterps.add(new ScalarInterpretation("myString", "string", "StringType"));
+		
+			CompositeInterpretation ci_pc = new CompositeInterpretation();
+			ci_pc.setFieldName("ReferencedComp");
+			ci_pc.setTagName("plain_composite");
+				
+				
+				CompositeInterpretation ci_ms = new CompositeInterpretation();
+				ci_ms.setFieldName("myComposite");
+				ci_ms.setTagName("my_scalars");
+				
+					List<SimplInterpretation> innerCompositeInterps = new LinkedList<SimplInterpretation>();
+					innerCompositeInterps.add(new ScalarInterpretation("aInteger", orig.aInteger.toString(), "IntegerType"));
+					innerCompositeInterps.add(new ScalarInterpretation("aField", orig.aField, "StringType"));
+					innerCompositeInterps.add(new ScalarInterpretation("aDouble", orig.aDouble.toString(), "DoubleType"));
+						
+				for(SimplInterpretation si : innerCompositeInterps)
+				{
+					ci_ms.addInterpretation(si);
+				}
+			ci_pc.addInterpretation(new ScalarInterpretation("myString", "string", "StringType"));
+			ci_pc.addInterpretation(ci_ms);
+		
+		outerInterps.add(ci_pc);
+			
+		
+		ISimplTypesScope context = SimplTypesScopeFactory.name("nestedCompositeUnderstanding").translations(plainComposite.class, myScalars.class, OuterComposite.class).create();
+		SimplUnderstander su = new SimplUnderstander(context);
+		
+		Object result = su.understandInterpretation(outerInterps, "outer_composite");
+		OuterComposite r = ((OuterComposite)result);
+		
+		assertEquals("OuterComposite.myString is incorrect", r.myString, oc.myString);
+		assertNotNull("ReferencedComp should not be null", r.ReferencedComp);
+		assertEquals("plainComposite.myString is incorrect", r.ReferencedComp.myString, pc.myString);
+		assertNotNull("MyScalar should not be null", r.ReferencedComp.myComposite);
+		assertEquals("MyScalar contains incorrect string", r.ReferencedComp.myComposite.aField, orig.aField);
+		assertEquals("MyScalar contains incorrect int", r.ReferencedComp.myComposite.aDouble, orig.aDouble);
+		assertEquals("MyScalar contains incorrect double", r.ReferencedComp.myComposite.aInteger, orig.aInteger);
 	}
 }

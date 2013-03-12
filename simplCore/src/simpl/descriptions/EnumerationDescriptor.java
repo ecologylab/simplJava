@@ -132,7 +132,7 @@ public class EnumerationDescriptor implements ISimplStringMarshaller, IMetaInfor
 	 */
 	private void basicInitialization()
 	{
-		this.enumerationEntries = new LinkedList<>();
+		this.enumerationEntries = new LinkedList<EnumerationEntry>();
 		this.metainfo = new MetaInformationCollection();
 		this.otherTags = new ArrayList<String>();
 	}
@@ -336,7 +336,7 @@ public class EnumerationDescriptor implements ISimplStringMarshaller, IMetaInfor
 			this.enumerationClass = fetchEnumClass();
 		}
 
-		HashMap<String, Enum<?>> ourHash = new HashMap<>();
+		HashMap<String, Enum<?>> ourHash = new HashMap<String, Enum<?>>();
 		
 		for(Object o : this.enumerationClass.getEnumConstants())
 		{
@@ -350,7 +350,7 @@ public class EnumerationDescriptor implements ISimplStringMarshaller, IMetaInfor
 	
 	private HashMap<String, Integer> fetchEnumNameToEnumIntegerValue() { 
 
-		HashMap<String, Integer> ourHash = new HashMap<>();
+		HashMap<String, Integer> ourHash = new HashMap<String, Integer>();
 
 		if(isCustomValuedEnum(fetchEnumClass()))
 		{
@@ -365,7 +365,7 @@ public class EnumerationDescriptor implements ISimplStringMarshaller, IMetaInfor
 	
 	private HashMap<Integer, String> fetchEnumValueToEnumName()
 	{
-		HashMap<Integer, String> ourHash = new HashMap<>();
+		HashMap<Integer, String> ourHash = new HashMap<Integer, String>();
 
 		if(isCustomValuedEnum(fetchEnumClass()))
 		{
