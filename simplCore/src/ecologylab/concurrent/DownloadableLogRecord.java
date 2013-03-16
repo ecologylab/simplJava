@@ -2,15 +2,15 @@ package ecologylab.concurrent;
 
 import java.util.ArrayList;
 
-import ecologylab.serialization.annotations.simpl_composite;
+import ecologylab.serialization.annotations.simpl_collection;
 import ecologylab.serialization.annotations.simpl_scalar;
 
 public class DownloadableLogRecord
 {
-	@simpl_composite
-	ArrayList<Float> queuePeekIntervals = new ArrayList<Float>();
+	@simpl_collection("peek_interval")
+	ArrayList<Long> queuePeekIntervals = new ArrayList<Long>();
 	
-	private float enQueueTimestamp;
+	private long enQueueTimestamp;
 	
 	@simpl_scalar
 	boolean htmlCacheHit;
@@ -18,27 +18,27 @@ public class DownloadableLogRecord
 	@simpl_scalar
 	String urlHash;
 
-	public ArrayList<Float> getQueuePeekIntervals()
-	{
-		return queuePeekIntervals;
-	}
-
-	public void setQueuePeekIntervals(ArrayList<Float> queuePeekIntervals)
-	{
-		this.queuePeekIntervals = queuePeekIntervals;
-	}
-	
-	public void addQueuePeekInterval(float queuePeekInterval)
+	public void addQueuePeekInterval(long queuePeekInterval)
 	{
 		this.queuePeekIntervals.add(queuePeekInterval);
 	}
 
-	public float getEnQueueTimestamp()
+	public ArrayList<Long> getQueuePeekIntervals()
+	{
+		return queuePeekIntervals;
+	}
+
+	public void setQueuePeekIntervals(ArrayList<Long> queuePeekIntervals)
+	{
+		this.queuePeekIntervals = queuePeekIntervals;
+	}
+
+	public long getEnQueueTimestamp()
 	{
 		return enQueueTimestamp;
 	}
 
-	public void setEnQueueTimestamp(float enQueueTimestamp)
+	public void setEnQueueTimestamp(long enQueueTimestamp)
 	{
 		this.enQueueTimestamp = enQueueTimestamp;
 	}
