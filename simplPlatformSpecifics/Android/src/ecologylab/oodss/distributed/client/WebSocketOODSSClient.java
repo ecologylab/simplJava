@@ -129,7 +129,6 @@ public class WebSocketOODSSClient <S extends Scope> extends Debug implements Cli
 	public void disconnect()
 	{
 		running = false;
-		webSocketClient.close();
 		webSocketClient.removeListener(this);
 		new DisconnectTask().execute();
 	}
@@ -410,6 +409,7 @@ public class WebSocketOODSSClient <S extends Scope> extends Debug implements Cli
 	{
 		// TODO Auto-generated method stub
 		Log.d(TAG, "process closed...");
+		webSocketClient.removeListener(this);
 	}
 
 	public void processReconnecting(WebSocketClientEvent aEvent)
