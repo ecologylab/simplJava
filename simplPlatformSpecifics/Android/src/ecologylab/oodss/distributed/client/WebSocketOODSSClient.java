@@ -5,17 +5,16 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.Arrays;
 import java.util.concurrent.LinkedBlockingQueue;
+
 import org.jwebsocket.api.WebSocketClientEvent;
 import org.jwebsocket.api.WebSocketClientTokenListener;
 import org.jwebsocket.api.WebSocketPacket;
-import org.jwebsocket.client.token.BaseTokenClient;
 import org.jwebsocket.config.JWebSocketCommonConstants;
 import org.jwebsocket.kit.WebSocketException;
 import org.jwebsocket.token.Token;
 
 import android.os.AsyncTask;
 import android.util.Log;
-
 import ecologylab.collections.Scope;
 import ecologylab.generic.Debug;
 import ecologylab.oodss.distributed.common.ClientConstants;
@@ -23,8 +22,8 @@ import ecologylab.oodss.distributed.impl.MessageWithUid;
 import ecologylab.oodss.messages.InitConnectionRequest;
 import ecologylab.oodss.messages.InitConnectionResponse;
 import ecologylab.oodss.messages.RequestMessage;
-import ecologylab.oodss.messages.ServiceMessage;
 import ecologylab.oodss.messages.ResponseMessage;
+import ecologylab.oodss.messages.ServiceMessage;
 import ecologylab.oodss.messages.UpdateMessage;
 import ecologylab.serialization.SIMPLTranslationException;
 import ecologylab.serialization.SimplTypesScope;
@@ -34,7 +33,7 @@ public class WebSocketOODSSClient <S extends Scope> extends Debug implements Cli
 {
 	private static final String TAG = "WebSocketOODSSClient";
 	
-	private BaseTokenClient webSocketClient;
+	private BinaryWebSocketClient webSocketClient;
 	private String currentMessage;
 	private S objectRegistry;
 	private SimplTypesScope translationScope;
@@ -51,7 +50,7 @@ public class WebSocketOODSSClient <S extends Scope> extends Debug implements Cli
 	private final LinkedBlockingQueue<MessageWithUid>	blockingRequestsQueue	= new LinkedBlockingQueue<MessageWithUid>();
 	
 	
-	private boolean running = false;
+	private volatile boolean running = false;
 	private Thread MessageSenderWorker;
 	
 	private WebSocketOODSSConnectionCallbacks clientApplication;
@@ -69,7 +68,7 @@ public class WebSocketOODSSClient <S extends Scope> extends Debug implements Cli
 	public void connect()
 	{
 		String webSocketPrefix = "ws://";
-		String url = webSocketPrefix + serverAddress + ":" + portNumber + "/websocket";
+		String url = webSocketPrefix + serverAddress + ":" + portNumber;
 		startSenderThreads();
 		initializeWebSocketClient(url);
 	}
@@ -94,11 +93,12 @@ public class WebSocketOODSSClient <S extends Scope> extends Debug implements Cli
 	
 	private void initializeWebSocketClient(final String url)
 	{
-		webSocketClient = new BaseTokenClient();
+		webSocketClient = new BinaryWebSocketClient();
 		webSocketClient.addListener(this);
 		new EstablishConnectionTask().execute(url);
 	}
 	
+	// do this asynchronously, because network code cannot be executed in main thread. 
 	private class EstablishConnectionTask extends AsyncTask<String, Integer, Long>
 	{
 
@@ -118,6 +118,45 @@ public class WebSocketOODSSClient <S extends Scope> extends Debug implements Cli
 				new SendAndReceiveInitConnectionInfo().execute(sessionId);
 			}
 				
+		}
+	}
+	
+	
+	/**
+	 *  disconnect the WebSocketOODSSClient from the server
+	 *  stop the MessageSenderWorker thread then send websocket closing handshake 
+	 */
+	public void disconnect()
+	{
+		running = false;
+		webSocketClient.close();
+		webSocketClient.removeListener(this);
+		new DisconnectTask().execute();
+	}
+	
+	/**
+	 *  reconnect the WebSocketOODSSClient to the same server
+	 */
+	public void reconnect()
+	{
+		if (!running)
+			startSenderThreads();
+		String webSocketPrefix = "ws://";
+		String url = webSocketPrefix + serverAddress + ":" + portNumber;
+		if (webSocketClient == null)
+			initializeWebSocketClient(url);
+		else
+			new EstablishConnectionTask().execute(url);
+
+	}
+	
+	private class DisconnectTask extends AsyncTask<Long, Long, Long>
+	{
+		@Override
+		protected Long doInBackground(Long... params) {
+			Log.d(TAG, "To close the websocket connection");
+			webSocketClient.close();
+			return null;
 		}
 	}
 	
@@ -257,6 +296,8 @@ public class WebSocketOODSSClient <S extends Scope> extends Debug implements Cli
 			} catch (WebSocketException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
+				// should put the messsage back 
+				blockingRequestsQueue.put(m);
 			}
 		} 
 		catch (InterruptedException e1) 
@@ -341,8 +382,8 @@ public class WebSocketOODSSClient <S extends Scope> extends Debug implements Cli
 		// TODO Auto-generated method stub
 		Log.d(TAG, "process packet...");
 		byte[] receivedData = aPacket.getByteArray();
-		byte[] uidBytes = Arrays.copyOfRange(receivedData, 0, 8);
-		byte[] messageBytes= Arrays.copyOfRange(receivedData, 8, receivedData.length);
+		byte[] uidBytes = Arrays.copyOfRange(receivedData, 4, 12);
+		byte[] messageBytes= Arrays.copyOfRange(receivedData, 12, receivedData.length);
 		long uid = bytesToLong(uidBytes);
 		currentMessage = new String();
 		try

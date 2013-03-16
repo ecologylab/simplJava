@@ -3,14 +3,7 @@
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="src" path="gen"/>
 	<classpathentry kind="con" path="com.android.ide.eclipse.adt.ANDROID_FRAMEWORK"/>
-	<classpathentry kind="lib" path="libs/json_simple-1.1.jar"/>
-	<classpathentry kind="lib" path="libs/xercesMinimal.jar"/>
-	<classpathentry kind="lib" path="libs/xml-addon.jar"/>
-	<classpathentry kind="lib" path="libs/jackson-core-lgpl-1.7.8.jar"/>
-	<classpathentry kind="lib" path="libs/jWebSocketClientAPI-1.0.jar" sourcepath="/Users/fei/ecologylab/jWebSocketDev/branches/jWebSocket-1.0/shared/J2SE/jWebSocketClientAPI"/>
-	<classpathentry kind="lib" path="libs/jWebSocketCommon-1.0.jar" sourcepath="/Users/fei/ecologylab/jWebSocketDev/branches/jWebSocket-1.0/shared/J2SE/jWebSocketCommon"/>
-	<classpathentry kind="lib" path="libs/jWebSocketJavaSEClient-1.0.jar" sourcepath="/Users/fei/ecologylab/jWebSocketDev/branches/jWebSocket-1.0/shared/J2SE/jWebSocketJavaSEClient"/>
 	<classpathentry kind="con" path="com.android.ide.eclipse.adt.LIBRARIES"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/simplCore"/>
+	<classpathentry combineaccessrules="false" exported="true" kind="src" path="/simplCore"/>
 	<classpathentry kind="output" path="bin/classes"/>
 </classpath>
