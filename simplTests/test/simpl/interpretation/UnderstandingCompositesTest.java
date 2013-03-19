@@ -339,6 +339,8 @@ public class UnderstandingCompositesTest {
 		BInterp.setFieldName("right");
 		BInterp.addInterpretation(new ScalarInterpretation("myString", "Bstring", "StringType"));
 		
+		rootObject.addInterpretation(BInterp);
+		
 		CompositeInterpretation referenceToAinB = new CompositeInterpretation("hard_composite_node");
 		referenceToAinB.setRefString("1");
 		referenceToAinB.setFieldName("right");
@@ -435,6 +437,7 @@ public class UnderstandingCompositesTest {
 		
 		CompositeInterpretation rootObject = new CompositeInterpretation("hard_composite_node");
 		rootObject.addInterpretation(new ScalarInterpretation("myString", "Astring", "StringType"));
+		rootObject.setIDString("1");
 		
 		CompositeInterpretation bObject = new CompositeInterpretation("hard_composite_node");
 		bObject.setFieldName("right");
