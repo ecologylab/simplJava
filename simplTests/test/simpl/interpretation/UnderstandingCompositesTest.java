@@ -81,7 +81,6 @@ public class UnderstandingCompositesTest {
 		assertEquals(result.secondaryEnumInts, orig.secondaryEnumInts);
 	}
 	
-
 	@Test
 	public void testUnderstandingOfComposites() throws SIMPLTranslationException
 	{
@@ -143,9 +142,7 @@ public class UnderstandingCompositesTest {
 				assertEquals(new Integer(13), r.aInteger);
 				assertEquals("string", r.aField);
 	}
-	
-	
-	
+		
 	@Test
 	public void testUnderstandingOfBasicRefs() throws SIMPLTranslationException
 	{
@@ -237,26 +234,26 @@ public class UnderstandingCompositesTest {
 		List<SimplInterpretation> outerInterps = new LinkedList<SimplInterpretation>();
 		outerInterps.add(new ScalarInterpretation("myString", "string", "StringType"));
 		
-			CompositeInterpretation ci_pc = new CompositeInterpretation();
-			ci_pc.setFieldName("ReferencedComp");
-			ci_pc.setTagName("plain_composite");
+		CompositeInterpretation ci_pc = new CompositeInterpretation();
+		ci_pc.setFieldName("ReferencedComp");
+		ci_pc.setTagName("plain_composite");
+			
+			
+		CompositeInterpretation ci_ms = new CompositeInterpretation();
+		ci_ms.setFieldName("myComposite");
+		ci_ms.setTagName("my_scalars");
+		
+		List<SimplInterpretation> innerCompositeInterps = new LinkedList<SimplInterpretation>();
+		innerCompositeInterps.add(new ScalarInterpretation("aInteger", orig.aInteger.toString(), "IntegerType"));
+		innerCompositeInterps.add(new ScalarInterpretation("aField", orig.aField, "StringType"));
+		innerCompositeInterps.add(new ScalarInterpretation("aDouble", orig.aDouble.toString(), "DoubleType"));
 				
-				
-				CompositeInterpretation ci_ms = new CompositeInterpretation();
-				ci_ms.setFieldName("myComposite");
-				ci_ms.setTagName("my_scalars");
-				
-					List<SimplInterpretation> innerCompositeInterps = new LinkedList<SimplInterpretation>();
-					innerCompositeInterps.add(new ScalarInterpretation("aInteger", orig.aInteger.toString(), "IntegerType"));
-					innerCompositeInterps.add(new ScalarInterpretation("aField", orig.aField, "StringType"));
-					innerCompositeInterps.add(new ScalarInterpretation("aDouble", orig.aDouble.toString(), "DoubleType"));
-						
-				for(SimplInterpretation si : innerCompositeInterps)
-				{
-					ci_ms.addInterpretation(si);
-				}
-			ci_pc.addInterpretation(new ScalarInterpretation("myString", "string", "StringType"));
-			ci_pc.addInterpretation(ci_ms);
+		for(SimplInterpretation si : innerCompositeInterps)
+		{
+			ci_ms.addInterpretation(si);
+		}
+		ci_pc.addInterpretation(new ScalarInterpretation("myString", "string", "StringType"));
+		ci_pc.addInterpretation(ci_ms);
 		
 		outerInterps.add(ci_pc);
 			
@@ -274,5 +271,199 @@ public class UnderstandingCompositesTest {
 		assertEquals("MyScalar contains incorrect string", r.ReferencedComp.myComposite.aField, orig.aField);
 		assertEquals("MyScalar contains incorrect int", r.ReferencedComp.myComposite.aDouble, orig.aDouble);
 		assertEquals("MyScalar contains incorrect double", r.ReferencedComp.myComposite.aInteger, orig.aInteger);
+	}
+
+	@Test
+	public void testUnderstandingOfSelfReference() throws SIMPLTranslationException
+	{
+		//Build Object A
+		hardCompositeNode A = new hardCompositeNode();
+		A.myString = "Astring";
+		A.right = A;
+		
+		
+		//Build Interps
+		List<SimplInterpretation> simplInterps = new LinkedList<SimplInterpretation>();
+		simplInterps.add(new ScalarInterpretation("myString", "Astring", "StringType"));
+		
+			CompositeInterpretation refInterp = new CompositeInterpretation();
+			refInterp.setTagName("hard_composite_node");
+			refInterp.setFieldName("right");
+			refInterp.addInterpretation(refInterp);
+		
+		//Composite references itself. Cycle of 1
+			
+		//Setup:
+			ISimplTypesScope context = SimplTypesScopeFactory.name("selfReferenceUnderstanding").translations(hardCompositeNode.class).create();
+			SimplUnderstander su = new SimplUnderstander(context);
+		
+		Object result = su.understandInterpretation(simplInterps,"hard_composite_node");
+		hardCompositeNode r = ((hardCompositeNode)result);
+		
+		assertEquals("myString is incorrect", r.myString, A.myString);
+		//assertEquals("myString is equal to child's myString", r.right.myString, r.myString); //FAILS
+		assertNull("left is not null, and should be", r.left);
+		assertTrue("Object r does not equal its child", r == r.right);
+	}
+	
+	@Test
+	public void testUnderstandingOfMutualReference() throws SIMPLTranslationException //Two nodes mutually referencing each other. A node should be its own grandchild
+	{
+		//Build Object A,B
+		hardCompositeNode A = new hardCompositeNode();
+		A.myString = "Astring";
+		hardCompositeNode B = new hardCompositeNode();
+		B.myString = "Bstring";
+		
+		A.right = B;
+		B.right = A;
+		
+			
+			
+		//Build Interps
+		List<SimplInterpretation> simplInterps = new LinkedList<SimplInterpretation>();
+		simplInterps.add(new ScalarInterpretation("myString", "Astring", "StringType"));
+		
+			CompositeInterpretation AInterp = new CompositeInterpretation();
+			AInterp.setTagName("hard_composite_node");
+			AInterp.setFieldName("right");
+			AInterp.addInterpretation(new ScalarInterpretation("myString", "Astring", "StringType"));
+				CompositeInterpretation BInterp = new CompositeInterpretation();
+				BInterp.setTagName("hard_composite_node");
+				BInterp.setFieldName("right");
+				BInterp.addInterpretation(AInterp);
+				
+			
+			AInterp.addInterpretation(BInterp);
+		simplInterps.add(AInterp);		
+				
+		//Setup:
+		ISimplTypesScope context = SimplTypesScopeFactory.name("mutualReferenceUnderstanding").translations(hardCompositeNode.class).create();
+		SimplUnderstander su = new SimplUnderstander(context);
+				
+		Object result = su.understandInterpretation(simplInterps,"hard_composite_node");
+		hardCompositeNode r = ((hardCompositeNode)result); //r should equal
+		
+		assertEquals("myString of A does not match that of r", A.myString, r.myString);
+		assertEquals("myString of B does not match that of r's child", B.myString, r.right.myString);
+		assertEquals("myString of A does not match that of r's grandchild", A.myString, r.right.right.myString);
+		assertNull("A's left is not null, and should be", A.left);
+		assertNull("B's left is not null, and should be", B.left);
+		
+		//Two composites reference each other. Cycle of 2
+	}
+	
+	@Test
+	public void testUnderstandingOfDirectedLoop() throws SIMPLTranslationException
+	{
+		//Three composites, each referencing the one to the "left". Directed graph around a group of 3. A node should be its own great grandchild
+		hardCompositeNode A = new hardCompositeNode();
+		A.myString = "Astring";
+		hardCompositeNode B = new hardCompositeNode();
+		B.myString = "Bstring";
+		hardCompositeNode C = new hardCompositeNode();
+		C.myString = "Cstring";
+		
+		A.right = B;
+		B.right = C;
+		C.right = A;
+		
+			
+			
+		//Build Interps
+		List<SimplInterpretation> simplInterps = new LinkedList<SimplInterpretation>();
+		simplInterps.add(new ScalarInterpretation("myString", "Astring", "StringType"));
+		
+			CompositeInterpretation AInterp = new CompositeInterpretation();
+			AInterp.setTagName("hard_composite_node");
+			AInterp.setFieldName("right");
+			AInterp.addInterpretation(new ScalarInterpretation("myString", "Astring", "StringType"));
+				
+				CompositeInterpretation BInterp = new CompositeInterpretation();
+				BInterp.setTagName("hard_composite_node");
+				BInterp.setFieldName("right");
+				
+				
+					CompositeInterpretation CInterp = new CompositeInterpretation();
+					CInterp.setTagName("hard_composite_node");
+					CInterp.setFieldName("right");
+					CInterp.addInterpretation(AInterp);
+			
+				BInterp.addInterpretation(CInterp);
+			AInterp.addInterpretation(BInterp);
+		simplInterps.add(AInterp);		
+				
+		//Setup:
+		ISimplTypesScope context = SimplTypesScopeFactory.name("directedLoopReferenceUnderstanding").translations(hardCompositeNode.class).create();
+		SimplUnderstander su = new SimplUnderstander(context);
+				
+		Object result = su.understandInterpretation(simplInterps,"hard_composite_node");
+		hardCompositeNode r = ((hardCompositeNode)result); //r should equal
+		
+		assertEquals("myString of A does not match that of r", A.myString, r.myString);
+		assertEquals("myString of B does not match that of r's child", B.myString, r.right.myString);
+		assertEquals("myString of C does not match that of r's grandchild", C.myString, r.right.right.myString);
+		assertEquals("myString of A does not match that of r's greatgrandchild", A.myString, r.right.right.right.myString);
+		assertNull("left of A should be null", A.left);
+		assertNull("left of B should be null", B.left);
+		assertNull("left of C should be null", C.left);
+		//Two composites reference each other. Cycle of 2
+	}
+	
+	@Test
+	public void testUnderstandingOfSpecialCase() throws SIMPLTranslationException //Still needs work
+	{
+		//Three composites, each referencing the one to the "left". Directed graph around a group of 3. A node should be its own great grandchild
+		hardCompositeNode A = new hardCompositeNode();
+		A.myString = "Astring";
+		hardCompositeNode B = new hardCompositeNode();
+		B.myString = "Bstring";
+		hardCompositeNode C = new hardCompositeNode();
+		C.myString = "Cstring";
+		
+		A.right = B;
+		B.right = C;
+		C.right = A;
+		B.left = A;
+			
+			
+		//Build Interps
+		List<SimplInterpretation> simplInterps = new LinkedList<SimplInterpretation>();
+		simplInterps.add(new ScalarInterpretation("myString", "Astring", "StringType"));
+		
+			CompositeInterpretation AInterp = new CompositeInterpretation();
+			AInterp.setTagName("hard_composite_node");
+			AInterp.setFieldName("right");
+			AInterp.addInterpretation(new ScalarInterpretation("myString", "Astring", "StringType"));
+						
+				CompositeInterpretation BInterp = new CompositeInterpretation();
+				BInterp.setTagName("hard_composite_node");
+				BInterp.setFieldName("right");
+						
+						
+					CompositeInterpretation CInterp = new CompositeInterpretation();
+					CInterp.setTagName("hard_composite_node");
+					CInterp.setFieldName("right");
+					CInterp.addInterpretation(AInterp);
+					
+				BInterp.addInterpretation(CInterp);
+				BInterp.addInterpretation(AInterp);
+			AInterp.addInterpretation(BInterp);
+		simplInterps.add(AInterp);		
+						
+				//Setup:
+		ISimplTypesScope context = SimplTypesScopeFactory.name("directedLoopReferenceUnderstanding").translations(hardCompositeNode.class).create();
+		SimplUnderstander su = new SimplUnderstander(context);
+				
+		Object result = su.understandInterpretation(simplInterps,"hard_composite_node");
+		hardCompositeNode r = ((hardCompositeNode)result); //r should equal
+				
+		assertEquals("myString of A does not match that of r", A.myString, r.myString);
+		assertEquals("myString of B does not match that of r's child", B.myString, r.right.myString);
+		assertEquals("myString of C does not match that of r's grandchild", C.myString, r.right.right.myString);
+		assertEquals("myString of A does not match that of r's greatgrandchild", A.myString, r.right.right.right.myString);
+		assertNull("Left of A should be Null", A.left);
+		assertNull("Left of C should be Null", C.left);
+		//Three composites, A refers to b, b refers to c, c refers to b. B is both the child and great grandchild of A. B is its own grandchild
 	}
 }
