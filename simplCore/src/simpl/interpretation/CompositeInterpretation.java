@@ -1,5 +1,6 @@
 package simpl.interpretation;
 
+import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
@@ -39,14 +40,20 @@ public class CompositeInterpretation implements SimplInterpretation{
 	
 	List<SimplInterpretation> interpretations;
 	
-	public CompositeInterpretation()
+	public CompositeInterpretation(String tagName)
 	{
 		this.interpretations = new LinkedList<SimplInterpretation>();
+		this.tagName = tagName;
 	}
 	
 	public void addInterpretation(SimplInterpretation si)
 	{
 		this.interpretations.add(si);
+	}
+	
+	public void addInterpretations(Collection<SimplInterpretation> interps)
+	{
+		this.interpretations.addAll(interps);
 	}
 	
 	public String getIDString()

@@ -20,27 +20,14 @@ public class SimplUnderstander {
 		this.scope = contextScope;
 	}
 	
-	public Object understandInterpretation(List<SimplInterpretation> interps, String tagName) throws SIMPLTranslationException
-	{
-		ClassDescriptor ourDescriptor = this.scope.getClassDescriptorByTag(tagName);
-		
-		if(ourDescriptor == null)
-		{
-			throw new SIMPLTranslationException("Tag name {"+tagName+"} is not in the context type scope! Did you initialize your Simpl Types Scope correctly?");
-		}
-		
-		Object ourObject = ourDescriptor.getInstance();
-		
+	public Object understandInterpretation(CompositeInterpretation rootObjectInterpretation) throws SIMPLTranslationException
+	{		
 		UnderstandingContext understandingContext = new UnderstandingContext(this.scope);
 	
 		Set<String> refSet = new HashSet<String>();
 		
-		for(SimplInterpretation interp : interps)
-		{
-			interp.resolve(ourObject, refSet, understandingContext);
-		}
-		
-		
+		Object ourObject = rootObjectInterpretation.getValue(null /*Null here because this is a root object*/ , refSet, understandingContext);
+
 		if(!refSet.isEmpty())
 		{
 			throw new RuntimeException("Missed a simpl ref!");

@@ -25,6 +25,8 @@ public class UnderstandingListsTest {
 		los.myList.add(3);
 		
 		los.myString = "string";
+		
+		CompositeInterpretation rootObject = new CompositeInterpretation("list_of_scalars");
 
 		List<SimplInterpretation> interps = new LinkedList<SimplInterpretation>();
 		interps.add(new ScalarInterpretation("myString", "string", "StringType"));
@@ -38,10 +40,12 @@ public class UnderstandingListsTest {
 
 		interps.add(li);
 		
+		rootObject.addInterpretations(interps);
+		
 		ISimplTypesScope context = SimplTypesScopeFactory.name("scalarListTest").translations(listOfScalars.class).create();
 		
 		SimplUnderstander su = new SimplUnderstander(context);
-		Object result = su.understandInterpretation(interps, "list_of_scalars");
+		Object result = su.understandInterpretation(rootObject);
 		assertNotNull(result);
 		
 		listOfScalars losResult = (listOfScalars)result;
@@ -66,8 +70,7 @@ public class UnderstandingListsTest {
 	
 	private CompositeInterpretation makeCompositeInterp(Integer i)
 	{
-		CompositeInterpretation ourInterp = new CompositeInterpretation();
-		ourInterp.tagName = "simpler_inner_list_composite";
+		CompositeInterpretation ourInterp = new CompositeInterpretation("simpler_inner_list_composite");
 		ourInterp.fieldName = "";
 		ourInterp.idString = "";
 		ourInterp.refString = "";
@@ -91,6 +94,7 @@ public class UnderstandingListsTest {
 		
 		loc.myString = "string";
 		
+		CompositeInterpretation rootObject = new CompositeInterpretation("list_of_composites");
 		
 		List<SimplInterpretation> interps = new LinkedList<SimplInterpretation>();
 		interps.add(new ScalarInterpretation("myString", "string", "StringType"));
@@ -104,11 +108,13 @@ public class UnderstandingListsTest {
 		
 		interps.add(li);
 		
+		rootObject.addInterpretations(interps);
+		
 		ISimplTypesScope context = SimplTypesScopeFactory.name("compositeListUnderstanding").translations(simplerInnerListComposite.class, listOfComposites.class).create();
 		
 		SimplUnderstander su = new SimplUnderstander(context);
 		
-		Object result = su.understandInterpretation(interps, "list_of_composites");
+		Object result = su.understandInterpretation(rootObject);
 		
 		assertNotNull(result);
 		
@@ -144,6 +150,10 @@ public class UnderstandingListsTest {
 
 		listOfListsOfScalars example = new listOfListsOfScalars();
 		// todo: populate an example here so that it can be interpreted. :) 
+		
+		
+		
+		CompositeInterpretation rootObject = new CompositeInterpretation("list_of_lists_of_scalars");
 		
 		ListInterpretation li = new ListInterpretation();
 		li.setFieldName("listOfLists");
@@ -192,11 +202,13 @@ public class UnderstandingListsTest {
 		interps.add(new ScalarInterpretation("myString", "string", "StringType"));
 		interps.add(li);
 		
+		rootObject.addInterpretations(interps);
+		
 		ISimplTypesScope context = SimplTypesScopeFactory.name("ListOfListTests").translations(listOfListsOfScalars.class).create();	
 		
 		SimplUnderstander su = new SimplUnderstander(context);
 		
-		Object result = su.understandInterpretation(interps, "list_of_lists_of_scalars");
+		Object result = su.understandInterpretation(rootObject);
 		
 		assertNotNull(result);
 		

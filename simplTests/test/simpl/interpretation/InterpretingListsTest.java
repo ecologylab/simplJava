@@ -27,8 +27,10 @@ public class InterpretingListsTest {
 		
 		SimplUnderstander understander = new SimplUnderstander(context);
 		
-		Object result = understander.understandInterpretation(interpreter.interpretInstance(los), "list_of_scalars");
+	//	Object result = understander.understandInterpretation(interpreter.interpretInstance(los), "list_of_scalars");
 
+		Object result = null;
+		fail("reimplement w/ new structure");
 		assertNotNull(result);
 		
 		listOfScalars theResult = (listOfScalars)result;

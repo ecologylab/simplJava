@@ -31,7 +31,9 @@ public class InterpretingScalarsTest {
 		String tagName = ClassDescriptors.getClassDescriptor(myScalars.class).getTagName();
 		assertNotNull(tagName);
 		
-		Object result = su.understandInterpretation(interpretations, tagName);
+		Object result = null;//su.understandInterpretation(interpretations, tagName);
+		
+		fail("reimplement with new structure)");
 		
 		myScalars r = (myScalars)result;
 		assertEquals(orig.aDouble, r.aDouble);
