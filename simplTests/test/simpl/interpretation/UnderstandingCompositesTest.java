@@ -293,15 +293,14 @@ public class UnderstandingCompositesTest {
 		A.right = A;
 		
 		CompositeInterpretation rootObject = new CompositeInterpretation("hard_composite_node");
-		rootObject.setIDString("1");
-		
-		//Build Interps
-		List<SimplInterpretation> simplInterps = new LinkedList<SimplInterpretation>();
-		simplInterps.add(new ScalarInterpretation("myString", "Astring", "StringType"));
+		rootObject.setIDString("1");		
+		rootObject.addInterpretation(new ScalarInterpretation("myString", "Astring", "StringType"));
 		
 			CompositeInterpretation refInterp = new CompositeInterpretation("hard_composite_node");
 			refInterp.setFieldName("right");
 			refInterp.setRefString("1");
+			
+		rootObject.addInterpretation(refInterp);	
 		
 		//Composite references itself. Cycle of 1
 			
@@ -313,9 +312,10 @@ public class UnderstandingCompositesTest {
 		hardCompositeNode r = ((hardCompositeNode)result);
 		
 		assertEquals("myString is incorrect", r.myString, A.myString);
-		//assertEquals("myString is equal to child's myString", r.right.myString, r.myString); //FAILS
+
+		assertNotNull("right should not be null!", r.right);
+		assertTrue("r.right should be the same object as r", r.right==r);
 		assertNull("left is not null, and should be", r.left);
-		assertTrue("Object r does not equal its child", r == r.right);
 	}
 	
 	@Test

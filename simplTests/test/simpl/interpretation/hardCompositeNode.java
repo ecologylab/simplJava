@@ -12,6 +12,8 @@ public class hardCompositeNode {
 	
 	@simpl_composite
 	public hardCompositeNode left;
+	
+	@simpl_composite
 	public hardCompositeNode right;
 	
 	@simpl_scalar
