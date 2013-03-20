@@ -103,12 +103,12 @@ public class FieldDescriptors {
 				
 			}
 			
-			nfd.setListType(new ListType(collectionType));
+			nfd.setMapType(new MapType(collectionType));
 		}
 		else if(classIsCollection(toDescribe.getType()))
 		{
-			Class<?> mapType = toDescribe.getType();
-			if(classIsInterfaceOrAbstract(mapType))
+			Class<?> listType = toDescribe.getType();
+			if(classIsInterfaceOrAbstract(listType))
 			{
 				// we need to obtain the type via creating an instance of the CD.
 				try 
@@ -121,7 +121,7 @@ public class FieldDescriptors {
 						throw new RuntimeException("Fields which are defined with an interface must have an instance initialized by their public constructor in order to be simpl serialized!");
 					}
 					
-					mapType = instance.getClass();
+					listType = instance.getClass();
 				}
 				catch (Exception e)
 				{
@@ -129,7 +129,7 @@ public class FieldDescriptors {
 				}
 			}
 			
-			nfd.setMapType(new MapType(mapType));
+			nfd.setListType(new ListType(listType));
 		}
 		else
 		{
@@ -259,10 +259,11 @@ public class FieldDescriptors {
 	}
 
 	private static boolean classIsMap(Class<?> type) {
-		return type.isAssignableFrom(Map.class);
+		return Map.class.isAssignableFrom(type);
 	}
 
 	private static boolean classIsCollection(Class<?> type) {
-		return type.isAssignableFrom(Collection.class) && !type.isAssignableFrom(Map.class);
+		//type.
+		return Collection.class.isAssignableFrom(type) && !Map.class.isAssignableFrom(type);
 	}
 }

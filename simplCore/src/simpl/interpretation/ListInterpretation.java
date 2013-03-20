@@ -8,8 +8,10 @@ import java.util.Set;
 
 import simpl.descriptions.ClassDescriptor;
 import simpl.descriptions.ClassDescriptors;
+import simpl.descriptions.FieldCategorizer;
 import simpl.descriptions.FieldDescriptor;
 import simpl.exceptions.SIMPLTranslationException;
+import simpl.tools.ReflectionTools;
 import simpl.types.ListType;
 
 public class ListInterpretation implements SimplInterpretation {
@@ -17,6 +19,11 @@ public class ListInterpretation implements SimplInterpretation {
 	String fieldName; 
 	
 	ListType ourListType; 
+	
+	public ListType getListType()
+	{
+		return this.ourListType;
+	}
 	
 	public String getFieldName()
 	{
@@ -30,10 +37,21 @@ public class ListInterpretation implements SimplInterpretation {
 	
 	List<SimplInterpretation> interps; 
 	
+	public List<SimplInterpretation> getInterpretations()
+	{
+		return this.interps;
+	}
+	
 	public ListInterpretation()
 	{
 		this.interps = new LinkedList<SimplInterpretation>();
 		this.ourListType = new ListType();
+	}
+	
+	public ListInterpretation(Class<?> listType)
+	{
+		this.interps = new LinkedList<SimplInterpretation>();
+		this.ourListType = new ListType(listType);
 	}
 	
 	public void addItemInterpretation(SimplInterpretation si)
@@ -85,14 +103,28 @@ public class ListInterpretation implements SimplInterpretation {
 			InterpretationContext interpretationContext)
 			throws SIMPLTranslationException {
 		
-			return null;
+		ListInterpretation li = (ListInterpretation) interpretObject(ReflectionTools.getFieldValue(field.getField(), context), interpretationContext);
+		
+		li.setFieldName(field.getName());
+		
+		return li;		
 	}
 
 	@Override
 	public SimplInterpretation interpretObject(Object theObject,
 			InterpretationContext interpretationContext) throws SIMPLTranslationException {
-		// TODO Auto-generated method stub
-		return null;
+	
+		ListInterpretation li = new ListInterpretation(theObject.getClass());
+		
+		Collection theCollection  = (Collection) theObject;
+				
+		for(Object o: theCollection)
+		{
+			SimplInterpretation si = interpretationContext.interpretObject(o);
+			li.addItemInterpretation(si);
+		}
+		
+		return li;
 	}
 	
 }
