@@ -11,6 +11,8 @@ import org.junit.Test;
 
 import simpl.descriptions.ClassDescriptor;
 import simpl.descriptions.ClassDescriptors;
+import simpl.descriptions.FieldDescriptor;
+import simpl.descriptions.FieldType;
 import simpl.interpretation.listOfScalars;
 import simpl.types.ListType;
 
@@ -66,6 +68,11 @@ public class MapAndListTypeTests {
 		assertNotNull("Should have a list type!", lt);
 		Object instance = lt.createInstance();
 		assertEquals(instance.getClass(), LinkedList.class);
+		
+		FieldDescriptor fd = cd.allFieldDescriptors().get(0);
+		assertEquals(FieldType.COLLECTION_SCALAR, fd.getType());
+		
+		
 	}
 	
 	@Test

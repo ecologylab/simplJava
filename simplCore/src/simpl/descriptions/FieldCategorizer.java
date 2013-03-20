@@ -10,6 +10,7 @@ import simpl.annotations.dbal.simpl_composite_as_scalar;
 import simpl.annotations.dbal.simpl_map;
 import simpl.annotations.dbal.simpl_scalar;
 import simpl.core.ElementState;
+import simpl.platformspecifics.SimplPlatformSpecifics;
 import simpl.tools.XMLTools;
 import simpl.types.TypeRegistry;
 
@@ -39,8 +40,10 @@ public class FieldCategorizer {
 			// THIS WILL NOT BE A PERMANENT SOLUTION.
 			if (FieldCategorizer.isEnumCollection(thatField)) {
 				// Enums are scalars at the moment.
-				fieldType = FieldType.COLLECTION_ELEMENT;
-			} else {
+				fieldType = FieldType.COLLECTION_SCALAR;
+			} else if(FieldCategorizer.isScalarCollection(thatField)){
+				fieldType = FieldType.COLLECTION_SCALAR;
+			}else{
 				fieldType = FieldType.COLLECTION_ELEMENT;
 			}
 		} else if (FieldCategorizer.representAsMap(thatField)) {
@@ -49,7 +52,25 @@ public class FieldCategorizer {
 		
 		return fieldType;
 	}
+		
 
+	
+
+	public static boolean isScalarCollection(Field f) {
+		if(representAsCollection(f))
+		{
+			ArrayList<Class<?>> classes = XMLTools.getGenericParameters(f);
+			if(classes.isEmpty())
+			{
+				return false;
+			}else{
+				return TypeRegistry.containsScalarTypeFor(classes.get(0));
+			}
+		}else{
+			return false;
+		}
+	}
+	
 	public static boolean isEnumCollection(Field f) {
 		if(representAsCollection(f))
 		{

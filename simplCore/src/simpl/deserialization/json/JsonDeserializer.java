@@ -15,11 +15,6 @@ public class JsonDeserializer {
 	{
 	}
 	
-	private CompositeInterpretation(String tagOrField, ClassDescriptor contextCD, ISimplTypesScope sts)
-	{
-		
-	}
-	
 	public CompositeInterpretation deserialize(String objRepr, ISimplTypesScope sts) throws SIMPLTranslationException
 	{
 		Object val = JSONValue.parse(objRepr);
