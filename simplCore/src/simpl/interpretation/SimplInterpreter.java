@@ -28,7 +28,7 @@ public class SimplInterpreter {
 	
 	public SimplInterpretation interpretField(Object obj, FieldDescriptor fd) throws SIMPLTranslationException 
 	{
-		
+		// TODO: ELIMINATE THIS HIDEOUS HACK. :) 
 		switch(fd.getType())
 		{
 			case SCALAR:

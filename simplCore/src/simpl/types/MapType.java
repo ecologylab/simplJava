@@ -12,7 +12,6 @@ public class MapType {
 	
 	Class<?> mapClass;
 	
-	
 	public MapType(Class<?> mapClass)
 	{
 		// we just need the map class to make the map type >:3 
@@ -39,14 +38,13 @@ public class MapType {
 	
 	public Object getInstance()
 	{
-		try {
+		try 
+		{
 			return this.getMapClass().newInstance();
-		} catch (Exception e)
+		} 
+		catch (Exception e)
 		{
 			throw new RuntimeException(e);
 		}
-	}
-	
-	
-	
+	}	
 }

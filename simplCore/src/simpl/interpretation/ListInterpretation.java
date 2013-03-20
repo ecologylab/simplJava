@@ -1,6 +1,7 @@
 package simpl.interpretation;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
@@ -50,7 +51,7 @@ public class ListInterpretation implements SimplInterpretation {
 			UnderstandingContext understandingContext)
 			throws SIMPLTranslationException {
 
-		List<Object> items = (List<Object>)getValue(context, refSet, understandingContext);
+		Collection items = (Collection)getValue(context, refSet, understandingContext);
 
 		for(Object item : items)
 		{
@@ -63,23 +64,20 @@ public class ListInterpretation implements SimplInterpretation {
 			}
 		}
 	}
-	
-	
 
 	@Override
 	public Object getValue(Object context, Set<String> refSet,
 			UnderstandingContext understandingContext)
 			throws SIMPLTranslationException {
 		
-		List<Object> items = new ArrayList<Object>(interps.size()); // default. 
+		Collection items = this.ourListType.createInstance(); // default. 
 		
 		for(int i = 0; i < this.interps.size(); i++)
 		{
-			items.add(i, interps.get(i).getValue(context, refSet, understandingContext));
+			items.add(interps.get(i).getValue(context, refSet, understandingContext));
 		}
 		
 		return items;
-		
 	}
 
 	@Override

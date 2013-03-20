@@ -1,8 +1,11 @@
 package simpl.descriptions;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 import simpl.annotations.dbal.simpl_classes;
@@ -11,11 +14,12 @@ import simpl.annotations.dbal.simpl_scope;
 import simpl.core.ISimplTypesScope;
 import simpl.core.SimplTypesScope;
 import simpl.exceptions.SIMPLDescriptionException;
+import simpl.tools.ReflectionTools;
+import simpl.types.ListType;
+import simpl.types.MapType;
 import simpl.types.TypeRegistry;
 
 public class FieldDescriptors {
-
-	
 	public Class<?> ourClass;
 	
 	public FieldDescriptors(Class<?> parentClass)
@@ -73,6 +77,59 @@ public class FieldDescriptors {
 		else if(classIsScalar(toDescribe.getType()))
 		{
 			nfd.setScalarType(TypeRegistry.getScalarType(toDescribe.getType()));
+		}
+		else if(classIsMap(toDescribe.getType()))
+		{
+			Class<?> collectionType = toDescribe.getType();
+			if(classIsInterfaceOrAbstract(collectionType))
+			{
+				// we need to obtain the type via creating an instance of the CD. 
+				
+				try {
+					Object o = declaringClass.newInstance();
+					Object instance = ReflectionTools.getFieldValue(nfd.getField(), o);
+					
+					if(instance == null)
+					{
+						throw new RuntimeException("Fields which are defined with an interface must have an instance initialized by their public constructor in order to be simpl serialized!");
+					}
+					
+					collectionType = instance.getClass();
+					
+				} catch (Exception e)
+				{
+					throw new RuntimeException(e);
+				}
+				
+			}
+			
+			nfd.setListType(new ListType(collectionType));
+		}
+		else if(classIsCollection(toDescribe.getType()))
+		{
+			Class<?> mapType = toDescribe.getType();
+			if(classIsInterfaceOrAbstract(mapType))
+			{
+				// we need to obtain the type via creating an instance of the CD.
+				try 
+				{
+					Object o = declaringClass.newInstance();
+					Object instance = ReflectionTools.getFieldValue(nfd.getField(), o);
+					
+					if(instance == null)
+					{
+						throw new RuntimeException("Fields which are defined with an interface must have an instance initialized by their public constructor in order to be simpl serialized!");
+					}
+					
+					mapType = instance.getClass();
+				}
+				catch (Exception e)
+				{
+					throw new RuntimeException(e);
+				}
+			}
+			
+			nfd.setMapType(new MapType(mapType));
 		}
 		else
 		{
@@ -193,10 +250,19 @@ public class FieldDescriptors {
 			}
 		}
 		
-		
-		
-		
-		
 		return nfd;
+	}
+	
+	private static boolean classIsInterfaceOrAbstract(Class<?> toDescribe)
+	{
+		return (toDescribe.isInterface() || Modifier.isAbstract(toDescribe.getModifiers()));
+	}
+
+	private static boolean classIsMap(Class<?> type) {
+		return type.isAssignableFrom(Map.class);
+	}
+
+	private static boolean classIsCollection(Class<?> type) {
+		return type.isAssignableFrom(Collection.class) && !type.isAssignableFrom(Map.class);
 	}
 }

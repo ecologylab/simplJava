@@ -4,6 +4,7 @@ import java.lang.reflect.Field;
 import java.util.Collection;
 
 import simpl.types.ListType;
+import simpl.types.MapType;
 import simpl.types.ScalarType;
 
 
@@ -82,6 +83,8 @@ public interface FieldDescriptor extends IMetaInformationProvider {
 	boolean isCollectionTag(String tagName);
 	
 	void setValue(Object context, Object value);
+
+	MapType getMapType();
 	
 	
 }

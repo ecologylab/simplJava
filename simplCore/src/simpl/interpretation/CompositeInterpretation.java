@@ -56,6 +56,11 @@ public class CompositeInterpretation implements SimplInterpretation{
 		this.interpretations.addAll(interps);
 	}
 	
+	public List<SimplInterpretation> getInterpretations()
+	{
+		return this.interpretations;
+	}
+	
 	public String getIDString()
 	{
 		return this.idString;

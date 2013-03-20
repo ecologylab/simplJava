@@ -7,6 +7,7 @@ import java.util.LinkedList;
 
 import simpl.annotations.dbal.simpl_scalar;
 import simpl.types.ListType;
+import simpl.types.MapType;
 import simpl.types.ScalarType;
 
 public class FieldDescriptorImpl implements FieldDescriptor {
@@ -220,6 +221,19 @@ public class FieldDescriptorImpl implements FieldDescriptor {
 	public ListType getListType() {
 		// TODO Auto-generated method stub
 		return this.ourListType;
+	}
+
+	MapType ourMapType;
+	
+	public void setMapType(MapType mapType) {
+		// TODO Auto-generated method stub
+		this.ourMapType = mapType;
+	}
+
+	@Override
+	public MapType getMapType()
+	{
+		return this.ourMapType;
 	}
 	
 }

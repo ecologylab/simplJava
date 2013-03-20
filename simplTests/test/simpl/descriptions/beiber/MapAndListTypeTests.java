@@ -9,6 +9,11 @@ import java.util.Map;
 
 import org.junit.Test;
 
+import simpl.descriptions.ClassDescriptor;
+import simpl.descriptions.ClassDescriptors;
+import simpl.interpretation.listOfScalars;
+import simpl.types.ListType;
+
 public class MapAndListTypeTests {
 
 	class mapClass 
@@ -51,6 +56,33 @@ public class MapAndListTypeTests {
 		assertEquals(3, l.size());		
 	}
 	
+	@Test
+	public void testListTypeCreatedForDeclaredListType()
+	{
+		ClassDescriptor cd = ClassDescriptors.getClassDescriptor(declaredListDescription.class);
+		assertEquals(1, cd.allFieldDescriptors().size());
+		
+		ListType lt = cd.allFieldDescriptors().get(0).getListType();
+		assertNotNull("Should have a list type!", lt);
+		Object instance = lt.createInstance();
+		assertEquals(instance.getClass(), LinkedList.class);
+	}
 	
+	@Test
+	public void testListTypeCreatedForInterfaceListType()
+	{
+		
+	}
 	
+	@Test
+	public void testMapTypeCreatedForDeclaredMapType()
+	{
+		
+	}
+	
+	@Test
+	public void testMapTypeCreatedForInterfaceMapType()
+	{
+		
+	}
 }
