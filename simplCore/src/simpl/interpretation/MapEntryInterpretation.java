@@ -1,5 +1,6 @@
 package simpl.interpretation;
 
+import java.util.Map;
 import java.util.Set;
 
 import simpl.descriptions.FieldDescriptor;
@@ -58,7 +59,6 @@ public class MapEntryInterpretation implements SimplInterpretation{
 	@Override
 	public SimplInterpretation interpretObject(Object theObject,
 			InterpretationContext interpretationContext) throws SIMPLTranslationException {
-		// TODO Auto-generated method stub
 		return null;
 	}
 }

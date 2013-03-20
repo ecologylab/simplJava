@@ -24,9 +24,7 @@ public class SimplInterpreter {
 		this.thisInterpContext= new InterpretationContext(this);
 		this.initializeInterpreters();
 	}
-	
-	static CompositeInterpretation compositeInterpReference = new CompositeInterpretation("");
-	
+		
 	public SimplInterpretation interpretInstance(Object obj) throws SIMPLTranslationException
 	{
 		return selectInterpretationForObject(obj).interpretObject(obj, this.thisInterpContext);

@@ -20,6 +20,12 @@ public class MapInterpretation implements SimplInterpretation{
 		this.entryInterpretations = new ArrayList<MapEntryInterpretation>();
 		this.mapType = new MapType(HashMap.class);
 	}
+	
+	public MapInterpretation(Class<?> mapType)
+	{
+		this.entryInterpretations = new ArrayList<MapEntryInterpretation>();
+		this.mapType = new MapType(mapType);
+	}
 
 	List<MapEntryInterpretation> entryInterpretations;
 	
@@ -82,14 +88,34 @@ public class MapInterpretation implements SimplInterpretation{
 	public SimplInterpretation interpret(Object context, FieldDescriptor field,
 			InterpretationContext interpretationContext)
 			throws SIMPLTranslationException {
-		// TODO Auto-generated method stub
-		return null;
+		
+		MapInterpretation mi = (MapInterpretation)this.interpretObject(ReflectionTools.getFieldValue(field.getField(), context), interpretationContext);
+		mi.setFieldName(field.getName());
+		return mi;
 	}
 
 	@Override
 	public SimplInterpretation interpretObject(Object theObject,
 			InterpretationContext interpretationContext) throws SIMPLTranslationException {
 		// TODO Auto-generated method stub
-		return null;
+
+		MapInterpretation mi = new MapInterpretation(theObject.getClass());
+
+		Map m = (Map)theObject;
+		
+		for(Object ent : m.entrySet())
+		{
+			Map.Entry entry = (Map.Entry)ent;
+			
+			Object key = entry.getKey();
+			Object value = entry.getValue();
+			
+			SimplInterpretation simplInterpKey = interpretationContext.interpretObject(key);
+			SimplInterpretation simplInterpVal = interpretationContext.interpretObject(value);
+			
+			mi.addEntryInterpretation(simplInterpKey, simplInterpVal);
+		}
+		
+		return mi;
 	}
 }
