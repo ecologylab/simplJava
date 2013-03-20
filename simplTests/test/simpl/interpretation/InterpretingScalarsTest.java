@@ -25,16 +25,19 @@ public class InterpretingScalarsTest {
 		
 		SimplInterpreter si = new SimplInterpreter();
 		
-		List<SimplInterpretation> interpretations = si.interpretInstance(orig);
+		SimplInterpretation interpretation = si.interpretInstance(orig);
+		
+		assertNotNull("Interpretation should not be null!", interpretation);
+		assertTrue("Expect interpretation of the root object to be a composite", interpretation instanceof CompositeInterpretation);
+		
+		CompositeInterpretation ci = (CompositeInterpretation)interpretation;
+		assertEquals("my_scalars", ci.getTagName());
+		assertEquals(3, ci.interpretations.size());
 		
 		SimplUnderstander su = new SimplUnderstander(context);
-		String tagName = ClassDescriptors.getClassDescriptor(myScalars.class).getTagName();
-		assertNotNull(tagName);
 		
-		Object result = null;//su.understandInterpretation(interpretations, tagName);
-		
-		fail("reimplement with new structure)");
-		
+		Object result = su.understandInterpretation((CompositeInterpretation)interpretation);
+				
 		myScalars r = (myScalars)result;
 		assertEquals(orig.aDouble, r.aDouble);
 		assertEquals(orig.aInteger, r.aInteger);

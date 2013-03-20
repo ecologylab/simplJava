@@ -81,5 +81,20 @@ public class ListInterpretation implements SimplInterpretation {
 		return items;
 		
 	}
+
+	@Override
+	public SimplInterpretation interpret(Object context, FieldDescriptor field,
+			InterpretationContext interpretationContext)
+			throws SIMPLTranslationException {
+		
+			return null;
+	}
+
+	@Override
+	public SimplInterpretation interpretObject(Object theObject,
+			InterpretationContext interpretationContext) throws SIMPLTranslationException {
+		// TODO Auto-generated method stub
+		return null;
+	}
 	
 }

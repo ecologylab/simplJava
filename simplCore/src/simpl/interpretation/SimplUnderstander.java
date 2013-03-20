@@ -30,7 +30,15 @@ public class SimplUnderstander {
 
 		if(!refSet.isEmpty())
 		{
-			throw new RuntimeException("Missed a simpl ref!");
+			StringBuilder s = new StringBuilder();
+			
+			for(String item : refSet)
+			{
+				s.append(item);
+				s.append(", ");
+			}
+		
+			throw new RuntimeException("Missed a simpl ref. Refset is: {" + s.toString() +"}");
 		}
 		
 		return ourObject;

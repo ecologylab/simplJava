@@ -180,4 +180,62 @@ public class CompositeInterpretation implements SimplInterpretation{
 			throw new RuntimeException(e);
 		}
 	}
+	
+	@Override
+	public SimplInterpretation interpretObject(Object theObject, InterpretationContext interpretationContext) throws SIMPLTranslationException
+	{
+		if(interpretationContext.objectHasBeenSeen(theObject))
+		{
+			// The callback has been called in objectHasBeenSeen();
+			// Get the ID, set it for our Ref for this interpretation.
+			String objectSimplID = interpretationContext.getRegisteredSIMPLID(theObject);
+
+			ClassDescriptor theObjectCD = ClassDescriptors.getClassDescriptor(theObject.getClass());
+
+			CompositeInterpretation ci =  new CompositeInterpretation(theObjectCD.getTagName());
+			
+			ci.setRefString(objectSimplID);
+			
+			return ci;
+		}
+		else
+		{
+			// It has now been seen.
+			// If we see it again: We'll want to update the value of the interpretation's ID to match whatever
+			// we assign at the time: 
+			
+			// Composites are guarenteed to have a tagName, we can get it via a class descriptor! (we'll need it anyways)
+			ClassDescriptor theObjectCD = ClassDescriptors.getClassDescriptor(theObject.getClass());
+			
+			// We need to hold onto the ID and our interpretation to update it in the future, if need be
+			final CompositeInterpretation ourInterpretation = new CompositeInterpretation(theObjectCD.getTagName());
+			// Register the callback
+			interpretationContext.registerUpdateCallback(theObject, ourInterpretation);			
+			
+			// Interpret the rest of the composite: 
+			for(FieldDescriptor fd : theObjectCD.allFieldDescriptors())
+			{	
+				SimplInterpretation si = interpretationContext.interpretObject(theObject, fd);
+				
+				if(si != null)
+				{
+					ourInterpretation.addInterpretation(si);
+				}
+			}
+			
+			return ourInterpretation;
+		}		
+	}
+
+	@Override
+	public SimplInterpretation interpret(Object context, FieldDescriptor field,
+			InterpretationContext interpretationContext)
+			throws SIMPLTranslationException {
+
+		CompositeInterpretation ci = (CompositeInterpretation) interpretObject(ReflectionTools.getFieldValue(field.getField(), context), interpretationContext);
+		
+		ci.setFieldName(field.getName());
+		
+		return ci;
+	}
 }

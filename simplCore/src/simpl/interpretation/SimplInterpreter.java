@@ -9,37 +9,37 @@ import simpl.descriptions.FieldDescriptor;
 import simpl.exceptions.SIMPLTranslationException;
 import simpl.types.ScalarType;
 
-public class SimplInterpreter {
-
-	public List<SimplInterpretation> interpretInstance(Object obj) throws SIMPLTranslationException
+public class SimplInterpreter {	
+	
+	private InterpretationContext thisInterpContext; 
+	
+	public SimplInterpreter()
 	{
-		List<SimplInterpretation> list = new LinkedList<SimplInterpretation>();
+		this.thisInterpContext= new InterpretationContext(this);
+	}
+	
+	
+	static CompositeInterpretation compositeInterpReference = new CompositeInterpretation("");
+	
+	public SimplInterpretation interpretInstance(Object obj) throws SIMPLTranslationException
+	{
+		return compositeInterpReference.interpretObject(obj, thisInterpContext);
+	}
+	
+	public SimplInterpretation interpretField(Object obj, FieldDescriptor fd) throws SIMPLTranslationException 
+	{
 		
-		ClassDescriptor ourDescriptor =ClassDescriptors.getClassDescriptor(obj);
-		
-		for(FieldDescriptor fd : ourDescriptor.fields().Scalars)
+		switch(fd.getType())
 		{
-			ScalarType st = fd.getScalarType();
-			if(st == null)
-			{
-				throw new SIMPLTranslationException("Null scalar type for field: " + fd.getName());
-			}
-			
-			// Get the value of the field's scalar; this allows us to marshal primitive types to string.
-			String fieldValue = st.getFieldString(fd.getField(), obj);
-			String typeName = st.getClass().getSimpleName();
-			String fieldName = fd.getName();
-			
-			list.add(new ScalarInterpretation(fieldName, fieldValue, typeName));
+			case SCALAR:
+				return new ScalarInterpretation().interpret(obj, fd, this.thisInterpContext);
+			case COMPOSITE_ELEMENT:
+				return new CompositeInterpretation("").interpret(obj, fd, this.thisInterpContext);
+			default:
+				break;
+				
 		}
-		
-		// Can't decide on this dichotomy; if this gets delegated nicely it'll not work this way at all. 
-		for(FieldDescriptor fd : ourDescriptor.fields().ScalarCollections)
-		{
-			
-		}
-		
-		
-		return list;
+				
+		return null;
 	}
 }

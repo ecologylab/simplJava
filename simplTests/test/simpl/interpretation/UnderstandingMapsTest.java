@@ -6,7 +6,13 @@ import java.util.Map;
 
 import org.junit.Test;
 
+import simpl.core.ISimplTypesScope;
+import simpl.core.SimplTypesScopeFactory;
+import simpl.descriptions.ClassDescriptor;
+import simpl.descriptions.ClassDescriptors;
+import simpl.descriptions.FieldDescriptor;
 import simpl.exceptions.SIMPLTranslationException;
+import simpl.types.MapType;
 
 public class UnderstandingMapsTest {
 
@@ -36,13 +42,58 @@ public class UnderstandingMapsTest {
 		validateUppercaseMap(result, "c");
 	}
 	
+	private ScalarInterpretation string(String s)
+	{
+		return new ScalarInterpretation("", s, "StringType");
+	}
+	
+	private ScalarInterpretation integ(Integer i)
+	{
+		return new ScalarInterpretation("", i.toString(), "IntegerType");
+	}
+	
 	@Test
-	public void testMapOfScalarToScalar()
+	public void testMapOfScalarToScalar() throws SIMPLTranslationException
 	{
 				
+		mapOfScalarToScalar ourMapCase = new mapOfScalarToScalar();
+		ourMapCase.myString = "maps!";
+		ourMapCase.ourMap.put("a", 1);
+		ourMapCase.ourMap.put("b", 2);
+		ourMapCase.ourMap.put("c", 3);
 		
-
-	
+		CompositeInterpretation rootObject = new CompositeInterpretation("map_of_scalar_to_scalar");
+		rootObject.addInterpretation(new ScalarInterpretation("myString", "maps!", "StringType"));
+		
+		// get the map type from the ourMap field... 
+		ClassDescriptor cd = ClassDescriptors.getClassDescriptor(mapOfScalarToScalar.class);
+		FieldDescriptor fd = cd.fields().getAllItems().get(0);
+		MapType theMapType;
+		
+		MapInterpretation map = new MapInterpretation();
+		map.addEntryInterpretation(string("a"), integ(1));
+		map.addEntryInterpretation(string("b"), integ(2));
+		map.addEntryInterpretation(string("c"), integ(3));
+		
+		map.setFieldName("ourMap");
+		
+		rootObject.addInterpretation(map);
+		
+		
+		ISimplTypesScope sts = SimplTypesScopeFactory.name("mapScalarToScalar").translations(mapOfScalarToScalar.class).create();
+		
+		
+		SimplUnderstander su = new SimplUnderstander(sts);
+		
+		
+		mapOfScalarToScalar result = (mapOfScalarToScalar)su.understandInterpretation(rootObject);
+		
+		assertEquals(result.myString, ourMapCase.myString);
+		assertEquals(3, result.ourMap.size());
+		assertEquals(new Integer(1), result.ourMap.get("a"));
+		assertEquals(new Integer(2), result.ourMap.get("b"));
+		assertEquals(new Integer(3), result.ourMap.get("c"));
+		
 	}
 	
 	@Test

@@ -2,6 +2,7 @@ package simpl.interpretation;
 
 import java.util.Set;
 
+import simpl.descriptions.FieldDescriptor;
 import simpl.exceptions.SIMPLTranslationException;
 
 public class MapEntryInterpretation implements SimplInterpretation{
@@ -39,10 +40,25 @@ public class MapEntryInterpretation implements SimplInterpretation{
 		
 		if(this.keyInterpretation instanceof MapEntryInterpretation || this.valueInterpretation instanceof MapEntryInterpretation)
 		{
-			throw new SIMPLTranslationException("MapEntryInterpretations cannot be recursively nested! What is going on!?");
+			throw new SIMPLTranslationException("MapEntryInterpretations cannot be recursively nested!");
 		}
 
 		return new MapEntryEvaluation(this.keyInterpretation.getValue(context, refSet, understandingContext), this.valueInterpretation.getValue(context, refSet, understandingContext));
 	
+	}
+
+	@Override
+	public SimplInterpretation interpret(Object context, FieldDescriptor field,
+			InterpretationContext interpretationContext)
+			throws SIMPLTranslationException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public SimplInterpretation interpretObject(Object theObject,
+			InterpretationContext interpretationContext) throws SIMPLTranslationException {
+		// TODO Auto-generated method stub
+		return null;
 	}
 }

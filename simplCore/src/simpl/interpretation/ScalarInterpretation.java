@@ -6,6 +6,7 @@ import simpl.descriptions.ClassDescriptor;
 import simpl.descriptions.ClassDescriptors;
 import simpl.descriptions.EnumerationDescriptor;
 import simpl.descriptions.FieldDescriptor;
+import simpl.exceptions.SIMPLDescriptionException;
 import simpl.exceptions.SIMPLTranslationException;
 import simpl.tools.ReflectionTools;
 import simpl.types.ScalarType;
@@ -29,6 +30,10 @@ public class ScalarInterpretation implements SimplInterpretation{
 		this.scalarTypeName = scalarTypeName;
 	}
 	
+	public ScalarInterpretation() {
+		// TODO Auto-generated constructor stub
+	}
+
 	public String toString()
 	{
 		return fieldName +"{"+this.scalarTypeName+"}" + "=["+ fieldValue + "]";
@@ -68,7 +73,7 @@ public class ScalarInterpretation implements SimplInterpretation{
 	 * @return True if it was a scalar, false if it was an enumeration, exception if it doesn't exist in the type registry or the sts
 	 * @throws SIMPLTranslationException
 	 */
-	public boolean getType(UnderstandingContext context) throws SIMPLTranslationException
+	public boolean switchOnScalarOrEnumerationType(UnderstandingContext context) throws SIMPLTranslationException
 	{
 		this.getScalarType();
 		
@@ -90,7 +95,7 @@ public class ScalarInterpretation implements SimplInterpretation{
 	public void resolve(Object context, Set<String> refSet, UnderstandingContext understandingContext) throws SIMPLTranslationException
 	{
 
-		if(this.getType(understandingContext))
+		if(this.switchOnScalarOrEnumerationType(understandingContext))
 		{
 			// Handle the scalar case
 			try 
@@ -133,11 +138,70 @@ public class ScalarInterpretation implements SimplInterpretation{
 			throws SIMPLTranslationException 
 	{
 		
-		if(this.getType(understandingContext))
+		if(this.switchOnScalarOrEnumerationType(understandingContext))
 		{
 			return this.ourScalarType.unmarshal(this.fieldValue);
 		}else{
 			return this.ourEnumerationDescriptor.unmarshal(this.fieldValue);
 		}
+	}
+
+	@Override
+	public SimplInterpretation interpret(Object context, FieldDescriptor field,
+			InterpretationContext interpretationContext)
+			throws SIMPLTranslationException {
+
+		String fieldName = field.getName();
+		
+		ScalarType st = field.getScalarType();
+		if(st == null)
+		{
+			// Enumeration!
+			EnumerationDescriptor ed = field.getEnumerationDescriptor();
+			String value = ed.marshal(ReflectionTools.getFieldValue(field.getField(), context));
+			
+			String typeName = ed.getTagName();
+			return new ScalarInterpretation(fieldName, value, typeName);
+		}
+		else
+		{	
+			// Get the value of the field's scalar; this allows us to marshal primitive types to string.
+			String fieldValue = st.getFieldString(field.getField(), context);
+			String typeName = st.getClass().getSimpleName();
+			
+			return new ScalarInterpretation(fieldName, fieldValue, typeName);
+		}
+	}
+
+	@Override
+	public SimplInterpretation interpretObject(Object theObject,
+			InterpretationContext interpretationContext) throws SIMPLTranslationException {
+		
+		
+		ScalarType st = TypeRegistry.getScalarType(theObject.getClass());
+		if(st == null)
+		{
+			// enumeration!
+			try
+			{
+				
+				EnumerationDescriptor ed = EnumerationDescriptor.get(theObject.getClass());
+				String value = ed.marshal(theObject);
+				
+				String typeName = ed.getTagName();
+				return new ScalarInterpretation("", value, typeName);
+			
+			}catch(SIMPLDescriptionException sde)
+			{
+				throw new SIMPLTranslationException(sde);
+			}
+		}
+		else
+		{
+			String value = st.marshal(theObject);
+			String typeName = st.getClass().getSimpleName();
+			return new ScalarInterpretation("", value, typeName);
+		}
+		
 	}
 }
