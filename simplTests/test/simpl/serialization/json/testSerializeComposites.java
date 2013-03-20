@@ -26,5 +26,7 @@ public class testSerializeComposites {
 		
 		assertEquals("{\"circle\":{\"center\":{\"y\":\"-1\",\"x\":\"0\"},\"radius\":\"1.337\"}}", result);
 	}
+	
+	
 
 }
