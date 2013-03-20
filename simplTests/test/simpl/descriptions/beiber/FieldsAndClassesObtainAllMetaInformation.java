@@ -49,24 +49,24 @@ public class FieldsAndClassesObtainAllMetaInformation {
 		assertTrue("Should have myRandomAnnotation~",cd.containsMetaInformation("myRandomAnnotation"));
 	
 		MetaInformation simplInherit = cd.getMetaInformation("simpl_inherit");
-		assertEquals("simpl_inherit", simplInherit.getAnnotationName());
-		assertTrue("Should have no parameters!", simplInherit.getParameters().isEmpty());
+		assertEquals("Recieved the incorrect Annotation from the given name~", "simpl_inherit", simplInherit.getAnnotationName());
+		assertTrue("Should have no parameters!", simplInherit.getParameters().isEmpty());									
 		
 		MetaInformation myRandomAnnotation = cd.getMetaInformation("myRandomAnnotation");
-		assertEquals("myRandomAnnotation", myRandomAnnotation.getAnnotationName());
+		assertEquals("Recieved the incorrect Annotation from the given name~", "myRandomAnnotation", myRandomAnnotation.getAnnotationName());	
 		assertTrue("Should have no parameters!", myRandomAnnotation.getParameters().isEmpty());
 		
 		
 		FieldDescriptor fd = cd.allFieldDescriptors().get(0);
-		assertTrue(fd.containsMetaInformation("simpl_scalar"));
-		assertTrue(fd.containsMetaInformation("myRandomAnnotation"));
+		assertTrue("Should have simpl_scalar~",fd.containsMetaInformation("simpl_scalar"));						//
+		assertTrue("Should have myRandomAnnotation~",fd.containsMetaInformation("myRandomAnnotation"));			//
 
-		assertTrue(fd.containsMetaInformation("simpl_tag"));
+		assertTrue("Annotation for simpl_tag was not found~", fd.containsMetaInformation("simpl_tag"));								//
 			
 		MetaInformation simpl_tag = fd.getMetaInformation("simpl_tag");
-		assertTrue(simpl_tag.hasParameter("value"));
-		assertEquals("another_tag_name", simpl_tag.getValueFor("value"));
-		assertEquals("another_tag_name", simpl_tag.getValue());
+		assertTrue("simpl_tag does not contain the default parameter~", simpl_tag.hasParameter("value"));																		//simpl_tag does not contain the default parameter
+		assertEquals("getValueFor does not return the correct parameter value~","another_tag_name", simpl_tag.getValueFor("value"));													//
+		assertEquals("getValue does not return the correct parameter value~", "another_tag_name", simpl_tag.getValue());														//
 	}
 	
 
@@ -74,11 +74,11 @@ public class FieldsAndClassesObtainAllMetaInformation {
 	public void testEnumerationDescriptionObtainsAllMetaInformation() throws SIMPLDescriptionException
 	{
 		EnumerationDescriptor ed = EnumerationDescriptor.get(annotatedEnumeration.class);
-		assertTrue(ed.containsMetaInformation("myRandomAnnotation"));
-		assertTrue(ed.containsMetaInformation("simpl_tag"));
-		assertEquals("my_spiffy_tag",ed.getMetaInformation("simpl_tag").getValue());
+		assertTrue("Should have myRandomAnnotation~", ed.containsMetaInformation("myRandomAnnotation"));														//
+		assertTrue("Should have simpl_tag~", ed.containsMetaInformation("simpl_tag"));																//
+		assertEquals("getValue does not return the correct parameter value~","my_spiffy_tag",ed.getMetaInformation("simpl_tag").getValue());										//
 		
-		assertTrue(ed.getEnumerationEntries().get(0).containsMetaInformation("myRandomAnnotation"));
+		assertTrue("First Enumeration Entry should have myRandomAnnotation~", ed.getEnumerationEntries().get(0).containsMetaInformation("myRandomAnnotation"));						//
 	}
 
 }
