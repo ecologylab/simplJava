@@ -5,6 +5,8 @@ import static org.junit.Assert.*;
 import org.junit.Test;
 
 import simpl.exceptions.SIMPLTranslationException;
+import simpl.interpretation.SimplInterpretation;
+import simpl.interpretation.SimplInterpreter;
 import simpl.serialization.Circle;
 import simpl.serialization.Point;
 
@@ -22,7 +24,10 @@ public class testSerializeComposites {
 		
 		c.center = center;
 		
-		String result = new JsonSerializer().serialize(c);
+		SimplInterpreter si = new SimplInterpreter();
+		SimplInterpretation interp = si.interpretInstance(c);
+		
+		String result = new JsonSerializer().serialize(interp);
 		
 		assertEquals("{\"circle\":{\"center\":{\"y\":\"-1\",\"x\":\"0\"},\"radius\":\"1.337\"}}", result);
 	}

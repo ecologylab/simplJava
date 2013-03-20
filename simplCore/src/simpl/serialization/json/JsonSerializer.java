@@ -21,6 +21,7 @@ public class JsonSerializer {
 		translators = new HashMap<Class<?>, JsonTranslationUnit>();
 		registerTranslator(new JsonScalarTranslation());
 		registerTranslator(new JsonCompositeTranslation(this)); // pass this a reference to the json serializer b/c it needs to processTranslationUnits
+		
 	}
 	
 	private void registerTranslator(JsonTranslationUnit jtu)
@@ -39,11 +40,8 @@ public class JsonSerializer {
 		jtu.appendToIR(si, obj);
 	}
 	
-	public String serialize(Object obj) throws SIMPLTranslationException
+	public String serialize(SimplInterpretation interp) throws SIMPLTranslationException
 	{	
-		SimplInterpreter si = new SimplInterpreter();
-		SimplInterpretation interp = si.interpretInstance(obj);
-		
 		if(!(interp instanceof CompositeInterpretation))
 		{
 			throw new SIMPLTranslationException("Root object must be a composite interpretation!"); 

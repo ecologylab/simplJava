@@ -15,6 +15,11 @@ public class JsonDeserializer {
 	{
 	}
 	
+	private CompositeInterpretation(String tagOrField, ClassDescriptor contextCD, ISimplTypesScope sts)
+	{
+		
+	}
+	
 	public CompositeInterpretation deserialize(String objRepr, ISimplTypesScope sts) throws SIMPLTranslationException
 	{
 		Object val = JSONValue.parse(objRepr);
@@ -36,8 +41,31 @@ public class JsonDeserializer {
 			
 			JSONObject innerObject = (JSONObject)jsonRepr.get(rootCD.getTagName());
 			
+			if(innerObject.keySet().contains("simpl.id") && innerObject.keySet().contains("simpl.ref"))
+			{
+				throw new SIMPLTranslationException("Cannot contain both an ID and a Ref!");
+			}
+			
+			if(innerObject.keySet().contains("simpl.ref"))
+			{
+				if(innerObject.keySet().size() > 1)
+				{
+					throw new SIMPLTranslationException("References should not have additional contents!");
+				}
+				
+				ci.setRefString((String)innerObject.get("simpl.ref"));
+			}
+			
+			if(innerObject.keySet().contains("simpl.id"))
+			{
+				String id = (String)innerObject.get("simpl.id");
+				ci.setIDString(id);
+			}
+			
 			for(Object key : innerObject.keySet())
 			{
+				String keyVal = (String) key;
+				
 				Object fieldValue = innerObject.get(key); // todo; handle polymorphic wrapping yo.
 				
 				if(rootCD.fields().Scalars.contains((String)key))
@@ -52,8 +80,5 @@ public class JsonDeserializer {
 		{
 			throw new SIMPLTranslationException("Malformed root object! Expecting only one key at the highest level.");
 		}
-		
-		
-
 	}
 }
