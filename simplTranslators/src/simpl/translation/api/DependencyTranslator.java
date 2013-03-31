@@ -1,5 +1,6 @@
 package simpl.translation.api;
 
+import java.util.Collection;
 import java.util.List;
 
 /**
@@ -11,5 +12,5 @@ import java.util.List;
 public interface DependencyTranslator {
 	List<String> getGlobalDependencies();
 	SourceAppender translateDependency(String s);
-	SourceAppender translateClassDependencies(List<String> a);
+	SourceAppender translateClassDependencies(Collection<String> a);
 }

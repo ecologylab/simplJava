@@ -2,7 +2,10 @@ package ecologylab.serialization;
 
 import java.lang.annotation.Annotation;
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
+
+import simpl.descriptors.ParameterDescriptor;
 
 /**
  * Abstract representation of field / class / method meta-information (e.g. Java Annotations or C#
@@ -129,6 +132,12 @@ public class MetaInformation
 			a.simpleTypeName = a.value.getClass().getSimpleName();
 			this.args.add(a);
 		}
+	}
+
+	public List<ParameterDescriptor> getAnnotationParameters() {
+		return new LinkedList<ParameterDescriptor>(); // return an empty list; 
+		// this isn't supported by the "old" version of S.IM.PL; 
+		// will be robustly suppoted soon~! 
 	}
 
 }

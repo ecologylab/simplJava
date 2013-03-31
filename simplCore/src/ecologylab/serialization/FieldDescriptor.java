@@ -2320,8 +2320,22 @@ public class FieldDescriptor extends DescriptorBase implements IMappable<String>
 				Hint hint = getXmlHint();
 				if (hint != null)
 				{
-					addDependency(Hint.class);
-					metaInfo.add(new MetaInformation(simpl_hints.class, true, hint));
+					/*
+					if(this.isScalar())
+					{
+						// we should ignore these hints because scalars are always attributes. 
+						// This is a hangover from the old ways... will be gone soon. SOOONNN.
+						if(!hint.equals(Hint.XML_ATTRIBUTE))
+						{
+							addDependency(Hint.class);
+							metaInfo.add(new MetaInformation(simpl_hints.class, true, hint));								
+						}
+					}
+					else
+					{*/
+						addDependency(Hint.class);
+						metaInfo.add(new MetaInformation(simpl_hints.class, true, hint));
+					//}
 				}
 				
 				// @simpl_filter
@@ -2400,6 +2414,14 @@ public class FieldDescriptor extends DescriptorBase implements IMappable<String>
 	protected String getFieldTypeName()
 	{
 		return fieldType;
+	}
+
+	public boolean hasSetter() {
+		return true;
+	}
+
+	public boolean hasGetter() {
+		return true;
 	}
 	
 }
