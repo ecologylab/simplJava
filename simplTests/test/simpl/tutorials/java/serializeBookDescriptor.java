@@ -8,6 +8,7 @@ import ecologylab.serialization.ClassDescriptor;
 import ecologylab.serialization.SIMPLTranslationException;
 import ecologylab.serialization.SimplTypesScope;
 import ecologylab.serialization.TranslationContext;
+import ecologylab.serialization.annotations.simpl_other_tags;
 import ecologylab.serialization.formatenums.Format;
 import ecologylab.serialization.formatenums.StringFormat;
 
@@ -48,14 +49,13 @@ public class serializeBookDescriptor {
 		
 		// A STS should contain all of the classes we expect to encounter
 		// Here, we're just expecting books! 
-		
 		SimplTypesScope book_example_sts = SimplTypesScope.get("book_example", Book.class);
 		// This STS is called "book_example"; when you have multiple named scopes,
 		// you can use those scopes for polymorphic type support...
 		// But more on that later.
 		
 		
-		String jsonBook = "{\"book\":{\"title\":\"Working Effectively with Legacy Code\",\"author_name\":\"Michael Feathers\",\"book_id\":\"1337\"}}";
+		String jsonBook = "{\"book\":{\"title\":\"Working Effectively with Legacy Code\",\"author_name\":\"Michael Feathers\",\"book_number\":\"1337\"}}";
 		
 		Object result = book_example_sts.deserialize(jsonBook, new TranslationContext(), StringFormat.JSON);
 		
@@ -70,7 +70,7 @@ public class serializeBookDescriptor {
 		// (It should be! S.IM.PL should just simply work!) 
 		
 		// Same process applies for XML or other formats...
-		String xmlBook = "<book title=\"Working Effectively with Legacy Code\" author_name=\"Michael Feathers\" book_id=\"1337\"/>";
+		String xmlBook = "<book title=\"Working Effectively with Legacy Code\" author_name=\"Michael Feathers\" book_number=\"1337\"/>";
 		
 		Object xml_result = book_example_sts.deserialize(xmlBook, new TranslationContext(), StringFormat.XML);
 		
@@ -82,14 +82,6 @@ public class serializeBookDescriptor {
 		assertEquals("Michael Feathers", book_from_xml.getAuthorName());
 		assertEquals("Working Effectively with Legacy Code", book_from_xml.getTitle());
 		assertTrue(1337 == book_from_xml.getBookId());
-		// (It should be! S.IM.PL should just simply work!) 
-
-		
-		
-		
-		
-		
+		// (It should be! S.IM.PL should just simply work!) 	
 	}
-	
-	
 }

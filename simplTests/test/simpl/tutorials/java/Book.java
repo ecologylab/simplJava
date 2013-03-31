@@ -1,6 +1,8 @@
 package simpl.tutorials.java;
 
+import ecologylab.serialization.annotations.simpl_other_tags;
 import ecologylab.serialization.annotations.simpl_scalar;
+import ecologylab.serialization.annotations.simpl_tag;
 
 public class Book {
 
@@ -11,6 +13,7 @@ public class Book {
 	String authorName;
 	
 	@simpl_scalar
+	@simpl_tag("book_number")
 	Integer bookId;
 	
 	public Book()
