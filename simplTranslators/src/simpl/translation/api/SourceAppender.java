@@ -1,6 +1,8 @@
 package simpl.translation.api;
 
-
+ /**
+  * Represents an object that appends source code. 
+  */
 public interface SourceAppender {
 	
 	/**
