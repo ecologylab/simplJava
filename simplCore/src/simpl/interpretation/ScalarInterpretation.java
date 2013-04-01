@@ -31,7 +31,6 @@ public class ScalarInterpretation implements SimplInterpretation
 	}
 	
 	public ScalarInterpretation() {
-		// TODO Auto-generated constructor stub
 	}
 
 	public String toString()
@@ -120,9 +119,21 @@ public class ScalarInterpretation implements SimplInterpretation
 				else
 				{
 					ScalarType st = fd.getScalarType();
-					if(st!= null) 
+					if(st != null) 
 					{
 						this.scalarTypeName = st.getTagName();
+						this.ourScalarType = st;
+						throwExceptionIfDisambiguationFailed();
+						return this;	
+					}
+					
+					EnumerationDescriptor ed = fd.getEnumerationDescriptor();
+					if(ed != null)
+					{
+						this.scalarTypeName = ed.getTagName();
+						this.ourEnumerationDescriptor = ed;
+						throwExceptionIfDisambiguationFailed();
+						return this;
 					}
 				}
 			}
@@ -131,15 +142,19 @@ public class ScalarInterpretation implements SimplInterpretation
 				throw new SIMPLTranslationException("This disambiguation is not supported yet");
 			}
 			
-			Integer i = 1+1;		
 			
 		}
 		
+		throwExceptionIfDisambiguationFailed();
+		return this;
+	}
+	
+	private void throwExceptionIfDisambiguationFailed() throws SIMPLTranslationException
+	{
 		if(this.scalarTypeName == null || this.scalarTypeName.isEmpty())
 		{
 			throw new SIMPLTranslationException("Failed to disambiguate Scalar type!");
 		}
-		return this;
 	}
 	
 	public void resolve(Object context, Set<String> refSet, UnderstandingContext understandingContext) throws SIMPLTranslationException
