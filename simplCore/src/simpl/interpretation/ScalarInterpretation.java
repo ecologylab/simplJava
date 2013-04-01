@@ -17,8 +17,8 @@ import simpl.types.TypeRegistry;
  * Since enumerations are effectively indistinguishable in format from the scalar, this also handles interpretation of enumerations
  *
  */
-public class ScalarInterpretation implements SimplInterpretation{
-	
+public class ScalarInterpretation implements SimplInterpretation
+{
 	public String fieldName;
 	public String fieldValue;
 	public String scalarTypeName;
@@ -92,40 +92,98 @@ public class ScalarInterpretation implements SimplInterpretation{
 		}
 	}
 	
-	public void resolve(Object context, Set<String> refSet, UnderstandingContext understandingContext) throws SIMPLTranslationException
+	/**
+	 * Disambiguates a scalar interpretation; Disambiguation allows deserializers to ONLY focus on the format
+	 * and to delegate type specific information to the understanding layer. 
+	 * @param context
+	 * @param refSet
+	 * @param understandingContext
+	 * @return
+	 */
+	private SimplInterpretation disambiguate(Object context, Set<String> refSet, UnderstandingContext understandingContext) throws SIMPLTranslationException
 	{
-
-		if(this.switchOnScalarOrEnumerationType(understandingContext))
+		if(this.scalarTypeName != null && !this.scalarTypeName.isEmpty())
 		{
-			// Handle the scalar case
-			try 
-			{
-				this.ourScalarType.setFieldValue(this.fieldValue, context.getClass().getField(this.fieldName), context);
-			}
-			catch (NoSuchFieldException e) 
-			{
-				throw new SIMPLTranslationException(e);
-			} 
-			catch (SecurityException e) 
-			{
-				throw new SIMPLTranslationException(e);
-			}
+			// we don't need to disambiguate this type!
+			return this;
 		}
 		else
 		{
-			//handle the enum case:
-			try 
+			if(this.fieldName != null && !this.fieldName.isEmpty())
 			{
-				Object value = this.getValue(context, refSet, understandingContext);
-				ReflectionTools.setFieldValue(value, context.getClass().getField(this.fieldName), context);
+				ClassDescriptor cd = ClassDescriptors.getClassDescriptor(context);
+				FieldDescriptor fd = cd.fields().by("name").get(this.fieldName);
+				if(fd == null)
+				{
+					throw new SIMPLTranslationException("No field: ["+ this.fieldName+"] in the object!");
+				}
+				else
+				{
+					ScalarType st = fd.getScalarType();
+					if(st!= null) 
+					{
+						this.scalarTypeName = st.getTagName();
+					}
+				}
 			}
-			catch (NoSuchFieldException e) 
+			else
 			{
-				throw new SIMPLTranslationException(e);
-			} 
-			catch (SecurityException e) 
+				throw new SIMPLTranslationException("This disambiguation is not supported yet");
+			}
+			
+			Integer i = 1+1;		
+			
+		}
+		
+		if(this.scalarTypeName == null || this.scalarTypeName.isEmpty())
+		{
+			throw new SIMPLTranslationException("Failed to disambiguate Scalar type!");
+		}
+		return this;
+	}
+	
+	public void resolve(Object context, Set<String> refSet, UnderstandingContext understandingContext) throws SIMPLTranslationException
+	{
+		if(this.scalarTypeName == null || this.scalarTypeName.isEmpty())
+		{
+			// If we don't have the type name, we need to disambigutate this with the context
+			SimplInterpretation si = disambiguate(context,refSet,understandingContext);
+			si.resolve(context, refSet, understandingContext);
+		}
+		else
+		{	
+			if(this.switchOnScalarOrEnumerationType(understandingContext))
 			{
-				throw new SIMPLTranslationException(e);
+				// Handle the scalar case
+				try 
+				{
+					this.ourScalarType.setFieldValue(this.fieldValue, context.getClass().getField(this.fieldName), context);
+				}
+				catch (NoSuchFieldException e) 
+				{
+					throw new SIMPLTranslationException(e);
+				} 
+				catch (SecurityException e) 
+				{
+					throw new SIMPLTranslationException(e);
+				}
+			}
+			else
+			{
+				//handle the enum case:
+				try 
+				{
+					Object value = this.getValue(context, refSet, understandingContext);
+					ReflectionTools.setFieldValue(value, context.getClass().getField(this.fieldName), context);
+				}
+				catch (NoSuchFieldException e) 
+				{
+					throw new SIMPLTranslationException(e);
+				} 
+				catch (SecurityException e) 
+				{
+					throw new SIMPLTranslationException(e);
+				}
 			}
 		}
 	}
@@ -137,15 +195,27 @@ public class ScalarInterpretation implements SimplInterpretation{
 			UnderstandingContext understandingContext)
 			throws SIMPLTranslationException 
 	{
-		
-		if(this.switchOnScalarOrEnumerationType(understandingContext))
+		if(this.scalarTypeName == null || this.scalarTypeName.isEmpty())
 		{
-			return this.ourScalarType.unmarshal(this.fieldValue);
-		}else{
-			return this.ourEnumerationDescriptor.unmarshal(this.fieldValue);
+			// If we don't have the type name, we need to disambigutate this with the context
+			SimplInterpretation si = disambiguate(context,refSet,understandingContext);
+			return si.getValue(context, refSet, understandingContext);
+		}
+		else
+		{
+			if(this.switchOnScalarOrEnumerationType(understandingContext))
+			{
+				return this.ourScalarType.unmarshal(this.fieldValue);
+			}
+			else
+			{
+				return this.ourEnumerationDescriptor.unmarshal(this.fieldValue);
+			}
 		}
 	}
 
+	
+	
 	@Override
 	public SimplInterpretation interpret(Object context, FieldDescriptor field,
 			InterpretationContext interpretationContext)
@@ -172,6 +242,9 @@ public class ScalarInterpretation implements SimplInterpretation{
 			return new ScalarInterpretation(fieldName, fieldValue, typeName);
 		}
 	}
+	
+	
+	
 
 	@Override
 	public SimplInterpretation interpretObject(Object theObject,
@@ -201,7 +274,6 @@ public class ScalarInterpretation implements SimplInterpretation{
 			String value = st.marshal(theObject);
 			String typeName = st.getClass().getSimpleName();
 			return new ScalarInterpretation("", value, typeName);
-		}
-		
+		}	
 	}
 }

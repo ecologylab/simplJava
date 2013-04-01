@@ -130,4 +130,8 @@ public abstract class ScalarType implements ISimplStringMarshaller{
 		}
 	}
 	
+	public String getTagName()
+	{
+		return this.getClass().getSimpleName();
+	}
 }
