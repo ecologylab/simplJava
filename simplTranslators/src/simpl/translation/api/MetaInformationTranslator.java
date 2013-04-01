@@ -10,5 +10,10 @@ import ecologylab.serialization.MetaInformation;
  *
  */
 public abstract class MetaInformationTranslator extends BaseTranslator{
+	/**
+	 * Creates a source representation of MetaInformation
+	 * @param metaInfo A Description of MetaInformation
+	 * @return Source representation of the MetaInformation. 
+	 */
 	public abstract SourceAppender translateMetaInformation(MetaInformation metaInfo);
 }
