@@ -10,6 +10,13 @@ import java.net.URLConnection;
 import java.net.URLDecoder;
 import java.util.Stack;
 
+import simpl.core.SimplTypesScope;
+import simpl.core.SimplTypesScopeFactory;
+import simpl.core.XMLTranslationExceptionTypes;
+import simpl.exceptions.SIMPLTranslationException;
+import simpl.formats.enums.StringFormat;
+import simpl.platformspecifics.SimplPlatformSpecifics;
+
 import ecologylab.appframework.types.prefs.Pref;
 import ecologylab.appframework.types.prefs.PrefEnum;
 import ecologylab.appframework.types.prefs.PrefSet;
@@ -20,11 +27,6 @@ import ecologylab.io.DownloadProcessor;
 import ecologylab.io.Files;
 import ecologylab.io.ZipDownload;
 import ecologylab.net.ParsedURL;
-import ecologylab.platformspecifics.FundamentalPlatformSpecifics;
-import ecologylab.serialization.SIMPLTranslationException;
-import ecologylab.serialization.SimplTypesScope;
-import ecologylab.serialization.XMLTranslationExceptionTypes;
-import ecologylab.serialization.formatenums.StringFormat;
 
 /**
  * An instance of Environment, which is an application, rather than an applet, or a servlet. The
@@ -40,7 +42,7 @@ public class ApplicationEnvironment extends Debug implements Environment,
 	
 	static
 	{
-		FundamentalPlatformSpecifics.get().initializePlatformSpecificTranslation();
+		SimplPlatformSpecifics.get().initializePlatformSpecificTranslation();
 	}
 	
 	public static final PrefEnum	LAUNCH_TYPE_PREF	= Pref.usePrefEnum(	LAUNCH_TYPE,
@@ -245,7 +247,7 @@ public class ApplicationEnvironment extends Debug implements Environment,
 		if (customPrefs == null)
 			customPrefs = PrefSetBaseClassProvider.STATIC_INSTANCE.provideClasses();
 
-		return SimplTypesScope.get(PrefSet.PREFS_TRANSLATION_SCOPE, customPrefs);
+		return (SimplTypesScope) SimplTypesScopeFactory.name(PrefSet.PREFS_TRANSLATION_SCOPE).translations(customPrefs).create();
 	}
 
 	/**
@@ -504,17 +506,22 @@ public class ApplicationEnvironment extends Debug implements Environment,
 		SimplTypesScope prefTranslations;
 		if (customPrefsTranslationScope != null)
 		{
-			SimplTypesScope[] arrayToMakeJavaShutUp =
-			{ customPrefsTranslationScope };
-			prefTranslations = SimplTypesScope.get(PrefSet.PREFS_TRANSLATION_SCOPE,
-																							arrayToMakeJavaShutUp,
-																							PrefSetBaseClassProvider.STATIC_INSTANCE.provideClasses());
+			prefTranslations = (SimplTypesScope)SimplTypesScopeFactory
+					.name(PrefSet.PREFS_TRANSLATION_SCOPE)
+					.inherits(customPrefsTranslationScope)
+					.translations(PrefSetBaseClassProvider.STATIC_INSTANCE.provideClasses())
+					.create();
+			
+			
+			
 		}
 		else
 		{
 			Class[] customPrefs = PrefSetBaseClassProvider.STATIC_INSTANCE.provideClasses();
 
-			prefTranslations = SimplTypesScope.get(PrefSet.PREFS_TRANSLATION_SCOPE, customPrefs);
+			prefTranslations = (SimplTypesScope)SimplTypesScopeFactory
+					.name(PrefSet.PREFS_TRANSLATION_SCOPE)
+					.translations(customPrefs).create();
 		}
 
 		this.sessionScope = sessionScope;
@@ -813,16 +820,8 @@ public class ApplicationEnvironment extends Debug implements Environment,
 			break;
 		}
 		System.out.println("Printing Prefs:\n");
-		try
-		{
-			if (prefSet != null)
-				SimplTypesScope.serialize(prefSet, System.out, StringFormat.XML);
-				
-		}
-		catch (SIMPLTranslationException e)
-		{
-			e.printStackTrace();
-		}
+		if (prefSet != null)
+			SimplTypesScope.serialize(prefSet, System.out, StringFormat.XML);
 		System.out.println("\nPrefs Printed");
 		if (prefSet != null)
 			postProcessPrefs(prefSet);

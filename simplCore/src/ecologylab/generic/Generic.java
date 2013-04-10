@@ -1,6 +1,6 @@
 package ecologylab.generic;
 
-import ecologylab.platformspecifics.FundamentalPlatformSpecifics;
+import simpl.platformspecifics.SimplPlatformSpecifics;
 
 //import java.awt.Toolkit;
 
@@ -239,7 +239,7 @@ public class Generic
    
    public static void beep()
    {
-	   FundamentalPlatformSpecifics.get().beep();
+	   SimplPlatformSpecifics.get().beep();
    }
 
 /**
@@ -288,7 +288,7 @@ public class Generic
 	 */
 	public static void showDialog(String msg)
 	{
-		FundamentalPlatformSpecifics.get().showDialog(msg, DIALOG_OPTIONS);
+		SimplPlatformSpecifics.get().showDialog(msg, DIALOG_OPTIONS);
 	}
 	
     public static String narrowFloat(float f)

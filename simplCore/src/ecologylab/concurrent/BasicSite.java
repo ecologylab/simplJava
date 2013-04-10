@@ -5,11 +5,12 @@ package ecologylab.concurrent;
 
 import java.util.Random;
 
+import simpl.annotations.dbal.simpl_scalar;
+import simpl.annotations.dbal.simpl_tag;
+import simpl.core.ElementState;
+import simpl.types.element.IMappable;
+
 import ecologylab.net.ParsedURL;
-import ecologylab.serialization.ElementState;
-import ecologylab.serialization.annotations.simpl_scalar;
-import ecologylab.serialization.annotations.simpl_tag;
-import ecologylab.serialization.types.element.IMappable;
 
 /**
  * 

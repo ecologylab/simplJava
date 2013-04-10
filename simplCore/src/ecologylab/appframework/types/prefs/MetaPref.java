@@ -6,15 +6,18 @@ package ecologylab.appframework.types.prefs;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 
+import simpl.annotations.dbal.simpl_classes;
+import simpl.annotations.dbal.simpl_collection;
+import simpl.annotations.dbal.simpl_inherit;
+import simpl.annotations.dbal.simpl_scalar;
+import simpl.annotations.dbal.simpl_tag;
+import simpl.core.ElementState;
+import simpl.core.TranslationContext;
+import simpl.deserialization.ISimplDeserializationHooks;
+import simpl.exceptions.SIMPLTranslationException;
+import simpl.types.ScalarType;
+
 import ecologylab.collections.Scope;
-import ecologylab.serialization.ElementState;
-import ecologylab.serialization.TranslationContext;
-import ecologylab.serialization.annotations.simpl_classes;
-import ecologylab.serialization.annotations.simpl_collection;
-import ecologylab.serialization.annotations.simpl_inherit;
-import ecologylab.serialization.annotations.simpl_scalar;
-import ecologylab.serialization.annotations.simpl_tag;
-import ecologylab.serialization.types.ScalarType;
 
 /**
  * Metadata about a Preference. Defines information to enable editing the Preference.
@@ -24,7 +27,7 @@ import ecologylab.serialization.types.ScalarType;
  */
 
 @simpl_inherit
-public abstract class MetaPref<T> extends ElementState implements WidgetTypes
+public abstract class MetaPref<T> extends ElementState implements WidgetTypes, ISimplDeserializationHooks
 {
 	/** The global registry of Pref objects. Used for providing lookup services. */
 	static final Scope<MetaPref>							allMetaPrefsMap	= new Scope<MetaPref>();
@@ -77,7 +80,7 @@ public abstract class MetaPref<T> extends ElementState implements WidgetTypes
 	{ ChoiceBoolean.class, ChoiceFloat.class, ChoiceInt.class })
 	ArrayList<Choice<T>>											choices;
 
-	ScalarType<T>															scalarType;
+	ScalarType															scalarType;
 
 	/**
 	 * LinkedHashMap to make locating exact choices easier
@@ -400,7 +403,12 @@ public abstract class MetaPref<T> extends ElementState implements WidgetTypes
 	 */
 	public T getInstance(String string)
 	{
-		return scalarType.getInstance(string);
+		try {
+			return (T) scalarType.unmarshal(string);
+		} catch (SIMPLTranslationException e) {
+			// TODO Auto-generated catch block
+			throw new RuntimeException(e.getMessage());
+		}
 	}
 
 	public T getInstance(T value)
@@ -507,10 +515,17 @@ public abstract class MetaPref<T> extends ElementState implements WidgetTypes
 			weird("parent of metaPref should be MetaPrefSet.");
 		}
 	}
+	
+	@Override
+	public void deserializationInHook(TranslationContext translationContext) {
+		// TODO Auto-generated method stub
+		
+	}
 
-	/*
-	 * public boolean isWithinRange(T newValue) { return (range == null) ? true :
-	 * range.isWithinRange(newValue); }
-	 */
-
+	@Override
+	public void deserializationPreHook(TranslationContext translationContext) {
+		// TODO Auto-generated method stub
+		
+	}
+	
 }

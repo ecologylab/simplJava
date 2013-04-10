@@ -15,6 +15,14 @@ import javax.imageio.ImageIO;
 import javax.swing.JOptionPane;
 import javax.xml.stream.XMLInputFactory;
 
+import simpl.descriptions.ClassDescriptor;
+import simpl.descriptions.ClassDescriptors;
+import simpl.descriptions.FieldDescriptor;
+import simpl.descriptions.GenericTypeVar;
+import simpl.deserialization.stringformats.XMLParser;
+import simpl.exceptions.SIMPLTranslationException;
+import simpl.platformspecifics.ISimplPlatformSpecifics;
+
 import ecologylab.appframework.types.prefs.MetaPrefColor;
 import ecologylab.appframework.types.prefs.MetaPrefSet;
 import ecologylab.appframework.types.prefs.MetaPrefsTranslationScope;
@@ -27,15 +35,10 @@ import ecologylab.generic.Debug;
 import ecologylab.generic.ReflectionTools;
 import ecologylab.generic.StringInputStream;
 import ecologylab.net.ParsedURL;
-import ecologylab.serialization.ClassDescriptor;
-import ecologylab.serialization.FieldDescriptor;
-import ecologylab.serialization.GenericTypeVar;
-import ecologylab.serialization.SIMPLTranslationException;
-import ecologylab.serialization.deserializers.pullhandlers.stringformats.XMLParser;
 import ecologylab.serialization.deserializers.pullhandlers.stringformats.XMLParserSun;
 import ecologylab.serialization.types.PlatformSpecificTypesSun;
 
-public class FundamentalPlatformSpecificsSun implements IFundamentalPlatformSpecifics
+public class FundamentalPlatformSpecificsSun implements ISimplPlatformSpecifics
 {
 	public void initializePlatformSpecificTranslation()
 	{
@@ -45,7 +48,7 @@ public class FundamentalPlatformSpecificsSun implements IFundamentalPlatformSpec
 	// in ecologylab.serialization.ClassDescriptor;
 	public void deriveSuperClassGenericTypeVars(ClassDescriptor classDescriptor)
 	{
-		Class<?> describedClass = classDescriptor.getDescribedClass();
+		Class<?> describedClass = null;// = classDescriptor.getDescribedClass();
 		// ArrayList<GenericTypeVar> superClassGenericTypeVars =
 		// classDescriptor.getSuperClassGenericTypeVars();
 
@@ -57,7 +60,7 @@ public class FundamentalPlatformSpecificsSun implements IFundamentalPlatformSpec
 		if (superClassType instanceof ParameterizedType)
 		{
 			ParameterizedType superClassParameterizedType = (ParameterizedType) superClassType;
-			classDescriptor.setSuperClassGenericTypeVars(getGenericTypeVars(superClassParameterizedType, classDescriptor.getGenericTypeVars()));
+		//	classDescriptor.setSuperClassGenericTypeVars(getGenericTypeVars(superClassParameterizedType, classDescriptor.getGenericTypeVars()));
 		}
 	}
 
@@ -71,7 +74,7 @@ public class FundamentalPlatformSpecificsSun implements IFundamentalPlatformSpec
 		if (genericType instanceof TypeVariable)
 		{
 			TypeVariable tv = (TypeVariable) genericType;
-			GenericTypeVar g = GenericTypeVar.getGenericTypeVarRef(tv, fieldDescriptor.getGenericTypeVarsContext());
+			GenericTypeVar g = GenericTypeVar.getGenericTypeVarRef(tv,null);//fieldDescriptor.getGenericTypeVarsContext());
 			derivedGenericTypeVars.add(g);
 		}
 		else if (genericType instanceof ParameterizedType)
@@ -85,12 +88,12 @@ public class FundamentalPlatformSpecificsSun implements IFundamentalPlatformSpec
 
 			for (Type t : types)
 			{
-				GenericTypeVar g = GenericTypeVar.getGenericTypeVarRef(t, fieldDescriptor.getGenericTypeVarsContext());
-				derivedGenericTypeVars.add(g);
+				//GenericTypeVar g = GenericTypeVar.getGenericTypeVarRef(t, fieldDescriptor.getGenericTypeVarsContext());
+				//derivedGenericTypeVars.add(g);
 			}
 		}
 		
-		fieldDescriptor.setGenericTypeVars(derivedGenericTypeVars);
+	//	fieldDescriptor.setGenericTypeVars(derivedGenericTypeVars);
 	};
 
 	public Class<?> getTypeArgClass(Field field, int i, FieldDescriptor fiedlDescriptor)
@@ -154,7 +157,7 @@ public class FundamentalPlatformSpecificsSun implements IFundamentalPlatformSpec
 		{
 			ParameterizedType parmeterizedType = (ParameterizedType) bound;
 			Class rawType = (Class) parmeterizedType.getRawType();
-			g.setConstraintClassDescriptor(ClassDescriptor.getClassDescriptor(rawType));
+			g.setConstraintClassDescriptor(ClassDescriptors.getClassDescriptor(rawType));
 
 			Type[] types = parmeterizedType.getActualTypeArguments();
 
@@ -180,7 +183,7 @@ public class FundamentalPlatformSpecificsSun implements IFundamentalPlatformSpec
 		if (type instanceof ParameterizedType)
 		{
 			ParameterizedType parameterizedType = (ParameterizedType) type;
-			g.setClassDescriptor(ClassDescriptor.getClassDescriptor((Class) parameterizedType.getRawType()));
+			g.setClassDescriptor(ClassDescriptors.getClassDescriptor((Class) parameterizedType.getRawType()));
 
 			Type[] types = parameterizedType.getActualTypeArguments();
 

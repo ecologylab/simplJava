@@ -3,6 +3,7 @@
  */
 package ecologylab.serialization.types;
 
+import simpl.types.ScalarType;
 import ecologylab.generic.Debug;
 import ecologylab.serialization.types.scalar.BufferedImageType;
 import ecologylab.serialization.types.scalar.ColorType;
@@ -16,13 +17,13 @@ import ecologylab.serialization.types.scalar.RectangleType;
  */
 public class PlatformSpecificTypesSun extends Debug
 {
-	public static final ScalarType COLOR_TYPE 					= new ColorType();
+	//public static final ScalarType COLOR_TYPE 					= new ColorType();
 	
-	public static final ScalarType RECTANGLE_TYPE 			= new RectangleType();
+//	public static final ScalarType RECTANGLE_TYPE 			= new RectangleType();
 	
-	public static final ScalarType IMAGE_TYPE 					= new AwtImageType();
+	//public static final ScalarType IMAGE_TYPE 					= new AwtImageType();
 
-	public static final ScalarType BUFFERED_IMAGE_TYPE 	= new BufferedImageType();
+	//public static final ScalarType BUFFERED_IMAGE_TYPE 	= new BufferedImageType();
 
 
 }

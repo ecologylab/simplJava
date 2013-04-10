@@ -6,6 +6,10 @@ package ecologylab.io;
 import java.io.File;
 import java.net.URLEncoder;
 
+import simpl.core.SimplTypesScope;
+import simpl.exceptions.SIMPLTranslationException;
+import simpl.formats.enums.Format;
+
 import ecologylab.appframework.ApplicationEnvironment;
 import ecologylab.appframework.ApplicationProperties;
 import ecologylab.appframework.Environment;
@@ -19,9 +23,6 @@ import ecologylab.appframework.types.AssetsTranslations;
 import ecologylab.generic.Debug;
 import ecologylab.generic.StringBuilderPool;
 import ecologylab.net.ParsedURL;
-import ecologylab.serialization.SIMPLTranslationException;
-import ecologylab.serialization.SimplTypesScope;
-import ecologylab.serialization.formatenums.Format;
 
 /**
  * Used to manage cachable assets.
@@ -85,16 +86,7 @@ public class Assets extends Debug implements ApplicationProperties
 		assetsXmlFile = new File(cacheRoot, ASSETS_XML_NAME);
 		if (assetsXmlFile.exists())
 		{
-			try
-			{
-				assetsState = (AssetsState) AssetsTranslations.get().deserialize(assetsXmlFile, Format.XML);
-
-			}
-			catch (SIMPLTranslationException e)
-			{
-				println("ERROR reading AssetsState from " + assetsXmlFile);
-				e.printStackTrace();
-			}
+			assetsState = (AssetsState) AssetsTranslations.get().deserialize(assetsXmlFile, Format.XML);
 		}
 		else
 		{
@@ -436,25 +428,18 @@ public class Assets extends Debug implements ApplicationProperties
 	 */
 	public static void updateAssetsXml(String sourceSpot)
 	{
-		try
+		sourceSpot = " from " + sourceSpot;
+		if (needToWriteAssetsXml)
 		{
-			sourceSpot = " from " + sourceSpot;
-			if (needToWriteAssetsXml)
-			{
-				needToWriteAssetsXml = false;
-				// assetsState.translateToXML(assetsXmlFile);
-				
-				SimplTypesScope.serialize(assetsState, assetsXmlFile, Format.XML);
-				
-				println("Saved Assets XML" + sourceSpot + ": " + assetsXmlFile);
-			}
-			else
-				println("NO NEED to Save Assets XML" + sourceSpot + ": " + assetsXmlFile);
+			needToWriteAssetsXml = false;
+			// assetsState.translateToXML(assetsXmlFile);
+			
+			SimplTypesScope.serialize(assetsState, assetsXmlFile, Format.XML);
+			
+			println("Saved Assets XML" + sourceSpot + ": " + assetsXmlFile);
 		}
-		catch (SIMPLTranslationException e)
-		{
-			e.printStackTrace();
-		}
+		else
+			println("NO NEED to Save Assets XML" + sourceSpot + ": " + assetsXmlFile);
 	}
 
 	private static final StringBuilderPool	stringPool	= new StringBuilderPool(2, 255);

@@ -43,12 +43,13 @@ import java.io.IOException;
 
 import javax.imageio.ImageIO;
 
-import ecologylab.serialization.ScalarUnmarshallingContext;
-import ecologylab.serialization.TranslationContext;
+import simpl.core.ScalarUnmarshallingContext;
+import simpl.core.TranslationContext;
 
-public class AwtImageType<I extends Image> extends ImageType<I>
+
+public class AwtImageType//<I extends Image> extends ImageType<I>
 {
-
+/*
 	public AwtImageType()
 	{
 		this(Image.class);
@@ -103,5 +104,5 @@ public class AwtImageType<I extends Image> extends ImageType<I>
 
 		return null;
 	}
-
+*/
 }

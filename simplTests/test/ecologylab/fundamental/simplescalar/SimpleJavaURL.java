@@ -1,6 +1,7 @@
 package ecologylab.fundamental.simplescalar;
 import java.net.URL;
-import ecologylab.serialization.annotations.simpl_scalar;
+
+import simpl.annotations.dbal.simpl_scalar;
 public class SimpleJavaURL {
 	@simpl_scalar
 	private URL simplejavaurl;

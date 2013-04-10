@@ -2,8 +2,9 @@ package ecologylab.serialization;
 
 import java.util.ArrayList;
 
-import ecologylab.serialization.annotations.FieldUsage;
-import ecologylab.serialization.annotations.simpl_collection;
+import simpl.annotations.dbal.FieldUsage;
+import simpl.annotations.dbal.simpl_collection;
+import simpl.descriptions.FieldDescriptor;
 
 public class enumIssueTestClass {
 

@@ -10,6 +10,13 @@ import java.net.URLConnection;
 import java.net.URLDecoder;
 import java.util.Stack;
 
+import simpl.core.SimplTypesScope;
+import simpl.core.XMLTranslationExceptionTypes;
+import simpl.descriptions.ClassDescriptor;
+import simpl.exceptions.SIMPLTranslationException;
+import simpl.formats.enums.StringFormat;
+import simpl.platformspecifics.SimplPlatformSpecifics;
+
 import ecologylab.appframework.types.prefs.MetaPrefSet;
 import ecologylab.appframework.types.prefs.MetaPrefsTranslationScope;
 import ecologylab.appframework.types.prefs.Pref;
@@ -20,12 +27,6 @@ import ecologylab.io.Assets;
 import ecologylab.io.AssetsRoot;
 import ecologylab.io.Files;
 import ecologylab.net.ParsedURL;
-import ecologylab.platformspecifics.FundamentalPlatformSpecifics;
-import ecologylab.serialization.ClassDescriptor;
-import ecologylab.serialization.SIMPLTranslationException;
-import ecologylab.serialization.SimplTypesScope;
-import ecologylab.serialization.XMLTranslationExceptionTypes;
-import ecologylab.serialization.formatenums.StringFormat;
 
 /**
  * An instance of Environment, which is an application, rather than an applet, or a servlet. The
@@ -805,16 +806,8 @@ public class SingletonApplicationEnvironment extends ApplicationEnvironment impl
 			break;
 		}
 		System.out.println("Printing Prefs:\n");
-		try
-		{
-			if (prefSet != null)
-				SimplTypesScope.serialize(prefSet, System.out, StringFormat.XML);				
-		}
-		catch (SIMPLTranslationException e)
-		{
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		if (prefSet != null)
+			SimplTypesScope.serialize(prefSet, System.out, StringFormat.XML);
 		System.out.println("\nPrefs Printed");
 		if (prefSet != null)
 			postProcessPrefs(prefSet);
@@ -846,7 +839,7 @@ public class SingletonApplicationEnvironment extends ApplicationEnvironment impl
 				String decodedPrefsXML = URLDecoder.decode(prefSpec, "UTF-8");
 				debugA("Loading prefs from JNLP: " + decodedPrefsXML);
 				
-				for (ClassDescriptor c : translationScope.getClassDescriptors())
+				for (ClassDescriptor c : translationScope.getAllClassDescriptors())
 				{
 					debugA(c.toString());
 				}
@@ -1201,7 +1194,7 @@ public class SingletonApplicationEnvironment extends ApplicationEnvironment impl
 		{
 			if (prefSet == null)
 				prefSet = new PrefSet();
-			result = FundamentalPlatformSpecifics.get().getOrCreatePrefsEditor(metaPrefSet, prefSet, prefsPURL, createJFrame, isStandalone);
+			result = SimplPlatformSpecifics.get().getOrCreatePrefsEditor(metaPrefSet, prefSet, prefsPURL, createJFrame, isStandalone);
 		}
 		return result;
 	}

@@ -11,15 +11,16 @@ import java.net.URLEncoder;
 import java.util.HashMap;
 import java.util.StringTokenizer;
 
+import simpl.core.SimplTypesScope;
+import simpl.exceptions.SIMPLTranslationException;
+import simpl.formats.enums.Format;
+import simpl.platformspecifics.SimplPlatformSpecifics;
+
 import ecologylab.collections.CollectionTools;
 import ecologylab.generic.Debug;
 import ecologylab.generic.IntSlot;
 import ecologylab.generic.StringTools;
 import ecologylab.io.Files;
-import ecologylab.platformspecifics.FundamentalPlatformSpecifics;
-import ecologylab.serialization.SIMPLTranslationException;
-import ecologylab.serialization.SimplTypesScope;
-import ecologylab.serialization.formatenums.Format;
 
 /**
  * Extends the URL with many features for the convenience and power of network programmers. New
@@ -316,20 +317,6 @@ public class ParsedURL extends Debug implements MimeType
 			return getAbsolute(relativeURLPath, errorDescriptor);
 
 		return result;
-	}
-
-	/**
-	 * Use this as the source of stuff to translate from XML
-	 * 
-	 * @param translationScope
-	 *          Translations that specify package + class names for translating.
-	 * @return ElementState object derived from XML at the InputStream of this.
-	 * @throws SIMPLTranslationException
-	 */
-	public Object translateFromXML(SimplTypesScope translationScope)
-			throws SIMPLTranslationException
-	{
-		return translationScope.deserialize(this, Format.XML);
 	}
 
 	public static URL getURL(URL base, String path, String error)
@@ -677,7 +664,7 @@ public class ParsedURL extends Debug implements MimeType
 		String[] platformSpecificImgFormats = null;
 		try
 		{
-			platformSpecificImgFormats = FundamentalPlatformSpecifics.get().getReaderFormatNames(); 
+			platformSpecificImgFormats = SimplPlatformSpecifics.get().getReaderFormatNames(); 
 		} catch (Throwable e)
 		{
 		}

@@ -134,33 +134,5 @@ public class Scope<T> extends HashMap<String, T>
 		return "[Scope] w " + size() + " elements. ";
 	}
 
-	/**
-	 * 
-	 * @return A String with all the name value pairs in this, for debugging.
-	 */
-	public String dump()
-	{
-		StringBuilder result = new StringBuilder();
-		result.append("DUMP");
-		dump(result, "\t");
-		return result.toString();
-	}
 
-	private void dump(StringBuilder result, String prefix)
-	{
-		result.append('\n').append(prefix).append(sizeMsg());
-		dumpThis(result, prefix);
-		if (parent != null)
-			((Scope) parent).dump(result, prefix + "\t");
-	}
-
-	public void dumpThis(StringBuilder result, String prefix)
-	{
-		for (String key : this.keySet())
-		{
-			result.append(prefix).append(key).append("\t: ").append(get(key)).append('\n');
-		}
-	}
-
-	private static final long	serialVersionUID	= 5840169416933494011L;
 }

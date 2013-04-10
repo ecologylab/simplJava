@@ -1,0 +1,15 @@
+package simpl.annotations.dbal;
+
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+
+/**
+ * annotation to define the type of a bibtex key.
+ * 
+ * @author nabeel
+ */
+@Retention(RetentionPolicy.RUNTIME)
+public @interface bibtex_key
+{
+
+}

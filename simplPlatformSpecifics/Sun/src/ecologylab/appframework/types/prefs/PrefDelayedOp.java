@@ -6,14 +6,15 @@ import java.util.ArrayList;
 
 import javax.swing.Timer;
 
+import simpl.annotations.dbal.simpl_collection;
+import simpl.annotations.dbal.simpl_inherit;
+import simpl.annotations.dbal.simpl_nowrap;
+import simpl.annotations.dbal.simpl_scalar;
+import simpl.annotations.dbal.simpl_scope;
+import simpl.core.ElementState;
+
 import ecologylab.collections.Scope;
-import ecologylab.oodss.logging.MixedInitiativeOp;
-import ecologylab.serialization.ElementState;
-import ecologylab.serialization.annotations.simpl_collection;
-import ecologylab.serialization.annotations.simpl_inherit;
-import ecologylab.serialization.annotations.simpl_nowrap;
-import ecologylab.serialization.annotations.simpl_scalar;
-import ecologylab.serialization.annotations.simpl_scope;
+import ecologylab.logging.MixedInitiativeOp;
 
 @simpl_inherit
 public class PrefDelayedOp<O extends MixedInitiativeOp> extends PrefOp<O> implements ActionListener

@@ -7,20 +7,20 @@ import java.awt.Rectangle;
 import java.util.Scanner;
 import java.util.regex.Pattern;
 
-import ecologylab.serialization.ScalarUnmarshallingContext;
-import ecologylab.serialization.TranslationContext;
-import ecologylab.serialization.annotations.simpl_inherit;
-import ecologylab.serialization.types.CrossLanguageTypeConstants;
-import ecologylab.serialization.types.ScalarType;
+import simpl.annotations.dbal.simpl_inherit;
+import simpl.core.ScalarUnmarshallingContext;
+import simpl.core.TranslationContext;
+import simpl.types.ScalarType;
+
 
 /**
  * @author andrew
  *
  */
 @simpl_inherit
-public class RectangleType extends ScalarType<Rectangle>
-implements CrossLanguageTypeConstants
+public class RectangleType //extends ScalarType<Rectangle>
 {
+/*
 	private static final Pattern DELIMITER_PATTERN = Pattern.compile("[, ]");
 	
 	public RectangleType()
@@ -61,5 +61,6 @@ implements CrossLanguageTypeConstants
 	{
 		return rectangle.x + " " + rectangle.y + " " + rectangle.width + " " + rectangle.height;
 	}
+	*/
 
 }

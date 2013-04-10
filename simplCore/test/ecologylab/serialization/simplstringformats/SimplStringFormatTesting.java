@@ -2,7 +2,7 @@ package ecologylab.serialization.simplstringformats;
 
 import org.junit.Assert;
 
-import ecologylab.serialization.ISimplStringFormat;
+import simpl.core.ISimplStringFormat;
 
 public class SimplStringFormatTesting {
 

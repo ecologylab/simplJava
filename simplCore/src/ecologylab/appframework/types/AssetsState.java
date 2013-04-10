@@ -3,10 +3,11 @@ package ecologylab.appframework.types;
 import java.util.Collection;
 import java.util.HashMap;
 
-import ecologylab.serialization.ElementState;
-import ecologylab.serialization.annotations.simpl_inherit;
-import ecologylab.serialization.annotations.simpl_map;
-import ecologylab.serialization.annotations.simpl_nowrap;
+import simpl.annotations.dbal.simpl_inherit;
+import simpl.annotations.dbal.simpl_map;
+import simpl.annotations.dbal.simpl_nowrap;
+import simpl.core.ElementState;
+
 
 /**
  * Handles the loading and parsing of the asset version XML file

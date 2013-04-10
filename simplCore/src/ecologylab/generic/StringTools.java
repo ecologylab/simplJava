@@ -17,8 +17,9 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import simpl.tools.XMLTools;
+
 import ecologylab.collections.CollectionTools;
-import ecologylab.serialization.XMLTools;
 
 /**
  * A set of lovely convenience methods for doing operations on {@link java.lang.String String} s and

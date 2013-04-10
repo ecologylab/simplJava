@@ -1,6 +1,7 @@
 package ecologylab.fundamental.simplescalar;
 import java.util.regex.Pattern;
-import ecologylab.serialization.annotations.simpl_scalar;
+
+import simpl.annotations.dbal.simpl_scalar;
 public class SimplePattern {
 	@simpl_scalar
 	private Pattern simplepattern;

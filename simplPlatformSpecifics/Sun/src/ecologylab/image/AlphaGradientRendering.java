@@ -7,10 +7,11 @@ import java.awt.image.DataBuffer;
 import java.awt.image.SampleModel;
 import java.awt.image.SinglePixelPackedSampleModel;
 
+import simpl.annotations.dbal.simpl_inherit;
+import simpl.annotations.dbal.simpl_scalar;
+
 import ecologylab.generic.Colors;
 import ecologylab.generic.ImageTools;
-import ecologylab.serialization.annotations.simpl_inherit;
-import ecologylab.serialization.annotations.simpl_scalar;
 
 /**
  * @author andruid

@@ -3,8 +3,8 @@
  */
 package ecologylab.appframework.types.prefs;
 
-import ecologylab.serialization.annotations.simpl_inherit;
-import ecologylab.serialization.annotations.simpl_scalar;
+import simpl.annotations.dbal.simpl_inherit;
+import simpl.annotations.dbal.simpl_scalar;
 
 /**
  * Pref for a Long

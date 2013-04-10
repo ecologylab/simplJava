@@ -4,7 +4,9 @@ import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
 import javax.xml.stream.XMLStreamConstants;
 
-import ecologylab.serialization.SIMPLTranslationException;
+import simpl.deserialization.stringformats.XMLParser;
+import simpl.exceptions.SIMPLTranslationException;
+
 
 public class XMLParserSun implements XMLParser
 {

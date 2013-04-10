@@ -3,9 +3,10 @@
  */
 package ecologylab.appframework.types.prefs;
 
+import simpl.core.SimplTypesScope;
+import simpl.core.SimplTypesScopeFactory;
+import simpl.types.element.ElementTypeTranslationsProvider;
 import ecologylab.generic.Debug;
-import ecologylab.serialization.SimplTypesScope;
-import ecologylab.serialization.types.element.ElementTypeTranslationsProvider;
 
 /**
  * Translations for the pref/meta_pref system.
@@ -41,7 +42,7 @@ public class PrefsTranslationsProvider extends Debug
 	 */
 	public static SimplTypesScope get()
 	{
-		return SimplTypesScope.get(PREFS_TRANSLATIONS_NAME, ElementTypeTranslationsProvider.get(),
-				translations, PrefSetBaseClassProvider.STATIC_INSTANCE.provideClasses());
+		return (SimplTypesScope)SimplTypesScopeFactory.name(PREFS_TRANSLATIONS_NAME).inherits(ElementTypeTranslationsProvider.get()).translations(
+				translations, PrefSetBaseClassProvider.STATIC_INSTANCE.provideClasses()).create();
 	}
 }

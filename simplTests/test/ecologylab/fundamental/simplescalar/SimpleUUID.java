@@ -1,6 +1,7 @@
 package ecologylab.fundamental.simplescalar;
 import java.util.UUID;
-import ecologylab.serialization.annotations.simpl_scalar;
+
+import simpl.annotations.dbal.simpl_scalar;
 public class SimpleUUID {
 	@simpl_scalar
 	private UUID simpleuuid;
