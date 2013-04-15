@@ -2,6 +2,7 @@ package ecologylab.concurrent;
 
 import java.util.ArrayList;
 
+import simpl.annotations.dbal.simpl_collection;
 import simpl.annotations.dbal.simpl_composite;
 import simpl.annotations.dbal.simpl_scalar;
 

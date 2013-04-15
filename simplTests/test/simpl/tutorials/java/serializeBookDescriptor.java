@@ -4,13 +4,13 @@ import static org.junit.Assert.*;
 
 import org.junit.Test;
 
-import ecologylab.serialization.ClassDescriptor;
-import ecologylab.serialization.SIMPLTranslationException;
-import ecologylab.serialization.SimplTypesScope;
-import ecologylab.serialization.TranslationContext;
-import ecologylab.serialization.annotations.simpl_other_tags;
-import ecologylab.serialization.formatenums.Format;
-import ecologylab.serialization.formatenums.StringFormat;
+import simpl.core.SimplTypesScope;
+import simpl.core.SimplTypesScopeFactory;
+import simpl.core.TranslationContext;
+import simpl.descriptions.ClassDescriptor;
+import simpl.descriptions.ClassDescriptors;
+import simpl.exceptions.SIMPLTranslationException;
+import simpl.formats.enums.StringFormat;
 
 public class serializeBookDescriptor {
 
@@ -49,7 +49,7 @@ public class serializeBookDescriptor {
 		
 		// A STS should contain all of the classes we expect to encounter
 		// Here, we're just expecting books! 
-		SimplTypesScope book_example_sts = SimplTypesScope.get("book_example", Book.class);
+		SimplTypesScope book_example_sts = (SimplTypesScope) SimplTypesScopeFactory.name("book_example").translations(Book.class).create();
 		// This STS is called "book_example"; when you have multiple named scopes,
 		// you can use those scopes for polymorphic type support...
 		// But more on that later.
@@ -57,10 +57,11 @@ public class serializeBookDescriptor {
 		
 		String jsonBook = "{\"book\":{\"title\":\"Working Effectively with Legacy Code\",\"author_name\":\"Michael Feathers\",\"book_number\":\"1337\"}}";
 		
-		Object result = book_example_sts.deserialize(jsonBook, new TranslationContext(), StringFormat.JSON);
+		Object result = book_example_sts.deserialize(jsonBook, StringFormat.JSON);
 		
 		// We get back a book
-		assertTrue(result instanceof Book);
+		assertNotNull("Result should be non-null!", result);
+		assertEquals(result.getClass(), Book.class);
 		Book book_from_json = (Book)result;
 		
 		// Validate that our book is what we expected...
@@ -72,7 +73,7 @@ public class serializeBookDescriptor {
 		// Same process applies for XML or other formats...
 		String xmlBook = "<book title=\"Working Effectively with Legacy Code\" author_name=\"Michael Feathers\" book_number=\"1337\"/>";
 		
-		Object xml_result = book_example_sts.deserialize(xmlBook, new TranslationContext(), StringFormat.XML);
+		Object xml_result = book_example_sts.deserialize(xmlBook, StringFormat.XML);
 		
 		// We get back a book
 		assertTrue(xml_result instanceof Book);

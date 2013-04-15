@@ -1,8 +1,8 @@
 package simpl.tutorials.java;
 
-import ecologylab.serialization.annotations.simpl_other_tags;
-import ecologylab.serialization.annotations.simpl_scalar;
-import ecologylab.serialization.annotations.simpl_tag;
+import simpl.annotations.dbal.simpl_other_tags;
+import simpl.annotations.dbal.simpl_scalar;
+import simpl.annotations.dbal.simpl_tag;
 
 public class Book {
 
