@@ -50,4 +50,10 @@ public class Simpl {
 	{
 		return SimplClassValidator.validate(instanceOfClass);
 	}
+	
+	public static SimplPlatformSpecifics platformSpecifics()
+	{
+		return PlatformSpecifics.get();
+	}
+	
 }
