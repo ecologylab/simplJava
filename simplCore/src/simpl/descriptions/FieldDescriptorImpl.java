@@ -43,7 +43,7 @@ public class FieldDescriptorImpl implements FieldDescriptor {
 	
 	Collection<ClassDescriptor> polymorphicFields;
 
-	public Collection<ClassDescriptor> getPolymoprhicFieldDescriptors()
+	public Collection<ClassDescriptor> getPolymorphicDescriptors()
 	{
 		return polymorphicFields;
 	}
@@ -151,7 +151,7 @@ public class FieldDescriptorImpl implements FieldDescriptor {
 	@Override
 	public boolean isPolymorphic() {
 		// TODO Auto-generated method stub
-		return !this.getPolymoprhicFieldDescriptors().isEmpty();
+		return !this.getPolymorphicDescriptors().isEmpty();
 	}
 
 	@Override

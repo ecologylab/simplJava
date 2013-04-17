@@ -43,7 +43,7 @@ public interface FieldDescriptor extends IMetaInformationProvider {
 	 * classes which may be used in this field.
 	 * @return
 	 */
-	Collection<ClassDescriptor> getPolymoprhicFieldDescriptors();
+	Collection<ClassDescriptor> getPolymorphicDescriptors();
 	
 	/** 
 	 * Gets the enum descriptor for the delcared class of this field

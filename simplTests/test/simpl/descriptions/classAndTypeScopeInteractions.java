@@ -6,6 +6,8 @@ import org.junit.Test;
 
 import simpl.annotations.dbal.simpl_composite;
 import simpl.annotations.dbal.simpl_scope;
+import simpl.core.ISimplTypesScope;
+import simpl.core.SimplTypesScopeFactory;
 import simpl.descriptions.ClassDescriptor;
 import simpl.descriptions.ClassDescriptors;
 import simpl.exceptions.SIMPLDescriptionException;
@@ -37,6 +39,15 @@ public class classAndTypeScopeInteractions {
 		public A myPolymorph;
 	}
 	
+	@Test
+	public void testCreatePolymorphicDescriptorAsPartOfSTSConstruction()
+	{
+		ISimplTypesScope sts = SimplTypesScopeFactory.name("A_Test").translations(A.class, AChild.class, AnotherChild.class, B.class).create();
+
+		ClassDescriptor cd = sts.getClassDescriptorByTag("b");
+		
+	
+	}
 	
 	@Test(expected=RuntimeException.class)
 	public void testNonExistentScopesShouldThrowAnException()
