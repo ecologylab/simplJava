@@ -5,6 +5,7 @@ import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 
 import simpl.annotations.dbal.simpl_map;
@@ -392,7 +393,6 @@ public final class SimplTypesScope extends Debug implements ISimplDeserializatio
 	}
 
 	public static ISimplTypesScope get(String scopeName) {
-		// TODO Auto-generated method stub
 		return allTypesScopes.get(scopeName);
 	}
 
@@ -456,5 +456,21 @@ public final class SimplTypesScope extends Debug implements ISimplDeserializatio
 		
 		assert(true);
 
+	}
+
+	@Override
+	public Collection<ClassDescriptor> getPolymorphicSubsets(ClassDescriptor cd) {
+		
+		Collection<ClassDescriptor> classDescriptors = new HashSet<ClassDescriptor>();
+		
+		for(ClassDescriptor aClass : this.getAllClassDescriptors())
+		{
+			if(cd.isSuperClass(aClass))
+			{
+				classDescriptors.add(aClass);
+			}
+		}
+
+		return classDescriptors;
 	}
 }

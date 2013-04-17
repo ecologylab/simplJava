@@ -154,23 +154,37 @@ public class SimplTypesScopeFactory {
 			}
 		}
 
+		/**
+		 * Creates a SimplTypesScope with the given name. 
+		 * Will return the cached STS if it has already been created. 
+		 * @return
+		 */
 		public ISimplTypesScope create()
 		{
-			ISimplTypesScope sts = new SimplTypesScope();
-			sts.setName(this.ourData.stsName);
+			ISimplTypesScope theSts = SimplTypesScope.get(ourData.stsName);
 			
-			for(ISimplTypesScope parentSTS: this.ourData.scopesInherited)
-			{
-				sts.inheritFrom(parentSTS);
+			if(theSts == null)
+			{	
+				ISimplTypesScope sts = new SimplTypesScope();
+				sts.setName(this.ourData.stsName);
+				
+				for(ISimplTypesScope parentSTS: this.ourData.scopesInherited)
+				{
+					sts.inheritFrom(parentSTS);
+				}
+				
+				for(Class<?> lass : ourData.translations)
+				{
+					sts.addTranslation(lass);
+				}
+				
+				SimplTypesScope.registerSimplTypesScope(sts.getName(), sts);
+				return sts;
 			}
-			
-			for(Class<?> lass : ourData.translations)
+			else
 			{
-				sts.addTranslation(lass);
+				return theSts;
 			}
-			
-			SimplTypesScope.registerSimplTypesScope(sts.getName(), sts);
-			return sts;
 		}
 	}
 }

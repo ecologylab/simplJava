@@ -72,4 +72,11 @@ public interface ISimplTypesScope {
 	 * @param sts
 	 */
 	void inheritFrom(ISimplTypesScope sts);
+	
+	/**
+	 * Returns a collection of classes which all would validly fit in a polymorphic field of type CD;
+	 * @param cd
+	 * @return
+	 */
+	Collection<ClassDescriptor> getPolymorphicSubsets(ClassDescriptor cd);
 }
