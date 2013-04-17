@@ -20,6 +20,7 @@ import simpl.descriptions.ClassDescriptor;
 import simpl.descriptions.FieldDescriptor;
 import simpl.descriptions.FieldType;
 import simpl.exceptions.SIMPLTranslationException;
+import simpl.tools.ReflectionTools;
 
 
 /**
@@ -209,32 +210,32 @@ public class JSONPullDeserializer extends StringPullDeserializer
 		{
 			if (!handleSimplId(jp.getText(), root))
 			{
-//				currentFieldDescriptor = (currentFieldDescriptor != null)
-//						&& (currentFieldDescriptor.getType() == IGNORED_ELEMENT) ? FieldDescriptor.IGNORED_ELEMENT_FIELD_DESCRIPTOR
-//						: (currentFieldDescriptor != null && currentFieldDescriptor.getType() == WRAPPER) ? currentFieldDescriptor
-//								.getWrappedFD()
-//								: rootClassDescriptor.getFieldDescriptorByTag(jp.getText(), translationScope, null);
-								
+
+			
 			  FieldDescriptor oldCurrentFieldDescritpr = currentFieldDescriptor;
-			  byte path = 0;
 			  String fieldTag = null;
 				if (currentFieldDescriptor != null && currentFieldDescriptor.getType() == FieldType.IGNORED_ELEMENT)
 				{
-				  path = 1;
+				/**  path = 1;
 				  currentFieldDescriptor = FieldDescriptor.IGNORED_ELEMENT_FIELD_DESCRIPTOR;
+				  **/
+					throw new RuntimeException("Curently not supported at the moment");
 				}
 				else
 				{
 				  if (currentFieldDescriptor != null && currentFieldDescriptor.getType() == FieldType.WRAPPER)
 				  {
-				    path = 2;
+/**				    path = 2;
 				    currentFieldDescriptor = currentFieldDescriptor.getWrappedFD();
+				    */
+					throw new RuntimeException("Curently not supported at the moment");
+
 				  }
 				  else
 				  {
-				    path = 3;
-				    fieldTag = jp.getText();
-				    currentFieldDescriptor = rootClassDescriptor.getFieldDescriptorByTag(fieldTag, translationScope, null);
+ 				    fieldTag = jp.getText();
+				    currentFieldDescriptor = 				    		
+				    		rootClassDescriptor.getFieldDescriptorByTag(fieldTag, translationScope);
 				  }
 				}
 				
@@ -247,7 +248,7 @@ public class JSONPullDeserializer extends StringPullDeserializer
 				{
 				case SCALAR:
 					jp.nextToken();
-					currentFieldDescriptor.setFieldToScalar(root, jp.getText(), translationContext);
+					currentFieldDescriptor.getScalarType().setFieldValue(jp.getText(), currentFieldDescriptor.getField(), root);
 					break;
 				case COMPOSITE_ELEMENT:
 					jp.nextToken();
@@ -260,8 +261,7 @@ public class JSONPullDeserializer extends StringPullDeserializer
 
 					// if (subRoot != null)
 					// subRoot.setupInParent(root, subRootClassDescriptor);
-
-					currentFieldDescriptor.setFieldToComposite(root, subRoot);
+					ReflectionTools.setFieldValue(subRoot,currentFieldDescriptor.getField(), root);
 					break;
 				case COLLECTION_ELEMENT:
 					jp.nextToken();
@@ -278,9 +278,9 @@ public class JSONPullDeserializer extends StringPullDeserializer
 							jp.nextToken();
 
 							subRoot = getSubRoot(currentFieldDescriptor, jp.getCurrentName());
-							Collection collection = (Collection) currentFieldDescriptor
-									.automaticLazyGetCollectionOrMap(root);
-							collection.add(subRoot);
+							//Collection collection = (Collection) currentFieldDescriptor
+								//	.automaticLazyGetCollectionOrMap(root);
+							//collection.add(subRoot);
 
 							jp.nextToken();
 							jp.nextToken();
@@ -291,9 +291,9 @@ public class JSONPullDeserializer extends StringPullDeserializer
 							while (jp.nextToken() != JsonToken.END_ARRAY)
 							{
 								subRoot = getSubRoot(currentFieldDescriptor, jp.getCurrentName());
-								Collection collection = (Collection) currentFieldDescriptor
-										.automaticLazyGetCollectionOrMap(root);
-								collection.add(subRoot);
+								//Collection collection = (Collection) currentFieldDescriptor
+								//		.automaticLazyGetCollectionOrMap(root);
+								//collection.add(subRoot);
 							}
 					}
 					break;
@@ -312,12 +312,13 @@ public class JSONPullDeserializer extends StringPullDeserializer
 							jp.nextToken();
 
 							subRoot = getSubRoot(currentFieldDescriptor, jp.getCurrentName());
-							if (subRoot instanceof IMappable)
+							/*if (subRoot instanceof IMappable)
 							{
 								final Object key = ((IMappable) subRoot).key();
 								Map map = (Map) currentFieldDescriptor.automaticLazyGetCollectionOrMap(root);
 								map.put(key, subRoot);
 							}
+							*/
 
 							jp.nextToken();
 							jp.nextToken();
@@ -328,13 +329,13 @@ public class JSONPullDeserializer extends StringPullDeserializer
 					{
 						while (jp.nextToken() != JsonToken.END_ARRAY)
 						{
-							subRoot = getSubRoot(currentFieldDescriptor, jp.getCurrentName());
+							/*subRoot = getSubRoot(currentFieldDescriptor, jp.getCurrentName());
 							if (subRoot instanceof IMappable)
 							{
 								final Object key = ((IMappable) subRoot).key();
 								Map map = (Map) currentFieldDescriptor.automaticLazyGetCollectionOrMap(root);
 								map.put(key, subRoot);
-							}
+							}*/
 						}
 					}
 					break;
@@ -343,14 +344,15 @@ public class JSONPullDeserializer extends StringPullDeserializer
 
 					while (jp.nextToken() != JsonToken.END_ARRAY)
 					{
-						currentFieldDescriptor.addLeafNodeToCollection(root, jp.getText(), translationContext);
+					//currentFieldDescriptor.addLeafNodeToCollection(root, jp.getText(), translationContext);
 					}
 					break;
 				case WRAPPER:
 
-					if (!currentFieldDescriptor.getWrappedFD().isPolymorphic())
-						jp.nextToken();
+					/*if (!currentFieldDescriptor.getWrappedFD().isPolymorphic())
+						jp.nextToken();*/
 					break;
+					
 				}
 				
 				state = nextDeserializationProcedureState(state, fieldType);
@@ -409,7 +411,7 @@ public class JSONPullDeserializer extends StringPullDeserializer
 			}
 			else
 			{
-				ClassDescriptor<?> subRootClassDescriptor = currentFieldDescriptor
+				ClassDescriptor subRootClassDescriptor = currentFieldDescriptor
 						.getChildClassDescriptor(tagName);
 
 				subRoot = subRootClassDescriptor.getInstance();

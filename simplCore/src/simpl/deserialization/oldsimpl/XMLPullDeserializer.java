@@ -10,6 +10,7 @@ import javax.xml.stream.XMLStreamException;
 
 import org.codehaus.jackson.JsonParseException;
 
+import simpl.Simpl;
 import simpl.core.DeserializationHookStrategy;
 import simpl.core.ISimplTypesScope;
 import simpl.core.TranslationContext;
@@ -146,7 +147,7 @@ public class XMLPullDeserializer extends StringPullDeserializer
 	 */
 	private void configure(InputStream inputStream, Charset charSet) throws SIMPLTranslationException
 	{
-		xmlParser = FundamentalPlatformSpecifics.get().getXMLParser(inputStream, charSet);
+		xmlParser = Simpl.platformSpecifics().getXMLParser(inputStream, charSet);
 	}
 	
 	/**
@@ -157,7 +158,7 @@ public class XMLPullDeserializer extends StringPullDeserializer
 	 */
 	private void configure(InputStream inputStream) throws SIMPLTranslationException
 	{
-		xmlParser = FundamentalPlatformSpecifics.get().getXMLParser(inputStream);
+		xmlParser = Simpl.platformSpecifics().getXMLParser(inputStream);
 	}
 
 	/**
@@ -168,7 +169,7 @@ public class XMLPullDeserializer extends StringPullDeserializer
 	 */
 	private void configure(CharSequence charSequence) throws SIMPLTranslationException
 	{
-		xmlParser = FundamentalPlatformSpecifics.get().getXMLParser(charSequence);
+		xmlParser = Simpl.platformSpecifics().getXMLParser(charSequence);
 	}
 
 	/**
@@ -193,7 +194,7 @@ public class XMLPullDeserializer extends StringPullDeserializer
 
 		String rootTag = getTagName();
 
-		ClassDescriptor<? extends FieldDescriptor> rootClassDescriptor = translationScope
+		ClassDescriptor rootClassDescriptor = translationScope
 				.getClassDescriptorByTag(rootTag);
 
 		if (rootClassDescriptor == null)
@@ -270,7 +271,7 @@ public class XMLPullDeserializer extends StringPullDeserializer
 					}
 					else if (event == XMLParser.END_ELEMENT && currentFieldDescriptor != null && currentFieldDescriptor.getType() == FieldType.WRAPPER)
 					{
-						currentFieldDescriptor = currentFieldDescriptor.getWrappedFD();
+						throw new RuntimeException("Not implemented yet");
 					}
 					
 					event = nextEvent();
@@ -279,17 +280,18 @@ public class XMLPullDeserializer extends StringPullDeserializer
 
 				String tag = getTagName();
 
-				currentFieldDescriptor = currentFieldDescriptor != null &&currentFieldDescriptor.getType() == FieldType.WRAPPER
+				currentFieldDescriptor = (FieldDescriptor) (currentFieldDescriptor != null &&currentFieldDescriptor.getType() == FieldType.WRAPPER
 						? currentFieldDescriptor.getWrappedFD()
-						: rootClassDescriptor.getFieldDescriptorByTag(tag, translationScope, null);
+						: rootClassDescriptor.getFieldDescriptorByTag(tag, translationScope));
 
 				if (currentFieldDescriptor == null)
 				{
-					currentFieldDescriptor = FieldDescriptor.makeIgnoredFieldDescriptor(tag);
+					throw new RuntimeException("not implemented!");
+//					currentFieldDescriptor = FieldDescriptor.makeIgnoredFieldDescriptor(tag);
 				}
 
 				
-					FieldType fieldType = currentFieldDescriptor.getType();
+				FieldType fieldType = currentFieldDescriptor.getType();
 
 				switch (fieldType)
 				{
@@ -339,7 +341,8 @@ public class XMLPullDeserializer extends StringPullDeserializer
 
 			if (rootClassDescriptor.hasScalarFD())
 			{
-				rootClassDescriptor.getScalarTextFD().setFieldToScalar(root, xmlText, translationContext);
+				throw new RuntimeException("Not implemented");
+//				rootClassDescriptor.getScalarTextFD().setFieldToScalar(root, xmlText, translationContext);
 			}
 			
 			deserializationPostHook(root, translationContext);
@@ -391,7 +394,7 @@ public class XMLPullDeserializer extends StringPullDeserializer
 					}
 
 					String value = text.toString();
-					fd.addLeafNodeToCollection(root, value, translationContext);
+					//fd.addLeafNodeToCollection(root, value, translationContext);
 				}
 
 				event 	= xmlParser.nextTag();
@@ -416,7 +419,7 @@ public class XMLPullDeserializer extends StringPullDeserializer
 	{
 		String tagName = getTagName();
 		Object subRoot = getSubRoot(currentFieldDescriptor, tagName, root);
-		currentFieldDescriptor.setFieldToComposite(root, subRoot);
+		//currentFieldDescriptor.setFieldToComposite(root, subRoot);
 
 		return nextEvent();
 	}
@@ -446,12 +449,12 @@ public class XMLPullDeserializer extends StringPullDeserializer
 
 			String compositeTagName = getTagName();
 			subRoot = getSubRoot(fd, compositeTagName, root);
-			final Object key = (subRoot instanceof IMappable<?>) ? ((IMappable<?>) subRoot).key() : fd.getMapKeyFieldValue(subRoot); 
-			if (key != null)
-			{
-				Map map = (Map) fd.automaticLazyGetCollectionOrMap(root);
-				map.put(key, subRoot);
-			}
+		//	final Object key = (subRoot instanceof IMappable<?>) ? ((IMappable<?>) subRoot).key() : fd.getMapKeyFieldValue(subRoot); 
+		//	if (key != null)
+			//{
+				//Map map = (Map) fd.automaticLazyGetCollectionOrMap(root);
+				//map.put(key, subRoot);
+			//}
 
 			event = xmlParser.nextTag();
 
@@ -491,8 +494,8 @@ public class XMLPullDeserializer extends StringPullDeserializer
 				subRoot = getSubRoot(fd, tagName, root);
 				
 				
-				Collection collection = (Collection) fd.automaticLazyGetCollectionOrMap(root);
-				collection.add(subRoot);
+				//Collection collection = (Collection) fd.automaticLazyGetCollectionOrMap(root);
+				//collection.add(subRoot);
 
 				event 	= xmlParser.nextTag();
 				tagName = getTagName();
@@ -523,7 +526,7 @@ public class XMLPullDeserializer extends StringPullDeserializer
 
 		String value = text.toString();
 		
-		currentFieldDescriptor.setFieldToScalar(root, value, translationContext);
+		//currentFieldDescriptor.setFieldToScalar(root, value, translationContext);
 
 		return nextEvent();
 	}
@@ -563,8 +566,7 @@ public class XMLPullDeserializer extends StringPullDeserializer
 			throws SIMPLTranslationException, IOException
 	{
 		Object subRoot = null;
-		ClassDescriptor<? extends FieldDescriptor> subRootClassDescriptor = currentFieldDescriptor
-				.getChildClassDescriptor(tagName);
+		ClassDescriptor subRootClassDescriptor = null; //currentFieldDescriptor.getChildClassDescriptor(tagName);
 
 		String simplReference = null;
 
@@ -592,10 +594,10 @@ public class XMLPullDeserializer extends StringPullDeserializer
 
 			if (subRoot != null)
 			{
-				if (subRoot instanceof ElementState && root instanceof ElementState)
-				{
+				/*if (subRoot instanceof ElementState && root instanceof ElementState)
+				{s
 					((ElementState) subRoot).setupInParent((ElementState) root);
-				}
+				}*/
 			}
 
 			deserializeAttributes(subRoot, subRootClassDescriptor);
@@ -650,7 +652,7 @@ public class XMLPullDeserializer extends StringPullDeserializer
 	 * @return
 	 */
 	private boolean deserializeAttributes(Object root,
-			ClassDescriptor<? extends FieldDescriptor> rootClassDescriptor)
+			ClassDescriptor rootClassDescriptor)
 	{
 		for (int i = 0; i < xmlParser.getAttributeCount(); i++)
 		{
@@ -674,7 +676,7 @@ public class XMLPullDeserializer extends StringPullDeserializer
 
 				if (attributeFieldDescriptor != null)
 				{
-					attributeFieldDescriptor.setFieldToScalar(root, value, translationContext);
+					//attributeFieldDescriptor.setFieldToScalar(root, value, translationContext);
 				}
 				else
 				{
