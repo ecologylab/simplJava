@@ -3,10 +3,14 @@ package simpl.descriptions;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.LinkedList;
+import java.util.Set;
 
 import simpl.annotations.dbal.simpl_scalar;
+import simpl.core.ISimplTypesScope;
 import simpl.core.ScalarUnmarshallingContext;
+import simpl.core.SimplTypesScope;
 import simpl.exceptions.SIMPLTranslationException;
 import simpl.types.ListType;
 import simpl.types.MapType;
@@ -21,7 +25,7 @@ public class FieldDescriptorImpl implements FieldDescriptor {
 	
 	public FieldDescriptorImpl()
 	{
-		this.polymorphicFields = new ArrayList<ClassDescriptor>();
+		this.polymorphicFields = new HashSet<ClassDescriptor>();
 		this.othertags = new ArrayList<String>();
 		this.metainfo = new MetaInformationCollection();
 		
@@ -45,7 +49,65 @@ public class FieldDescriptorImpl implements FieldDescriptor {
 
 	public Collection<ClassDescriptor> getPolymorphicDescriptors()
 	{
+		if(!this.polymorphicScopesResolved)
+		{
+			Collection<ClassDescriptor> classes = new LinkedList<ClassDescriptor>();
+			for(String scope : this.polymorphicScopes)
+			{
+				classes.addAll(resolvePolymorphicScope(scope));
+			}
+			
+			for(ClassDescriptor icd: classes)
+			{
+				this.addPolymoprhicFieldDescriptor(icd);
+			}
+			
+			this.polymorphicScopesResolved = true;
+			this.polymorphicFields.addAll(classes);
+		}
 		return polymorphicFields;
+
+	}
+	
+	private Collection<ClassDescriptor> resolvePolymorphicScope(String scopeName)
+	{
+		Collection<ClassDescriptor> classDescriptors = new LinkedList<ClassDescriptor>();
+
+		ISimplTypesScope s = SimplTypesScope.get(scopeName);
+
+		if(s == null)
+		{
+			throw new RuntimeException("Simpl Types Scope named ["
+					+scopeName == null ? "NULL" : scopeName +
+							"] is not created. Please make sure scope has been created " +
+					"and that static initialization happens in the proper order.");
+		}
+		else
+		{
+			if(this.isEnum())
+			{
+				throw new RuntimeException("Polymorphic enumerations do not exist!");
+			}
+			else
+			{
+				int added = 0;
+				for(ClassDescriptor icd : s.getAllClassDescriptors())
+				{
+					if(this.getFieldClassDescriptor().isSuperClass(icd))
+					{
+						classDescriptors.add(icd);
+						added = added + 1;
+					}
+				}
+
+				if(added == 0)
+				{
+					throw new RuntimeException("No simplClasses added to polymorphic field descriptor; did you mean to reference a sts with types that were a supertype of the declared class? Check your code and STS and try again.");
+				}
+			}
+		}
+		
+		return classDescriptors;
 	}
 	
 	public void addPolymoprhicFieldDescriptor(ClassDescriptor icd)
@@ -144,8 +206,7 @@ public class FieldDescriptorImpl implements FieldDescriptor {
 
 	@Override
 	public boolean isEnum() {
-		// TODO Auto-generated method stub
-		return false;
+		return this.enumerationDescriptor != null;
 	}
 
 	@Override
@@ -180,7 +241,7 @@ public class FieldDescriptorImpl implements FieldDescriptor {
 	public Field getField() {
 		// TODO Auto-generated method stub
 		try{
-			return this.getDeclaringClass().getField(this.getName());
+			return this.getDeclaringClass().getDeclaredField(this.getName());
 		}
 		catch(Exception e)
 		{
@@ -257,4 +318,25 @@ public class FieldDescriptorImpl implements FieldDescriptor {
 		throw new RuntimeException("Not implementedyet!");
 	}
 	
+	
+	boolean polymorphicScopesResolved = false;
+	
+	private ArrayList<String> polymorphicScopes = new ArrayList<String>();
+	
+	public void addPolymorphicScope(String scopeName)
+	{
+		this.polymorphicScopes.add(scopeName);
+	}
+
+	@Override
+	public Collection<String> getPolymorphicScopes() {
+		// TODO Auto-generated method stub
+		return this.polymorphicScopes;
+	}
+	
+	@Override
+	public String toString()
+	{
+		return "Field: " + this.getName() + " declared in: " + this.getDeclaringClassDescriptor().toString();
+	}
 }

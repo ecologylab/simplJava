@@ -45,6 +45,13 @@ public interface FieldDescriptor extends IMetaInformationProvider {
 	 */
 	Collection<ClassDescriptor> getPolymorphicDescriptors();
 	
+	/**
+	 * Gets a collection of all Polymorphic scopes that can contain classes
+	 * which can fit in this field. 
+	 * @return
+	 */
+	Collection<String> getPolymorphicScopes();
+	
 	/** 
 	 * Gets the enum descriptor for the delcared class of this field
 	 */

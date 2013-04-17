@@ -124,7 +124,7 @@ public class EnumerationDescriptor implements ISimplStringMarshaller, IMetaInfor
 	
 	private IMetaInformationProvider metainfo;
 	
-	
+	@simpl_collection
 	private ArrayList<String> otherTags;
 	
 	/**

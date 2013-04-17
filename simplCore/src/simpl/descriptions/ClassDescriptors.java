@@ -5,7 +5,6 @@ import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import simpl.annotations.dbal.simpl_inherit;
@@ -167,6 +166,8 @@ public class ClassDescriptors {
 		{ 
 			if(!fieldExcluded(f))
 			{
+				f.setAccessible(true);
+				
 				Collection<UpdateClassDescriptorCallback> ucds = new ArrayList<UpdateClassDescriptorCallback>();					
 				
 				FieldDescriptor ifd = FieldDescriptors.getFieldDescriptor(f, ucds);	
@@ -212,8 +213,6 @@ public class ClassDescriptors {
 			}
 			
 			return false;
-			
-
 		}
 	
 }

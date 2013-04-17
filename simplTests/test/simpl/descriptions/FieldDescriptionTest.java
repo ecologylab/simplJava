@@ -14,7 +14,8 @@ import ecologylab.serialization.primaryScenarioEnum;
 public class FieldDescriptionTest {
 
 	@Test
-	public void testDescribeEnumerationField() throws SIMPLTranslationException{
+	public void testDescribeEnumerationField() throws SIMPLTranslationException
+	{
 		final class anEnumField
 		{
 			@simpl_scalar
@@ -25,12 +26,11 @@ public class FieldDescriptionTest {
 		assertEquals(1,cd.allFieldDescriptors().size());
 		
 		FieldDescriptor fd = (FieldDescriptor)cd.allFieldDescriptors().get(0);
-		assertEquals(FieldType.SCALAR, fd.getType());
-		assertEquals(primaryScenarioEnum.class, fd.getType());
-		assertEquals(true, fd.isEnum());
+		assertEquals("Expected Scalar type!", FieldType.SCALAR, fd.getType());
+		assertEquals("Should be an enumeration!" , true, fd.isEnum());
 		assertNotNull(fd.getEnumerationDescriptor());
 		assertEquals("firstValue", fd.getEnumerationDescriptor().marshal(primaryScenarioEnum.firstValue));
 		assertEquals(primaryScenarioEnum.firstValue, fd.getEnumerationDescriptor().unmarshal("firstValue"));
-		
+		assertNotNull(fd.getField());
 	}
 }

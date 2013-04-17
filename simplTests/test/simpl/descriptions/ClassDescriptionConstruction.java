@@ -57,7 +57,7 @@ public class ClassDescriptionConstruction {
 		
 		assertEquals("myComposite is a composite!", FieldType.COMPOSITE_ELEMENT,myInnerComposite.getType());
 		assertEquals("myComposite", myInnerComposite.getName());
-		assertEquals(innerClass.class, myInnerComposite.getType());
+		assertEquals(FieldType.COMPOSITE_ELEMENT, myInnerComposite.getType());
 	}
 	
 	@Test
@@ -70,13 +70,13 @@ public class ClassDescriptionConstruction {
 		FieldDescriptor myString = myClass.allFieldDescriptors().get(0);
 		assertEquals("myString is a scalar!", FieldType.SCALAR, myString.getType());
 		assertEquals("myString", myString.getName());
-		assertEquals(String.class, myString.getType());
+		assertEquals(FieldType.SCALAR, myString.getType());
 		assertEquals(StringType.class, myString.getScalarType().getClass());
 		
 		FieldDescriptor myInnerComposite = myClass.allFieldDescriptors().get(1);
 		
 		assertEquals("myComposite is a composite!", FieldType.COMPOSITE_ELEMENT,myInnerComposite.getType());
 		assertEquals("myComposite", myInnerComposite.getName());
-		assertEquals(innerClass.class, myInnerComposite.getType());
+		assertEquals(FieldType.COMPOSITE_ELEMENT, myInnerComposite.getType());
 	}
 }

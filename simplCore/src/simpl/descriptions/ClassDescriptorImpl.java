@@ -134,10 +134,7 @@ ISimplDeserializationHooks
 		// This is a really bad check; will work for now. 
 		if(icd != null)
 		{
-			String thisName = this.getName();
-			String otherName = icd.getName();
-			return thisName.equals(otherName);
-					
+			return this.getJavaClass().isAssignableFrom(icd.getJavaClass());
 		}else{
 			return false;
 		}
@@ -229,5 +226,11 @@ ISimplDeserializationHooks
 	public FieldDescriptor getFieldDescriptorByTag(String fieldTag,
 			ISimplTypesScope translationScope) {
 		return this.fields().by("tag_name").get(fieldTag);
+	}
+	
+	@Override
+	public String toString()
+	{
+		return "ClassDescriptor["+this.getName()+"]"; 
 	}
 }
