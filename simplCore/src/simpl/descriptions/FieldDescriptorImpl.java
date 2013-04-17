@@ -6,6 +6,8 @@ import java.util.Collection;
 import java.util.LinkedList;
 
 import simpl.annotations.dbal.simpl_scalar;
+import simpl.core.ScalarUnmarshallingContext;
+import simpl.exceptions.SIMPLTranslationException;
 import simpl.types.ListType;
 import simpl.types.MapType;
 import simpl.types.ScalarType;
@@ -234,6 +236,25 @@ public class FieldDescriptorImpl implements FieldDescriptor {
 	public MapType getMapType()
 	{
 		return this.ourMapType;
+	}
+
+	@Override
+	public void setFieldToScalarDefault(Object context,
+			ScalarUnmarshallingContext scalarContext) throws SIMPLTranslationException {
+		ScalarType st = this.scalarType;
+		st.setFieldValue(st.marshal(st.getDefaultValue()), this.getField(), context);
+		
+	}
+
+	@Override
+	public ClassDescriptor getChildClassDescriptor(String tagName) {
+		// TODO Auto-generated method stub
+		return this.fieldClassDescriptor;
+	}
+
+	@Override
+	public boolean isWrapped() {
+		throw new RuntimeException("Not implementedyet!");
 	}
 	
 }

@@ -3,6 +3,8 @@ package simpl.descriptions;
 import java.util.Collection;
 import java.util.List;
 
+import simpl.core.ISimplTypesScope;
+
 /**
  * Interface for all classdescriptors
  */
@@ -64,8 +66,11 @@ public interface ClassDescriptor extends IMetaInformationProvider, IFieldIndexer
 
 	boolean getStrictObjectGraphRequired();
 
-	Object getScalarTextFD();
+	FieldDescriptor getScalarTextFD();
 
 	boolean hasScalarFD();
+
+	FieldDescriptor getFieldDescriptorByTag(String fieldTag,
+			ISimplTypesScope translationScope);
 	
 }

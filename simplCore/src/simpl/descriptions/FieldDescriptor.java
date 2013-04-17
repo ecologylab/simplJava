@@ -3,6 +3,8 @@ package simpl.descriptions;
 import java.lang.reflect.Field;
 import java.util.Collection;
 
+import simpl.core.ScalarUnmarshallingContext;
+import simpl.exceptions.SIMPLTranslationException;
 import simpl.types.ListType;
 import simpl.types.MapType;
 import simpl.types.ScalarType;
@@ -85,6 +87,13 @@ public interface FieldDescriptor extends IMetaInformationProvider {
 	void setValue(Object context, Object value);
 
 	MapType getMapType();
+
+	void setFieldToScalarDefault(Object context,
+			ScalarUnmarshallingContext scalarContext) throws SIMPLTranslationException;
+
+	ClassDescriptor getChildClassDescriptor(String tagName);
+
+	boolean isWrapped();
 	
 	
 }

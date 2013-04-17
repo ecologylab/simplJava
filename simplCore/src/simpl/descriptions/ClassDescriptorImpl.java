@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Collection;
 
+import simpl.core.ISimplTypesScope;
 import simpl.core.TranslationContext;
 import simpl.descriptions.indexers.FieldDescriptorIndexer;
 import simpl.deserialization.ISimplDeserializationHookContextual;
@@ -210,7 +211,7 @@ ISimplDeserializationHooks
 	}
 
 	@Override
-	public Object getScalarTextFD() {
+	public FieldDescriptor getScalarTextFD() {
 		// TODO Auto-generated method stub
 		return null;
 	}
@@ -224,6 +225,12 @@ ISimplDeserializationHooks
 	public void setTagName(String tagName) {
 		// TODO Auto-generated method stub
 		this.tagName = tagName;
+	}
+
+	@Override
+	public FieldDescriptor getFieldDescriptorByTag(String fieldTag,
+			ISimplTypesScope translationScope) {
+		return this.fields().by("tag_name").get(fieldTag);
 	}
 
 
