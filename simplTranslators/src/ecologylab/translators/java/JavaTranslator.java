@@ -88,7 +88,7 @@ public class JavaTranslator extends AbstractCodeTranslator implements JavaTransl
 	  String template = sb.toString();
 	  
 		templateGroup = new STGroupString(template);
-		templateGroup.registerRenderer(String.class, new AttributeRenderer()
+		AttributeRenderer attributeRenderer = new AttributeRenderer()
 		{
 			@Override
 			public String toString(Object o, String formatString, Locale locale)
@@ -102,7 +102,8 @@ public class JavaTranslator extends AbstractCodeTranslator implements JavaTransl
 							
 				return s;
 			}
-		});
+		};
+    templateGroup.registerRenderer(String.class, attributeRenderer);
 	}
 
 	/**
