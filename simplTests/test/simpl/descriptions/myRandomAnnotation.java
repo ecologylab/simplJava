@@ -1,4 +1,4 @@
-package simpl.descriptions.beiber;
+package simpl.descriptions;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;

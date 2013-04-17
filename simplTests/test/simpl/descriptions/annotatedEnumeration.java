@@ -1,4 +1,4 @@
-package simpl.descriptions.beiber;
+package simpl.descriptions;
 
 import simpl.annotations.dbal.simpl_scalar;
 import simpl.annotations.dbal.simpl_tag;

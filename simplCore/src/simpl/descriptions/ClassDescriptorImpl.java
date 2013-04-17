@@ -13,9 +13,7 @@ import simpl.deserialization.ISimplDeserializationHooks;
 
 public class ClassDescriptorImpl implements ClassDescriptor,
 ISimplDeserializationHooks
-
 {
-
 	private ArrayList<String> otherTags;
 	private IMetaInformationProvider metainfo;
 	private FieldDescriptorIndexer indexer;
@@ -232,6 +230,4 @@ ISimplDeserializationHooks
 			ISimplTypesScope translationScope) {
 		return this.fields().by("tag_name").get(fieldTag);
 	}
-
-
 }

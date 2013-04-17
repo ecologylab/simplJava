@@ -1,4 +1,4 @@
-package simpl.descriptions.beiber;
+package simpl.descriptions;
 
 public class interfaceListDescription {
 

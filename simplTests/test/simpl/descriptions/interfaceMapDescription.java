@@ -1,4 +1,4 @@
-package simpl.descriptions.beiber;
+package simpl.descriptions;
 
 import java.util.HashMap;
 import java.util.Map;

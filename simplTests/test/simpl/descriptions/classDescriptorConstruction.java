@@ -1,4 +1,4 @@
-package simpl.descriptions.beiber;
+package simpl.descriptions;
 
 import java.lang.reflect.Field;
 import java.util.HashSet;
