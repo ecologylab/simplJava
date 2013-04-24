@@ -18,9 +18,9 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
 import ecologylab.appframework.StatusReporter;
-import ecologylab.concurrent.BasicSite;
 import ecologylab.concurrent.Downloadable;
 import ecologylab.concurrent.DownloadableLogRecord;
+import ecologylab.concurrent.Site;
 import ecologylab.generic.Continuation;
 import ecologylab.generic.Debug;
 import ecologylab.net.NetTools;
@@ -426,7 +426,7 @@ public class ZipDownload extends Debug implements Downloadable, Continuation
 	}
 
 	@Override
-	public BasicSite getSite()
+	public Site getSite()
 	{
 		// TODO Auto-generated method stub
 		return null;
@@ -474,7 +474,7 @@ public class ZipDownload extends Debug implements Downloadable, Continuation
 	}
 
 	@Override
-	public BasicSite getDownloadSite()
+	public Site getDownloadSite()
 	{
 		return null;
 	}

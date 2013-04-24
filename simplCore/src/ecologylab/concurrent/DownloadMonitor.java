@@ -115,9 +115,9 @@ public class DownloadMonitor<T extends Downloadable> extends Monitor implements
 	{
 		synchronized (toDownload)
 		{
-			BasicSite site					= thatDownloadable.getDownloadSite();
+			Site site					= thatDownloadable.getDownloadSite();
 			if (site != null)
-				site.queuedDownload();
+				site.queueDownload(thatDownloadable.getDownloadLocation());
 						
 			DownloadableLogRecord logRecord = thatDownloadable.getLogRecord();
 			
@@ -367,14 +367,14 @@ public class DownloadMonitor<T extends Downloadable> extends Monitor implements
 						  break;
 						}
 						
-						BasicSite site 	= downloadable.getDownloadSite();						
-						if(site != null && site.shouldIgnore())
+						Site site 	= downloadable.getDownloadSite();						
+						if(site != null && site.isIgnored())
 						{
 							recycleClosure = true;
 							break;
 						}
 						
-						if (site != null && site.constrainDownloadInterval() && !downloadable.isImage())
+						if (site != null && site.isDownloadingConstrained() && !downloadable.isImage())
 						{
 							Long nextDownloadableAt 	= site.getNextAvailableTime(); // siteTimeTable.get(site);
 							if(nextDownloadableAt != null)
@@ -469,21 +469,21 @@ public class DownloadMonitor<T extends Downloadable> extends Monitor implements
 					}
 					catch (SocketTimeoutException e)
 					{
-						BasicSite site	= downloadable.getDownloadSite();
+						Site site	= downloadable.getDownloadSite();
 						if (site != null)
 							site.countTimeout(downloadable.getDownloadLocation());
 						downloadable.handleIoError(e);
 					}
 					catch (FileNotFoundException e)
 					{
-						BasicSite site	= downloadable.getDownloadSite();
+						Site site	= downloadable.getDownloadSite();
 						if (site != null)
 							site.countFileNotFound(downloadable.getDownloadLocation());
 						downloadable.handleIoError(e);
 					}
 					catch (IOException e)
 					{
-						BasicSite site	= downloadable.getDownloadSite();
+						Site site	= downloadable.getDownloadSite();
 						if (site != null)
 							site.countOtherIoError(downloadable.getDownloadLocation());
 						downloadable.handleIoError(e);
@@ -523,9 +523,9 @@ public class DownloadMonitor<T extends Downloadable> extends Monitor implements
 							notifyAll(nonePendingLock);
 						}
 						
-						BasicSite site	= downloadable.getDownloadSite();
+						Site site	= downloadable.getDownloadSite();
 						if (site != null)
-							site.endDownload();
+							site.endDownload(downloadable.getDownloadLocation());
 						
 						thatClosure.callContinuation();		// always call the continuation, error or not!
 						thatClosure.recycle(false);
@@ -726,7 +726,7 @@ public class DownloadMonitor<T extends Downloadable> extends Monitor implements
 	 * Removes all downloadClosures that come from this site.
 	 * @param site
 	 */
-	public void removeAllDownloadClosuresFromSite(BasicSite site)
+	public void removeAllDownloadClosuresFromSite(Site site)
 	{
 		synchronized(toDownload)
 		{

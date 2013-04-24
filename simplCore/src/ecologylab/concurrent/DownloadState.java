@@ -33,7 +33,7 @@ extends Debug
 		boolean result				= downloadable.isRecycled();
 		if (!result)
 		{
-			BasicSite site = downloadable.getDownloadSite();
+			Site site = downloadable.getDownloadSite();
 			if (site != null)
 				result						= site.isDown();
 		}
@@ -53,16 +53,16 @@ extends Debug
 		if (downloadable != null && !downloadable.isRecycled())
 		{
 			//Update site statistics if available
-			BasicSite site = downloadable.getDownloadSite();
+			Site site = downloadable.getDownloadSite();
 			if(site != null)
-				site.beginActualDownload();
+				site.beginDownload(downloadable.getDownloadLocation());
 			downloadable.performDownload();
 			if(site != null)
-				site.countNormalDownload();
+				site.countNormalDownload(downloadable.getDownloadLocation());
 			//ajit-added below condition for documents in local repository
 			//download monitor can't do it after return from here
 			if(site != null && downloadable.getDownloadLocation().isFile())
-				site.endDownload();
+				site.endDownload(downloadable.getDownloadLocation());
 		}
 	}
 	protected synchronized void callContinuation()

@@ -34,8 +34,8 @@ public interface Downloadable
   
   public void recycle();
   
-  public BasicSite getSite();
-  public BasicSite getDownloadSite();
+  public Site getSite();
+  public Site getDownloadSite();
   public ParsedURL location();
   public ParsedURL getDownloadLocation();
   

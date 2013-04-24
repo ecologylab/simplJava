@@ -16,6 +16,7 @@ import java.net.URL;
 import ecologylab.concurrent.BasicSite;
 import ecologylab.concurrent.Downloadable;
 import ecologylab.concurrent.DownloadableLogRecord;
+import ecologylab.concurrent.Site;
 import ecologylab.generic.Colors;
 import ecologylab.generic.ConsoleUtils;
 import ecologylab.generic.MathTools;
@@ -744,7 +745,7 @@ implements Downloadable, Colors
 		
 	}
 
-	public BasicSite getSite()
+	public Site getSite()
 	{
 		return null;
 	}
@@ -868,7 +869,7 @@ implements Downloadable, Colors
 	}
 
 	@Override
-	public BasicSite getDownloadSite()
+	public Site getDownloadSite()
 	{
 		return null;
 	}

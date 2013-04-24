@@ -8,9 +8,9 @@ import java.io.InputStream;
 import java.io.OutputStream;
 
 import ecologylab.appframework.StatusReporter;
-import ecologylab.concurrent.BasicSite;
 import ecologylab.concurrent.Downloadable;
 import ecologylab.concurrent.DownloadableLogRecord;
+import ecologylab.concurrent.Site;
 import ecologylab.generic.Continuation;
 import ecologylab.generic.Debug;
 import ecologylab.net.ParsedURL;
@@ -170,7 +170,7 @@ implements Downloadable, Continuation<Object>
 	}
 
 	@Override
-	public BasicSite getSite()
+	public Site getSite()
 	{
 		// TODO Auto-generated method stub
 		return null;
@@ -206,7 +206,7 @@ implements Downloadable, Continuation<Object>
 	}
 
 	@Override
-	public BasicSite getDownloadSite()
+	public Site getDownloadSite()
 	{
 		return null;
 	}

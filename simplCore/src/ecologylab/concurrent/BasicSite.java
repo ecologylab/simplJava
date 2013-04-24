@@ -19,7 +19,7 @@ import ecologylab.serialization.types.element.IMappable;
 
 @simpl_tag("site")
 public 
-class BasicSite extends ElementState implements IMappable<String>
+class BasicSite extends ElementState implements IMappable<String>, Site
 {
 	
 	static Random random = new Random(System.currentTimeMillis());
@@ -70,48 +70,54 @@ class BasicSite extends ElementState implements IMappable<String>
 		// TODO Auto-generated constructor stub
 	}
 
-	public void countTimeout(ParsedURL location)
+	@Override
+  public void countTimeout(ParsedURL location)
 	{
 		numTimeouts++;
 		warning("Timeout " + numTimeouts + "\t" + location);
 	}
 	
-	public void countFileNotFound(ParsedURL location)
+	@Override
+  public void countFileNotFound(ParsedURL location)
 	{
 		numFileNotFounds++;
 		warning("FileNotFound " + numFileNotFounds + "\t" + location);
 	}
 	
-	public void countOtherIoError(ParsedURL location)
+	@Override
+  public void countOtherIoError(ParsedURL location)
 	{
 		numOtherIoErrors++;
 		warning("Other IO Error " + numOtherIoErrors + "\t" + location);
 	}
 	
-	public void countNormalDownload()
+	@Override
+  public void countNormalDownload(ParsedURL location)
 	{
 		numNormalDownloads++;
 	}
 	
-	public synchronized void queuedDownload()
+	@Override
+  public synchronized void queueDownload(ParsedURL location)
 	{
 		downloadsQueuedOrInProgress++;
 	}
 
-	public synchronized void endDownload()
+	@Override
+  public synchronized void endDownload(ParsedURL location)
 	{
 	  debug("Ending downloading for site");
 		isDownloading	= false;
 		downloadsQueuedOrInProgress--;
 	}
 
-	
-	public boolean tooManyTimeouts()
+  public boolean tooManyTimeouts()
 	{
 		return numTimeouts >= MAX_TIMEOUTS;
 	}
 	
-	public boolean isDown()
+	@Override
+  public boolean isDown()
 	{
 		boolean result = tooManyTimeouts();
 		if (result)
@@ -123,7 +129,7 @@ class BasicSite extends ElementState implements IMappable<String>
 	 *	
 	 * @return (numTimeouts == 0) ? 1 : 1.0 / (numTimeouts + 1);
 	 */
-	public double timeoutsFactor()
+  public double timeoutsFactor()
 	{
 		return (numTimeouts == 0) ? 1 : 1.0 / (numTimeouts + 1);
 	}
@@ -131,7 +137,7 @@ class BasicSite extends ElementState implements IMappable<String>
 	/**
 	 * @return the minDownloadInterval
 	 */
-	public float getMinDownloadInterval()
+  public float getMinDownloadInterval()
 	{
 		return minDownloadInterval;
 	}
@@ -139,7 +145,7 @@ class BasicSite extends ElementState implements IMappable<String>
 	/**
 	 * @param minDownloadInterval the minDownloadInterval to set
 	 */
-	public void setMinDownloadInterval(float minDownloadInterval)
+  public void setMinDownloadInterval(float minDownloadInterval)
 	{
 		this.minDownloadInterval = minDownloadInterval;
 	}
@@ -147,7 +153,8 @@ class BasicSite extends ElementState implements IMappable<String>
 	/**
 	 * @return the lastDownloadAt
 	 */
-	public long getLastDownloadAt()
+	@Override
+  public long getLastDownloadAt()
 	{
 		return lastDownloadAt;
 	}
@@ -155,7 +162,8 @@ class BasicSite extends ElementState implements IMappable<String>
 	/**
 	 * Register that we are down loading, and the current time as when the down load started.
 	 */
-	public void beginActualDownload()
+	@Override
+  public void beginDownload(ParsedURL location)
 	{
 		this.isDownloading	= true;
 		this.lastDownloadAt = System.currentTimeMillis();
@@ -165,12 +173,14 @@ class BasicSite extends ElementState implements IMappable<String>
 	 * Swing delays between downloads for a site by a large margin. 
 	 * @return time in millis 
 	 */
-	public long getDecentDownloadInterval()
+	@Override
+  public long getDecentDownloadInterval()
 	{
 		int millis = (int) (minDownloadInterval * 1000);
 		return millis + random.nextInt(millis / 2);
 	}
-	public boolean constrainDownloadInterval()
+	@Override
+  public boolean isDownloadingConstrained()
 	{
 		return minDownloadInterval > 0;
 	}
@@ -185,7 +195,8 @@ class BasicSite extends ElementState implements IMappable<String>
 	 * 
 	 * @return the isDownloading
 	 */
-	public boolean isDownloading()
+	@Override
+  public boolean isDownloading()
 	{
 		return isDownloading;
 	}
@@ -193,12 +204,13 @@ class BasicSite extends ElementState implements IMappable<String>
 	/**
 	 * Call this when a download to a site was actually fulfilled by a local copy.
 	 */
-	public void resetLastDownloadAt()
+  public void resetLastDownloadAt()
 	{
 		this.lastDownloadAt	= 0;
 	}
 
-	public String domain()
+	@Override
+  public String domain()
 	{
 		return domain;
 	}
@@ -208,7 +220,8 @@ class BasicSite extends ElementState implements IMappable<String>
 		return ignoreSemanticBoost;
 	}
 
-	public boolean shouldIgnore()
+	@Override
+  public boolean isIgnored()
 	{
 		return ignore;
 	}
@@ -217,24 +230,28 @@ class BasicSite extends ElementState implements IMappable<String>
 	 * Recycle and Mark this site as recycled.
 	 * 
 	 */
-	public void setIgnored(boolean ignore)
+	@Override
+  public void setIgnored(boolean ignore)
 	{
 		this.ignore = ignore;
 	}
 	
+  @Override
   public long getNextAvailableTime()
 	{
 		return nextAvailableTime;
 	}
 
-	void advanceNextAvailableTime()
+  @Override
+	public void advanceNextAvailableTime()
 	{
 		this.nextAvailableTime = System.currentTimeMillis() + getDecentDownloadInterval();
 	}
 
 	private static final int	TWELVE_HOURS_IN_MILLIS	= 1000*60*60*12;
 
-	public void setAbnormallyLongNextAvailableTime()
+	@Override
+  public void setAbnormallyLongNextAvailableTime()
 	{
 		this.nextAvailableTime	= System.currentTimeMillis() + TWELVE_HOURS_IN_MILLIS;
 	}
