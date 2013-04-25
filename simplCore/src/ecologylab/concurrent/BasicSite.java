@@ -256,4 +256,24 @@ class BasicSite extends ElementState implements IMappable<String>, Site
 		this.nextAvailableTime	= System.currentTimeMillis() + TWELVE_HOURS_IN_MILLIS;
 	}
 
+  public int numOfNormalDownloads()
+  {
+    return numNormalDownloads;
+  }
+
+  public int numOfTimeouts()
+  {
+    return numTimeouts;
+  }
+
+  public int numOfNotFounds()
+  {
+    return numFileNotFounds;
+  }
+
+  public int numOfOtherIoError()
+  {
+    return numOtherIoErrors;
+  }
+
 }
