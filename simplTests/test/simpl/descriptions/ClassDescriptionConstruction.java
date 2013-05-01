@@ -34,8 +34,10 @@ public class ClassDescriptionConstruction {
 		public String myString;
 		
 		@simpl_composite
-		@simpl_composite_as_scalar
 		public innerClass myComposite;
+		
+		public myCompositeStringClass()
+		{}
 	}
 	
 	@Test

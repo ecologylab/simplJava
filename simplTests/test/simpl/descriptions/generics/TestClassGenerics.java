@@ -53,7 +53,9 @@ public class TestClassGenerics {
 	@Test
 	public void testClassDescriptorContainsExpectedGenerics()
 	{
-		List<GenericTypeVar> vars = ClassDescriptors.getClassDescriptor(Search.class).getGenericTypeVariables();
+		ClassDescriptor cd = ClassDescriptors.getClassDescriptor(Search.class);
+		
+		List<GenericTypeVar> vars = cd.getGenericTypeVariables();
 		
 		Assert.assertEquals("Expecting only one type variable", vars.size(), 1);
 		
