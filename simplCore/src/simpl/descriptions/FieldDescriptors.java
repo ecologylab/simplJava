@@ -88,56 +88,44 @@ public class FieldDescriptors {
 		}
 		else if(classIsMap(toDescribe.getType()))
 		{
-			Class<?> collectionType = toDescribe.getType();
-			if(classIsInterfaceOrAbstract(collectionType))
+			Class<?> declaredCollectionType = toDescribe.getType();
+			
+			Class<?> instancetype = obtainFieldInstanceType(nfd, declaredCollectionType);
+			
+			MapType mt = new MapType(declaredCollectionType);
+			mt.setMapType(instancetype);
+		
+			if(gtv.size() >= 2) 
 			{
-				// we need to obtain the type via creating an instance of the CD. 
+				GenericTypeVar first = gtv.get(0);
 				
-				try {
-					Object o = declaringClass.newInstance();
-					Object instance = ReflectionTools.getFieldValue(nfd.getField(), o);
-					
-					if(instance == null)
-					{
-						throw new RuntimeException("Fields which are defined with an interface must have an instance initialized by their public constructor in order to be simpl serialized!");
-					}
-					
-					collectionType = instance.getClass();
-					
-				} catch (Exception e)
-				{
-					throw new RuntimeException(e);
-				}
+				mt.setKeyType(first.getClassDescriptor().getJavaClass());
 				
+				GenericTypeVar second = gtv.get(1);
+				
+				mt.setValueType(second.getClassDescriptor().getJavaClass());				
 			}
 			
-			nfd.setMapType(new MapType(collectionType));
+			nfd.setMapType(mt);
 		}
 		else if(classIsCollection(toDescribe.getType()))
 		{
 			Class<?> listType = toDescribe.getType();
-			if(classIsInterfaceOrAbstract(listType))
+			Class<?> instanceListType = obtainFieldInstanceType(nfd, listType);
+			
+			ListType theListType = new ListType(listType);
+			theListType.setListType(instanceListType);
+			
+			if(!gtv.isEmpty())
 			{
-				// we need to obtain the type via creating an instance of the CD.
-				try 
-				{
-					Object o = declaringClass.newInstance();
-					Object instance = ReflectionTools.getFieldValue(nfd.getField(), o);
-					
-					if(instance == null)
-					{
-						throw new RuntimeException(declaringClass.getCanonicalName() + " | Fields which are defined with an interface must have an instance initialized by their public constructor in order to be simpl serialized!");
-					}
-					
-					listType = instance.getClass();
-				}
-				catch (Exception e)
-				{
-					throw new RuntimeException(e);
-				}
+				GenericTypeVar first = gtv.get(0);
+				
+					// TODO: CLEAN THIS UP. 
+				// Ideally, this will marshall the type into the appropriate representation. 
+				theListType.setListItemType(first.getClassDescriptor().getJavaClass());
 			}
 			
-			nfd.setListType(new ListType(listType));
+			nfd.setListType(theListType);
 		}
 		else
 		{
@@ -222,6 +210,36 @@ public class FieldDescriptors {
 		}
 		
 		return nfd;
+	}
+
+	private static Class<?> obtainFieldInstanceType(
+			final FieldDescriptorImpl nfd,
+			Class<?> collectionType) {
+		
+		if(classIsInterfaceOrAbstract(collectionType))
+		{
+			// we need to obtain the type via creating an instance of the CD. 
+			
+			try {
+				Class<?> declaringClass = nfd.getDeclaringClass();
+				
+				Object o = declaringClass.newInstance();
+				Object instance = ReflectionTools.getFieldValue(nfd.getField(), o);
+				
+				if(instance == null)
+				{
+					throw new RuntimeException("Fields which are defined with an interface must have an instance initialized by their public constructor in order to be simpl serialized!");
+				}
+				
+				return instance.getClass();
+				
+			} catch (Exception e)
+			{
+				throw new RuntimeException(e);
+			}
+			
+		}
+		return collectionType;
 	}
 	
 	private static boolean classIsInterfaceOrAbstract(Class<?> toDescribe)

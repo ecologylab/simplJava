@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import simpl.descriptions.EnumerationDescriptor;
 import simpl.exceptions.SIMPLTranslationException;
 import simpl.tools.ReflectionTools;
 
@@ -13,6 +14,43 @@ public class ListType {
 	String listTypeName;
 	Class<?> listType;
 	
+	String declaredListTypeName;
+	
+	public String getDeclaredListTypeName() {
+		return declaredListTypeName;
+	}
+
+	public void setDeclaredListTypeName(String declaredListTypeName) {
+		this.declaredListTypeName = declaredListTypeName;
+	}
+
+	public Class<?> getDeclaredListType() {
+		return declaredListType;
+	}
+
+	public void setDeclaredListType(Class<?> declaredListType) {
+		this.declaredListType = declaredListType;
+	}
+
+	Class<?> declaredListType;
+	
+	
+	
+	public Class<?> getListType() {
+		return listType;
+	}
+
+	String listItemTypeName;
+	Class<?> listItemType;
+	
+	public Class<?> getListItemType() {
+		return listItemType;
+	}
+
+	public void setListItemType(Class<?> listItemType) {
+		this.listItemType = listItemType;
+	}
+
 	public ListType()
 	{
 		this(ArrayList.class);
@@ -20,7 +58,7 @@ public class ListType {
 	
 	public ListType(Class<?> listType)
 	{
-		this.setListType(listType);
+		this.setDeclaredListType(listType);
 	}
 	
 	public Collection<?> createInstance()

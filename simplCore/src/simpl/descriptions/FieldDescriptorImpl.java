@@ -24,7 +24,6 @@ public class FieldDescriptorImpl implements FieldDescriptor {
 	
 	private IMetaInformationProvider metainfo;
 	
-	
 	public FieldDescriptorImpl()
 	{
 		this.polymorphicFields = new HashSet<ClassDescriptor>();
