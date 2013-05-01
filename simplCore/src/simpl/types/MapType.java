@@ -10,17 +10,56 @@ public class MapType {
 	@simpl_scalar
 	String mapClassName;
 	
-	Class<?> mapClass;
+	Class<?> mapType;
+	String mapTypeName;
 	
+	Class<?> declaredMapType;
+	String declaredMapTypeName;
+	
+	Class<?> keyType;
+	public Class<?> getKeyType() {
+		return keyType;
+	}
+
+	public void setKeyType(Class<?> keyType) {
+		this.keyType = keyType;
+	}
+
+	public Class<?> getValueType() {
+		return valueType;
+	}
+
+	public void setValueType(Class<?> valueType) {
+		this.valueType = valueType;
+	}
+
+	Class<?> valueType;
+	
+	public Class<?> getDeclaredMapType() {
+		return declaredMapType;
+	}
+
+	public void setDeclaredMapType(Class<?> declaredMapType) {
+		this.declaredMapType = declaredMapType;
+	}
+
 	public MapType(Class<?> mapClass)
 	{
 		// we just need the map class to make the map type >:3 
-		this.mapClassName = mapClass.getName();	
+		this.declaredMapTypeName = mapClass.getName();	
+		this.declaredMapType = mapClass;
+	}
+	
+	//TODO: fix caching issues. 
+	public Class<?> getMapType()
+	{
+		return this.mapType;
+		
 	}
 	
 	private Class<?> getMapClass()
 	{
-		if(this.mapClass == null)
+		if(this.mapType == null)
 		{
 			try
 			{	
@@ -33,10 +72,10 @@ public class MapType {
 			}
 		}
 		
-		return this.mapClass;
+		return this.mapType;
 	}
 	
-	public Object getInstance()
+	public Object createInstance()
 	{
 		try 
 		{
@@ -46,5 +85,10 @@ public class MapType {
 		{
 			throw new RuntimeException(e);
 		}
-	}	
+	}
+
+	public void setMapType(Class<?> instancetype) {
+		// TODO Auto-generated method stub
+		this.mapType = instancetype;
+	}
 }

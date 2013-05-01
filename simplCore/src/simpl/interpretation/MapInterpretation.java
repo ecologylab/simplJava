@@ -73,7 +73,7 @@ public class MapInterpretation implements SimplInterpretation{
 			UnderstandingContext understandingContext)
 			throws SIMPLTranslationException 
 	{		
-		Map m = (Map)mapType.getInstance();
+		Map m = (Map)mapType.createInstance();
 		
 		for(MapEntryInterpretation entry : entryInterpretations)
 		{

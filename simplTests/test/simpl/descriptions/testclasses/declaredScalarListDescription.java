@@ -1,11 +1,11 @@
-package simpl.descriptions;
+package simpl.descriptions.testclasses;
 
 import java.util.LinkedList;
 
 import simpl.annotations.dbal.simpl_collection;
 
-public class declaredListDescription {
-	public declaredListDescription()
+public class declaredScalarListDescription {
+	public declaredScalarListDescription()
 	{
 	}
 	
