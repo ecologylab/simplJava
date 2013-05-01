@@ -252,7 +252,7 @@ public class ScalarInterpretation implements SimplInterpretation
 		{	
 			// Get the value of the field's scalar; this allows us to marshal primitive types to string.
 			String fieldValue = st.getFieldString(field.getField(), context);
-			String typeName = st.getClass().getSimpleName();
+			String typeName = st.getSimpleName();
 			
 			return new ScalarInterpretation(fieldName, fieldValue, typeName);
 		}
