@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Set;
 
 import simpl.annotations.dbal.simpl_scalar;
@@ -23,12 +24,23 @@ public class FieldDescriptorImpl implements FieldDescriptor {
 	
 	private IMetaInformationProvider metainfo;
 	
+	
 	public FieldDescriptorImpl()
 	{
 		this.polymorphicFields = new HashSet<ClassDescriptor>();
 		this.othertags = new ArrayList<String>();
 		this.metainfo = new MetaInformationCollection();
-		
+		this.genericTypeVars = new ArrayList<GenericTypeVar>();
+	}
+	
+	private List<GenericTypeVar> genericTypeVars;
+	
+	public List<GenericTypeVar> getGenericTypeVariables() {
+		return genericTypeVars;
+	}
+
+	public void setGenericTypeVariables(List<GenericTypeVar> genericTypeVars) {
+		this.genericTypeVars = genericTypeVars;
 	}
 	
 	Class<?> declaringClass;

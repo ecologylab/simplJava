@@ -5,6 +5,7 @@ import java.lang.reflect.Modifier;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -56,6 +57,9 @@ public class FieldDescriptors {
 		
 		nfd.setFieldType(fd);
 				
+		//Set generic type variables. 
+		List<GenericTypeVar> gtv = GenericDescriptions.getFieldTypeVariables(toDescribe);
+		nfd.setGenericTypeVariables(gtv);
 		
 		if(toDescribe.isAnnotationPresent(simpl_other_tags.class))
 		{
@@ -120,7 +124,7 @@ public class FieldDescriptors {
 					
 					if(instance == null)
 					{
-						throw new RuntimeException("Fields which are defined with an interface must have an instance initialized by their public constructor in order to be simpl serialized!");
+						throw new RuntimeException(declaringClass.getCanonicalName() + " | Fields which are defined with an interface must have an instance initialized by their public constructor in order to be simpl serialized!");
 					}
 					
 					listType = instance.getClass();

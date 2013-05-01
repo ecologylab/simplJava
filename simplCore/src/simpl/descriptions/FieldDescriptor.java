@@ -13,7 +13,7 @@ import simpl.types.ScalarType;
 /**
  * An interface representing a described simpl field
  */
-public interface FieldDescriptor extends IMetaInformationProvider {
+public interface FieldDescriptor extends IMetaInformationProvider, IGenericTypeVarProvider {
 	/**
 	 * Gets the class that this field was declared in
 	 * @return
