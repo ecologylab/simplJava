@@ -6,6 +6,7 @@ package simpl.descriptions;
 import java.lang.reflect.Type;
 import java.lang.reflect.TypeVariable;
 import java.util.ArrayList;
+import java.util.List;
 
 import simpl.annotations.dbal.simpl_collection;
 import simpl.annotations.dbal.simpl_composite;
@@ -97,8 +98,10 @@ public class GenericTypeVar extends Debug
 	/**
 	 * A list of GenericTypeVars that can be referred to recursively inside this GenericTypeVar.
 	 */
-	ArrayList<GenericTypeVar> scope;
+	List<GenericTypeVar> scope;
 
+	
+	
 	public GenericTypeVar()
 	{
 			//for simpl de/serialzation
@@ -178,7 +181,7 @@ public class GenericTypeVar extends Debug
 		this.referredGenericTypeVar = referredGenericTypeVar;
 	}
 	
-	public ArrayList<GenericTypeVar> getScope()
+	public List<GenericTypeVar> getScope()
 	{
 		return scope;
 	}
@@ -192,7 +195,7 @@ public class GenericTypeVar extends Debug
 	 *          the scope of current generic type vars; used to resolve generic type var names.
 	 * @return
 	 */
-	public static GenericTypeVar getGenericTypeVarDef(TypeVariable<?> typeVariable, ArrayList<GenericTypeVar> scope)
+	public static GenericTypeVar getGenericTypeVarDef(TypeVariable<?> typeVariable, List<GenericTypeVar> scope)
 	{
 		GenericTypeVar g = new GenericTypeVar();
 		g.scope = scope;
@@ -210,13 +213,13 @@ public class GenericTypeVar extends Debug
 	 * object.
 	 * 
 	 * @param type
-	 * @param scope
+	 * @param list
 	 * @return
 	 */
-	public static GenericTypeVar getGenericTypeVarRef(Type type, ArrayList<GenericTypeVar> scope)
+	public static GenericTypeVar getGenericTypeVarRef(Type type, List<GenericTypeVar> list)
 	{
 		GenericTypeVar g = new GenericTypeVar();
-		g.scope = scope;
+		g.scope = list;
 
 		// case 1: arg is a concrete class
 		if (type instanceof Class<?>)
@@ -231,9 +234,9 @@ public class GenericTypeVar extends Debug
 		{
 			TypeVariable<?> typeVar = (TypeVariable<?>) type;
 			String argName = typeVar.getName();
-			if (argName != null && scope != null)
+			if (argName != null && list != null)
 			{
-				for (GenericTypeVar var : scope)
+				for (GenericTypeVar var : list)
 					if (argName.equals(var.getName()))
 					{
 						g.name = var.getName();
@@ -412,6 +415,49 @@ public class GenericTypeVar extends Debug
 		}
 
 		return sb.toString();
+	}
+	
+	
+	public boolean isWildcard()
+	{
+		return this.name.equals("?");
+	}
+	
+	@Override
+	public boolean equals(Object lhs)
+	{
+		if(lhs instanceof GenericTypeVar)
+		{
+			GenericTypeVar left = (GenericTypeVar)lhs;
+			GenericTypeVar right = this;
+			
+			if(eq(right.getName(), left.getName()))
+			{
+				if(eq(right.getClassDescriptor(), left.getClassDescriptor()))
+				{
+					return true;
+				}
+			}
+			return false;
+			
+		}
+		return false;
+	}
+	
+	private boolean eq(Object lhs, Object rhs)
+	{
+		if(lhs == null && rhs == null)
+		{
+			return true;
+		}
+		
+		if(lhs != null && rhs != null)
+		{
+			return lhs.equals(rhs);
+		}
+		
+		return false;
+		
 	}
 	
 	// these methods has been moved to the platform specific package in the corresponding project:
