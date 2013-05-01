@@ -15,6 +15,9 @@ import simpl.annotations.dbal.simpl_scalar;
 import simpl.descriptions.ClassDescriptor;
 import simpl.descriptions.ClassDescriptors;
 import simpl.descriptions.FieldDescriptor;
+import simpl.descriptions.testclasses.basicSuperClass;
+import simpl.descriptions.testclasses.doesNotInheritSuperClass;
+import simpl.descriptions.testclasses.inheritSuperClass;
 
 import static org.junit.Assert.*;
 
@@ -195,9 +198,32 @@ public class classDescriptorConstruction {
 	public void TestListDescribesWithListType() throws Exception
 	{
 		ClassDescriptors.__ClearClassDescriptorCache();
-		
 	}
 	
 	
 	
+	@Test
+	public void testSimplInheritAddsFields()
+	{
+		ClassDescriptor superclass = ClassDescriptors.getClassDescriptor(basicSuperClass.class);
+		assertEquals((Integer)1, superclass.fields().size());
+		
+		ClassDescriptor inheritClass = ClassDescriptors.getClassDescriptor(inheritSuperClass.class);
+		assertEquals(superclass, inheritClass.getSuperClassDescriptor());
+		assertEquals((Integer)2, inheritClass.fields().size());
+		
+	}
+	
+	@Test
+	public void testNoSimplInheritWillNotAddSuperclassFields()
+	{
+		ClassDescriptor superclass = ClassDescriptors.getClassDescriptor(basicSuperClass.class);
+		assertEquals((Integer)1, superclass.fields().size());
+		
+		ClassDescriptor noInheritClass = ClassDescriptors.getClassDescriptor(doesNotInheritSuperClass.class);
+		assertEquals((Integer)1, noInheritClass.fields().size());
+		assertNull("Should not have a superclass", noInheritClass.getSuperClassDescriptor());
+		
+		assertEquals("notInherit", noInheritClass.fields().getAllItems().get(0).getName());
+	}
 }

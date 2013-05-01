@@ -49,8 +49,13 @@ public class TestFieldGenerics {
 
 		// MediaSearch.results
 		c = ClassDescriptors.getClassDescriptor(MediaSearch.class);
+		MediaSearch ms = new MediaSearch<>();
+		assertEquals((Integer)2, (Integer)c.fields().size());
+		
 		List<GenericTypeVar> cvars = c.getGenericTypeVariables();
 		FieldDescriptor f = c.fields().by("name").get("results");
+		assertNotNull("Field should not be null!", f);
+		
 		List<GenericTypeVar> vars = f.getGenericTypeVariables();
 		GenericTypeVar var1 = vars.get(0);
 		Assert.assertEquals(var1.getName(), "T");
@@ -89,6 +94,8 @@ public class TestFieldGenerics {
 		ClassDescriptor c = ClassDescriptors.getClassDescriptor(MediaSearchResult.class);
 		
 		List<GenericTypeVar> cvars = c.getGenericTypeVariables();
+
+		
 		// MeidaSearchResult.ms
 		FieldDescriptor f = c.fields().by("name").get("ms");
 		List<GenericTypeVar> vars = f.getGenericTypeVariables();

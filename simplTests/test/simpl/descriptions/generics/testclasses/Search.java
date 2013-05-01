@@ -10,7 +10,7 @@ public class Search<T extends SearchResult>
 {
 
 	@simpl_collection("result")
-	List<T>	results;
+	public List<T>	results;
 	
 	public Search()
 	{
