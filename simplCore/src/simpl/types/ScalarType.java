@@ -22,6 +22,10 @@ public abstract class ScalarType implements ISimplStringMarshaller{
 
 	public ScalarType()
 	{
+	}
+	
+	public void Register()
+	{
 		TypeRegistry.register(this);
 	}
 	
@@ -100,27 +104,8 @@ public abstract class ScalarType implements ISimplStringMarshaller{
 		throw new RuntimeException("SetToUnboxed value not implemented for base scalar types; fix your implementation to handle primitive scalar values;");
 	}
 	
-	private Collection<Class<?>> supportCache = null;
 	
-	public Collection<Class<?>> getSupportedTypes() {
-		if(supportCache == null)
-		{
-			ScalarSupportFor supports = getClass().getAnnotation(ScalarSupportFor.class);
-			
-			if(supports == null)
-			{
-				throw new RuntimeException("Scalar Type implementations must annotate with a ScalarSupportFor annotation!");
-			}
-			
-			if(supports.value().length == 0)
-			{
-				throw new RuntimeException("SupportFor annotation must have at least one class in it!");
-			}
-		
-			supportCache = Arrays.asList(supports.value());
-		}
-		return supportCache;
-	}
+	public abstract Collection<Class<?>> getSupportedTypes();
 	
 	public void checkTypeSupported(Class<?> aClass)	throws SIMPLTranslationException
 	{
@@ -131,6 +116,11 @@ public abstract class ScalarType implements ISimplStringMarshaller{
 	}
 	
 	public String getTagName()
+	{
+		return this.getClass().getSimpleName();
+	}
+	
+	public String getSimpleName()
 	{
 		return this.getClass().getSimpleName();
 	}

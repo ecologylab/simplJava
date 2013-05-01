@@ -6,6 +6,7 @@ import java.util.Collection;
 import java.util.List;
 
 import simpl.descriptions.EnumerationDescriptor;
+import simpl.descriptions.GenericTypeVar;
 import simpl.exceptions.SIMPLTranslationException;
 import simpl.tools.ReflectionTools;
 
@@ -42,6 +43,7 @@ public class ListType {
 
 	String listItemTypeName;
 	Class<?> listItemType;
+	private GenericTypeVar itemGenericType;
 	
 	public Class<?> getListItemType() {
 		return listItemType;
@@ -89,6 +91,16 @@ public class ListType {
 		}
 		
 		l.add(value);
+	}
+
+	public GenericTypeVar getListItemGenericType()
+	{
+		return this.itemGenericType;
+	}
+	
+	public void setListItemGenericType(GenericTypeVar first) {
+		// TODO Auto-generated method stub
+		this.itemGenericType = first;
 	}
 	
 }

@@ -5,7 +5,7 @@ import simpl.exceptions.SIMPLTranslationException;
 import simpl.types.ScalarType;
 
 @ScalarSupportFor({String.class})
-public class StringType extends ScalarType{
+public class StringType extends RegisteredScalarType{
 
 	// Marshalling a string isn't anything special: A string is a string on both ends. 
 	@Override

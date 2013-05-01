@@ -8,7 +8,7 @@ import simpl.tools.ReflectionTools;
 import simpl.types.ScalarType;
 
 @ScalarSupportFor({Float.class, float.class})
-public class FloatType extends ScalarType{
+public class FloatType extends RegisteredScalarType{
 	@Override
 	public Object getDefaultValue()
 	{

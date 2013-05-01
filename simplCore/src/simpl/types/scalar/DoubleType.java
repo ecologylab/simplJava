@@ -8,7 +8,7 @@ import simpl.tools.ReflectionTools;
 import simpl.types.ScalarType;
 
 @ScalarSupportFor({Double.class, double.class})
-public class DoubleType extends ScalarType {
+public class DoubleType extends RegisteredScalarType {
 	@Override
 	public Object getDefaultValue()
 	{

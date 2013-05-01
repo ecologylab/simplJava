@@ -11,7 +11,7 @@ import simpl.types.ScalarType;
 
 
 @ScalarSupportFor({Boolean.class, boolean.class})
-public class BooleanType extends ScalarType{
+public class BooleanType extends RegisteredScalarType{
 	
 	@Override
 	public Object getDefaultValue()

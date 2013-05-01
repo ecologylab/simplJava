@@ -8,7 +8,7 @@ import simpl.tools.ReflectionTools;
 import simpl.types.ScalarType;
 
 @ScalarSupportFor({Byte.class, byte.class})
-public class ByteType extends ScalarType{
+public class ByteType extends RegisteredScalarType{
 	
 	@Override
 	public Object getDefaultValue()

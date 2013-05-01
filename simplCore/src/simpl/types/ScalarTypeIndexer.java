@@ -27,7 +27,7 @@ public class ScalarTypeIndexer extends MultiIndexer<ScalarType> {
 		@Override
 		public String ObtainIndex(ScalarType item) {
 			// TODO Auto-generated method stub
-			return item.getClass().getSimpleName();
+			return item.getSimpleName();
 		}
 		
 	}
