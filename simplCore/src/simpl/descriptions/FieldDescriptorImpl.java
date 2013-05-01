@@ -142,7 +142,12 @@ public class FieldDescriptorImpl implements FieldDescriptor {
 	}
 	
 	
-	public Class<?> getDeclaringClass() {
+	public Class<?> getDeclaringClass() 
+	{
+		if(this.declaringClass == null)
+		{
+			this.declaringClass = this.getDeclaringClassDescriptor().getJavaClass();
+		}
 		return declaringClass;
 	}
 	public void setDeclaringClass(Class<?> declaringClass) {
@@ -281,8 +286,13 @@ public class FieldDescriptorImpl implements FieldDescriptor {
 
 	@Override
 	public void setValue(Object context, Object value) {
-		// TODO Auto-generated method stub
-		
+		try{
+			this.getField().set(context, value);
+		}
+		catch(Exception e)
+		{
+			// gobble exceptions for now. 
+		}
 	}
 	
 	ListType ourListType;

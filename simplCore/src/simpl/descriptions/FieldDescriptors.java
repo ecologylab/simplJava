@@ -61,6 +61,8 @@ public class FieldDescriptors {
 		List<GenericTypeVar> gtv = GenericDescriptions.getFieldTypeVariables(toDescribe);
 		nfd.setGenericTypeVariables(gtv);
 		
+		assert(nfd.getGenericTypeVariables() != null); // If this is null, there was an issue somewhere. 
+		
 		if(toDescribe.isAnnotationPresent(simpl_other_tags.class))
 		{
 			final simpl_other_tags otherTags = toDescribe.getAnnotation(simpl_other_tags.class);

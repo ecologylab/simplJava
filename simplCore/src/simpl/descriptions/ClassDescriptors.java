@@ -106,7 +106,6 @@ public class ClassDescriptors {
 		
 		descriptors.put(aClass.getName(), ncd);
 		
-		
 		// Get the generic type information
 		
 		List<GenericTypeVar> genericTypes = GenericDescriptions.getClassTypeVariables(aClass);
@@ -118,6 +117,14 @@ public class ClassDescriptors {
 			ncd.setStrictObjectGraphRequired(true);
 		}
 		
+		// Create all declared fields. 
+		// Inherited fields are handled w/ Superclass inheritance
+		// (because of the way that simpl_inherit works) 
+		for(Field f : aClass.getDeclaredFields())
+		{ 
+			// Acquires the field, placing any needed updates into the Update Callback map
+			acquireField(f, updates, ncd);
+		}
 		
 		if(aClass.isAnnotationPresent(simpl_other_tags.class))
 		{
@@ -135,10 +142,19 @@ public class ClassDescriptors {
 			// Reference the superclass, must be final for callbacks.
 			final Class<?> superClass = aClass.getSuperclass();
 			
+			// The general style of this class is to keep most of the processing *outside* of the CD / FD
+			// classes, this is a minor exception made for simplicity / niceness's sake. 
+			// ClassDescriptorImpl.setSuperClassDescriptor() will add the superclass fields. 
+			// This allows us to handle superclass chains correctly, and also makes sure that
+			// the simpl_inherit logic works correctly. 
+			
+			
 			if(ClassDescriptors.containsCD(superClass))
 			{
 				ncd.setSuperClassDescriptor(ClassDescriptors.getClassDescriptor(superClass));
-			}else{
+			}
+			else
+			{
 				// We'll use a callback to update the CD for the superclass whenever we have it. 
 				updates.insertCallback(new UpdateClassDescriptorCallback() {
 					@Override
@@ -165,28 +181,26 @@ public class ClassDescriptors {
 			// TODO: Add requisite callbacks to update any class descriptors in imo.
 		}
 		
-
-		// Create all fields!
-		for(Field f : aClass.getDeclaredFields())
-		{ 
-			if(!fieldExcluded(f))
-			{
-				f.setAccessible(true);
-				
-				Collection<UpdateClassDescriptorCallback> ucds = new ArrayList<UpdateClassDescriptorCallback>();					
-				
-				FieldDescriptor ifd = FieldDescriptors.getFieldDescriptor(f, ucds);	
-				
-				if(!ucds.isEmpty())
-				{
-					updates.insertCallbacks(ucds);
-				}
-				
-				ncd.addField(ifd);
-			}
-		}
-		
 		return ncd;
+	}
+
+	private static void acquireField(Field f,
+			ClassDescriptorCallbackMap updates, final ClassDescriptorImpl ncd) {
+		if(!fieldExcluded(f))
+		{
+			f.setAccessible(true);
+			
+			Collection<UpdateClassDescriptorCallback> ucds = new ArrayList<UpdateClassDescriptorCallback>();					
+			
+			FieldDescriptor ifd = FieldDescriptors.getFieldDescriptor(f, ucds);	
+			
+			if(!ucds.isEmpty())
+			{
+				updates.insertCallbacks(ucds);
+			}
+			
+			ncd.addField(ifd);
+		}
 	}
 		
 	// exclude some fields

@@ -58,6 +58,15 @@ ISimplDeserializationHooks
 	}
 	
 	public Class<?> getJavaClass() {
+		if(this.javaClass == null)
+		{
+			try {
+				this.javaClass = Class.forName(this.name);
+			} catch (ClassNotFoundException e) {
+				// TODO Auto-generated catch block
+				throw new RuntimeException(e);
+			}
+		}
 		return javaClass;
 	}
 	
@@ -89,9 +98,33 @@ ISimplDeserializationHooks
 		return superClassDescriptor;
 	}
 
+	/**
+	 * Sets the superclass for this given class. Also updates the FieldDescriptors 
+	 * to include superclass fields. 
+	 * 
+	 * This shouldn't be done multiple times; if it is, it'll throw a runtime exception. 
+	 * @param superClassDescriptor
+	 */
 	public void setSuperClassDescriptor(ClassDescriptor superClassDescriptor) {
-		this.superClassDescriptor = superClassDescriptor;
+		if(superclassSet)
+		{
+			throw new RuntimeException("The superclass descriptor should not be set multiple times!");
+		}
+		else
+		{
+			this.superClassDescriptor = superClassDescriptor;
+				
+			for(FieldDescriptor fd : superClassDescriptor.allFieldDescriptors())
+			{
+				// Just baldly add the field; if we need to, we can reprocess the fieldDescriptor
+				this.addField(fd);
+			}
+			
+			superclassSet = true;
+		}
 	}
+	
+	boolean superclassSet=false;
 
 	/**
 	 * Gets a list of the FieldDescriptors that comprise the described class. 
