@@ -18,7 +18,7 @@ public class FieldDescriptorIndexer extends MultiIndexer<FieldDescriptor>
 	public InnerIndexer<FieldDescriptor> Composites;
 	public InnerIndexer<FieldDescriptor> CompositeCollections;
 	public InnerIndexer<FieldDescriptor> CompositeMaps;
-// TODO???	public InnerIndexer<FieldDescriptor> CompositesAsScalars;  //
+	public InnerIndexer<FieldDescriptor> CompositesAsScalars; 
 	public InnerIndexer<FieldDescriptor> IgnoredElements;
 	public InnerIndexer<FieldDescriptor> IgnoredAttributes;
 	
@@ -93,6 +93,32 @@ public class FieldDescriptorIndexer extends MultiIndexer<FieldDescriptor>
 		}
 	}
 	
+	final class byCompositeAsScalar extends ItemIndexPredicate<FieldDescriptor>
+	{
+
+		@Override
+		public String GetIndexIdentifier() {
+			// TODO Auto-generated method stub
+			return "compositeasscalar";
+		}
+
+		@Override
+		public String ObtainIndex(FieldDescriptor item) {
+			// TODO Auto-generated method stub
+			if(item.containsMetaInformation("simpl_composite_as_scalar"))
+			{
+				return item.getName();
+			}
+			else
+			{
+				return "";//Returning an empty string means it won't be indexed. 
+				// Thus byCompositeAsScalar will only contain the one field that is
+				// composite as scalar! :D 
+			}
+		}
+		
+	}
+	
 	// -- here are the other indexers, by tag name, etc. 
 	
 	
@@ -124,6 +150,7 @@ public class FieldDescriptorIndexer extends MultiIndexer<FieldDescriptor>
 		this.CompositeMaps = this.by(new byCompositeMaps());
 		this.IgnoredAttributes = this.by(new byIgnoredAttribute());
 		this.IgnoredElements = this.by(new byIgnoredElement());	
+		this.CompositesAsScalars = this.by(new byCompositeAsScalar());
 	}
 	
 	@Override
@@ -139,6 +166,7 @@ public class FieldDescriptorIndexer extends MultiIndexer<FieldDescriptor>
 		ourList.add(new byIgnoredAttribute());
 		ourList.add(new byIgnoredElement());
 		ourList.add(new byName());
+		ourList.add(new byCompositeAsScalar());
 		return ourList;
 	}
 }

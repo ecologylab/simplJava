@@ -10,6 +10,7 @@ import java.util.Map;
 import java.util.Set;
 
 import simpl.annotations.dbal.simpl_classes;
+import simpl.annotations.dbal.simpl_composite_as_scalar;
 import simpl.annotations.dbal.simpl_other_tags;
 import simpl.annotations.dbal.simpl_scope;
 import simpl.core.ISimplTypesScope;
@@ -34,7 +35,16 @@ public class FieldDescriptors {
 	}
 	private static boolean classIsScalar(Class<?> aClass)
 	{
-		return TypeRegistry.containsScalarTypeFor(aClass);
+		
+		for(Field f : aClass.getDeclaredFields())
+		{
+			if(f.isAnnotationPresent(simpl_composite_as_scalar.class))
+			{
+				return true;
+			}
+		}
+		
+		return TypeRegistry.containsScalarTypeFor(aClass); 
 	}
 	
 	public static FieldDescriptor getFieldDescriptor(Field toDescribe, Collection<UpdateClassDescriptorCallback> classAccumulator){
@@ -122,7 +132,12 @@ public class FieldDescriptors {
 				
 					// TODO: CLEAN THIS UP. 
 				// Ideally, this will marshall the type into the appropriate representation. 
-				theListType.setListItemType(first.getClassDescriptor().getJavaClass());
+				if(first.getClassDescriptor() != null)
+				{
+					theListType.setListItemType(first.getClassDescriptor().getJavaClass());
+				}else{
+					theListType.setListItemGenericType(first);
+				}
 			}
 			
 			nfd.setListType(theListType);

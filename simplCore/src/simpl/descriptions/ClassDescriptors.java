@@ -12,6 +12,7 @@ import simpl.annotations.dbal.simpl_inherit;
 import simpl.annotations.dbal.simpl_other_tags;
 import simpl.annotations.dbal.simpl_use_equals_equals;
 import simpl.tools.XMLTools;
+import simpl.types.scalar.CompositeAsScalarType;
 
 public class ClassDescriptors {
 
@@ -168,6 +169,13 @@ public class ClassDescriptors {
 					}
 				});
 			}
+		}
+		
+		// Composite as Scalar
+		if(ncd.fields().CompositesAsScalars.size() > 0)
+		{
+			CompositeAsScalarType cst = new CompositeAsScalarType(ncd);
+			// We create this here, it gets statically added to the typeRegistry. 
 		}
 		
 		
