@@ -8,7 +8,7 @@ import simpl.core.ISimplTypesScope;
 /**
  * Interface for all classdescriptors
  */
-public interface ClassDescriptor extends IMetaInformationProvider, IFieldIndexer {
+public interface ClassDescriptor extends IMetaInformationProvider, IGenericTypeVarProvider, IFieldIndexer {
 	/**
 	 * Gets the java class that represents the class descriptor
 	 * @return

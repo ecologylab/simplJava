@@ -5,6 +5,7 @@ import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import simpl.annotations.dbal.simpl_inherit;
@@ -20,7 +21,7 @@ public class ClassDescriptors {
 	public static Map<String, ClassDescriptor> descriptors = new HashMap<String, ClassDescriptor>(); 
 	
 	/**
-	 * Method to clear the CD cache. Important / used only for esting. (thus the __)
+	 * Method to clear the CD cache. Important / used only for testing. (thus the __)
 	 */
 	public static void __ClearClassDescriptorCache()
 	{
@@ -53,11 +54,13 @@ public class ClassDescriptors {
 	
 	public static ClassDescriptor getClassDescriptor(Class<?> aClass)
 	{
+		// Return a cached CD if we have one. 
 		if(containsCD(aClass))
 		{
 			return descriptors.get(aClass.getName());
 		}
 		
+		//Initialize callback map for class descriptor construction
 		ClassDescriptorCallbackMap ourMap = new ClassDescriptorCallbackMap();
 		
 		ClassDescriptor icd = get(aClass, ourMap); // get the CD for the first class.
@@ -87,8 +90,7 @@ public class ClassDescriptors {
 		if(containsCD(aClass))
 		{
 			return descriptors.get(aClass.getName());
-		} // we're going to double hti this until I restructure
-		// for now, fine. :) 
+		} 
 		
 		//Create our class descriptor. 
 		// Must be final for callbacks to work. 
@@ -104,8 +106,13 @@ public class ClassDescriptors {
 		
 		descriptors.put(aClass.getName(), ncd);
 		
-		// Handle other class specifics: 
 		
+		// Get the generic type information
+		
+		List<GenericTypeVar> genericTypes = GenericDescriptions.getClassTypeVariables(aClass);
+		ncd.setGenericTypeVariables(genericTypes);
+		
+		// Handle other class specifics: 
 		if(aClass.isAnnotationPresent(simpl_use_equals_equals.class))
 		{
 			ncd.setStrictObjectGraphRequired(true);
@@ -120,8 +127,6 @@ public class ClassDescriptors {
 				ncd.addOtherTag(s);
 			}
 		}
-		
-		
 		
 		
 		//Inheritance w/ superclasses and such. 

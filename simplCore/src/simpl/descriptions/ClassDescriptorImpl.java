@@ -17,13 +17,24 @@ ISimplDeserializationHooks
 	private ArrayList<String> otherTags;
 	private IMetaInformationProvider metainfo;
 	private FieldDescriptorIndexer indexer;
+	private List<GenericTypeVar> genericTypeVars;
 	
+	public List<GenericTypeVar> getGenericTypeVariables() {
+		return genericTypeVars;
+	}
+
+	public void setGenericTypeVariables(List<GenericTypeVar> genericTypeVars) {
+		this.genericTypeVars = genericTypeVars;
+	}
+
 	public ClassDescriptorImpl()
 	{
 		this.fields = new ArrayList<FieldDescriptor>();
 		this.otherTags = new ArrayList<String>();
 		this.metainfo = new MetaInformationCollection();
 		this.indexer = new FieldDescriptorIndexer();
+		
+		this.genericTypeVars = new ArrayList<GenericTypeVar>();
 	}
 	
 	public Collection<MetaInformation> getMetaInformation()
