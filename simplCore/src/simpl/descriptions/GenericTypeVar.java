@@ -410,40 +410,6 @@ public class GenericTypeVar extends Debug
 				}
 			}
 		}
-		
-//		if (name != null && name.length() > 0)
-//			sb.append(name);
-//
-//		if (name != null && name != "")
-//			sb += name;
-//		else if (classDescriptor != null)
-//			sb += classDescriptor.getDescribedClassSimpleName();
-//		
-//		if (genericTypeVarArgs != null)
-//		{
-//			for (GenericTypeVar g : genericTypeVarArgs)
-//			{
-//				sb += "<";
-//				sb += g.toString();
-//				sb += ">";
-//			}
-//		}
-//		
-//		if (constraintClassDescriptor != null || constraintGenericTypeVarArgs != null)
-//			sb += " extends ";
-//
-//		if (constraintClassDescriptor != null)
-//			sb += constraintClassDescriptor.getDescribedClassSimpleName();
-//
-//		if (constraintGenericTypeVarArgs != null)
-//		{
-//			for (GenericTypeVar g : constraintGenericTypeVarArgs)
-//			{
-//				sb += "<";
-//				sb += g.toString();
-//				sb += ">";
-//			}
-//		}
 
 		return sb.toString();
 	}
