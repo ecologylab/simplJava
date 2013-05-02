@@ -21,7 +21,7 @@ public class JsonSerializer {
 		translators = new HashMap<Class<?>, JsonTranslationUnit>();
 		registerTranslator(new JsonScalarTranslation());
 		registerTranslator(new JsonCompositeTranslation(this)); // pass this a reference to the json serializer b/c it needs to processTranslationUnits
-		
+		registerTranslator(new JsonListTranslation(this));
 	}
 	
 	private void registerTranslator(JsonTranslationUnit jtu)
