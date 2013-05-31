@@ -47,4 +47,13 @@ public class ContainingClass implements TestCase
 		TestingUtils.test(cc2, translationScope, Format.TLV);
 
 	}
+
+	public void setTheField(BaseClass baseClass) {
+		theField = baseClass;
+		
+	}
+	
+	public BaseClass getTheField(){
+		return theField;
+	}
 }

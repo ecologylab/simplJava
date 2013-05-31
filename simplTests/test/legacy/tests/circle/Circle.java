@@ -54,4 +54,11 @@ public class Circle implements TestCase
 		TestingUtils.test(c, SimplTypesScope.get("circle", Circle.class, Point.class), Format.JSON);
 		TestingUtils.test(c, SimplTypesScope.get("circle", Circle.class, Point.class), Format.TLV);
 	}
+	
+	public Point getCenter(){
+		return center;
+	}
+	public int getRadius(){
+		return radius;
+	}
 }

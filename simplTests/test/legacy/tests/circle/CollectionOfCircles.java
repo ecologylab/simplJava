@@ -56,4 +56,12 @@ public class CollectionOfCircles implements TestCase
 		TestingUtils.test(coc, circleTranslationScope, Format.JSON);
 		TestingUtils.test(coc, circleTranslationScope, Format.TLV);
 	}
+	
+	public int getYo(){
+		return yo;
+	}
+	
+	public ArrayList<Circle> getCollection(){
+		return collectionOfCircles;
+	}
 }

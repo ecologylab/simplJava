@@ -47,4 +47,8 @@ public class PersonDirectory implements TestCase
 		TestingUtils.test(p, translationScope, Format.JSON);
 		TestingUtils.test(p, translationScope, Format.TLV);
 	}
+	
+	public ArrayList<Person> getPersons(){
+		return persons;
+	}
 }

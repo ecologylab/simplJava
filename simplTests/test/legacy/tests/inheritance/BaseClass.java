@@ -16,4 +16,8 @@ public class BaseClass
 	public BaseClass()
 	{
 	}
+	
+	public int getVar(){
+		return var;
+	}
 }

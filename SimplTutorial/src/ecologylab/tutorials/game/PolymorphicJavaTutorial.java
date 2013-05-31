@@ -15,7 +15,7 @@ try
     /*
      * Get translation scope
      */
-    TranslationScope tScope = get();
+    //TranslationScope tScope = get();
     
 	SimplTypesScope example = SimplTypesScope.get("ThreatTest", Threat.class, Coordinate.class, OrbitingThreat.class, PatrollingThreat.class, RepellableThreat.class);
 
@@ -25,7 +25,7 @@ try
     
     
     
-	example.deserialize(test, Format.XML);
+	//example.deserialize(test, Format.XML);
 
     
   }
