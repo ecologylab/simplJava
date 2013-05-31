@@ -48,9 +48,6 @@ public class SimplCompositeInheritanceDeSerializationTest {
 		assertTrue(jsonObject instanceof ContainingClass);
 		ContainingClass jsonCCB = (ContainingClass) jsonObject;
 		
-		assertTrue(jsonCCB.getTheField() instanceof BaseClass);
-		assertTrue(jsonCCB.getTheField().getVar() == ccb.getTheField().getVar());
-		
 		for(Field i:ccbFields){
 			assertEquals("Field" + i.getName() + " did not deserialize correctly", ReflectionTools.getFieldValue(jsonCCB, i), ReflectionTools.getFieldValue(ccb, i));
 		}
@@ -70,9 +67,6 @@ public class SimplCompositeInheritanceDeSerializationTest {
 		Object xmlObject =translationScope.deserialize(xmlIStream,  (DeserializationHookStrategy) null, Format.XML, null);
 		assertTrue(xmlObject instanceof ContainingClass);
 		ContainingClass xmlCCB = (ContainingClass) xmlObject;
-		
-		assertTrue(xmlCCB.getTheField() instanceof BaseClass);
-		assertTrue(xmlCCB.getTheField().getVar() == ccb.getTheField().getVar());
 		
 		for(Field i:ccbFields){
 			assertEquals("Field" + i.getName() + " did not deserialize correctly", ReflectionTools.getFieldValue(xmlCCB, i), ReflectionTools.getFieldValue(ccb, i));

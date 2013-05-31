@@ -47,7 +47,4 @@ public class ScalarCollection implements TestCase
 		TestingUtils.test(sc, scalarCollectionTranslationScope, Format.TLV);
 	}
 	
-	public ArrayList<Integer> getCollection(){
-		return collectionOfIntegers;
-	}
 }

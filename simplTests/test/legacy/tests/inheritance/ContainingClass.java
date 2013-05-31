@@ -53,7 +53,4 @@ public class ContainingClass implements TestCase
 		
 	}
 	
-	public BaseClass getTheField(){
-		return theField;
-	}
 }
