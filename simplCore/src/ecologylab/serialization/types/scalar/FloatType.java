@@ -43,6 +43,7 @@ implements CrossLanguageTypeConstants
 	public FloatType(Class<Float> thatClass)
 	{
 		super(thatClass, DOTNET_FLOAT, OBJC_FLOAT, null);
+		needJsonSerializationQuotation = false;
 	}
 
 	/**

@@ -14,6 +14,7 @@ import ecologylab.serialization.TranslationContext;
 import ecologylab.serialization.XMLTools;
 import ecologylab.serialization.annotations.FieldUsage;
 import ecologylab.serialization.formatenums.Format;
+import ecologylab.serialization.types.ScalarType;
 
 /***
  * JSONSerializaton. Guides serialization of data in JSON. Contains code that is specific to
@@ -336,13 +337,22 @@ public class JSONSerializer extends StringSerializer implements FieldTypes
 	private void serializeScalar(Object object, FieldDescriptor fd, Appendable appendable,
 			TranslationContext translationContext) throws IOException, SIMPLTranslationException
 	{
+		// check wether we need quotation marks to surround the value.
+		boolean needQuotationMarks = true;
+		ScalarType st = fd.getScalarType();
+		if (st != null){
+			needQuotationMarks = st.needJsonSerializationQuotation();
+		}
+		
 		appendable.append('"');
 		appendable.append(fd.getTagName());
 		appendable.append('"');
 		appendable.append(':');
-		appendable.append('"');
+		if (needQuotationMarks)
+			appendable.append('"');
 		fd.appendValue(appendable, object, translationContext, Format.JSON);
-		appendable.append('"');
+		if (needQuotationMarks)
+			appendable.append('"');
 	}
 
 	/**

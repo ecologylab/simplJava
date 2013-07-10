@@ -37,6 +37,8 @@ implements CrossLanguageTypeConstants
 	@simpl_scalar
 	boolean											isPrimitive;
 	
+	@simpl_scalar
+	protected boolean 								needJsonSerializationQuotation = true;
 
 	/**
 	 * Blank constructor for S.IM.PL deserialization.
@@ -562,5 +564,10 @@ implements CrossLanguageTypeConstants
 	public boolean isScalar()
 	{
 		return true;
+	}
+	
+	public boolean needJsonSerializationQuotation()
+	{
+		return needJsonSerializationQuotation;
 	}
 }

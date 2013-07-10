@@ -34,6 +34,7 @@ public class LongType extends ScalarType<Long> implements CrossLanguageTypeConst
 	public LongType(Class<Long> thatClass)
 	{
 		super(thatClass, DOTNET_LONG, OBJC_LONG, null);
+		needJsonSerializationQuotation = false;
 	}
 
 	/**

@@ -47,6 +47,7 @@ public class DoubleType extends ScalarType<Double> implements CrossLanguageTypeC
 	public DoubleType(Class<Double> thatClass)
 	{
 		super(thatClass, DOTNET_DOUBLE, OBJC_DOUBLE, null);
+		needJsonSerializationQuotation = false;
 	}
 
 	/**

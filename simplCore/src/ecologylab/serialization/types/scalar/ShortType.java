@@ -36,11 +36,13 @@ public class ShortType extends ScalarType<Short>
 	public ShortType()
 	{
 		super(short.class, CrossLanguageTypeConstants.DOTNET_SHORT, CrossLanguageTypeConstants.OBJC_SHORT, null);
+		needJsonSerializationQuotation = false;
 	}
 
 	public ShortType(Class<Short> class1) 
 	{
 		super(class1, CrossLanguageTypeConstants.DOTNET_SHORT, CrossLanguageTypeConstants.OBJC_SHORT, null);
+		needJsonSerializationQuotation = false;
 	}
 
 	/**

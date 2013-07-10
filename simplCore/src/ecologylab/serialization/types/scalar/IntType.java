@@ -42,6 +42,7 @@ public class IntType extends ScalarType<Integer> implements CrossLanguageTypeCon
 	public IntType(Class<Integer> thatClass)
 	{
 		super(thatClass, DOTNET_INTEGER, OBJC_INTEGER, null);
+		needJsonSerializationQuotation = false;
 	}
 
 	/**
