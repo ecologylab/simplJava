@@ -9,4 +9,4 @@ How does it do this? It allows you to:
 * Deserialize *every* format into the language of your choice
 * Translate your object representations accross languages. 
 
-For more information, hop onto #InterfaceEcologyLab's IRC channel (on Freenode) , or send an email to tom.white@outlook.com
+##Look at the [simpl wiki](https://github.com/ecologylab/simpl/wiki) for more information.
