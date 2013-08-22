@@ -236,7 +236,6 @@ public class JSONSerializer extends StringSerializer implements FieldTypes
 		{
 			int numberOfItems = 0;
 	
-			writeWrap(childFd, appendable, false);
 			writeCollectionStart(childFd, appendable);
 			for (Object collectionComposite : compositeCollection)
 			{
@@ -251,7 +250,6 @@ public class JSONSerializer extends StringSerializer implements FieldTypes
 					appendable.append(',');
 			}
 			writeCollectionEnd(appendable);
-			writeWrap(childFd, appendable, true);
 		}
 	}
 
@@ -312,7 +310,6 @@ public class JSONSerializer extends StringSerializer implements FieldTypes
 
 		if(scalarCollection != null)
 		{
-			writeWrap(childFd, appendable, false);
 			writeCollectionStart(childFd, appendable);
 			for (Object collectionObject : scalarCollection)
 			{
@@ -321,7 +318,6 @@ public class JSONSerializer extends StringSerializer implements FieldTypes
 					appendable.append(',');
 			}
 			writeCollectionEnd(appendable);
-			writeWrap(childFd, appendable, true);
 		}
 	}
 
