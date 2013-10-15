@@ -272,7 +272,7 @@ public class JSONSerializer extends StringSerializer implements FieldTypes
 
 		if(compositeCollection != null)
 		{		
-			writePolymorphicCollectionStart(childFd, appendable);
+			writeCollectionStart(childFd, appendable);
 			for (Object collectionComposite : compositeCollection)
 			{
 				FieldDescriptor collectionObjectFieldDescriptor = childFd.isPolymorphic() ? getClassDescriptor(
@@ -363,7 +363,7 @@ public class JSONSerializer extends StringSerializer implements FieldTypes
 
 	private void writeCollectionStart(FieldDescriptor fd, Appendable appendable) throws IOException
 	{
-		appendable.append('"').append(fd.elementStart()).append('"');
+		appendable.append('"').append(fd.getTagName()).append('"');
 		appendable.append(':');
 		appendable.append('[');
 	}

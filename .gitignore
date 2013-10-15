@@ -9,6 +9,7 @@
 .settings/
 bin/
 target/
+build/
 
 # Java
 .class
