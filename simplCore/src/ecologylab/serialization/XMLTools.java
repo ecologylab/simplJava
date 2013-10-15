@@ -1390,7 +1390,13 @@ public class XMLTools extends Debug implements CharacterConstants, SpecialCharac
 						buffy.append(c); // append as char (fastest!)
 						break;
 					default:
-						if (c >= 255)
+					  if (Character.isHighSurrogate(c))
+					  {
+					    int codepoint = Character.codePointAt(stringToEscape, i);
+							buffy.append('&').append('#').append(codepoint).append(';');
+							i++;
+					  }
+					  else if (c >= 255)
 						{
 							// println("escapeXML() ERROR: " + ((int) c));
 							int cInt = c;
@@ -1429,7 +1435,13 @@ public class XMLTools extends Debug implements CharacterConstants, SpecialCharac
 						appendable.append(c); // append as char (fastest!)
 						break;
 					default:
-						if (c >= 255)
+					  if (Character.isHighSurrogate(c))
+            {
+              int codepoint = Character.codePointAt(stringToEscape, i);
+              appendable.append('&').append('#').append(String.valueOf(codepoint)).append(';');
+              i++;
+            }
+            else if (c >= 255)
 						{
 							// println("escapeXML() ERROR: " + ((int) c));
 							int cInt = c;
