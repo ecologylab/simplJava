@@ -1,155 +1,91 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- WARNING: Eclipse auto-generated file.
-              Any modifications will be overwritten.
-              To include a user specific buildfile here, simply create one in the same
-              directory with the processing instruction <?eclipse.ant.import?>
-              as the first entry and export the buildfile again. -->
-<project basedir="." default="package" name="ecologylabFundamental">
-    <property environment="env"/>
-    <property name="ecologylabFundamental.location" value="../ecologylabFundamental"/>
-    <property name="jtidy.location" value="../jtidy"/>
-    <property name="ECLIPSE_HOME" value="../../../../../../../Applications/Programming/eclipse"/>
-    <property name="debuglevel" value="source,lines,vars"/>
-    <property name="target" value="1.7"/>
-    <property name="source" value="1.7"/>
 
-    <path id="base.path"> 
-        <pathelement path="${classpath}" />
-        <fileset dir="lib">
-            <include name="**/*.jar" />
-        </fileset>
-        <pathelement location="classes" /> 
+<project name="simplCore"
+         basedir="."
+         default="main">
+  <property name="src.dir" value="src" />
+  <property name="config.dir" value="config" />
+  <property name="test.dir" value="test" />
+
+  <property name="lib.dir" value="lib" />
+
+  <property name="build.dir" value="build" />
+  <property name="classes.dir" value="${build.dir}/classes" />
+  <property name="test-classes.dir" value="${build.dir}/test-classes" />
+  <property name="junit-report.dir" value="${build.dir}/junit-report" />
+  <property name="jar.dir" value="${build.dir}/jar" />
+  <property name="jar.file" value="${jar.dir}/${ant.project.name}.jar" />
+
+  <!-- declare ant-contrib -->
+  <taskdef resource="net/sf/antcontrib/antlib.xml">
+    <classpath>
+      <pathelement location="${lib.dir}/ant-contrib-1.0b3.jar" />
+    </classpath>
+  </taskdef>
+
+  <target name="clean">
+    <delete dir="${build.dir}" />
+  </target>
+
+  <path id="classpath">
+    <fileset dir="${lib.dir}" includes="**/*.jar" />
+  </path>
+
+  <target name="compile">
+    <mkdir dir="${classes.dir}" />
+    <javac srcdir="${src.dir}"
+           destdir="${classes.dir}"
+           source="1.6"
+           target="1.6"
+           classpathref="classpath"
+           debug="yes"
+           debuglevel="lines,vars,source"
+           verbose="yes" />
+  	<!--
+    <copy todir="${classes.dir}">
+      <fileset dir="${config.dir}" />
+    </copy>
+    -->
+  </target>
+
+  <target name="junit" depends="compile">
+    <path id="test-classpath">
+      <path refid="classpath" />
+      <pathelement location="${classes.dir}" />
+      <pathelement location="${config.dir}" />
     </path>
 
-    <path id="tests.path">
-        <path refid="base.path" />
-        <fileset dir="testlib">
-            <include name="**.*.jar" />
-        </fileset>
-        <pathelement location="testclasses" /> 
+    <mkdir dir="${test-classes.dir}" />
+    <javac srcdir="${test.dir}"
+           destdir="${test-classes.dir}"
+           source="1.6"
+           target="1.6"
+           classpathref="test-classpath" />
+
+    <path id="junit-classpath">
+      <path refid="test-classpath" />
+      <pathelement location="${test-classes.dir}" />
     </path>
 
-    <property name="javac.encoding" value="utf-8" />
-    <presetdef name="ecologylabFundamental"> 
-         <javac encoding="utf-8" />
-    </presetdef>
+    <mkdir dir="${junit-report.dir}" />
+    <junit printsummary="yes" showoutput="yes" haltonfailure="yes">
+      <classpath>
+        <path refid="junit-classpath" />
+      </classpath>
 
-    <target name="init">
-        <copy includeemptydirs="false" todir=".">
-            <fileset dir="." excludes="**/*.launch, **/*.java"/>
-        </copy>
-        <mkdir dir="bin" />
-    </target>
-    
-    <target name="clean">
-        <delete>
-            <fileset dir="." includes="**/*.class"/>
-        </delete>
-    </target>
+      <formatter type="plain" />
 
-    <target depends="clean" name="cleanall"/>
+      <batchtest todir="${junit-report.dir}">
+        <fileset dir="${test-classes.dir}" includes="**/*.class" excludes="**/testcases/*.class" />
+      </batchtest>
+    </junit>
+  </target>
 
-    <target depends="build-subprojects,build-project" name="build"/>
+  <target name="jar" depends="compile">
+    <mkdir dir="${jar.dir}" />
+    <jar destfile="${jar.file}" basedir="${classes.dir}" />
+  </target>
 
-    <target name="build-subprojects"/>
+  <target name="main" depends="clean,jar" />
 
-
-    <target depends="init" name="build-project">
-        <echo message="${ant.project.name}: ${ant.file}"/>
-        <javac debug="true" debuglevel="${debuglevel}" destdir="." source="${source}" target="${target}">
-            <src path="."/>
-            <classpath refid="base.path"/>
-        </javac>
-    </target>
-
-
-    <target depends="build" name="package"> 
-        <jar jarfile="bin/ecologylabFundamental.jar" basedir="ecologylab" />
-    </target>
-
-    <target description="Build all projects which reference this project. Useful to propagate changes." name="build-refprojects">
-        <ant antfile="${ClMS.location}/build.xml" inheritAll="false" target="clean"/>
-        <ant antfile="${ClMS.location}/build.xml" inheritAll="false" target="build">
-            <propertyset>
-                <propertyref name="build.compiler"/>
-            </propertyset>
-        </ant>
-        <ant antfile="${DLMS Layer 1.location}/build.xml" inheritAll="false" target="clean"/>
-        <ant antfile="${DLMS Layer 1.location}/build.xml" inheritAll="false" target="build">
-            <propertyset>
-                <propertyref name="build.compiler"/>
-            </propertyset>
-        </ant>
-        <ant antfile="${DLMS Layer 2.location}/build.xml" inheritAll="false" target="clean"/>
-        <ant antfile="${DLMS Layer 2.location}/build.xml" inheritAll="false" target="build">
-            <propertyset>
-                <propertyref name="build.compiler"/>
-            </propertyset>
-        </ant>
-        <ant antfile="${Debug_ecologylab_xml.location}/build.xml" inheritAll="false" target="clean"/>
-        <ant antfile="${Debug_ecologylab_xml.location}/build.xml" inheritAll="false" target="build">
-            <propertyset>
-                <propertyref name="build.compiler"/>
-            </propertyset>
-        </ant>
-        <ant antfile="${MiddlewareServices.location}/build.xml" inheritAll="false" target="clean"/>
-        <ant antfile="${MiddlewareServices.location}/build.xml" inheritAll="false" target="build">
-            <propertyset>
-                <propertyref name="build.compiler"/>
-            </propertyset>
-        </ant>
-        <ant antfile="${cf.location}/build.xml" inheritAll="false" target="clean"/>
-        <ant antfile="${cf.location}/build.xml" inheritAll="false" target="build">
-            <propertyset>
-                <propertyref name="build.compiler"/>
-            </propertyset>
-        </ant>
-        <ant antfile="${ecologylabInteractive.location}/build.xml" inheritAll="false" target="clean"/>
-        <ant antfile="${ecologylabInteractive.location}/build.xml" inheritAll="false" target="build">
-            <propertyset>
-                <propertyref name="build.compiler"/>
-            </propertyset>
-        </ant>
-        <ant antfile="${ecologylabInteractiveSemantics.location}/build.xml" inheritAll="false" target="clean"/>
-        <ant antfile="${ecologylabInteractiveSemantics.location}/build.xml" inheritAll="false" target="build">
-            <propertyset>
-                <propertyref name="build.compiler"/>
-            </propertyset>
-        </ant>
-        <ant antfile="${ecologylabSemantics.location}/build.xml" inheritAll="false" target="clean"/>
-        <ant antfile="${ecologylabSemantics.location}/build.xml" inheritAll="false" target="build">
-            <propertyset>
-                <propertyref name="build.compiler"/>
-            </propertyset>
-        </ant>
-    </target>
-
-    <target description="copy Eclipse compiler jars to ant lib directory" name="init-eclipse-compiler">
-        <copy todir="${ant.library.dir}">
-            <fileset dir="${ECLIPSE_HOME}/plugins" includes="org.eclipse.jdt.core_*.jar"/>
-        </copy>
-        <unzip dest="${ant.library.dir}">
-            <patternset includes="jdtCompilerAdapter.jar"/>
-            <fileset dir="${ECLIPSE_HOME}/plugins" includes="org.eclipse.jdt.core_*.jar"/>
-        </unzip>
-    </target>
-
-    <target description="compile project with Eclipse compiler" name="build-eclipse-compiler">
-        <property name="build.compiler" value="org.eclipse.jdt.core.JDTCompilerAdapter"/>
-        <antcall target="build"/>
-    </target>
-
-    <target name="ConfParser">
-        <java classname="ecologylab.generic.ConfParser" failonerror="true" fork="yes">
-            <classpath refid="ecologylabFundamental.classpath"/>
-        </java>
-    </target>
-
-    <target name="NIOLoggingServer">
-        <java classname="ecologylab.services.logging.NIOLoggingServer" failonerror="true" fork="yes">
-            <jvmarg line="-Xms32m -Xmx512m"/>
-            <arg line="/logs/ 999999"/>
-            <classpath refid="ecologylabFundamental.classpath"/>
-        </java>
-    </target>
 </project>
