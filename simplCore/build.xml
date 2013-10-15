@@ -41,6 +41,14 @@
            debug="yes"
            debuglevel="lines,vars,source"
            verbose="yes" />
+    <javac srcdir="${test.dir}"
+           destdir="${classes.dir}"
+           source="1.6"
+           target="1.6"
+           classpathref="classpath"
+           debug="yes"
+           debuglevel="lines,vars,source"
+           verbose="yes" />
   	<!--
     <copy todir="${classes.dir}">
       <fileset dir="${config.dir}" />
