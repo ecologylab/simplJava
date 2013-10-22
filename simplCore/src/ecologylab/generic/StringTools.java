@@ -879,7 +879,11 @@ public class StringTools extends Debug
 							// TODO Auto-generated catch block
 							e.printStackTrace();
 						}
-						;
+						catch (IllegalArgumentException e)
+						{
+						  error(StringTools.class, "Value cannot be URLDecoded: " + input);
+						  e.printStackTrace();
+						}
 					}
 					result.put(split2[0], value);
 				}
