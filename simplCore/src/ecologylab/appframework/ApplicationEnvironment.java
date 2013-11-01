@@ -242,7 +242,7 @@ public class ApplicationEnvironment extends Debug implements Environment,
 			Class<? extends Pref<?>>[] customPrefs)
 	{
 		// configure the PrefSet translation scope, incorporating custom translations, if any
-		if (customPrefs == null)
+		if (customPrefs == null || customPrefs.length == 0)
 			customPrefs = PrefSetBaseClassProvider.STATIC_INSTANCE.provideClasses();
 
 		return SimplTypesScope.get(PrefSet.PREFS_TRANSLATION_SCOPE, customPrefs);

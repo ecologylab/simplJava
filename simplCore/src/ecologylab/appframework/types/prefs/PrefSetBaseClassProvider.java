@@ -17,6 +17,7 @@ public class PrefSetBaseClassProvider extends TranslationsClassProvider
 
 	protected PrefSetBaseClassProvider()
 	{
+		super();
 	}
 
 	/**
@@ -26,13 +27,15 @@ public class PrefSetBaseClassProvider extends TranslationsClassProvider
 	protected Class<? extends Pref<?>>[] specificSuppliedClasses()
 	{
 		Class[] prefSetClasses =
-		{ MetaPref.class, MetaPrefSet.class, MetaPrefBoolean.class, MetaPrefFloat.class,
-				MetaPrefInt.class, MetaPrefString.class,
-
-				Pref.class, PrefSet.class, PrefBoolean.class, PrefDouble.class, PrefFloat.class,
+		{
+				Pref.class, PrefBoolean.class, PrefDouble.class, PrefFloat.class,
 				PrefInt.class, PrefLong.class, PrefString.class, PrefElementState.class, PrefFile.class,
 				PrefOp.class,
 
+				// XXX THIS MAY NOT SOLVE PROBLEMS WITH CUSTOM PREF TRANSLATIONS!
+				// XXX Putting PrefSet last helps with a circular dependency where PrefSet's ClassDescriptor
+				// needs the PrefSetBaseClassProvider's list of classes to compute its scope
+				PrefSet.class
 		};
 
 		return prefSetClasses;
