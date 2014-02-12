@@ -19,6 +19,7 @@ import ecologylab.serialization.FieldType;
 import ecologylab.serialization.SIMPLTranslationException;
 import ecologylab.serialization.SimplTypesScope;
 import ecologylab.serialization.TranslationContext;
+import ecologylab.serialization.annotations.simpl_nowrap;
 import ecologylab.serialization.types.element.IMappable;
 
 /**
@@ -32,8 +33,8 @@ public class XMLPullDeserializer extends StringPullDeserializer
 
 	// private CharSequence test;
 
-	XMLParser xmlParser;
-	
+	XMLParser	xmlParser;
+
 	/**
 	 * 
 	 * @param translationScope
@@ -68,36 +69,38 @@ public class XMLPullDeserializer extends StringPullDeserializer
 			result = parse();
 			return result;
 		}
-		catch(SIMPLTranslationException ex) 
+		catch (SIMPLTranslationException ex)
 		{
-			throw ex; 
+			throw ex;
 		}
 		catch (Exception ex)
 		{
-			SIMPLTranslationException ste = new SIMPLTranslationException("exception occurred in deserialzation ", ex);
+			SIMPLTranslationException ste = new SIMPLTranslationException(
+					"exception occurred in deserialzation ", ex);
 			ste.setRemnantObject(result);
 			throw ste;
 		}
 	}
-	
+
 	@Override
 	public Object parse(InputStream inputStream) throws SIMPLTranslationException
 	{
-		// hold onto a black result to return. 
-		Object result = null; 
+		// hold onto a black result to return.
+		Object result = null;
 		try
 		{
 			configure(inputStream);
 			result = parse();
 			return result;
 		}
-		catch(SIMPLTranslationException ex) 
+		catch (SIMPLTranslationException ex)
 		{
-			throw ex; 
+			throw ex;
 		}
 		catch (Exception ex)
 		{
-			SIMPLTranslationException toThrow = new SIMPLTranslationException("exception occurred in deserialzation ", ex);
+			SIMPLTranslationException toThrow = new SIMPLTranslationException(
+					"exception occurred in deserialzation ", ex);
 			toThrow.setRemnantObject(result);
 			throw toThrow;
 		}
@@ -117,21 +120,22 @@ public class XMLPullDeserializer extends StringPullDeserializer
 	@Override
 	public Object parse(CharSequence charSequence) throws SIMPLTranslationException
 	{
-		// hold onto a black result to return. 
-		Object result = null; 
+		// hold onto a black result to return.
+		Object result = null;
 		try
 		{
 			configure(charSequence);
 			result = parse();
 			return result;
 		}
-		catch(SIMPLTranslationException ex) 
+		catch (SIMPLTranslationException ex)
 		{
-			throw ex; 
+			throw ex;
 		}
 		catch (Exception ex)
 		{
-			SIMPLTranslationException ste = new SIMPLTranslationException("exception occurred in deserialzation ", ex);
+			SIMPLTranslationException ste = new SIMPLTranslationException(
+					"exception occurred in deserialzation ", ex);
 			ste.setRemnantObject(result);
 			throw ste;
 		}
@@ -149,7 +153,7 @@ public class XMLPullDeserializer extends StringPullDeserializer
 	{
 		xmlParser = FundamentalPlatformSpecifics.get().getXMLParser(inputStream, charSet);
 	}
-	
+
 	/**
 	 * 
 	 * @param inputStream
@@ -181,12 +185,11 @@ public class XMLPullDeserializer extends StringPullDeserializer
 	 */
 	private Object parse() throws SIMPLTranslationException, IOException
 	{
-
 		Object root = null;
 
 		nextEvent();
 
-		// We should expect the first element to be the START 
+		// We should expect the first element to be the START
 		if (xmlParser.getEventType() != XMLParser.START_ELEMENT)
 		{
 			throw new SIMPLTranslationException("start of an element expected");
@@ -204,16 +207,21 @@ public class XMLPullDeserializer extends StringPullDeserializer
 		}
 
 		root = rootClassDescriptor.getInstance();
-		
-		// Logic to set all field descritpro scalars to defaults. 
-		for(FieldDescriptor fd : rootClassDescriptor.allFieldDescriptors())
+
+		// Logic to set all field descriptors scalars to defaults.
+		// Logic to identify no_wrap collections at root level
+		for (FieldDescriptor fd : rootClassDescriptor.allFieldDescriptors())
 		{
-			if(fd.isScalar() && (fd.isEnum() == false))
+			if (fd.isScalar() && (fd.isEnum() == false))
 			{
 				fd.setFieldToScalarDefault(root, translationContext);
 			}
-		}
 
+			if (fd.isCollection() && fd.getField().isAnnotationPresent(simpl_nowrap.class))
+			{
+				// rootClassDescriptor.
+			}
+		}
 
 		deserializationPreHook(root, translationContext);
 		if (deserializationHookStrategy != null)
@@ -224,12 +232,12 @@ public class XMLPullDeserializer extends StringPullDeserializer
 		deserializationInHook(root, translationContext);
 		if (deserializationHookStrategy != null)
 			deserializationHookStrategy.deserializationInHook(root, null);
-			
+
 		createObjectModel(root, rootClassDescriptor, rootTag);
 
-		// Post hook is called at the end of createObjectModel. 
-		// That should be pulled here at some point. 
-		
+		// Post hook is called at the end of createObjectModel.
+		// That should be pulled here at some point.
+
 		return root;
 	}
 
@@ -252,103 +260,104 @@ public class XMLPullDeserializer extends StringPullDeserializer
 			ClassDescriptor<? extends FieldDescriptor> rootClassDescriptor, String rootTag)
 			throws IOException, SIMPLTranslationException
 	{
-			int event = 0;
-			event = nextEvent();
+		int event = 0;
+		event = nextEvent();
 
-			
-			FieldDescriptor currentFieldDescriptor = null; // new FieldDescriptor();
+		FieldDescriptor currentFieldDescriptor = null; // new FieldDescriptor();
 
-			String xmlText = "";
+		String xmlText = "";
 
-			while ( event!= XMLParser.END_DOCUMENT
-					&& (event != XMLParser.END_ELEMENT || !rootTag.equals(getTagName())))
+		while (event != XMLParser.END_DOCUMENT
+				&& (event != XMLParser.END_ELEMENT || !rootTag.equals(getTagName())))
+		{
+			if (event != XMLParser.START_ELEMENT)
 			{
-				if (event != XMLParser.START_ELEMENT)
+				if (event == XMLParser.CHARACTERS)
 				{
-					if (event == XMLParser.CHARACTERS)
-					{
-						xmlText += xmlParser.getText();
-					}
-					else if (event == XMLParser.END_ELEMENT && currentFieldDescriptor != null && currentFieldDescriptor.getType() == FieldType.WRAPPER)
-					{
-						currentFieldDescriptor = currentFieldDescriptor.getWrappedFD();
-					}
-					
+					xmlText += xmlParser.getText();
+				}
+				else if (event == XMLParser.END_ELEMENT && currentFieldDescriptor != null
+						&& currentFieldDescriptor.getType() == FieldType.WRAPPER)
+				{
+					currentFieldDescriptor = currentFieldDescriptor.getWrappedFD();
+				}
+
+				event = nextEvent();
+				continue;
+			}
+
+			String tag = getTagName();
+
+			currentFieldDescriptor =
+					currentFieldDescriptor != null && currentFieldDescriptor.getType() == FieldType.WRAPPER
+							? currentFieldDescriptor.getWrappedFD()
+							: rootClassDescriptor.getFieldDescriptorByTag(tag, translationScope, null);
+
+			if (currentFieldDescriptor == null)
+			{
+				currentFieldDescriptor = FieldDescriptor.makeIgnoredFieldDescriptor(tag);
+			}
+
+			FieldType fieldType = currentFieldDescriptor.getType();
+
+			switch (fieldType)
+			{
+				case SCALAR:
+
+					// If we don't find a field declaration in the serialized representation for a scalar
+					// field...
+					// We'll never end up changing its value. So instead, let's automatically set every scalar
+					// value to its corresponding default value first.
+					event = deserializeScalar(root, currentFieldDescriptor);
+					break;
+
+				case COLLECTION_SCALAR:
+					event = deserializeScalarCollection(root, currentFieldDescriptor);
+					break;
+
+				case COMPOSITE_ELEMENT:
+					event = deserializeComposite(root, currentFieldDescriptor);
+					break;
+
+				case COLLECTION_ELEMENT:
+					event = deserializeCompositeCollection(root, currentFieldDescriptor);
+					break;
+
+				case MAP_ELEMENT:
+					event = deserializeCompositeMap(root, currentFieldDescriptor);
+					break;
+
+				case WRAPPER:
 					event = nextEvent();
-					continue;
-				}
+					break;
 
-				String tag = getTagName();
+				case IGNORED_ELEMENT:
+					event = ignoreTag(tag);
+					break;
 
-				currentFieldDescriptor = currentFieldDescriptor != null &&currentFieldDescriptor.getType() == FieldType.WRAPPER
-						? currentFieldDescriptor.getWrappedFD()
-						: rootClassDescriptor.getFieldDescriptorByTag(tag, translationScope, null);
+				default:
+					event = nextEvent();
 
-				if (currentFieldDescriptor == null)
-				{
-					currentFieldDescriptor = FieldDescriptor.makeIgnoredFieldDescriptor(tag);
-				}
-
-				
-					FieldType fieldType = currentFieldDescriptor.getType();
-
-				switch (fieldType)
-				{
-					case SCALAR:
-						
-						// If we don't find a field declaration in the serialized representation for a scalar field...
-						// We'll never end up changing its value. So instead, let's automatically set every scalar value to its corresponding default value first. 
-						event = deserializeScalar(root, currentFieldDescriptor);
-						break;
-						
-					case COLLECTION_SCALAR:
-						event = deserializeScalarCollection(root, currentFieldDescriptor);
-						break;
-					
-					case COMPOSITE_ELEMENT:
-						event = deserializeComposite(root, currentFieldDescriptor);
-						break;
-					
-					case COLLECTION_ELEMENT:
-						event = deserializeCompositeCollection(root, currentFieldDescriptor);
-						break;
-					
-					case MAP_ELEMENT:
-						event = deserializeCompositeMap(root, currentFieldDescriptor);
-						break;
-					
-					case WRAPPER:
-						event = nextEvent();
-						break;
-					
-					case IGNORED_ELEMENT:
-						event = ignoreTag(tag);
-						break;
-					
-					default:
-						event = nextEvent();
-					
-				}
-
-				if (event == XMLParser.END_DOCUMENT)
-				{
-					// no more data? but we are expecting so its not correct
-					throw new SIMPLTranslationException(
-							"premature end of file: check XML file for consistency");
-				}
 			}
 
-			if (rootClassDescriptor.hasScalarFD())
+			if (event == XMLParser.END_DOCUMENT)
 			{
-				rootClassDescriptor.getScalarTextFD().setFieldToScalar(root, xmlText, translationContext);
+				// no more data? but we are expecting so its not correct
+				throw new SIMPLTranslationException("premature end of file: check XML file for consistency");
 			}
-			
-			deserializationPostHook(root, translationContext);
-			if (deserializationHookStrategy != null)
-				deserializationHookStrategy.deserializationPostHook(root,
-						currentFieldDescriptor == null || currentFieldDescriptor.getType() == FieldType.IGNORED_ELEMENT
-						? null : currentFieldDescriptor);
-//				deserializationHookStrategy.deserializationPostHook(root, null);
+		}
+
+		if (rootClassDescriptor.hasScalarFD())
+		{
+			rootClassDescriptor.getScalarTextFD().setFieldToScalar(root, xmlText, translationContext);
+		}
+
+		deserializationPostHook(root, translationContext);
+		if (deserializationHookStrategy != null)
+			deserializationHookStrategy.deserializationPostHook(root, currentFieldDescriptor == null
+					|| currentFieldDescriptor.getType() == FieldType.IGNORED_ELEMENT ? null
+					: currentFieldDescriptor);
+		// deserializationHookStrategy.deserializationPostHook(root, null);
 	}
 
 	/**
@@ -395,7 +404,7 @@ public class XMLPullDeserializer extends StringPullDeserializer
 					fd.addLeafNodeToCollection(root, value, translationContext);
 				}
 
-				event 	= xmlParser.nextTag();
+				event = xmlParser.nextTag();
 				tagName = getTagName();
 			}
 		}
@@ -447,7 +456,8 @@ public class XMLPullDeserializer extends StringPullDeserializer
 
 			String compositeTagName = getTagName();
 			subRoot = getSubRoot(fd, compositeTagName, root);
-			final Object key = (subRoot instanceof IMappable<?>) ? ((IMappable<?>) subRoot).key() : fd.getMapKeyFieldValue(subRoot); 
+			final Object key = (subRoot instanceof IMappable<?>) ? ((IMappable<?>) subRoot).key() : fd
+					.getMapKeyFieldValue(subRoot);
 			if (key != null)
 			{
 				Map map = (Map) fd.automaticLazyGetCollectionOrMap(root);
@@ -490,12 +500,11 @@ public class XMLPullDeserializer extends StringPullDeserializer
 				}
 
 				subRoot = getSubRoot(fd, tagName, root);
-				
-				
+
 				Collection collection = (Collection) fd.automaticLazyGetCollectionOrMap(root);
 				collection.add(subRoot);
 
-				event 	= xmlParser.nextTag();
+				event = xmlParser.nextTag();
 				tagName = getTagName();
 			}
 		}
@@ -523,7 +532,7 @@ public class XMLPullDeserializer extends StringPullDeserializer
 		while (nextEvent() != XMLParser.END_ELEMENT);
 
 		String value = text.toString();
-		
+
 		currentFieldDescriptor.setFieldToScalar(root, value, translationContext);
 
 		return nextEvent();
@@ -577,11 +586,11 @@ public class XMLPullDeserializer extends StringPullDeserializer
 		else
 		{
 			subRoot = subRootClassDescriptor.getInstance();
-			
-			// Logic to set all field descritpro scalars to defaults. 
-			for(FieldDescriptor fd : subRootClassDescriptor.allFieldDescriptors())
+
+			// Logic to set all field descritpro scalars to defaults.
+			for (FieldDescriptor fd : subRootClassDescriptor.allFieldDescriptors())
 			{
-				if(fd.isScalar() && (fd.isEnum() == false))
+				if (fd.isScalar() && (fd.isEnum() == false))
 				{
 					fd.setFieldToScalarDefault(subRoot, translationContext);
 				}
@@ -600,17 +609,18 @@ public class XMLPullDeserializer extends StringPullDeserializer
 			}
 
 			deserializeAttributes(subRoot, subRootClassDescriptor);
-			
+
 			deserializationInHook(subRoot, translationContext);
 			if (deserializationHookStrategy != null)
 				deserializationHookStrategy.deserializationInHook(subRoot, currentFieldDescriptor);
-			
+
 			createObjectModel(subRoot, subRootClassDescriptor, tagName);
 		}
-		
+
 		if (deserializationHookStrategy != null && subRoot != null)
 		{
-			Object newSubRoot= deserializationHookStrategy.changeObjectIfNecessary(subRoot, currentFieldDescriptor);
+			Object newSubRoot = deserializationHookStrategy.changeObjectIfNecessary(subRoot,
+					currentFieldDescriptor);
 			if (newSubRoot != null)
 				subRoot = newSubRoot;
 		}
@@ -713,7 +723,7 @@ public class XMLPullDeserializer extends StringPullDeserializer
 	}
 
 	/**
-	 * @throws SIMPLTranslationException 
+	 * @throws SIMPLTranslationException
 	 * 
 	 */
 	protected void debug()
@@ -723,18 +733,18 @@ public class XMLPullDeserializer extends StringPullDeserializer
 			int event = xmlParser.getEventType();
 			switch (event)
 			{
-			case XMLParser.START_ELEMENT:
-				System.out.println(getTagName());
-				break;
-			case XMLParser.END_ELEMENT:
-				System.out.println(getTagName());
-				break;
-			case XMLParser.CHARACTERS:
-				System.out.println(xmlParser.getText());
-				break;
-			case XMLParser.CDATA:
-				System.out.println("cdata " + xmlParser.getText());
-				break;
+				case XMLParser.START_ELEMENT:
+					System.out.println(getTagName());
+					break;
+				case XMLParser.END_ELEMENT:
+					System.out.println(getTagName());
+					break;
+				case XMLParser.CHARACTERS:
+					System.out.println(xmlParser.getText());
+					break;
+				case XMLParser.CDATA:
+					System.out.println("cdata " + xmlParser.getText());
+					break;
 			} // end switch
 		}
 		catch (SIMPLTranslationException e)
@@ -796,6 +806,6 @@ public class XMLPullDeserializer extends StringPullDeserializer
 			} // end switch
 		}
 		while (xmlParser.next() != XMLParser.END_DOCUMENT);
-			
+
 	}
 }

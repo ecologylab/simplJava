@@ -5,7 +5,9 @@ import java.lang.reflect.Field;
 import java.net.URL;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.UUID;
 import java.util.regex.Pattern;
@@ -13,7 +15,39 @@ import java.util.regex.Pattern;
 import ecologylab.collections.Scope;
 import ecologylab.generic.HashMapArrayList;
 import ecologylab.net.ParsedURL;
-import ecologylab.serialization.types.scalar.*;
+import ecologylab.serialization.types.scalar.BinaryDataType;
+import ecologylab.serialization.types.scalar.BooleanType;
+import ecologylab.serialization.types.scalar.ByteType;
+import ecologylab.serialization.types.scalar.CalendarType;
+import ecologylab.serialization.types.scalar.CharType;
+import ecologylab.serialization.types.scalar.ClassType;
+import ecologylab.serialization.types.scalar.CollectionTypeType;
+import ecologylab.serialization.types.scalar.CompositeAsScalarType;
+import ecologylab.serialization.types.scalar.DateType;
+import ecologylab.serialization.types.scalar.DoubleType;
+import ecologylab.serialization.types.scalar.EnumeratedType;
+import ecologylab.serialization.types.scalar.FieldType;
+import ecologylab.serialization.types.scalar.FileType;
+import ecologylab.serialization.types.scalar.FloatType;
+import ecologylab.serialization.types.scalar.GregorianCalendarType;
+import ecologylab.serialization.types.scalar.IntType;
+import ecologylab.serialization.types.scalar.LongType;
+import ecologylab.serialization.types.scalar.ParsedURLType;
+import ecologylab.serialization.types.scalar.PatternType;
+import ecologylab.serialization.types.scalar.ReferenceBooleanType;
+import ecologylab.serialization.types.scalar.ReferenceByteType;
+import ecologylab.serialization.types.scalar.ReferenceCharType;
+import ecologylab.serialization.types.scalar.ReferenceDoubleType;
+import ecologylab.serialization.types.scalar.ReferenceFloatType;
+import ecologylab.serialization.types.scalar.ReferenceIntegerType;
+import ecologylab.serialization.types.scalar.ReferenceLongType;
+import ecologylab.serialization.types.scalar.ReferenceShortType;
+import ecologylab.serialization.types.scalar.ScalarTypeType;
+import ecologylab.serialization.types.scalar.ShortType;
+import ecologylab.serialization.types.scalar.StringBuilderType;
+import ecologylab.serialization.types.scalar.StringType;
+import ecologylab.serialization.types.scalar.URLType;
+import ecologylab.serialization.types.scalar.UUIDType;
 
 public class FundamentalTypes
 implements CrossLanguageTypeConstants
@@ -84,6 +118,10 @@ implements CrossLanguageTypeConstants
 	
 	public static final ScalarType<Date> DATE_TYPE 						= new DateType();
 	
+	public static final ScalarType<Calendar>							CALENDAR_TYPE							= new CalendarType();
+
+	public static final ScalarType<GregorianCalendar>			GREGORIAN_CALENDAR_TYPE		= new GregorianCalendarType();
+
 	public static final ScalarType<ScalarType> SCALAR_TYPE_TYPE 		= new ScalarTypeType();
 	
 	public static final ScalarType<CollectionType> COLLECTION_TYPE_TYPE = new CollectionTypeType();

@@ -7,7 +7,7 @@ public class XMLFileFilter implements FileFilter
 {
 	static XMLFileFilter singleton;
 
-	static XMLFileFilter get()
+	public static XMLFileFilter get()
 	{
 		XMLFileFilter result = singleton;
 		if (result == null)

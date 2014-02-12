@@ -145,6 +145,8 @@ public interface CrossLanguageTypeConstants
 
 	public static final String	JAVA_DATE							= "Date";
 
+	public static final String	JAVA_CALENDAR									= "Calendar";
+
 	public static final String	JAVA_STRING_BUILDER		= "StringBuilder";
 
 	public static final String	JAVA_URL							= "Url";
