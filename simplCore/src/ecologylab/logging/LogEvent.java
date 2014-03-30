@@ -2,6 +2,7 @@ package ecologylab.logging;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.TimeZone;
 
 import ecologylab.serialization.annotations.simpl_scalar;
 
@@ -18,10 +19,14 @@ public class LogEvent
   static
   {
     dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'Z");
+    dateFormat.setTimeZone(TimeZone.getTimeZone("CST"));
   }
 
   @simpl_scalar
   private long            timestamp;
+
+  @simpl_scalar
+  private String          time;
 
   @simpl_scalar
   private String          app;
@@ -34,8 +39,6 @@ public class LogEvent
 
   @simpl_scalar
   private String          data;
-
-  private String          time;
 
   public LogEvent()
   {
@@ -53,6 +56,7 @@ public class LogEvent
   public void setTimestamp(long timestamp)
   {
     this.timestamp = timestamp;
+    time = dateFormat.format(new Date(timestamp));
   }
 
   /**

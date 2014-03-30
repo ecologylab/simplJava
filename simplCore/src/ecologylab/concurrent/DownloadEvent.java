@@ -4,15 +4,15 @@ import ecologylab.logging.LogEvent;
 import ecologylab.serialization.annotations.simpl_inherit;
 
 /**
- * When a downloadable is enqueued.
+ * When a Downloadable is downloaded.
  * 
  * @author quyin
  */
 @simpl_inherit
-public class EnqueueEvent extends LogEvent
+public class DownloadEvent extends LogEvent
 {
 
-  public EnqueueEvent()
+  public DownloadEvent()
   {
     super();
   }

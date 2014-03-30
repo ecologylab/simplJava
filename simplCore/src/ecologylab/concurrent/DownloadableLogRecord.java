@@ -14,13 +14,13 @@ public class DownloadableLogRecord
 {
 
   @simpl_scalar
-  private String      id;
+  private String  id;
 
   @simpl_composite
   private LogPost logPost;
 
   @simpl_scalar
-  private boolean     htmlCacheHit;
+  private boolean htmlCacheHit;
 
   public String getId()
   {
@@ -36,15 +36,35 @@ public class DownloadableLogRecord
   {
     return logPost;
   }
+  
+  public LogPost logPost()
+  {
+    if (logPost == null)
+    {
+      synchronized (this)
+      {
+        if (logPost == null)
+        {
+          logPost = new LogPost();
+        }
+      }
+    }
+    return logPost;
+  }
 
   public void addEnqueueEvent()
   {
-    getLogPost().addEventNow(new EnqueueEvent());
+    logPost().addEventNow(new EnqueueEvent());
   }
 
   public void addQueuePeekEvent()
   {
-    getLogPost().addEvent(new QueuePeekEvent());
+    logPost().addEventNow(new QueuePeekEvent());
+  }
+
+  public void addDownloadEvent()
+  {
+    logPost().addEventNow(new DownloadEvent());
   }
 
   public boolean isHtmlCacheHit()

@@ -11,7 +11,7 @@ import ecologylab.net.ParsedURL;
  * 
  * @author quyin
  */
-public class DownloadMonitorTester
+public class DownloadMonitorMemoryTester
 {
 
   static String CHARS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890abcdefghijklmnopqrstuvwxyz ";
@@ -128,7 +128,7 @@ public class DownloadMonitorTester
   public static void main(String[] args)
   {
     System.out.println("Run this program with heap size <=100M (-Xms100m -Xmx100m).");
-    DownloadMonitorTester dmt = new DownloadMonitorTester();
+    DownloadMonitorMemoryTester dmt = new DownloadMonitorMemoryTester();
     dmt.runFakeTasks();
   }
 

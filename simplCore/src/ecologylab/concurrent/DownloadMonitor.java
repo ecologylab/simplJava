@@ -136,10 +136,24 @@ public class DownloadMonitor<T extends Downloadable> extends Monitor implements
 				logRecord.addEnqueueEvent();
 			
 			if (downloadThreads == null)
-				startPerformDownloadsThreads();
+			  startPerformDownloadsThreads();
 			else
 				toDownload.notify();
 		}
+	}
+	
+	/**
+   * Download the given downloadable, and return a Future object. When calling the get() method on
+   * the Future object, the thread will block until the downloading is done.
+   * 
+   * @param downloadable
+   * @return
+   */
+	public DownloadMonitorResult<T> downloadAndWait(T downloadable)
+	{
+	  DownloadMonitorResult<T> result = new DownloadMonitorResult<T>(this, downloadable);
+	  download(downloadable, result);
+	  return result;
 	}
 
 	/**
@@ -339,6 +353,8 @@ public class DownloadMonitor<T extends Downloadable> extends Monitor implements
 			
 			DownloadState thatClosure = null;	// define out here to use outside of synchronized
 			Downloadable downloadable = null;
+			DownloadableLogRecord logRecord = null;
+			
 			synchronized (toDownload)
 			{
 				// debug("-- got lock");
@@ -362,8 +378,8 @@ public class DownloadMonitor<T extends Downloadable> extends Monitor implements
 						recycleClosure 	= false;
 						thatClosure 		= toDownload.get(closureNum);
 						downloadable 		= thatClosure.downloadable;
-						
-						DownloadableLogRecord logRecord = downloadable.getLogRecord();
+						logRecord = downloadable.getLogRecord();
+
 						if (logRecord != null)
 						{
 						  logRecord.addQueuePeekEvent();
@@ -475,6 +491,10 @@ public class DownloadMonitor<T extends Downloadable> extends Monitor implements
 						// NEW -- set the priority of the download, based on how backed up we are
 						setDownloadPriority();
 						thatClosure.performDownload();	// HERE!
+						if (logRecord != null)
+						{
+						  logRecord.addDownloadEvent();
+						}
 					}
 					catch (SocketTimeoutException e)
 					{
@@ -514,7 +534,6 @@ public class DownloadMonitor<T extends Downloadable> extends Monitor implements
 						finished = true; // give up!
 						downloadable.handleIoError(e);
 						OutOfMemoryErrorHandler.handleException(e);
-
 					}
 					catch (Throwable e)
 					{
