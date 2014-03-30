@@ -17,6 +17,7 @@ import ecologylab.generic.Generic;
 import ecologylab.generic.MathTools;
 import ecologylab.generic.NewPorterStemmer;
 import ecologylab.io.DownloadProcessor;
+import ecologylab.logging.LogEventTypeScope;
 
 /**
  * Non-linear flow multiplexer. Tracks downloads of <code>Downloadable</code> objects. Dispatches
@@ -28,7 +29,14 @@ import ecologylab.io.DownloadProcessor;
 public class DownloadMonitor<T extends Downloadable> extends Monitor implements
 		DownloadProcessor<T>
 {
+
 	static HashMap<Thread, NewPorterStemmer>	stemmersHash					= new HashMap<Thread, NewPorterStemmer>();
+
+	static
+	{
+	  LogEventTypeScope.addEventClass(EnqueueEvent.class);
+	  LogEventTypeScope.addEventClass(QueuePeekEvent.class);
+	}
 
 	// ////////////////// queues for media that gets downloaded /////////////////
 	/**
@@ -125,7 +133,7 @@ public class DownloadMonitor<T extends Downloadable> extends Monitor implements
 			toDownload.add(new DownloadState<T>(thatDownloadable, continuation, this));
 
 			if (logRecord != null)
-				logRecord.setEnQueueTimestamp(System.currentTimeMillis());
+				logRecord.addEnqueueEvent();
 			
 			if (downloadThreads == null)
 				startPerformDownloadsThreads();
@@ -357,8 +365,9 @@ public class DownloadMonitor<T extends Downloadable> extends Monitor implements
 						
 						DownloadableLogRecord logRecord = downloadable.getLogRecord();
 						if (logRecord != null)
-							logRecord.addQueuePeekInterval(
-									System.currentTimeMillis() - logRecord.getEnQueueTimestamp());
+						{
+						  logRecord.addQueuePeekEvent();
+						}
 						
 						if (downloadable.isCached())
 						{

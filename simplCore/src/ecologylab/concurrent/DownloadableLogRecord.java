@@ -1,65 +1,60 @@
 package ecologylab.concurrent;
 
-import java.util.ArrayList;
-
-import ecologylab.serialization.annotations.simpl_collection;
+import ecologylab.logging.LogPost;
+import ecologylab.serialization.annotations.simpl_composite;
 import ecologylab.serialization.annotations.simpl_scalar;
 
+/**
+ * Logging information for a Downloadable.
+ * 
+ * @author ajit
+ * @author quyin
+ */
 public class DownloadableLogRecord
 {
-	@simpl_collection("peek_interval")
-	ArrayList<Long> queuePeekIntervals = new ArrayList<Long>();
-	
-	private long enQueueTimestamp;
-	
-	@simpl_scalar
-	boolean htmlCacheHit;
-	
-	@simpl_scalar
-	String urlHash;
 
-	public void addQueuePeekInterval(long queuePeekInterval)
-	{
-		this.queuePeekIntervals.add(queuePeekInterval);
-	}
+  @simpl_scalar
+  private String      id;
 
-	public ArrayList<Long> getQueuePeekIntervals()
-	{
-		return queuePeekIntervals;
-	}
+  @simpl_composite
+  private LogPost logPost;
 
-	public void setQueuePeekIntervals(ArrayList<Long> queuePeekIntervals)
-	{
-		this.queuePeekIntervals = queuePeekIntervals;
-	}
+  @simpl_scalar
+  private boolean     htmlCacheHit;
 
-	public long getEnQueueTimestamp()
-	{
-		return enQueueTimestamp;
-	}
+  public String getId()
+  {
+    return id;
+  }
 
-	public void setEnQueueTimestamp(long enQueueTimestamp)
-	{
-		this.enQueueTimestamp = enQueueTimestamp;
-	}
+  public void setId(String id)
+  {
+    this.id = id;
+  }
 
-	public boolean isHtmlCacheHit()
-	{
-		return htmlCacheHit;
-	}
+  public LogPost getLogPost()
+  {
+    return logPost;
+  }
 
-	public void setHtmlCacheHit(boolean bHTMLCacheHit)
-	{
-		this.htmlCacheHit = bHTMLCacheHit;
-	}
+  public void addEnqueueEvent()
+  {
+    getLogPost().addEventNow(new EnqueueEvent());
+  }
 
-	public String getUrlHash()
-	{
-		return urlHash;
-	}
+  public void addQueuePeekEvent()
+  {
+    getLogPost().addEvent(new QueuePeekEvent());
+  }
 
-	public void setUrlHash(String urlHash)
-	{
-		this.urlHash = urlHash;
-	}
+  public boolean isHtmlCacheHit()
+  {
+    return htmlCacheHit;
+  }
+
+  public void setHtmlCacheHit(boolean bHTMLCacheHit)
+  {
+    this.htmlCacheHit = bHTMLCacheHit;
+  }
+
 }
