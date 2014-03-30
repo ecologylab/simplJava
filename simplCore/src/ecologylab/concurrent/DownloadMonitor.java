@@ -447,7 +447,7 @@ public class DownloadMonitor<T extends Downloadable> extends Monitor implements
 				}
 			}	// end synchronized
 
-			boolean lowMemory = Memory.reclaimIfLow();
+			boolean lowMemory = reclaimMemoryIfLow();
 
 			if (thatClosure != null)
 			{
@@ -786,6 +786,20 @@ public class DownloadMonitor<T extends Downloadable> extends Monitor implements
 	public void requestStop()
 	{
 		stopRequested = true;
+	}
+	
+	/**
+	 * Reclaim memory if available memory is low.
+	 * 
+	 * This should not be required in most cases.
+	 * Subclasses can use this method to actively reclaim memory, if needed. 
+	 * 
+	 * @return true if memory is low and reclaimed. otherwise false.
+	 */
+	protected boolean reclaimMemoryIfLow()
+	{
+    // return Memory.reclaimIfLow();
+    return false;
 	}
 	
 }
