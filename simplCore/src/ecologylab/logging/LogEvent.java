@@ -37,9 +37,6 @@ public class LogEvent
   @simpl_scalar
   private String          hashKey;
 
-  @simpl_scalar
-  private String          data;
-
   public LogEvent()
   {
     // Default constructor must be empty, for deserialization.
@@ -108,19 +105,6 @@ public class LogEvent
   public void setHashKey(String hashKey)
   {
     this.hashKey = hashKey;
-  }
-
-  /**
-   * @return Arbitrary data associated with this event.
-   */
-  public String getData()
-  {
-    return data;
-  }
-
-  public void setData(String data)
-  {
-    this.data = data;
   }
 
 }

@@ -88,11 +88,31 @@ public class LogPost
       events.add(event);
     }
   }
-  
+
   public void addEventNow(LogEvent event)
   {
     event.setTimestamp(System.currentTimeMillis());
     addEvent(event);
+  }
+
+  public void addEvents(LogPost logPost)
+  {
+    if (logPost != null)
+    {
+      List<LogEvent> eventsToAdd = logPost.getEvents();
+      addEvents(eventsToAdd);
+    }
+  }
+
+  public void addEvents(List<LogEvent> eventsToAdd)
+  {
+    if (eventsToAdd != null)
+    {
+      for (LogEvent eventToAdd : eventsToAdd)
+      {
+        addEvent(eventToAdd);
+      }
+    }
   }
 
 }
