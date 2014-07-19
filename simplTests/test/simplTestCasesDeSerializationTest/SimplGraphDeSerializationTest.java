@@ -14,10 +14,7 @@ import legacy.tests.graph.ClassB;
 
 import org.junit.Test;
 
-import com.sun.corba.se.impl.orbutil.graph.Graph;
-
 import ecologylab.generic.ReflectionTools;
-import ecologylab.serialization.DeserializationHookStrategy;
 import ecologylab.serialization.SIMPLTranslationException;
 import ecologylab.serialization.SimplTypesScope;
 import ecologylab.serialization.formatenums.Format;
