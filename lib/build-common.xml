@@ -27,6 +27,7 @@
   <!-- all dependencies -->
   <path id="classpath">
     <filelist dir="/" files="${dep_jars}" />
+    <fileset dir="${lib.dir}" includes="ST-*.jar" />
     <fileset dir="${lib.dir}" includes="**/*.jar" />
   </path>
 
