@@ -38,17 +38,40 @@
   </target>
 
   <target name="build-deps">
-    <foreach target="build-dep" param="proj_path">
+    <foreach target="build-dep" param="dep_proj_path">
       <path refid="dep_projs" />
     </foreach>
   </target>
   
   <target name="build-dep">
-    <echo message="Building dependent project at ${proj_path} ..." />
-    <ant antfile="${proj_path}/build.xml" target="jar" inheritAll="no" useNativeBasedir="yes" />
+    <echo message="Building dependent project at ${dep_proj_path} ..." />
+
+    <filelist id="dep_proj_file_list" files="${dep_proj_path}" />
+    <pathconvert property="dep_proj_jar" refid="dep_proj_file_list">
+      <mapper type="regexp" from="^(.*)/([^/]+)/?$" to="\1/\2/build/jar/\2.jar" /> 
+    </pathconvert>
+    
+    <echo message="Jar file: ${dep_proj_jar}" />
+    
+    <if>
+      <not>
+        <uptodate targetfile="${dep_proj_jar}">
+          <srcfiles dir="${dep_proj_path}" includes="**/*.java" />
+        </uptodate>
+      </not>
+      <then>
+        <ant antfile="${dep_proj_path}/build.xml" target="jar"
+             inheritAll="no" useNativeBasedir="yes" />
+      </then>
+      <else>
+        <echo message="${dep_proj_jar} is up to date, no need to build." />
+      </else>
+    </if>
   </target>
   
   <target name="compile" depends="build-deps">
+    <echo message="Compiling project ${ant.project.name} ..." />
+
     <mkdir dir="${classes.dir}" />
     <javac srcdir="${src.dir}" destdir="${classes.dir}" source="1.6" target="1.6"
            classpathref="classpath" />
@@ -65,6 +88,8 @@
   </target>
 
   <target name="jar" depends="compile">
+    <echo message="Making ${jar.file} ..." />
+
     <mkdir dir="${jar.dir}" />
     <jar destfile="${jar.file}" basedir="${classes.dir}" />
   </target>
