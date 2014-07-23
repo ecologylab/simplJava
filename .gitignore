@@ -6,7 +6,6 @@
 
 # Eclipse
 .metadata/
-.settings/
 bin/
 target/
 build/
