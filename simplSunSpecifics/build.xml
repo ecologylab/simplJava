@@ -4,8 +4,9 @@
 
   <!-- dependent project -->
   <path id="dep_projs">
+    <pathelement path="../simplCore" />
   </path>
   
   <import file="../lib/build-common.xml" />
-
+  
 </project>

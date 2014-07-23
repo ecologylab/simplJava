@@ -10,7 +10,6 @@ import ecologylab.serialization.formatenums.Format;
 import ecologylab.serialization.formatenums.StringFormat;
 
 import java.io.File;
-import java.nio.file.*;
 
 public class ThreatTest {
 

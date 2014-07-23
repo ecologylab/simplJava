@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="common-defs" basedir="." default="jar"
+         xmlns:artifact="antlib:org.apache.maven.artifact.ant">
+
+  <!-- dependent jars -->
+  <pathconvert property="dep_jars" refid="dep_projs" pathsep=",">
+    <mapper type="regexp" from="^(.*)/([^/]+)/?$" to="\1/\2/build/jar/\2.jar" /> 
+  </pathconvert>
+  
+  <!-- sub-directories -->
+  <property name="src.dir" value="src" />
+  <property name="resource.dir" value="resources" />
+  <property name="test.dir" value="test" />
+  <property name="lib.dir" value="${ant.file.common-defs}/../../lib" />
+  <property name="build.dir" value="build" />
+  <property name="classes.dir" value="${build.dir}/classes" />
+  <property name="jar.dir" value="${build.dir}/jar" />
+  <property name="jar.file" value="${jar.dir}/${ant.project.name}.jar" />
+
+  <!-- declare ant-contrib -->
+  <taskdef resource="net/sf/antcontrib/antlib.xml">
+    <classpath>
+      <pathelement location="${lib.dir}/ant-contrib-1.0b3.jar" />
+    </classpath>
+  </taskdef>
+
+  <!-- all dependencies -->
+  <path id="classpath">
+    <filelist dir="/" files="${dep_jars}" />
+    <fileset dir="${lib.dir}" includes="**/*.jar" />
+  </path>
+
+  <!-- targets -->
+
+  <target name="clean">
+    <delete dir="${build.dir}" />
+  </target>
+
+  <target name="build-deps">
+    <foreach target="build-dep" param="proj_path">
+      <path refid="dep_projs" />
+    </foreach>
+  </target>
+  
+  <target name="build-dep">
+    <echo message="Building dependent project at ${proj_path} ..." />
+    <ant antfile="${proj_path}/build.xml" target="jar" inheritAll="no" useNativeBasedir="yes" />
+  </target>
+  
+  <target name="compile" depends="build-deps">
+    <mkdir dir="${classes.dir}" />
+    <javac srcdir="${src.dir}" destdir="${classes.dir}" source="1.6" target="1.6"
+           classpathref="classpath" />
+    
+    <!-- copy resources -->
+    <if>
+      <available file="${resource.dir}" />
+      <then>
+        <copy todir="${classes.dir}">
+          <fileset dir="${resource.dir}" includes="**/*" />
+        </copy>
+      </then>
+    </if>
+  </target>
+
+  <target name="jar" depends="compile">
+    <mkdir dir="${jar.dir}" />
+    <jar destfile="${jar.file}" basedir="${classes.dir}" />
+  </target>
+
+</project>
