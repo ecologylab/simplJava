@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project name="simplCore" basedir="." default="jar"
+<project name="simplCore" basedir="." default="main"
          xmlns:artifact="antlib:org.apache.maven.artifact.ant">
 
   <!-- dependent project -->
@@ -7,5 +7,5 @@
   </path>
   
   <import file="../lib/build-common.xml" />
-
+  
 </project>

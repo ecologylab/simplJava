@@ -11,7 +11,7 @@
   <property name="src.dir" value="src" />
   <property name="resource.dir" value="resources" />
   <property name="test.dir" value="test" />
-  <property name="lib.dir" value="${ant.file.common-defs}/../../lib" />
+  <property name="lib.dir" value="../lib" />
   <property name="build.dir" value="build" />
   <property name="classes.dir" value="${build.dir}/classes" />
   <property name="jar.dir" value="${build.dir}/jar" />
@@ -30,46 +30,20 @@
     <fileset dir="${lib.dir}" includes="ST-*.jar" />
     <fileset dir="${lib.dir}" includes="**/*.jar" />
   </path>
+  
+  <import file="../lib/simpl-projects.xml" />
 
   <!-- targets -->
 
   <target name="clean">
     <delete dir="${build.dir}" />
   </target>
-
+  
   <target name="build-deps">
-    <foreach target="build-dep" param="dep_proj_path">
-      <path refid="dep_projs" />
-    </foreach>
+    <antcall target="depend.${ant.project.name}" />
   </target>
-  
-  <target name="build-dep">
-    <echo message="Building dependent project at ${dep_proj_path} ..." />
 
-    <filelist id="dep_proj_file_list" files="${dep_proj_path}" />
-    <pathconvert property="dep_proj_jar" refid="dep_proj_file_list">
-      <mapper type="regexp" from="^(.*)/([^/]+)/?$" to="\1/\2/build/jar/\2.jar" /> 
-    </pathconvert>
-    
-    <echo message="Jar file: ${dep_proj_jar}" />
-    
-    <if>
-      <not>
-        <uptodate targetfile="${dep_proj_jar}">
-          <srcfiles dir="${dep_proj_path}" includes="**/*.java" />
-        </uptodate>
-      </not>
-      <then>
-        <ant antfile="${dep_proj_path}/build.xml" target="jar"
-             inheritAll="no" useNativeBasedir="yes" />
-      </then>
-      <else>
-        <echo message="${dep_proj_jar} is up to date, no need to build." />
-      </else>
-    </if>
-  </target>
-  
-  <target name="compile" depends="build-deps">
+  <target name="compile">
     <echo message="Compiling project ${ant.project.name} ..." />
 
     <mkdir dir="${classes.dir}" />
@@ -88,10 +62,25 @@
   </target>
 
   <target name="jar" depends="compile">
-    <echo message="Making ${jar.file} ..." />
+    <if>
+      <not>
+        <uptodate targetfile="${jar.file}">
+          <srcfiles dir="${classes.dir}" includes="**/*" />
+        </uptodate>
+      </not>
+      <then>
+        <echo message="Making ${jar.file} ..." />
 
-    <mkdir dir="${jar.dir}" />
-    <jar destfile="${jar.file}" basedir="${classes.dir}" />
+        <mkdir dir="${jar.dir}" />
+        <jar destfile="${jar.file}" basedir="${classes.dir}" />
+      </then>
+      <else>
+        <echo message="${jar.file} is up to date." />
+      </else>
+    </if>
+  </target>
+
+  <target name="main" depends="build-deps,jar">
   </target>
 
 </project>
