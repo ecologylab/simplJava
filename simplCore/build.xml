@@ -6,6 +6,6 @@
   <path id="dep_projs">
   </path>
   
-  <import file="../lib/build-common.xml" />
+  <import file="../lib/simpl-build-common.xml" />
   
 </project>

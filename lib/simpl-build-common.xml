@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project name="common-defs" basedir="." default="jar"
+<project name="simpl-build-common" basedir="." default="jar"
          xmlns:artifact="antlib:org.apache.maven.artifact.ant">
 
   <!-- dependent jars -->
@@ -11,7 +11,7 @@
   <property name="src.dir" value="src" />
   <property name="resource.dir" value="resources" />
   <property name="test.dir" value="test" />
-  <property name="lib.dir" value="../lib" />
+  <property name="lib.dir" value="${ant.file.simpl-build-common}/.." />
   <property name="build.dir" value="build" />
   <property name="classes.dir" value="${build.dir}/classes" />
   <property name="jar.dir" value="${build.dir}/jar" />
@@ -31,7 +31,7 @@
     <fileset dir="${lib.dir}" includes="**/*.jar" />
   </path>
   
-  <import file="../lib/simpl-projects.xml" />
+  <import file="${ant.file.simpl-build-common}/../simpl-projects.xml" />
 
   <!-- targets -->
 
@@ -39,16 +39,12 @@
     <delete dir="${build.dir}" />
   </target>
   
-  <target name="build-deps">
-    <antcall target="depend.${ant.project.name}" />
-  </target>
-
   <target name="compile">
     <echo message="Compiling project ${ant.project.name} ..." />
 
     <mkdir dir="${classes.dir}" />
-    <javac srcdir="${src.dir}" destdir="${classes.dir}" source="1.6" target="1.6"
-           classpathref="classpath" />
+    <javac srcdir="${src.dir}" destdir="${classes.dir}" source="1.6" target="1.6" fork="yes"
+           encoding="UTF-8" classpathref="classpath" />
     
     <!-- copy resources -->
     <if>
@@ -80,7 +76,8 @@
     </if>
   </target>
 
-  <target name="main" depends="build-deps,jar">
+  <target name="main">
+    <antcall target="depend.${ant.project.name}" />
   </target>
 
 </project>

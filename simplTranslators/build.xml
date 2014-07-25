@@ -8,6 +8,6 @@
     <pathelement path="../simplSunSpecifics" />
   </path>
   
-  <import file="../lib/build-common.xml" />
+  <import file="../lib/simpl-build-common.xml" />
 	
 </project>

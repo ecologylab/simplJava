@@ -1,17 +1,20 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project name="simpl-dependencies" basedir="." default="depend.all"
+<project name="simpl-projects" basedir="." default="depend.all"
          xmlns:artifact="antlib:org.apache.maven.artifact.ant">
 
   <target name="depend.simplCore">
-    <ant antfile="../simplCore/build.xml" target="jar" inheritall="no" />
+    <ant antfile="${ant.file.simpl-projects}/../../simplCore/build.xml"
+         target="jar" inheritall="no" />
   </target>
 
   <target name="depend.simplSunSpecifics" depends="depend.simplCore">
-    <ant antfile="../simplSunSpecifics/build.xml" target="jar" inheritall="no" />
+    <ant antfile="${ant.file.simpl-projects}/../../simplSunSpecifics/build.xml"
+         target="jar" inheritall="no" />
   </target>
 
   <target name="depend.simplTranslators" depends="depend.simplCore,depend.simplSunSpecifics">
-    <ant antfile="../simplTranslators/build.xml" target="jar" inheritall="no" />
+    <ant antfile="${ant.file.simpl-projects}/../../simplTranslators/build.xml"
+         target="jar" inheritall="no" />
   </target>
 
   <target name="depend.all"

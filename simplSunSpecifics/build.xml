@@ -7,6 +7,6 @@
     <pathelement path="../simplCore" />
   </path>
   
-  <import file="../lib/build-common.xml" />
+  <import file="../lib/simpl-build-common.xml" />
   
 </project>
