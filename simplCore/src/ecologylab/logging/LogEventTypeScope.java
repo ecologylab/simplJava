@@ -4,8 +4,8 @@ import ecologylab.serialization.SimplTypesScope;
 
 /**
  * Type scope for log events 
+ * 
  * @author quyin
- *
  */
 @SuppressWarnings("rawtypes")
 public class LogEventTypeScope

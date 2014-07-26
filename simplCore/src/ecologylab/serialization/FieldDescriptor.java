@@ -401,9 +401,7 @@ public class FieldDescriptor extends DescriptorBase implements IMappable<String>
 	 */
 	private boolean derivePolymorphicDescriptors(Field field)
 	{
-		// @xml_scope
-		final simpl_scope scopeAnnotationObj = field.getAnnotation(simpl_scope.class);
-		final String scopeAnnotation = (scopeAnnotationObj == null) ? null : scopeAnnotationObj.value();
+		final String scopeAnnotation = getScopeName(field);
 
 		if (scopeAnnotation != null && scopeAnnotation.length() > 0)
 		{
@@ -426,6 +424,13 @@ public class FieldDescriptor extends DescriptorBase implements IMappable<String>
 		}
 		return polymorphClassDescriptors != null;
 	}
+
+  private static String getScopeName(Field field)
+  {
+    final simpl_scope scopeAnnotationObj = field.getAnnotation(simpl_scope.class);
+		final String scopeAnnotation = (scopeAnnotationObj == null) ? null : scopeAnnotationObj.value();
+    return scopeAnnotation;
+  }
 
 	/**
 	 * Register a ClassDescriptor that is polymorphically engaged with this field.
@@ -483,6 +488,13 @@ public class FieldDescriptor extends DescriptorBase implements IMappable<String>
 		  warning("Failed to resolve simpl_scope: " + scopeAnnotation);
 		}
 		return scope != null;
+	}
+	
+	public void reevaluateScopeAnnotation()
+	{
+	  String scope = getScopeName(field);
+	  SimplTypesScope.get(scope).clearCachedClassDescriptors();
+	  resolveScopeAnnotation(scope);
 	}
 
 	/**

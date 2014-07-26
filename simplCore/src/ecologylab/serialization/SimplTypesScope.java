@@ -1213,6 +1213,11 @@ public final class SimplTypesScope extends ElementState
 		}
 		return result;
 	}
+	
+	public void clearCachedClassDescriptors()
+	{
+	  classDescriptors = null;
+	}
 
 	/**
 	 * Get the Scalar Type corresponding to the Class.

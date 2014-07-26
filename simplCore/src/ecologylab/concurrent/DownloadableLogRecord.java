@@ -19,9 +19,6 @@ public class DownloadableLogRecord
   @simpl_composite
   private LogPost logPost;
 
-  @simpl_scalar
-  private boolean htmlCacheHit;
-
   public String getId()
   {
     return id;
@@ -65,16 +62,6 @@ public class DownloadableLogRecord
   public void addDownloadEvent()
   {
     logPost().addEventNow(new DownloadEvent());
-  }
-
-  public boolean isHtmlCacheHit()
-  {
-    return htmlCacheHit;
-  }
-
-  public void setHtmlCacheHit(boolean bHTMLCacheHit)
-  {
-    this.htmlCacheHit = bHTMLCacheHit;
   }
 
 }

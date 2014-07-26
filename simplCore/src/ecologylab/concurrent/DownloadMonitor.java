@@ -387,7 +387,6 @@ public class DownloadMonitor<T extends Downloadable> extends Monitor implements
 						
 						if (downloadable.isCached())
 						{
-							if (logRecord != null) logRecord.setHtmlCacheHit(true);
 						  debug("downloadable cached, skip site checking and download intervals");
 						  break;
 						}
