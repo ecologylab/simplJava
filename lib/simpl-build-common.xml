@@ -4,7 +4,9 @@
 
   <!-- dependent jars -->
   <pathconvert property="dep_jars" refid="dep_projs" pathsep=",">
-    <mapper type="regexp" from="^(.*)/([^/]+)/?$" to="\1/\2/build/jar/\2.jar" /> 
+    <mapper type="regexp"
+  	        from="^(.*)([/\\])([^/\\]+)[/\\]?$"
+	        to="\1\2\3\2build\2jar\2\3.jar" /> 
   </pathconvert>
   
   <!-- sub-directories -->
