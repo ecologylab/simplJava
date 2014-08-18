@@ -205,10 +205,10 @@ public class XMLPullDeserializer extends StringPullDeserializer
 
 		root = rootClassDescriptor.getInstance();
 		
-		// Logic to set all field descritpro scalars to defaults. 
+		// Logic to set all field descriptor scalars to defaults. 
 		for(FieldDescriptor fd : rootClassDescriptor.allFieldDescriptors())
 		{
-			if(fd.isScalar() && (fd.isEnum() == false))
+			if(fd.isScalar() && !fd.isCollection() && !fd.isEnum())
 			{
 				fd.setFieldToScalarDefault(root, translationContext);
 			}
@@ -280,7 +280,8 @@ public class XMLPullDeserializer extends StringPullDeserializer
 
 				String tag = getTagName();
 
-				currentFieldDescriptor = currentFieldDescriptor != null &&currentFieldDescriptor.getType() == FieldType.WRAPPER
+				currentFieldDescriptor =
+				    currentFieldDescriptor != null &&currentFieldDescriptor.getType() == FieldType.WRAPPER
 						? currentFieldDescriptor.getWrappedFD()
 						: rootClassDescriptor.getFieldDescriptorByTag(tag, translationScope, null);
 
@@ -578,7 +579,7 @@ public class XMLPullDeserializer extends StringPullDeserializer
 		{
 			subRoot = subRootClassDescriptor.getInstance();
 			
-			// Logic to set all field descritpro scalars to defaults. 
+			// Logic to set all field descriptor scalars to defaults. 
 			for(FieldDescriptor fd : subRootClassDescriptor.allFieldDescriptors())
 			{
 				if(fd.isScalar() && (fd.isEnum() == false))
