@@ -142,7 +142,9 @@ public class JSONSerializer extends StringSerializer implements FieldTypes
 					serializeScalar(object, childFd, appendable, translationContext);
 					break;
 				case COMPOSITE_ELEMENT:
+				  writeWrap(childFd, appendable, false);
 					serializeComposite(object, appendable, translationContext, childFd);
+				  writeWrap(childFd, appendable, true);
 					break;
 				case COLLECTION_SCALAR:
 				case MAP_SCALAR:
@@ -211,8 +213,10 @@ public class JSONSerializer extends StringSerializer implements FieldTypes
 			throws SIMPLTranslationException, IOException
 	{
 		Object compositeObject = childFd.getValue(object);
-		FieldDescriptor compositeObjectFieldDescriptor = childFd.isPolymorphic() ? getClassDescriptor(
-				compositeObject).pseudoFieldDescriptor() : childFd;
+		FieldDescriptor compositeObjectFieldDescriptor =
+		    childFd.isPolymorphic()
+            ? getClassDescriptor(compositeObject).pseudoFieldDescriptor()
+		        : childFd;
 		serialize(compositeObject, compositeObjectFieldDescriptor, appendable, translationContext, true);
 	}
 

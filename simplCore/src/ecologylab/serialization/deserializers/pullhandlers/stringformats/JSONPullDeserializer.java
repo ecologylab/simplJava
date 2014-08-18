@@ -155,7 +155,7 @@ public class JSONPullDeserializer extends StringPullDeserializer
 		// Logic to set all field descritpro scalars to defaults. 
 		for(FieldDescriptor fd : rootClassDescriptor.allFieldDescriptors())
 		{
-			if(fd.isScalar() && (fd.isEnum() == false))
+			if(fd.isScalar() && !fd.isCollection() && !fd.isEnum())
 			{
 				fd.setFieldToScalarDefault(root, translationContext);
 			}
@@ -238,10 +238,31 @@ public class JSONPullDeserializer extends StringPullDeserializer
 //				    currentFieldDescriptor = rootClassDescriptor.getFieldDescriptorByTag(fieldTag, translationScope, null);
 				    String fieldName = XMLTools.fieldNameFromElementName(fieldTag);
 				    currentFieldDescriptor = rootClassDescriptor.getFieldDescriptorByFieldName(fieldName);
+				    if (currentFieldDescriptor == null)
+				    {
+				      currentFieldDescriptor =
+				          rootClassDescriptor.getFieldDescriptorByTag(fieldTag, translationScope);
+				    }
 				  }
 				}
 				
+				if (currentFieldDescriptor == null)
+				{
+				  error("Cannot find a FieldDescriptor for tag " + fieldTag);
+				  continue;
+				}
+				
 				FieldType fieldType = currentFieldDescriptor.getType();
+				
+				boolean deWrap = false;
+				if (fieldType == FieldType.COMPOSITE_ELEMENT
+				    && currentFieldDescriptor.isPolymorphic()
+				    && currentFieldDescriptor.getWrapper() != null)
+				{
+				  deWrap = true;
+				  jp.nextToken();
+				  jp.nextToken();
+				}
 				
 				String message = debugContext.toString() + "processing field " + currentFieldDescriptor.getName();
         debug(message);
@@ -272,7 +293,7 @@ public class JSONPullDeserializer extends StringPullDeserializer
 					if (currentFieldDescriptor.isPolymorphic())
 					{
 						// ignore the wrapper tag
-						if (!currentFieldDescriptor.isWrapped())
+						if (currentFieldDescriptor.isWrapped())
 							jp.nextToken();
 
 						while (jp.getCurrentToken() != JsonToken.END_ARRAY)
@@ -350,10 +371,14 @@ public class JSONPullDeserializer extends StringPullDeserializer
 					}
 					break;
 				case WRAPPER:
-
 					if (!currentFieldDescriptor.getWrappedFD().isPolymorphic())
 						jp.nextToken();
 					break;
+				}
+				
+				if (deWrap)
+				{
+				  jp.nextToken();
 				}
 				
 				state = nextDeserializationProcedureState(state, fieldType);
