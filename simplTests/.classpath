@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
 	<classpathentry kind="src" path="test"/>
+	<classpathentry kind="src" path="unused"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/simplCore"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/simplSunSpecifics"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/simplTranslators"/>

@@ -12,6 +12,11 @@ import ecologylab.generic.StringBuilderBaseUtils;
 /**
  * A scope (map: String -&gt; T) with multiple ancestors.
  * 
+ * To reduce creating unnecessary objects, this class will not create a new HashMap until necessary
+ * (i.e. when you put something into the local scope).
+ * 
+ * This class ignores null keys.
+ * 
  * @author quyin
  * 
  * @param <T>
@@ -21,49 +26,66 @@ import ecologylab.generic.StringBuilderBaseUtils;
 public class MultiAncestorScope<T> implements Map<String, T>
 {
 
-  public static final int      DEFAULT_CAPACITY    = 16;
+  private static final HashMap<String, Object>   EMPTY_HASH_MAP;
 
-  public static final float    DEFAULT_LOAD_FACTOR = 0.75f;
+  public static final MultiAncestorScope<Object> EMPTY_SCOPE;
 
-  private HashMap<String, T>   local;
+  static
+  {
+    EMPTY_HASH_MAP = new HashMap<String, Object>();
+    EMPTY_SCOPE = new MultiAncestorScope<Object>("EMPTY")
+    {
+      @Override
+      public void addAncestor(Map<String, Object> ancestor)
+      {
+        // no op
+      }
 
-  private List<Map<String, T>> ancestors;
+      @Override
+      public Object put(String key, Object value)
+      {
+        // no op
+        return value;
+      }
+    };
+  }
+
+  private String                                 id;
+
+  private HashMap<String, T>                     local;
+
+  private List<Map<String, T>>                   ancestors;
 
   public MultiAncestorScope()
   {
-    this(DEFAULT_CAPACITY, DEFAULT_LOAD_FACTOR, new Map[] {});
+    this(null, new Map[] {});
   }
 
-  public MultiAncestorScope(int initialCapacity)
+  public MultiAncestorScope(String id)
   {
-    this(initialCapacity, DEFAULT_LOAD_FACTOR, new Map[] {});
-  }
-
-  public MultiAncestorScope(int initialCapacity, float loadFactor)
-  {
-    this(initialCapacity, loadFactor, new Map[] {});
+    this(id, new Map[] {});
   }
 
   public MultiAncestorScope(Map<String, T>... ancestors)
   {
-    this(DEFAULT_CAPACITY, DEFAULT_LOAD_FACTOR, ancestors);
+    this(null, ancestors);
   }
 
-  public MultiAncestorScope(int initialCapacity, Map<String, T>... ancestors)
-  {
-    this(initialCapacity, DEFAULT_LOAD_FACTOR, ancestors);
-  }
-
-  public MultiAncestorScope(int initialCapacity, float loadFactor, Map<String, T>... ancestors)
+  public MultiAncestorScope(String id, Map<String, T>... ancestors)
   {
     super();
-    local = new HashMap<String, T>(initialCapacity, loadFactor);
+    this.id = id;
     addAncestors(ancestors);
   }
 
-  public List<Map<String, T>> getAncestors()
+  public String getId()
   {
-    return this.ancestors;
+    return id;
+  }
+
+  public void setId(String id)
+  {
+    this.id = id;
   }
 
   protected List<Map<String, T>> ancestors()
@@ -75,9 +97,57 @@ public class MultiAncestorScope<T> implements Map<String, T>
     return ancestors;
   }
 
+  /**
+   * @return All ancestors using BFS. This is used to prevent infinite loops with ancestors.
+   */
+  protected List<Map<String, T>> allAncestors()
+  {
+    List<Map<String, T>> result = new ArrayList<Map<String, T>>();
+    if (ancestors != null)
+    {
+      for (Map<String, T> ancestor : ancestors)
+      {
+        result.add(ancestor);
+      }
+
+      for (int i = 0; i < result.size(); ++i)
+      {
+        Map<String, T> p = result.get(i);
+        if (p instanceof MultiAncestorScope)
+        {
+          if (((MultiAncestorScope<T>) p).ancestors != null)
+          {
+            for (Map<String, T> ancestor : ((MultiAncestorScope<T>) p).ancestors)
+            {
+              if (!result.contains(ancestor))
+              {
+                result.add(ancestor);
+              }
+            }
+          }
+        }
+      }
+    }
+    return result;
+  }
+
+  /**
+   * @param map
+   * @return If map is an (not necessarily immediate) ancestor of this scope.
+   */
+  public boolean isAncestor(Map<String, T> map)
+  {
+    if (ancestors != null)
+    {
+      List<Map<String, T>> allAncestors = allAncestors();
+      return allAncestors.contains(map);
+    }
+    return false;
+  }
+
   public void addAncestor(Map<String, T> ancestor)
   {
-    if (ancestor != null && ancestor != this)
+    if (ancestor != null && ancestor != this && !isAncestor(ancestor))
     {
       this.ancestors().add(ancestor);
     }
@@ -94,7 +164,7 @@ public class MultiAncestorScope<T> implements Map<String, T>
     }
   }
 
-  public void removeAncestor(Map<String, T> ancestor)
+  public void removeImmediateAncestor(Map<String, T> ancestor)
   {
     if (ancestors != null)
     {
@@ -105,31 +175,35 @@ public class MultiAncestorScope<T> implements Map<String, T>
   @Override
   public int size()
   {
-    return local.size();
+    return local == null ? 0 : local.size();
   }
 
   @Override
   public boolean isEmpty()
   {
-    return local.isEmpty();
+    return local == null ? true : local.isEmpty();
   }
 
   @Override
-  public Set<Map.Entry<String, T>> entrySet()
+  public Set<Entry<String, T>> entrySet()
   {
-    return local.entrySet();
+    Set<? extends Entry<String, ? extends Object>> result =
+        local == null ? EMPTY_HASH_MAP.entrySet() : local.entrySet();
+    return (Set<Entry<String, T>>) result;
   }
 
   @Override
   public Set<String> keySet()
   {
-    return local.keySet();
+    return local == null ? EMPTY_HASH_MAP.keySet() : local.keySet();
   }
 
   @Override
   public Collection<T> values()
   {
-    return local.values();
+    Collection<? extends Object> result =
+        local == null ? EMPTY_HASH_MAP.values() : local.values();
+    return (Collection<T>) result;
   }
 
   /**
@@ -140,17 +214,31 @@ public class MultiAncestorScope<T> implements Map<String, T>
   @Override
   public boolean containsKey(Object key)
   {
-    if (local.containsKey(key))
+    if (key != null)
     {
-      return true;
-    }
-    if (ancestors != null)
-    {
-      for (Map<String, T> ancestor : ancestors)
+      if (local != null && local.containsKey(key))
       {
-        if (ancestor.containsKey(key))
+        return true;
+      }
+      if (ancestors != null)
+      {
+        List<Map<String, T>> allAncestors = allAncestors();
+        for (Map<String, T> ancestor : allAncestors)
         {
-          return true;
+          if (ancestor instanceof MultiAncestorScope)
+          {
+            if (((MultiAncestorScope<T>) ancestor).containsKeyLocally(key))
+            {
+              return true;
+            }
+          }
+          else
+          {
+            if (ancestor.containsKey(key))
+            {
+              return true;
+            }
+          }
         }
       }
     }
@@ -165,17 +253,28 @@ public class MultiAncestorScope<T> implements Map<String, T>
   @Override
   public boolean containsValue(Object value)
   {
-    if (local.containsValue(value))
+    if (local != null && local.containsValue(value))
     {
       return true;
     }
     if (ancestors != null)
     {
-      for (Map<String, T> ancestor : ancestors)
+      List<Map<String, T>> allAncestors = allAncestors();
+      for (Map<String, T> ancestor : allAncestors)
       {
-        if (ancestor.containsValue(value))
+        if (ancestor instanceof MultiAncestorScope)
         {
-          return true;
+          if (((MultiAncestorScope<T>) ancestor).containsValueLocally((T) value))
+          {
+            return true;
+          }
+        }
+        else
+        {
+          if (ancestor.containsValue(value))
+          {
+            return true;
+          }
         }
       }
     }
@@ -190,17 +289,31 @@ public class MultiAncestorScope<T> implements Map<String, T>
   @Override
   public T get(Object key)
   {
-    if (containsKeyLocally(key))
+    if (key != null)
     {
-      return local.get(key);
-    }
-    if (ancestors != null)
-    {
-      for (Map<String, T> ancestor : ancestors)
+      if (containsKeyLocally(key))
       {
-        if (ancestor.containsKey(key))
+        return local.get(key);
+      }
+      if (ancestors != null)
+      {
+        List<Map<String, T>> allAncestors = allAncestors();
+        for (Map<String, T> ancestor : allAncestors)
         {
-          return ancestor.get(key);
+          if (ancestor instanceof MultiAncestorScope)
+          {
+            if (((MultiAncestorScope<T>) ancestor).containsKeyLocally(key))
+            {
+              return ((MultiAncestorScope<T>) ancestor).getLocally(key);
+            }
+          }
+          else
+          {
+            if (ancestor.containsKey(key))
+            {
+              return ancestor.get(key);
+            }
+          }
         }
       }
     }
@@ -218,17 +331,33 @@ public class MultiAncestorScope<T> implements Map<String, T>
   public List<T> getAll(Object key)
   {
     List<T> result = new ArrayList<T>();
-    if (local.containsKey(key))
+    if (key != null)
     {
-      result.add(local.get(key));
-    }
-    if (ancestors != null)
-    {
-      for (Map<String, T> ancestor : ancestors)
+      if (local != null && local.containsKey(key))
       {
-        if (ancestor.containsKey(key))
+        result.add(local.get(key));
+      }
+      if (ancestors != null)
+      {
+        List<Map<String, T>> allAncestors = allAncestors();
+        for (Map<String, T> ancestor : allAncestors)
         {
-          result.add(ancestor.get(key));
+          if (ancestor instanceof MultiAncestorScope)
+          {
+            if (((MultiAncestorScope<T>) ancestor).containsKeyLocally(key))
+            {
+              T value = ((MultiAncestorScope<T>) ancestor).getLocally(key);
+              result.add(value);
+            }
+          }
+          else
+          {
+            if (ancestor.containsKey(key))
+            {
+              T value = ancestor.get(key);
+              result.add(value);
+            }
+          }
         }
       }
     }
@@ -238,7 +367,15 @@ public class MultiAncestorScope<T> implements Map<String, T>
   @Override
   public T put(String key, T value)
   {
-    return local.put(key, value);
+    if (key != null)
+    {
+      if (local == null)
+      {
+        local = new HashMap<String, T>();
+      }
+      return local.put(key, value);
+    }
+    return null;
   }
 
   /**
@@ -247,40 +384,48 @@ public class MultiAncestorScope<T> implements Map<String, T>
    * @param key
    * @param value
    */
-  public void putIfValueNotNull(String key, T value)
+  public T putIfValueNotNull(String key, T value)
   {
-    if (value != null)
+    if (key != null && value != null)
     {
-      put(key, value);
+      return put(key, value);
     }
+    return null;
   }
 
   @Override
   public void putAll(Map<? extends String, ? extends T> m)
   {
+    if (local == null)
+    {
+      local = new HashMap<String, T>();
+    }
     local.putAll(m);
   }
 
   @Override
   public T remove(Object key)
   {
-    return local.remove(key);
+    return local == null ? null : key == null ? null : local.remove(key);
   }
 
   @Override
   public void clear()
   {
-    local.clear();
+    if (local != null)
+    {
+      local.clear();
+    }
   }
 
   public boolean containsKeyLocally(Object key)
   {
-    return local.containsKey(key);
+    return local == null ? false : key == null ? null : local.containsKey(key);
   }
 
   public boolean containsValueLocally(T value)
   {
-    return local.containsValue(value);
+    return local == null ? false : local.containsValue(value);
   }
 
   /**
@@ -291,19 +436,20 @@ public class MultiAncestorScope<T> implements Map<String, T>
    */
   public T getLocally(Object key)
   {
-    return local.get(key);
+    return local == null ? null : key == null ? null : local.get(key);
   }
 
   @Override
   public String toString()
   {
     StringBuilder sb = StringBuilderBaseUtils.acquire();
-    sb.append(this.getClass().getSimpleName()).append("[size: ").append(this.size()).append("]: ")
-        .append(super.toString());
-
-    if (this.ancestors != null && this.ancestors.size() > 0)
+    sb.append(getClass().getSimpleName())
+        .append("[").append(id == null ? "noid" : id)
+        .append(",size=").append(size()).append("]: ")
+        .append(local == null ? "{}" : local);
+    if (ancestors != null && ancestors.size() > 0)
     {
-      for (Map<String, T> ancestor : this.ancestors)
+      for (Map<String, T> ancestor : ancestors)
       {
         if (ancestor != null)
         {
@@ -313,7 +459,6 @@ public class MultiAncestorScope<T> implements Map<String, T>
         }
       }
     }
-
     String result = sb.toString();
     StringBuilderBaseUtils.release(sb);
     return result;
@@ -321,8 +466,9 @@ public class MultiAncestorScope<T> implements Map<String, T>
 
   public void reset()
   {
-    this.ancestors = null;
-    local.clear();
+    id = null;
+    local = null;
+    ancestors = null;
   }
 
   /**
@@ -331,19 +477,18 @@ public class MultiAncestorScope<T> implements Map<String, T>
   public static void main(String[] args)
   {
     // inheritance relation:
-    // s1(1, 2) -> s2(3) -> s4(5)
-    // \-> s3() /
-    MultiAncestorScope<Integer> s1 = new MultiAncestorScope<Integer>();
+    // s4 -> s2 -----------> s1
+    // \---> s3(nolocal) -/
+    MultiAncestorScope<Integer> s1 = new MultiAncestorScope<Integer>("s1");
     s1.put("one", 1);
     s1.put("two", 2);
 
-    MultiAncestorScope<Integer> s2 = new MultiAncestorScope<Integer>(0, s1);
+    MultiAncestorScope<Integer> s2 = new MultiAncestorScope<Integer>("s2", s1);
     s2.put("three", 3);
 
-    MultiAncestorScope<Integer> s3 = new MultiAncestorScope<Integer>(0, s1);
-    // s3.put("four", 4);
+    MultiAncestorScope<Integer> s3 = new MultiAncestorScope<Integer>("s3", s1);
 
-    MultiAncestorScope<Integer> s4 = new MultiAncestorScope<Integer>(0, s2, s3);
+    MultiAncestorScope<Integer> s4 = new MultiAncestorScope<Integer>("s4", s2, s3);
     s4.put("five", 5);
 
     System.out.println(s4);
