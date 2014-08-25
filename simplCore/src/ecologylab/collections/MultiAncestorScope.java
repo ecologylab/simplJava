@@ -98,37 +98,31 @@ public class MultiAncestorScope<T> implements Map<String, T>
   }
 
   /**
-   * @return All ancestors using BFS. This is used to prevent infinite loops with ancestors.
+   * @return All ancestors using DFS. This is used to prevent infinite loops with ancestors.
    */
   protected List<Map<String, T>> allAncestors()
   {
     List<Map<String, T>> result = new ArrayList<Map<String, T>>();
-    if (ancestors != null)
-    {
-      for (Map<String, T> ancestor : ancestors)
-      {
-        result.add(ancestor);
-      }
+    allAncestorsHelper(result, this);
+    return result;
+  }
 
-      for (int i = 0; i < result.size(); ++i)
+  private void allAncestorsHelper(List<Map<String, T>> result, MultiAncestorScope<T> scope)
+  {
+    if (scope.ancestors != null)
+    {
+      for (Map<String, T> ancestor : scope.ancestors)
       {
-        Map<String, T> p = result.get(i);
-        if (p instanceof MultiAncestorScope)
+        if (!result.contains(ancestor))
         {
-          if (((MultiAncestorScope<T>) p).ancestors != null)
+          result.add(ancestor);
+          if (ancestor instanceof MultiAncestorScope)
           {
-            for (Map<String, T> ancestor : ((MultiAncestorScope<T>) p).ancestors)
-            {
-              if (!result.contains(ancestor))
-              {
-                result.add(ancestor);
-              }
-            }
+            allAncestorsHelper(result, (MultiAncestorScope<T>) ancestor);
           }
         }
       }
     }
-    return result;
   }
 
   /**
