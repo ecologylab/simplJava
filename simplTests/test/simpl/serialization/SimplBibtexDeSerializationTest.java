@@ -1,4 +1,4 @@
-package simplTestCasesDeSerializationTest;
+package simpl.serialization;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;

@@ -1,4 +1,4 @@
-package simplTestCasesDeSerializationTest;
+package simpl.serialization;
 
 import ecologylab.serialization.SIMPLTranslationException;
 import ecologylab.serialization.SimplTypesScope;

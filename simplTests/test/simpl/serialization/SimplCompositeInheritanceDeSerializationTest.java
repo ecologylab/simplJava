@@ -1,4 +1,4 @@
-package simplTestCasesDeSerializationTest;
+package simpl.serialization;
 
 import static org.junit.Assert.*;
 import static org.junit.Assert.assertTrue;
