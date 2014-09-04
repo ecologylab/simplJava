@@ -165,14 +165,14 @@ public class JavaTranslator extends AbstractCodeTranslator implements JavaTransl
 				debug("Excluding " + classDesc + " from translation as requested");
 				continue;
 			}
-			translate(classDesc, directoryLocation, config);
+			translate(directoryLocation, classDesc, config);
 		}
 		generateLibraryTScopeClass(directoryLocation, tScope, config.getLibraryTScopeClassPackage(), config.getLibraryTScopeClassSimpleName());
 		System.out.println("DONE !");
 	}
 
 	@Override
-	public void translate(ClassDescriptor inputClass, File directoryLocation, CodeTranslatorConfig config)
+	public void translate(File destDir, ClassDescriptor inputClass, CodeTranslatorConfig config)
 			throws IOException, JavaTranslationException
 	{
 		String packageName = inputClass.getDescribedClassPackageName();
@@ -182,7 +182,7 @@ public class JavaTranslator extends AbstractCodeTranslator implements JavaTransl
 		if (this.typesScopeName == null)
 			this.typesScopeName = packageName + "." + classSimpleName + "_simpl_types_scope";
 		File outputFile = createFileWithDirStructure(
-				directoryLocation,
+				destDir,
 				packageName.split(PACKAGE_NAME_SEPARATOR),
 				classSimpleName,
 				FILE_EXTENSION

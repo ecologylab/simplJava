@@ -91,7 +91,7 @@ public class DotNetTranslator extends AbstractCodeTranslator implements DotNetTr
 				debug("Excluding " + classDesc + "from translation as requested.");
 				continue;
 			}
-			translate(classDesc, directoryLocation, config);
+			translate(directoryLocation, classDesc, config);
 		}
 		String libraryTScopeNamespace = javaPackage2CSharpNamespace(config.getLibraryTScopeClassPackage());
 		generateLibraryTScopeClass(directoryLocation, tScope, libraryTScopeNamespace, config.getLibraryTScopeClassSimpleName());
@@ -99,13 +99,13 @@ public class DotNetTranslator extends AbstractCodeTranslator implements DotNetTr
 	}
 
 	@Override
-	public void translate(ClassDescriptor inputClass, File directoryLocation, CodeTranslatorConfig config)
+	public void translate(File destDir, ClassDescriptor inputClass, CodeTranslatorConfig config)
 			throws IOException, DotNetTranslationException
 	{
 		debug("Generating C# class: " + inputClass.getDescribedClassName() + "...");
 		this.config = config;
 		File outputFile = createFileWithDirStructure(
-				directoryLocation,
+				destDir,
       	getGeneratedClassFileDirStructure(inputClass),
 				inputClass.getDescribedClassSimpleName(),
 				FILE_EXTENSION
