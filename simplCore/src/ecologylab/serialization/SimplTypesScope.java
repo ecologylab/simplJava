@@ -188,6 +188,8 @@ public final class SimplTypesScope extends ElementState
 			int n = inheritedSimplTypesScopes.length;
 			for (int i = 0; i < n; i++)
 				addTranslations(inheritedSimplTypesScopes[i]);
+			System.out.println("");
+			debug("... Finished initializing inherited SimplTypesScopes...\n");
 		}
 	}
 
@@ -931,7 +933,9 @@ public final class SimplTypesScope extends ElementState
 			{
 				result = lookup(name);
 				if (result == null)
+				{
 					result = new SimplTypesScope(name, translations);
+				}
 			}
 		}
 		return result;
@@ -1260,7 +1264,11 @@ public final class SimplTypesScope extends ElementState
 			{
 				// TODO: Concurrency? yo. 
 				allTypesScopes.put(name, this);
-			}else{
+				System.out.println("");
+				debug("... Initializing ...");
+			}
+			else
+			{
 				//throw new RuntimeException("OH NO EVERYTHING IS AMISS FOR: " + name);
 			}
 		}

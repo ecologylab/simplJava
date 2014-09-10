@@ -470,6 +470,10 @@ public class FieldDescriptor extends DescriptorBase implements IMappable<String>
 	{
 		println(scopeAnnotation);
 		SimplTypesScope scope = SimplTypesScope.get(scopeAnnotation);
+		if (scope == null)
+		{	// syntactic sugar on name of scope
+			scope = SimplTypesScope.get(scopeAnnotation + "_types_scope");
+		}
 		if (scope != null)
 		{
 			Collection<ClassDescriptor<? extends FieldDescriptor>> scopeClassDescriptors = scope
