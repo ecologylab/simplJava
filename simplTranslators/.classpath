@@ -3,7 +3,6 @@
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="src" path="test"/>
 	<classpathentry kind="src" path="resources"/>
-	<classpathentry kind="src" path="newsrc"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/simplCore"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/simplSunSpecifics"/>
 	<classpathentry kind="lib" path="/simpl-lib/ST-4.0.7.jar"/>
