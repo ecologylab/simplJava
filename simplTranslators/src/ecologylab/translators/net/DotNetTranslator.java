@@ -64,9 +64,13 @@ public class DotNetTranslator extends AbstractCodeTranslator implements DotNetTr
 	
 	protected CodeTranslatorConfig			config;
 	
+	private Set<String>                 classSimpleNames;
+	
 	public DotNetTranslator()
 	{
 		super("csharp");
+		
+		classSimpleNames = new HashSet<String>();
 		
 		addGlobalDependency("System");
 		addGlobalDependency("System.Collections");
@@ -84,6 +88,10 @@ public class DotNetTranslator extends AbstractCodeTranslator implements DotNetTr
 		debug("Generating C# classes ...");
 		this.config = config;
 		Collection<ClassDescriptor<? extends FieldDescriptor>> classes = tScope.entriesByClassName().values();
+		for (ClassDescriptor classDesc : classes)
+		{
+		  classSimpleNames.add(classDesc.getDescribedClassSimpleName());
+		}
 		for (ClassDescriptor classDesc : classes)
 		{
 			if (excludeClassesFromTranslation.contains(classDesc))
@@ -114,6 +122,16 @@ public class DotNetTranslator extends AbstractCodeTranslator implements DotNetTr
 		translate(inputClass, implementMappableInterface, bufferedWriter);
 		bufferedWriter.close();
 		debug("done.");
+	}
+	
+	protected Set<String> getClassSimpleNames()
+	{
+	  return classSimpleNames;
+	}
+	
+	protected boolean isSimpleClassName(String name)
+	{
+	  return classSimpleNames != null && classSimpleNames.contains(name);
 	}
 	
 	protected String[] getGeneratedClassFileDirStructure(ClassDescriptor inputClass)
