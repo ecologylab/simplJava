@@ -119,6 +119,13 @@ public class JSONSerializer extends StringSerializer implements FieldTypes
 			
 		ArrayList<? extends FieldDescriptor> attributeFieldDescriptors = classDescriptor.attributeFieldDescriptors();
 		int numOfFields = serializeFieldsHelper(appendable, object, translationContext, attributeFieldDescriptors, 0);
+		
+		if (classDescriptor.getScalarTextFD() != null){
+			ArrayList<FieldDescriptor> textFieldDescriptors = new ArrayList<FieldDescriptor>();
+			textFieldDescriptors.add(classDescriptor.getScalarTextFD());
+			numOfFields += serializeFieldsHelper(appendable, object, translationContext, textFieldDescriptors, numOfFields);
+		}
+		
 		ArrayList<? extends FieldDescriptor> elementFieldDescriptors = classDescriptor.elementFieldDescriptors();
 		serializeFieldsHelper(appendable, object, translationContext, elementFieldDescriptors,numOfFields);
 	}
