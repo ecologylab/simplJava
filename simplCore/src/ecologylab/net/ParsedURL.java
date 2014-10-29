@@ -81,6 +81,8 @@ public class ParsedURL extends Debug implements MimeType
 	
 	protected boolean						includePrefix												= true;
 	
+	private String              fragment;
+	
 	public static CookieManager cookieManager = new CookieManager();
 	
 	static
@@ -90,6 +92,11 @@ public class ParsedURL extends Debug implements MimeType
 	}
 	
 	public ParsedURL(URL url)
+	{
+	  this(url, false);
+	}
+	
+	public ParsedURL(URL url, boolean keepFragment)
 	{
 		String hash = url.getRef();
 		
@@ -111,9 +118,10 @@ public class ParsedURL extends Debug implements MimeType
 			this.url = url;
 			this.hashUrl = url;
 		}
-		else
+		else if (!keepFragment)
 		{
 			this.hashUrl = url;
+			this.fragment = hash;
 			try
 			{
 				// form no hash url (toss hash)
@@ -124,6 +132,11 @@ public class ParsedURL extends Debug implements MimeType
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
+		}
+		else
+		{
+		  this.url = url;
+		  this.fragment = hash;
 		}
 	}
 
@@ -177,22 +190,35 @@ public class ParsedURL extends Debug implements MimeType
 	{
 		return getAbsolute(webAddr, "getAbsolute(String) ");
 	}
+	
+	public static ParsedURL getAbsoluteWithFragment(String webAddr)
+	{
+	  return getAbsolute(webAddr, true, "getAbsoluteWithFragment(String) ");
+	}
 
 	public static ParsedURL get(URI uri)
 	{
 		return getAbsolute(uri.toString());
 	}
+	
+	public static ParsedURL getAbsolute(String webAddr, String errorDescriptor)
+	{
+	  return getAbsolute(webAddr, false, errorDescriptor);
+	}
+
 	/**
 	 * Create a PURL from an absolute address.
 	 * 
 	 * @param webAddr
 	 *          url string
+	 * @param keepFragment
+	 *          if the ParsedURL object should keep the fragment (hash) of the input web address.
 	 * @param errorDescriptor
 	 *          which will be printed out in the trace file if there is something happen converting
 	 *          from the url string to URL.
 	 * @return ParsedURL from url string parameter named webAddr, or null if the param is malformed.
 	 */
-	public static ParsedURL getAbsolute(String webAddr, String errorDescriptor)
+	public static ParsedURL getAbsolute(String webAddr, boolean keepFragment, String errorDescriptor)
 	{
 		if (webAddr == null || webAddr.length() <= 7)
 		{
@@ -206,7 +232,7 @@ public class ParsedURL extends Debug implements MimeType
 				URL url = new URL(webAddr);
 				if (isUndetectedMalformedURL(url))
 					return null;
-				return new ParsedURL(url);
+				return new ParsedURL(url, keepFragment);
 			}
 			catch (MalformedURLException e)
 			{
@@ -282,16 +308,22 @@ public class ParsedURL extends Debug implements MimeType
 		return getRelative(relativeURLPath, "");
 	}
 
+	public static ParsedURL getRelative(URL base, String relativeURLPath, String errorDescriptor)
+	{
+	  return getRelative(base, relativeURLPath, false, errorDescriptor);
+	}
+
 	/**
 	 * Form a new ParsedURL, relative from a supplied base URL. Checks to see if the relativePath
 	 * starts w a protocol spec. If so, calls getAbsolute(). Otherwise, forms a relative URL using the
 	 * URL base.
 	 * 
 	 * @param relativeURLPath
+	 * @param keepFragment
 	 * @param errorDescriptor
 	 * @return New ParsedURL
 	 */
-	public static ParsedURL getRelative(URL base, String relativeURLPath, String errorDescriptor)
+	public static ParsedURL getRelative(URL base, String relativeURLPath, boolean keepFragment, String errorDescriptor)
 	{
 		if (relativeURLPath == null)
 			return null;
@@ -302,7 +334,7 @@ public class ParsedURL extends Debug implements MimeType
 			try
 			{
 				URL resultURL = new URL(base, relativeURLPath);
-				result = new ParsedURL(resultURL);
+				result = new ParsedURL(resultURL, keepFragment);
 			}
 			catch (MalformedURLException e)
 			{
@@ -313,7 +345,7 @@ public class ParsedURL extends Debug implements MimeType
 			}
 		}
 		else
-			return getAbsolute(relativeURLPath, errorDescriptor);
+			return getAbsolute(relativeURLPath, keepFragment, errorDescriptor);
 
 		return result;
 	}
@@ -1144,6 +1176,11 @@ public class ParsedURL extends Debug implements MimeType
 	{
 		return (url == null) ? null : url.getFile();
 	}
+	
+	public String pathNoQuery()
+	{
+	  return url.getPath();
+	}
 
 	/**
 	 * Return true if the other object is either a ParsedURL or a URL that refers to the same location
@@ -1556,4 +1593,10 @@ public class ParsedURL extends Debug implements MimeType
 	{
 		this.includePrefix = includePrefix;
 	}
+
+  public String fragment()
+  {
+    return fragment == null ? url.getRef() : fragment;
+  }
+
 }
