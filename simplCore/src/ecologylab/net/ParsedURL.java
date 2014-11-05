@@ -49,11 +49,6 @@ public class ParsedURL extends Debug implements MimeType
 	File												file;
 
 	/**
-	 * URL with hash, that is, a reference to an anchor within the document.
-	 */
-	protected URL								hashUrl															= null;
-
-	/**
 	 * Directory that the document referred to by the URL resides in.
 	 */
 	protected URL								directory														= null;
@@ -93,11 +88,6 @@ public class ParsedURL extends Debug implements MimeType
 	
 	public ParsedURL(URL url)
 	{
-	  this(url, false);
-	}
-	
-	public ParsedURL(URL url, boolean keepFragment)
-	{
 		String hash = url.getRef();
 		
 		if ("file".equals(url.getProtocol()))
@@ -112,26 +102,6 @@ public class ParsedURL extends Debug implements MimeType
 				this.file = new File(url.getHost()+url.getPath());
 			}
 			this.url 	= url;
-		}
-		else if (hash == null)
-		{
-			this.url = url;
-			this.hashUrl = url;
-		}
-		else if (!keepFragment)
-		{
-			this.hashUrl = url;
-			this.fragment = hash;
-			try
-			{
-				// form no hash url (toss hash)
-				this.url = new URL(url.getProtocol(), url.getHost(), url.getPort(), url.getFile());
-			}
-			catch (MalformedURLException e)
-			{
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
 		}
 		else
 		{
@@ -191,34 +161,22 @@ public class ParsedURL extends Debug implements MimeType
 		return getAbsolute(webAddr, "getAbsolute(String) ");
 	}
 	
-	public static ParsedURL getAbsoluteWithFragment(String webAddr)
-	{
-	  return getAbsolute(webAddr, true, "getAbsoluteWithFragment(String) ");
-	}
-
 	public static ParsedURL get(URI uri)
 	{
 		return getAbsolute(uri.toString());
 	}
 	
-	public static ParsedURL getAbsolute(String webAddr, String errorDescriptor)
-	{
-	  return getAbsolute(webAddr, false, errorDescriptor);
-	}
-
 	/**
 	 * Create a PURL from an absolute address.
 	 * 
 	 * @param webAddr
 	 *          url string
-	 * @param keepFragment
-	 *          if the ParsedURL object should keep the fragment (hash) of the input web address.
 	 * @param errorDescriptor
 	 *          which will be printed out in the trace file if there is something happen converting
 	 *          from the url string to URL.
 	 * @return ParsedURL from url string parameter named webAddr, or null if the param is malformed.
 	 */
-	public static ParsedURL getAbsolute(String webAddr, boolean keepFragment, String errorDescriptor)
+	public static ParsedURL getAbsolute(String webAddr, String errorDescriptor)
 	{
 		if (webAddr == null || webAddr.length() <= 7)
 		{
@@ -232,7 +190,7 @@ public class ParsedURL extends Debug implements MimeType
 				URL url = new URL(webAddr);
 				if (isUndetectedMalformedURL(url))
 					return null;
-				return new ParsedURL(url, keepFragment);
+				return new ParsedURL(url);
 			}
 			catch (MalformedURLException e)
 			{
@@ -308,22 +266,16 @@ public class ParsedURL extends Debug implements MimeType
 		return getRelative(relativeURLPath, "");
 	}
 
-	public static ParsedURL getRelative(URL base, String relativeURLPath, String errorDescriptor)
-	{
-	  return getRelative(base, relativeURLPath, false, errorDescriptor);
-	}
-
 	/**
 	 * Form a new ParsedURL, relative from a supplied base URL. Checks to see if the relativePath
 	 * starts w a protocol spec. If so, calls getAbsolute(). Otherwise, forms a relative URL using the
 	 * URL base.
 	 * 
 	 * @param relativeURLPath
-	 * @param keepFragment
 	 * @param errorDescriptor
 	 * @return New ParsedURL
 	 */
-	public static ParsedURL getRelative(URL base, String relativeURLPath, boolean keepFragment, String errorDescriptor)
+	public static ParsedURL getRelative(URL base, String relativeURLPath, String errorDescriptor)
 	{
 		if (relativeURLPath == null)
 			return null;
@@ -334,7 +286,7 @@ public class ParsedURL extends Debug implements MimeType
 			try
 			{
 				URL resultURL = new URL(base, relativeURLPath);
-				result = new ParsedURL(resultURL, keepFragment);
+				result = new ParsedURL(resultURL);
 			}
 			catch (MalformedURLException e)
 			{
@@ -345,7 +297,9 @@ public class ParsedURL extends Debug implements MimeType
 			}
 		}
 		else
-			return getAbsolute(relativeURLPath, keepFragment, errorDescriptor);
+		{
+			return getAbsolute(relativeURLPath, errorDescriptor);
+		}
 
 		return result;
 	}
@@ -597,12 +551,7 @@ public class ParsedURL extends Debug implements MimeType
 
 	public final URL hashUrl()
 	{
-
-		if (hashUrl == null)
-			return url();
-		else
-			return hashUrl;
-
+    return url();
 	}
 
 	/*
@@ -1418,9 +1367,6 @@ public class ParsedURL extends Debug implements MimeType
 			this.directoryPURL.recycle();
 			this.directoryPURL = null;
 		}
-
-		// TODO -- is this too agressive?!
-		this.hashUrl = null;
 	}
 
 	/**
