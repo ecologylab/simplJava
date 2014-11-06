@@ -445,6 +445,10 @@ public class FieldDescriptor extends DescriptorBase implements IMappable<String>
 		String classTag = classDescriptor.getTagName();
 		polymorphClassDescriptors.put(classTag, classDescriptor);
 		tlvClassDescriptors.put(classTag.hashCode(), classDescriptor);
+		if (classDescriptor.getDescribedClass() != null)
+		{
+			polymorphClasses.put(classTag, classDescriptor.getDescribedClass());
+		}
 
 		ArrayList<String> otherTags = classDescriptor.otherTags();
 		if (otherTags != null)
@@ -481,10 +485,7 @@ public class FieldDescriptor extends DescriptorBase implements IMappable<String>
 			initPolymorphClassDescriptorsArrayList(scopeClassDescriptors.size());
 			for (ClassDescriptor<? extends FieldDescriptor> classDescriptor : scopeClassDescriptors)
 			{
-				String tagName = classDescriptor.getTagName();
-				polymorphClassDescriptors.put(tagName, classDescriptor);
-				polymorphClasses.put(tagName, classDescriptor.getDescribedClass());
-				tlvClassDescriptors.put(tagName.hashCode(), classDescriptor);
+			    registerPolymorphicDescriptor(classDescriptor);
 			}
 		}
 		else
