@@ -49,11 +49,6 @@ public class ParsedURL extends Debug implements MimeType
 	File												file;
 
 	/**
-	 * URL with hash, that is, a reference to an anchor within the document.
-	 */
-	protected URL								hashUrl															= null;
-
-	/**
 	 * Directory that the document referred to by the URL resides in.
 	 */
 	protected URL								directory														= null;
@@ -81,6 +76,8 @@ public class ParsedURL extends Debug implements MimeType
 	
 	protected boolean						includePrefix												= true;
 	
+	private String              fragment;
+	
 	public static CookieManager cookieManager = new CookieManager();
 	
 	static
@@ -106,24 +103,10 @@ public class ParsedURL extends Debug implements MimeType
 			}
 			this.url 	= url;
 		}
-		else if (hash == null)
-		{
-			this.url = url;
-			this.hashUrl = url;
-		}
 		else
 		{
-			this.hashUrl = url;
-			try
-			{
-				// form no hash url (toss hash)
-				this.url = new URL(url.getProtocol(), url.getHost(), url.getPort(), url.getFile());
-			}
-			catch (MalformedURLException e)
-			{
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
+		  this.url = url;
+		  this.fragment = hash;
 		}
 	}
 
@@ -177,11 +160,12 @@ public class ParsedURL extends Debug implements MimeType
 	{
 		return getAbsolute(webAddr, "getAbsolute(String) ");
 	}
-
+	
 	public static ParsedURL get(URI uri)
 	{
 		return getAbsolute(uri.toString());
 	}
+	
 	/**
 	 * Create a PURL from an absolute address.
 	 * 
@@ -313,7 +297,9 @@ public class ParsedURL extends Debug implements MimeType
 			}
 		}
 		else
+		{
 			return getAbsolute(relativeURLPath, errorDescriptor);
+		}
 
 		return result;
 	}
@@ -565,12 +551,7 @@ public class ParsedURL extends Debug implements MimeType
 
 	public final URL hashUrl()
 	{
-
-		if (hashUrl == null)
-			return url();
-		else
-			return hashUrl;
-
+    return url();
 	}
 
 	/*
@@ -1144,6 +1125,11 @@ public class ParsedURL extends Debug implements MimeType
 	{
 		return (url == null) ? null : url.getFile();
 	}
+	
+	public String pathNoQuery()
+	{
+	  return url.getPath();
+	}
 
 	/**
 	 * Return true if the other object is either a ParsedURL or a URL that refers to the same location
@@ -1381,9 +1367,6 @@ public class ParsedURL extends Debug implements MimeType
 			this.directoryPURL.recycle();
 			this.directoryPURL = null;
 		}
-
-		// TODO -- is this too agressive?!
-		this.hashUrl = null;
 	}
 
 	/**
@@ -1556,4 +1539,10 @@ public class ParsedURL extends Debug implements MimeType
 	{
 		this.includePrefix = includePrefix;
 	}
+
+  public String fragment()
+  {
+    return fragment == null ? url.getRef() : fragment;
+  }
+
 }
