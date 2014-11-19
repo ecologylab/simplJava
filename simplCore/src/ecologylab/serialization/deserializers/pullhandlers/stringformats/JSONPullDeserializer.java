@@ -276,16 +276,19 @@ public class JSONPullDeserializer extends StringPullDeserializer
 				case COMPOSITE_ELEMENT:
 					jp.nextToken();
 
-					String tagName = jp.getCurrentName();
-					subRoot = getSubRoot(currentFieldDescriptor, tagName);
-
-					ClassDescriptor subRootClassDescriptor = currentFieldDescriptor
-							.getChildClassDescriptor(tagName);
-
-					// if (subRoot != null)
-					// subRoot.setupInParent(root, subRootClassDescriptor);
-
-					currentFieldDescriptor.setFieldToComposite(root, subRoot);
+					if (currentFieldDescriptor.isPolymorphic())
+					{
+    					jp.nextToken();  // FIELD_NAME (which indicates the type)
+    					jp.nextToken();  // START_OBJECT
+						
+						subRoot = deserializeComposite(root, currentFieldDescriptor);
+						
+						jp.nextToken();  // END_OBJECT
+					}
+					else
+					{
+						subRoot = deserializeComposite(root, currentFieldDescriptor);	
+					}
 					break;
 				case COLLECTION_ELEMENT:
 					jp.nextToken();
@@ -301,10 +304,7 @@ public class JSONPullDeserializer extends StringPullDeserializer
 							jp.nextToken();
 							jp.nextToken();
 
-							subRoot = getSubRoot(currentFieldDescriptor, jp.getCurrentName());
-							Collection collection = (Collection) currentFieldDescriptor
-									.automaticLazyGetCollectionOrMap(root);
-							collection.add(subRoot);
+							subRoot = deserializeCollectionElement(root, currentFieldDescriptor);
 
 							jp.nextToken();
 							jp.nextToken();
@@ -314,10 +314,7 @@ public class JSONPullDeserializer extends StringPullDeserializer
 					{
 							while (jp.nextToken() != JsonToken.END_ARRAY)
 							{
-								subRoot = getSubRoot(currentFieldDescriptor, jp.getCurrentName());
-								Collection collection = (Collection) currentFieldDescriptor
-										.automaticLazyGetCollectionOrMap(root);
-								collection.add(subRoot);
+								subRoot = deserializeCollectionElement(root, currentFieldDescriptor);
 							}
 					}
 					break;
@@ -406,6 +403,34 @@ public class JSONPullDeserializer extends StringPullDeserializer
 		int debugContextLen = debugContext.length();
 		if (debugContextLen > 0)
   		debugContext.delete(debugContextLen - 4, debugContextLen);
+	}
+
+	private Object deserializeCollectionElement(Object root,
+			FieldDescriptor currentFieldDescriptor)
+			throws SIMPLTranslationException, JsonParseException, IOException {
+		Object subRoot;
+		subRoot = getSubRoot(currentFieldDescriptor, jp.getCurrentName());
+		Collection collection = (Collection) currentFieldDescriptor
+				.automaticLazyGetCollectionOrMap(root);
+		collection.add(subRoot);
+		return subRoot;
+	}
+
+	private Object deserializeComposite(Object root,
+			FieldDescriptor currentFieldDescriptor) throws IOException,
+			JsonParseException, SIMPLTranslationException {
+		Object subRoot;
+		String tagName = jp.getCurrentName();
+		subRoot = getSubRoot(currentFieldDescriptor, tagName);
+
+		ClassDescriptor subRootClassDescriptor = currentFieldDescriptor
+				.getChildClassDescriptor(tagName);
+
+		// if (subRoot != null)
+		// subRoot.setupInParent(root, subRootClassDescriptor);
+
+		currentFieldDescriptor.setFieldToComposite(root, subRoot);
+		return subRoot;
 	}
 
 	/**
