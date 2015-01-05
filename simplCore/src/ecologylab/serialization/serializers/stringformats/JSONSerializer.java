@@ -404,7 +404,7 @@ public class JSONSerializer extends StringSerializer implements FieldTypes
 	private void writeWrap(FieldDescriptor fd, Appendable appendable, boolean close)
 			throws IOException
 	{
-		if (fd.isWrapped())
+		if (fd.isWrapped() || fd.isPolymorphic())
 		{
 			if (!close)
 			{
