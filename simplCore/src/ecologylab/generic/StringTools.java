@@ -12,7 +12,9 @@ import java.nio.charset.CharsetDecoder;
 import java.nio.charset.CoderResult;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -952,12 +954,17 @@ public class StringTools extends Debug
 	
 	public static String join(String delim, String... parts)
 	{
+	  return join(delim, Arrays.asList(parts));
+	}
+
+	public static String join(String delim, List<String> parts)
+	{
 	  StringBuilder sb = new StringBuilder();
-	  for (int i = 0; i < parts.length; ++i)
+	  for (int i = 0; i < parts.size(); ++i)
 	  {
 	    if (i > 0)
 	      sb.append(delim);
-      sb.append(parts[i]);
+      sb.append(parts.get(i));
 	  }
 	  return sb.toString();
 	}
