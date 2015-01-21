@@ -9,7 +9,7 @@ import java.util.Iterator;
  *
  * @param <E>
  */
-public class FilteredIterator<E> implements Iterator<E>
+public abstract class FilteredIterator<E> implements Iterator<E>
 {
 
   Iterator<E> iter;
@@ -18,8 +18,9 @@ public class FilteredIterator<E> implements Iterator<E>
 
   public FilteredIterator(Iterator<E> origIter)
   {
+    super();
     this.iter = origIter;
-    this.nextItem = this.iter.next();
+    findNextItem();
   }
 
   /**
@@ -27,11 +28,7 @@ public class FilteredIterator<E> implements Iterator<E>
    * @param element
    * @return True if element should be kept in the filtered iterator. False otherwise.
    */
-  protected boolean keepElement(E element)
-  {
-    // by default, not filtering anything.
-    return true;
-  }
+  abstract protected boolean keepElement(E element);
 
   @Override
   public boolean hasNext()
@@ -44,25 +41,23 @@ public class FilteredIterator<E> implements Iterator<E>
   {
     E result = nextItem;
 
-    while (true)
-    {
-      if (iter.hasNext())
-      {
-        E element = iter.next();
-        if (keepElement(element))
-        {
-          nextItem = element;
-          break;
-        }
-      }
-      else
-      {
-        nextItem = null;
-        break;
-      }
-    }
+    findNextItem();
 
     return result;
+  }
+
+  private void findNextItem()
+  {
+    nextItem = null;
+    while (iter.hasNext())
+    {
+      E element = iter.next();
+      if (keepElement(element))
+      {
+        nextItem = element;
+        return;
+      }
+    }
   }
 
 }
