@@ -60,4 +60,10 @@ public abstract class FilteredIterator<E> implements Iterator<E>
     }
   }
 
+  @Override
+  public void remove()
+  {
+    throw new UnsupportedOperationException("FilteredIterator.remove() is not supported.");
+  }
+
 }
