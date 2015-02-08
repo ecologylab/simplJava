@@ -44,6 +44,11 @@ public interface Site
    * @return If downloading information from this site is constrained by an interval.
    */
   boolean isDownloadingConstrained();
+  
+  /**
+   * @return The specified, minimum interval between downloading from this site, in millisecond.
+   */
+  long getDownloadInterval();
 
   /**
    * @return A decent interval between downloading from this site, in millisecond.

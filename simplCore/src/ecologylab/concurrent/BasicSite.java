@@ -168,7 +168,13 @@ class BasicSite extends ElementState implements IMappable<String>, Site
 		this.isDownloading	= true;
 		this.lastDownloadAt = System.currentTimeMillis();
 	}
-	
+
+  @Override
+  public long getDownloadInterval()
+  {
+    return (long) (minDownloadInterval * 1000);
+  }
+
 	/**
 	 * Swing delays between downloads for a site by a large margin. 
 	 * @return time in millis 

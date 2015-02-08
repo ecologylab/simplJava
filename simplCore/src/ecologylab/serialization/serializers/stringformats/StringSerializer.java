@@ -97,16 +97,7 @@ public abstract class StringSerializer extends FormatSerializer
 	public void serialize(Object object, final StringBuilder stringBuilder,
 			TranslationContext translationContext) throws SIMPLTranslationException
 	{
-		OutputStream outputStream = new OutputStream()
-		{
-			@Override
-			public void write(int b) throws IOException
-			{
-				stringBuilder.append((char) b);
-			}
-		};
-
-		serialize(object, (Appendable) new PrintStream(outputStream), translationContext);
+		serialize(object, (Appendable) stringBuilder, translationContext);
 	}
 
 	/**
