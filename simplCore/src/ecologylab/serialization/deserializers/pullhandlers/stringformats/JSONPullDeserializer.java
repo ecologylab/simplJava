@@ -192,13 +192,13 @@ public class JSONPullDeserializer extends StringPullDeserializer
 	private void createObjectModel(Object root, ClassDescriptor rootClassDescriptor)
 			throws JsonParseException, IOException, SIMPLTranslationException
 	{
-	  debug(debugContext.toString()
-	        + "createObjectModel("
-	        + (root == null ? "<null>" : root.toString())
-	        + ", "
-	        + (rootClassDescriptor == null ? "<null>" : rootClassDescriptor.toString())
-	        + ")");
-	  debugContext.append("----");
+//	  debug(debugContext.toString()
+//	        + "createObjectModel("
+//	        + (root == null ? "<null>" : root.toString())
+//	        + ", "
+//	        + (rootClassDescriptor == null ? "<null>" : rootClassDescriptor.toString())
+//	        + ")");
+//	  debugContext.append("----");
 	  
 		FieldDescriptor currentFieldDescriptor = null;
 		Object subRoot = null;
@@ -264,8 +264,8 @@ public class JSONPullDeserializer extends StringPullDeserializer
 				  jp.nextToken();
 				}
 				
-				String message = debugContext.toString() + "processing field " + currentFieldDescriptor.getName();
-        debug(message);
+//				String message = debugContext.toString() + "processing field " + currentFieldDescriptor.getName();
+//        debug(message);
 
 				switch (fieldType)
 				{
