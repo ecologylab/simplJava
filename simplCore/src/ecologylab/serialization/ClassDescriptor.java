@@ -1424,6 +1424,8 @@ public class ClassDescriptor<FD extends FieldDescriptor> extends DescriptorBase
 		if (oldFD != null)
 			getAllFieldDescriptorsByTagNames().remove(oldFD.getTagName());
 		getAllFieldDescriptorsByTagNames().put(newFD.getTagName(), newFD);
+		fieldDescriptorsByFieldName.put(newFD.getName(), newFD);
+		declaredFieldDescriptorsByFieldName.put(newFD.getName(), newFD);
 		// for serialization:
 		if (oldFD != null) {
 			replace(attributeFieldDescriptors, oldFD, newFD);

@@ -1145,7 +1145,8 @@ public class FieldDescriptor extends DescriptorBase implements IMappable<String>
 
 	public Collection getCollection(Object context)
 	{
-		return (Collection) ReflectionTools.getFieldValue(context, field);
+		Object fieldValue = ReflectionTools.getFieldValue(context, field);
+    return fieldValue instanceof Collection ? (Collection) fieldValue : null;
 	}
 
 	public boolean isMixin()
