@@ -70,6 +70,8 @@ public interface Site
    */
   void setAbnormallyLongNextAvailableTime();
 
+  int getMaxDownloaders();
+
   // ****************************************************************
   // *                           Actions:                           *
   // ****************************************************************
